@@ -7,8 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.2.js"></script>
-  <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.2.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--c:#00e5ff;--b:#0088ff;--r:#ff2255;--o:#ff6600;--g:#00ff88;--bg:#01020c;--cd:#070f1e;--br:#0d2744;--t1:#e8f4ff;--t2:#5a8aaa;--t3:#1e3a55;--gl:#ffd200}
@@ -338,11 +336,14 @@ function startPay(){
   btn.textContent='Confirmar $'+chosenPack.price.toFixed(2);
   btn.onclick=confirmPay;
 }
-function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;if(window.__expEl){window.__expEl.destroy();window.__expEl=null;}if(window.__cvcEl){window.__cvcEl.destroy();window.__cvcEl=null;}['card-num','card-exp','card-cvc'].forEach(function(id){var el=document.getElementById(id);if(el)el.className='';});closeShop();alert('Metodo de pago recibido!\n\n'+total+' Almas seran acreditadas.\n\nPara cobro real necesitas el backend.');});}
+function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;if(window.__expEl){window.__expEl.destroy();window.__expEl=null;}if(window.__cvcEl){window.__cvcEl.destroy();window.__cvcEl=null;}['card-num','card-exp','card-cvc'].forEach(function(id){var el=document.getElementById(id);if(el)el.className='';});closeShop();var notif=document.createElement('div');
+    notif.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#070f1e,#0d1f35);border:1px solid var(--g);color:var(--g);font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;padding:16px 28px;border-radius:8px;z-index:9999;text-align:center;box-shadow:0 0 30px rgba(0,255,136,.3)';
+    notif.innerHTML='<span style="font-size:20px">&#128128;</span><br>'+total+' Almas procesadas!<br><span style="font-size:11px;color:var(--t2)">Metodo de pago recibido correctamente</span>';
+    document.body.appendChild(notif);
+    setTimeout(()=>notif.remove(),4000);});}
 
 
-var AGORA_APP_ID='97632de735ad497ebe68343d998b790a';
-var agoraClient=null,localVidTrack=null,localAudTrack=null,micOn=true,camOn=true,liveTimer=null,liveSeconds=0;
+var micOn=true,camOn=true,liveTimer=null,liveTimer2=null,liveSeconds=0;
 function openLive(){if(!currentUser){openAuth('login');return;}document.getElementById('liveModal').classList.add('open');}
 function closeLive(){stopLive();document.getElementById('liveModal').classList.remove('open');}
 async function startLive(){
@@ -405,7 +406,6 @@ async function stopLive(){
   if(vidDiv) vidDiv.innerHTML='';
   if(liveTimer){clearInterval(liveTimer);liveTimer=null;}
   if(liveTimer2){clearInterval(liveTimer2);liveTimer2=null;}
-  if(agoraClient){try{await agoraClient.leave();}catch(e){}}
   document.getElementById('liveSetup').style.display='flex';
   document.getElementById('liveCtrls').style.display='none';
   document.getElementById('liveBadge').style.display='none';

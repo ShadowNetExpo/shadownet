@@ -355,6 +355,7 @@ async function logout() { await sb.auth.signOut(); clearUser(); }
 </div>
 
 <script>
+var STRIPE_PK='pk_test_51TFkhFQr2AD2XzelHOV2DvNyfFFq3V6e0ee47FA9beg0NfsH7WEuUD3ay6vRpzaiJYNEXACRHB4qUPERY6A1JpjK00qn3RsrHi';
 var PACKS=[{s:100,b:0,price:0.99,label:'Iniciado'},{s:500,b:50,price:4.99,label:'Devoto'},{s:1200,b:200,price:9.99,label:'Acolito',hot:true},{s:2600,b:600,price:19.99,label:'Elegido'}];
 var chosenPack=null;
 function renderPacks(){
@@ -375,8 +376,50 @@ function choosePack(i){
 }
 function demoPayment(){
   if(!chosenPack)return;
-  document.getElementById('shopModal').style.display='none';
-  alert('MODO DEMO\n\n'+(chosenPack.s+chosenPack.b)+' Almas simuladas!\n\nPara pagos reales:\n1. dashboard.stripe.com\n2. Developers > API Keys\n3. Copia Publishable Key\n4. Configura backend');
+  var btn=document.getElementById('payBtn');
+  btn.disabled=true;
+  btn.textContent='Procesando...';
+  var stripe=Stripe(STRIPE_PK);
+  var elements=stripe.elements();
+  var card=elements.create('card',{style:{base:{color:'#e8f4ff',fontFamily:'Arial',fontSize:'15px','::placeholder':{color:'#1e3a55'}},invalid:{color:'#ff2255'}}});
+  var cardDiv=document.getElementById('card-el');
+  cardDiv.innerHTML='';
+  card.mount('#card-el');
+  document.getElementById('card-el').style.display='block';
+  btn.disabled=false;
+  btn.textContent='Confirmar pago 
+</script>
+
+<footer>
+  <p style="font-family:Orbitron,sans-serif;font-size:16px;color:#00e5ff;letter-spacing:.2em;margin-bottom:4px;text-align:center">SHADOWNET</p>
+  <p style="font-size:9px;color:#1e3a55;letter-spacing:.2em;text-transform:uppercase;text-align:center">Sin limites - Sin cadenas</p>
+  <ul style="display:flex;gap:24px;justify-content:center;margin:16px 0 12px;list-style:none;flex-wrap:wrap">
+    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Terminos</a></li>
+    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Privacidad</a></li>
+    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">+18 Legal</a></li>
+    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Soporte</a></li>
+  </ul>
+  <p style="font-size:10px;color:#1e3a55;text-align:center">2026 SHADOWNET Inc.</p>
+</footer>
+</body>
+</html>
++chosenPack.price.toFixed(2);
+  btn.onclick=async function(){
+    btn.disabled=true;
+    btn.textContent='Procesando...';
+    var res=await stripe.createPaymentMethod({type:'card',card:card});
+    if(res.error){
+      document.getElementById('card-err').textContent=res.error.message;
+      btn.disabled=false;
+      btn.textContent='Intentar de nuevo';
+      return;
+    }
+    // Payment method created - in production send to backend
+    var total=chosenPack.s+chosenPack.b;
+    document.getElementById('shopModal').style.display='none';
+    card.destroy();
+    alert('✅ Método de pago recibido!\n\n💀 '+total+' Almas.\n\nPara completar el cobro real necesitas un backend.\nContacta soporte@shadownet.app');
+  };
 }
 </script>
 

@@ -287,7 +287,7 @@
 <script>
 var SUPABASE_URL='https://cdokplvoqivducsqrejt.supabase.co';
 var SUPABASE_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-var STRIPE_PK='pk_test_51TFkhFQr2AD2XzelHOV2DvNyfFFq3V6e0ee47FA9beg0NfsH7WEuUD3ay6vRpzaiJYNEXACRHB4qUPERY6A1JpjK00qn3RsrHi';
+var STRIPE_PK='pk_live_51TFkgnQyXILkKK9a1UbYHbqNiwSXb1CJP1pAqDIItHnN3zpKFT7aW5AZNnE7eSCUfmbsjl8rLBISVbcpyMQ6fCis004FOpN49X';
 var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 var currentUser=null,stripe=null,cardEl=null,chosenPack=null;
 var PACKS=[{skulls:100,bonus:0,price:0.99,label:'Iniciado'},{skulls:500,bonus:50,price:4.99,label:'Devoto'},{skulls:1200,bonus:200,price:9.99,label:'Acolito',hot:true},{skulls:2600,bonus:600,price:19.99,label:'Elegido'}];
@@ -316,7 +316,7 @@ function renderPacks(){var g=document.getElementById('packGrid');g.innerHTML=PAC
 function pickPack(i){chosenPack=PACKS[i];for(var j=0;j<PACKS.length;j++){var el=document.getElementById('pk'+j);if(el)el.className='pack'+(PACKS[j].hot?' hot':'')+(j===i?' sel':'');}var total=chosenPack.skulls+(chosenPack.bonus||0);document.getElementById('payInfo').textContent='$'+chosenPack.price.toFixed(2)+' = '+total+' Almas';var btn=document.getElementById('payBtn');btn.disabled=false;btn.style.opacity='1';btn.textContent='Pagar $'+chosenPack.price.toFixed(2);btn.onclick=startPay;}
 function startPay(){
   if(!chosenPack)return;
-  if(!stripe){stripe=Stripe('pk_test_51TFkhFQr2AD2XzelHOV2DvNyfFFq3V6e0ee47FA9beg0NfsH7WEuUD3ay6vRpzaiJYNEXACRHB4qUPERY6A1JpjK00qn3RsrHi');}
+  if(!stripe){stripe=Stripe('pk_live_51TFkgnQyXILkKK9a1UbYHbqNiwSXb1CJP1pAqDIItHnN3zpKFT7aW5AZNnE7eSCUfmbsjl8rLBISVbcpyMQ6fCis004FOpN49X');}
   var s={style:{base:{color:'#e8f4ff',fontFamily:'Arial,sans-serif',fontSize:'15px','::placeholder':{color:'#1e3a55'}},invalid:{color:'#ff2255'}}};
   var numDiv=document.getElementById('card-num');
   var expDiv=document.getElementById('card-exp');

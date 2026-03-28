@@ -382,23 +382,11 @@ function toggleCam(){if(!localVidTrack)return;camOn=!camOn;localVidTrack.setEnab
       <div class="viewers-badge">&#128065; <span id="liveViewers">0</span></div>
     </div>
     <div class="live-setup" id="liveSetup">
-      <div style="font-size:48px;margin-bottom:16px">&#128250;</div>
-      <p style="font-family:Orbitron,sans-serif;font-size:18px;color:var(--c);margin-bottom:8px">Ir en vivo</p>
-      <p style="font-size:13px;color:var(--t2);margin-bottom:24px;line-height:1.7">Transmite en tiempo real a todos tus seguidores.<br>Gratis hasta 10,000 minutos/mes con Agora.</p>
-      <div style="background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);border-radius:10px;padding:20px;margin-bottom:20px;max-width:400px;text-align:left">
-        <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;color:var(--c);margin-bottom:10px">Para activar los lives necesitas:</p>
-        <p style="font-size:12px;color:var(--t2);line-height:2">
-          1&#65039;&#8419; Ve a <strong style="color:var(--t1)">console.agora.io</strong><br>
-          2&#65039;&#8419; Crea una cuenta gratis<br>
-          3&#65039;&#8419; Crea un proyecto "shadownet" en modo Live<br>
-          4&#65039;&#8419; Copia el <strong style="color:var(--t1)">App ID</strong><br>
-          5&#65039;&#8419; Pegalo en el chat con Claude
-        </p>
-      </div>
-      <button onclick="startLive()" class="btn bp" style="border-radius:8px;padding:14px 40px;font-size:14px;margin-bottom:16px">&#128250; Iniciar transmision</button>
-      <div id="agoraStatus" style="font-size:12px;color:var(--t2)">
-        Estado: Esperando App ID de Agora...
-      </div>
+      <div style="font-size:52px;margin-bottom:16px">&#128250;</div>
+      <p style="font-family:Orbitron,sans-serif;font-size:20px;color:var(--c);margin-bottom:8px;letter-spacing:.1em">IR EN VIVO</p>
+      <p style="font-size:14px;color:var(--t2);margin-bottom:28px;line-height:1.8;max-width:340px">Transmite en tiempo real a todos tus seguidores.<br>Gratis hasta 10,000 minutos al mes.</p>
+      <button onclick="startLive()" style="background:linear-gradient(135deg,var(--r),var(--o));color:#fff;border:none;border-radius:8px;padding:16px 48px;font-size:16px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;margin-bottom:14px">&#128250; INICIAR TRANSMISION</button>
+      <p id="liveStatus" style="font-size:12px;color:var(--g)">&#10003; Agora listo &mdash; 10,000 min gratis</p>
     </div>
   </div>
   <div class="live-controls" id="liveControls" style="display:none">

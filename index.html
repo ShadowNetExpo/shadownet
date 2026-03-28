@@ -95,8 +95,8 @@
     .pbonus{font-size:10px;color:var(--g)}
     .pprice{font-family:Orbitron,sans-serif;font-size:13px;color:var(--t1);margin-top:4px}
     .plabel{font-size:9px;color:var(--t2)}
-    #card-element{background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:14px;margin-bottom:8px;display:none}
-    #card-element.show{display:block}
+    #card-num,#card-exp,#card-cvc{transition:border-color .2s}
+    #card-num.show,#card-exp.show,#card-cvc.show{display:block}
     #card-error{color:var(--r);font-size:11px;min-height:14px;margin-bottom:8px}
     .payinfo{font-family:Orbitron,sans-serif;font-size:16px;color:var(--gl);text-align:center;margin-bottom:12px;min-height:22px}
     footer{background:rgba(4,9,22,.8);border-top:1px solid var(--br);padding:28px 20px;text-align:center}
@@ -146,7 +146,13 @@
     <p class="stitlesh">&#128128; COMPRAR ALMAS</p>
     <p style="font-size:12px;color:var(--t2);margin-bottom:4px">Envia regalos en los lives de tus creadores favoritos</p>
     <div class="pgrid" id="packGrid"></div>
-    <div id="card-element"></div>
+    <div style="margin-bottom:8px">
+      <div id="card-num" style="background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:12px;margin-bottom:6px;display:none"></div>
+      <div style="display:flex;gap:6px">
+        <div id="card-exp" style="flex:1;background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:12px;display:none"></div>
+        <div id="card-cvc" style="flex:1;background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:12px;display:none"></div>
+      </div>
+    </div>
     <p id="card-error"></p>
     <div class="payinfo" id="payInfo"></div>
     <button class="btn bp" id="payBtn" onclick="startPay()" disabled style="width:100%;padding:13px;font-size:13px;border-radius:8px;opacity:.5">Selecciona un paquete</button>
@@ -241,13 +247,37 @@ function setLoad(id,on){var b=document.getElementById(id);if(!b)return;b.disable
 function doRegister(){clearErrs();var u=document.getElementById('rUser').value.trim().replace(/[^a-zA-Z0-9_.]/g,'');var e=document.getElementById('rEmail').value.trim();var p=document.getElementById('rPass').value;var ok=true;if(!u||u.length<3){document.getElementById('rUserErr').textContent='Minimo 3 caracteres';ok=false;}if(!e||!e.includes('@')){document.getElementById('rEmailErr').textContent='Correo invalido';ok=false;}if(!p||p.length<8){document.getElementById('rPassErr').textContent='Minimo 8 caracteres';ok=false;}if(!ok)return;setLoad('rBtn',true);sb.auth.signUp({email:e,password:p,options:{data:{username:u}}}).then(function(r){setLoad('rBtn',false);if(r.error){document.getElementById('rEmailErr').textContent=r.error.message.includes('already')?'Correo ya registrado':r.error.message;return;}if(r.data.session){setUser(r.data.user);}else{var ok=document.getElementById('authOk');ok.textContent='Cuenta creada! Verifica tu email.';ok.style.display='block';}});}
 function doLogin(){clearErrs();var e=document.getElementById('lEmail').value.trim();var p=document.getElementById('lPass').value;if(!e||!p){document.getElementById('lErr').textContent='Completa todos los campos';return;}setLoad('lBtn',true);sb.auth.signInWithPassword({email:e,password:p}).then(function(r){setLoad('lBtn',false);if(r.error){document.getElementById('lErr').textContent='Correo o contrasena incorrectos';return;}setUser(r.data.user);});}
 function doLogout(){sb.auth.signOut();}
-function openShop(){if(!currentUser){openAuth('login');return;}chosenPack=null;cardEl=null;document.getElementById('shopModal').classList.add('open');renderPacks();document.getElementById('payInfo').textContent='';document.getElementById('card-element').className='';document.getElementById('card-element').innerHTML='';document.getElementById('card-error').textContent='';var btn=document.getElementById('payBtn');btn.disabled=true;btn.style.opacity='0.5';btn.textContent='Selecciona un paquete';btn.onclick=startPay;}
+function openShop(){if(!currentUser){openAuth('login');return;}chosenPack=null;cardEl=null;document.getElementById('shopModal').classList.add('open');renderPacks();document.getElementById('payInfo').textContent='';['card-num','card-exp','card-cvc'].forEach(function(id){var el=document.getElementById(id);if(el){el.style.display='none';el.innerHTML='';};});document.getElementById('card-error').textContent='';var btn=document.getElementById('payBtn');btn.disabled=true;btn.style.opacity='0.5';btn.textContent='Selecciona un paquete';btn.onclick=startPay;}
 function closeShop(){document.getElementById('shopModal').classList.remove('open');}
 document.getElementById('shopModal').addEventListener('click',function(e){if(e.target===this)closeShop();});
 function renderPacks(){var g=document.getElementById('packGrid');g.innerHTML=PACKS.map(function(p,i){return '<div class="pack'+(p.hot?' hot':'')+'" id="pk'+i+'" onclick="pickPack('+i+')">'+'<div class="pskulls">&#128128; '+p.skulls.toLocaleString()+'</div>'+(p.bonus>0?'<div class="pbonus">+'+p.bonus+' BONUS</div>':'<div style="height:14px"></div>')+'<div class="pprice">$'+p.price.toFixed(2)+'</div>'+'<div class="plabel">'+p.label+'</div>'+'</div>';}).join('');}
 function pickPack(i){chosenPack=PACKS[i];for(var j=0;j<PACKS.length;j++){var el=document.getElementById('pk'+j);if(el)el.className='pack'+(PACKS[j].hot?' hot':'')+(j===i?' sel':'');}var total=chosenPack.skulls+(chosenPack.bonus||0);document.getElementById('payInfo').textContent='$'+chosenPack.price.toFixed(2)+' = '+total+' Almas';var btn=document.getElementById('payBtn');btn.disabled=false;btn.style.opacity='1';btn.textContent='Pagar $'+chosenPack.price.toFixed(2);btn.onclick=startPay;}
-function startPay(){if(!chosenPack)return;if(!stripe){stripe=Stripe(STRIPE_PK);}var cardDiv=document.getElementById('card-element');if(!cardEl){var els=stripe.elements();cardEl=els.create('card',{hidePostalCode:true,style:{base:{color:'#e8f4ff',fontFamily:'Arial,sans-serif',fontSize:'15px','::placeholder':{color:'#1e3a55'}},invalid:{color:'#ff2255'}}});cardEl.mount('#card-element');cardEl.on('change',function(e){document.getElementById('card-error').textContent=e.error?e.error.message:'';});cardDiv.className='show';}var btn=document.getElementById('payBtn');btn.textContent='Confirmar $'+chosenPack.price.toFixed(2);btn.onclick=confirmPay;}
-function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;document.getElementById('card-element').className='';closeShop();alert('Metodo de pago recibido!\n\n'+total+' Almas seran acreditadas.\n\nPara cobro real necesitas el backend.');});}
+function startPay(){
+  if(!chosenPack)return;
+  if(!stripe){stripe=Stripe('pk_test_51TFkhFQr2AD2XzelHOV2DvNyfFFq3V6e0ee47FA9beg0NfsH7WEuUD3ay6vRpzaiJYNEXACRHB4qUPERY6A1JpjK00qn3RsrHi');}
+  var s={style:{base:{color:'#e8f4ff',fontFamily:'Arial,sans-serif',fontSize:'15px','::placeholder':{color:'#1e3a55'}},invalid:{color:'#ff2255'}}};
+  var numDiv=document.getElementById('card-num');
+  var expDiv=document.getElementById('card-exp');
+  var cvcDiv=document.getElementById('card-cvc');
+  if(!cardEl){
+    var els=stripe.elements();
+    cardEl=els.create('cardNumber',s);
+    cardEl.mount('#card-num');
+    var expEl=els.create('cardExpiry',s);
+    expEl.mount('#card-exp');
+    var cvcEl=els.create('cardCvc',s);
+    cvcEl.mount('#card-cvc');
+    window._exp=expEl; window._cvc=cvcEl;
+    [cardEl,expEl,cvcEl].forEach(function(e){e.on('change',function(ev){document.getElementById('card-error').textContent=ev.error?ev.error.message:'';});});
+    numDiv.style.display='block';
+    expDiv.style.display='block';
+    cvcDiv.style.display='block';
+  }
+  var btn=document.getElementById('payBtn');
+  btn.textContent='Confirmar $'+chosenPack.price.toFixed(2);
+  btn.onclick=confirmPay;
+}
+function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;if(window.__expEl){window.__expEl.destroy();window.__expEl=null;}if(window.__cvcEl){window.__cvcEl.destroy();window.__cvcEl=null;}['card-num','card-exp','card-cvc'].forEach(function(id){var el=document.getElementById(id);if(el)el.className='';});closeShop();alert('Metodo de pago recibido!\n\n'+total+' Almas seran acreditadas.\n\nPara cobro real necesitas el backend.');});}
 </script>
 </body>
 </html>

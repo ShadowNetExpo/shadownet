@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.2.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--c:#00e5ff;--b:#0088ff;--r:#ff2255;--o:#ff6600;--g:#00ff88;--bg:#01020c;--cd:#070f1e;--br:#0d2744;--t1:#e8f4ff;--t2:#5a8aaa;--t3:#1e3a55;--gl:#ffd200}
@@ -99,6 +100,24 @@
     #card-num.show,#card-exp.show,#card-cvc.show{display:block}
     #card-error{color:var(--r);font-size:11px;min-height:14px;margin-bottom:8px}
     .payinfo{font-family:Orbitron,sans-serif;font-size:16px;color:var(--gl);text-align:center;margin-bottom:12px;min-height:22px}
+
+    /* LIVES */
+    .live-btn{position:fixed;bottom:24px;right:24px;z-index:200;background:linear-gradient(135deg,var(--r),var(--o));color:#fff;border:none;border-radius:50%;width:60px;height:60px;font-size:22px;cursor:pointer;box-shadow:0 4px 20px rgba(255,34,85,.5);display:none;align-items:center;justify-content:center;transition:transform .2s}
+    .live-btn:hover{transform:scale(1.1)}
+    .live-bg{position:fixed;inset:0;background:#000;z-index:700;display:none;flex-direction:column}
+    .live-bg.open{display:flex}
+    .live-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;background:rgba(1,2,12,.8);border-bottom:1px solid var(--br)}
+    .live-title{font-family:Orbitron,sans-serif;font-size:14px;color:var(--r);letter-spacing:.1em}
+    .live-badge{background:var(--r);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:3px;letter-spacing:.1em;animation:pulse 1.5s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    .live-video{flex:1;position:relative;background:#000;display:flex;align-items:center;justify-content:center}
+    #localVideo,#remoteVideos{position:absolute;inset:0}
+    #localVideo video{width:100%;height:100%;object-fit:cover}
+    .live-overlay{position:absolute;inset:0;pointer-events:none}
+    .viewers-badge{position:absolute;top:16px;left:16px;background:rgba(1,2,12,.8);border:1px solid var(--br);color:var(--t1);font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;padding:6px 12px;border-radius:20px}
+    .live-controls{padding:16px 20px;background:rgba(1,2,12,.95);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .live-setup{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
+
     footer{background:rgba(4,9,22,.8);border-top:1px solid var(--br);padding:28px 20px;text-align:center}
     .flogo{font-family:Orbitron,sans-serif;font-size:16px;color:var(--c);letter-spacing:.2em;margin-bottom:4px}
     .flinks{display:flex;gap:20px;justify-content:center;margin:14px 0 10px;list-style:none;flex-wrap:wrap}
@@ -213,8 +232,11 @@
   </div>
   <div class="dinfo">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-      <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:var(--c)">&#128640; Proximas funciones</p>
+      <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:var(--c)">&#128640; Tu estudio</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
+      <button class="btn" onclick="openLive()" style="border-radius:6px;padding:8px 18px;font-size:12px;background:linear-gradient(135deg,#ff2255,#ff0000);color:#fff;border:none">&#128250; Ir en vivo</button>
+    </div>
     </div>
     <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.<br>Proximamente: Lives &middot; Regalos &middot; Feed &middot; Stripe &middot; KYC</p>
   </div>
@@ -279,5 +301,52 @@ function startPay(){
 }
 function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;if(window.__expEl){window.__expEl.destroy();window.__expEl=null;}if(window.__cvcEl){window.__cvcEl.destroy();window.__cvcEl=null;}['card-num','card-exp','card-cvc'].forEach(function(id){var el=document.getElementById(id);if(el)el.className='';});closeShop();alert('Metodo de pago recibido!\n\n'+total+' Almas seran acreditadas.\n\nPara cobro real necesitas el backend.');});}
 </script>
+
+
+<!-- LIVE MODAL -->
+<div class="live-bg" id="liveModal">
+  <div class="live-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="live-title">SHADOWNET LIVE</span>
+      <span class="live-badge" id="liveBadge" style="display:none">EN VIVO</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="viewerCount" style="font-size:12px;color:var(--t2)">0 espectadores</span>
+      <button onclick="closeLive()" style="background:rgba(255,34,85,.2);border:1px solid var(--r);color:var(--r);padding:6px 14px;border-radius:4px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer">Terminar</button>
+    </div>
+  </div>
+  <div class="live-video">
+    <div id="localVideo"></div>
+    <div id="remoteVideos"></div>
+    <div class="live-overlay">
+      <div class="viewers-badge">&#128065; <span id="liveViewers">0</span></div>
+    </div>
+    <div class="live-setup" id="liveSetup">
+      <div style="font-size:48px;margin-bottom:16px">&#128250;</div>
+      <p style="font-family:Orbitron,sans-serif;font-size:18px;color:var(--c);margin-bottom:8px">Ir en vivo</p>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:24px;line-height:1.7">Transmite en tiempo real a todos tus seguidores.<br>Gratis hasta 10,000 minutos/mes con Agora.</p>
+      <div style="background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);border-radius:10px;padding:20px;margin-bottom:20px;max-width:400px;text-align:left">
+        <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;color:var(--c);margin-bottom:10px">Para activar los lives necesitas:</p>
+        <p style="font-size:12px;color:var(--t2);line-height:2">
+          1&#65039;&#8419; Ve a <strong style="color:var(--t1)">console.agora.io</strong><br>
+          2&#65039;&#8419; Crea una cuenta gratis<br>
+          3&#65039;&#8419; Crea un proyecto "shadownet" en modo Live<br>
+          4&#65039;&#8419; Copia el <strong style="color:var(--t1)">App ID</strong><br>
+          5&#65039;&#8419; Pegalo en el chat con Claude
+        </p>
+      </div>
+      <button onclick="startLive()" class="btn bp" style="border-radius:8px;padding:14px 40px;font-size:14px;margin-bottom:16px">&#128250; Iniciar transmision</button>
+      <div id="agoraStatus" style="font-size:12px;color:var(--t2)">
+        Estado: Esperando App ID de Agora...
+      </div>
+    </div>
+  </div>
+  <div class="live-controls" id="liveControls" style="display:none">
+    <button id="micBtn" onclick="toggleMic()" style="background:rgba(0,229,255,.1);border:1px solid var(--c);color:var(--c);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#127908; Mic ON</button>
+    <button id="camBtn" onclick="toggleCam()" style="background:rgba(0,229,255,.1);border:1px solid var(--c);color:var(--c);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128247; Cam ON</button>
+    <div style="flex:1"></div>
+    <button onclick="openShop()" style="background:rgba(255,210,0,.1);border:1px solid var(--gl);color:var(--gl);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128128; Enviar regalo</button>
+  </div>
+</div>
 </body>
 </html>

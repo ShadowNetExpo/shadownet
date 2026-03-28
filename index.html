@@ -346,103 +346,73 @@ function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.g
 var micOn=true,camOn=true,liveTimer=null,liveTimer2=null,liveSeconds=0;
 function openLive(){if(!currentUser){openAuth('login');return;}document.getElementById('liveModal').classList.add('open');}
 function closeLive(){stopLive();document.getElementById('liveModal').classList.remove('open');}
-async function startLive(){
-  var st = document.getElementById('liveStatus');
-  if (!st) return;
-  st.textContent = 'Solicitando permiso de camara...';
-  st.style.color = 'var(--c)';
+function startLive(){
+  if(!window.currentUser){openAuth('login');return;}
 
-  // Verificar soporte
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    st.textContent = 'Tu navegador no soporta camara. Usa Chrome o Safari.';
-    st.style.color = 'var(--r)';
-    return;
-  }
+  var st=document.getElementById('liveStatus');
+  if(st){st.textContent='Activando camara...';st.style.color='var(--c)';}
 
-  try {
-    // Primero solo video para iOS (mas compatible)
-    var stream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    } catch(e1) {
-      // Si falla con audio, intentar solo video
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      } catch(e2) {
-        throw e2;
+  // .then()/.catch() preserva el user-gesture en iOS Safari
+  // async/await lo pierde en versiones anteriores de iOS
+  navigator.mediaDevices.getUserMedia({video:true,audio:true})
+    .then(function(stream){
+      window._liveStream=stream;
+
+      // Montar video
+      var vidDiv=document.getElementById('localVid');
+      if(!vidDiv) return;
+      vidDiv.innerHTML='';
+      var vid=document.createElement('video');
+      vid.srcObject=stream;
+      vid.autoplay=true;
+      vid.muted=true;
+      vid.setAttribute('playsinline','');
+      vid.setAttribute('webkit-playsinline','');
+      vid.style.cssText='width:100%;height:100%;object-fit:cover;position:absolute;inset:0;background:#000';
+      vidDiv.appendChild(vid);
+      vid.play().catch(function(){});
+
+      // Mostrar controles
+      document.getElementById('liveSetup').style.display='none';
+      document.getElementById('liveCtrls').style.display='flex';
+      document.getElementById('liveBadge').style.display='inline-block';
+
+      // Timer
+      liveSeconds=0;
+      if(liveTimer) clearInterval(liveTimer);
+      liveTimer=setInterval(function(){
+        liveSeconds++;
+        var m=Math.floor(liveSeconds/60),s=liveSeconds%60;
+        var el=document.getElementById('liveTime');
+        if(el) el.textContent=(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+      },1000);
+
+      // Guardar en BD
+      if(window.currentUser && window.sb){
+        window.sb.from('live_streams').insert({
+          host_id:currentUser.id,
+          title:'Live',
+          is_active:true,
+          started_at:new Date().toISOString()
+        }).then(function(){}).catch(function(){});
       }
-    }
-
-    window._liveStream = stream;
-
-    // Crear elemento video compatible con iOS
-    var vidDiv = document.getElementById('localVid');
-    if (!vidDiv) return;
-    vidDiv.innerHTML = '';
-
-    var vid = document.createElement('video');
-    // Atributos criticos para iOS Safari
-    vid.setAttribute('autoplay', '');
-    vid.setAttribute('muted', '');
-    vid.setAttribute('playsinline', ''); // SIN esto iOS no muestra video
-    vid.setAttribute('webkit-playsinline', ''); // Para iOS mas antiguo
-    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0';
-    vid.srcObject = stream;
-    vidDiv.appendChild(vid);
-
-    // Forzar reproduccion
-    var playPromise = vid.play();
-    if (playPromise) {
-      playPromise.catch(function(err) {
-        // Silenciar error de autoplay — el video igual aparece
-        console.log('autoplay:', err.message);
-      });
-    }
-
-    // Mostrar controles y ocultar setup
-    document.getElementById('liveSetup').style.display = 'none';
-    document.getElementById('liveCtrls').style.display = 'flex';
-    document.getElementById('liveBadge').style.display = 'inline-block';
-
-    // Timer
-    liveSeconds = 0;
-    if (liveTimer) clearInterval(liveTimer);
-    liveTimer = setInterval(function(){
-      liveSeconds++;
-      var m = Math.floor(liveSeconds / 60);
-      var s = liveSeconds % 60;
-      var el = document.getElementById('liveTime');
-      if (el) el.textContent = (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s);
-    }, 1000);
-
-    // Guardar en BD
-    if (window.currentUser) {
-      window.sb && window.sb.from('live_streams').insert({
-        host_id: currentUser.id,
-        title: 'Live de ' + (document.getElementById('dashUser')?.textContent || '@usuario'),
-        is_active: true,
-        started_at: new Date().toISOString()
-      }).then(function(){});
-    }
-
-  } catch(err) {
-    var msg;
-    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-      msg = 'Permiso denegado. Ve a Ajustes > Safari > Camara y activa el permiso.';
-    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-      msg = 'No se encontro camara en este dispositivo.';
-    } else if (err.name === 'NotReadableError') {
-      msg = 'La camara esta siendo usada por otra app. Cierrala e intenta de nuevo.';
-    } else if (err.name === 'OverconstrainedError') {
-      msg = 'Camara no compatible. Intenta con otro dispositivo.';
-    } else {
-      msg = 'Error: ' + err.message;
-    }
-    st.textContent = msg;
-    st.style.color = 'var(--r)';
-  }
+    })
+    .catch(function(err){
+      var msg='';
+      if(err.name==='NotAllowedError'||err.name==='PermissionDeniedError'){
+        msg='Permiso denegado. Ve a Ajustes > Safari > Camara y permite el acceso.';
+      } else if(err.name==='NotFoundError'){
+        msg='No se encontro camara en este dispositivo.';
+      } else if(err.name==='NotReadableError'){
+        msg='La camara esta ocupada por otra app. Cierrala e intenta de nuevo.';
+      } else {
+        msg='Error al activar camara: '+err.message;
+      }
+      var s=document.getElementById('liveStatus');
+      if(s){s.textContent=msg;s.style.color='var(--r)';}
+    });
 }
-async function stopLive(){
+function stopLive(){
   if (window._liveStream) {
     window._liveStream.getTracks().forEach(function(t){ t.stop(); });
     window._liveStream = null;

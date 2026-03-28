@@ -161,7 +161,29 @@
     .flinks a{font-size:11px;color:var(--t2);text-decoration:none;letter-spacing:.1em}
     .flinks a:hover{color:var(--c)}
     @media(max-width:600px){nav{padding:12px 16px}.steps{grid-template-columns:1fr}.step{border-right:none;border-bottom:1px solid var(--br)}.step:last-child{border-bottom:none}}
-  </style>
+  
+/* Face ID / WebAuthn */
+.biometric-btn{width:100%;padding:11px;background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,200,.1));border:1px solid rgba(0,229,255,.4);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;margin-top:8px;transition:all .2s}
+.biometric-btn:hover{background:linear-gradient(135deg,rgba(0,229,255,.25),rgba(0,100,200,.2));border-color:#00e5ff}
+.biometric-btn:disabled{opacity:.4;cursor:not-allowed}
+/* KYC Section */
+.kyc-section{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:20px;margin-top:16px}
+.kyc-title{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.kyc-status{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.06em}
+.kyc-unverified{background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.kyc-pending{background:rgba(0,229,255,.15);color:#00e5ff;border:1px solid rgba(0,229,255,.3)}
+.kyc-verified{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid rgba(0,255,136,.3)}
+.kyc-upload-row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.kyc-upload-box{flex:1;min-width:140px;background:rgba(1,2,12,.5);border:2px dashed #0d2744;border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;overflow:hidden}
+.kyc-upload-box:hover{border-color:#00e5ff}
+.kyc-upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.kyc-upload-icon{font-size:28px;margin-bottom:6px}
+.kyc-upload-label{font-size:11px;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.kyc-upload-done{font-size:11px;color:#00ff88;margin-top:4px}
+.kyc-submit-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00e5ff,#0080ff);color:#000;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
+.kyc-submit-btn:disabled{opacity:.4;cursor:not-allowed}
+.verified-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em}
+</style>
 </head>
 <body>
 <nav>
@@ -192,8 +214,40 @@
       <div class="fg"><label class="fl">Correo</label><input class="fi" id="lEmail" type="email" placeholder="tu@correo.com"></div>
       <div class="fg"><label class="fl">Contrasena</label><input class="fi" id="lPass" type="password" placeholder="Tu contrasena"><p class="ferr" id="lErr"></p></div>
       <button class="btn bp" id="lBtn" onclick="doLogin()" style="width:100%;padding:14px;font-size:14px;border-radius:8px">Iniciar sesion</button>
+<button class="biometric-btn" id="faceIdLoginBtn" onclick="loginWithFaceId()" style="display:none">&#128274; Acceder con Face ID / Huella</button>
     </div>
     <p style="text-align:center;font-size:10px;color:var(--t3);margin-top:14px">Al registrarte confirmas que tienes +18 anos.</p>
+  </div>
+</div>
+<!-- KYC Verification Section -->
+<div class="kyc-section" id="kycSection" style="display:none">
+  <div class="kyc-title">
+    &#128274; VERIFICACIÓN DE CUENTA
+    <span class="kyc-status kyc-unverified" id="kycBadge">SIN VERIFICAR</span>
+  </div>
+  <div id="kycContent">
+    <p style="font-size:12px;color:#5a8aaa;margin-bottom:14px;line-height:1.6">
+      Verifica tu identidad para obtener la insignia &#10003; verificado y acceso total de creador.
+      Sube foto de tu DNI/Pasaporte y una selfie sosteniéndolo.
+    </p>
+    <div class="kyc-upload-row">
+      <div class="kyc-upload-box">
+        <input type="file" id="docFile" accept="image/*" onchange="kycFileSelected('doc')" capture="environment">
+        <div class="kyc-upload-icon">&#128196;</div>
+        <div class="kyc-upload-label">DNI / Pasaporte</div>
+        <div class="kyc-upload-done" id="docDone" style="display:none">&#10003; Listo</div>
+      </div>
+      <div class="kyc-upload-box">
+        <input type="file" id="selfieFile" accept="image/*" onchange="kycFileSelected('selfie')" capture="user">
+        <div class="kyc-upload-icon">&#129315;</div>
+        <div class="kyc-upload-label">Selfie con documento</div>
+        <div class="kyc-upload-done" id="selfieDone" style="display:none">&#10003; Listo</div>
+      </div>
+    </div>
+    <button class="kyc-submit-btn" id="kycSubmitBtn" onclick="submitKyc()" disabled>
+      &#128228; ENVIAR PARA VERIFICACIÓN
+    </button>
+    <p id="kycMsg" style="font-size:11px;color:#00ff88;margin-top:8px;display:none"></p>
   </div>
 </div>
 <div class="sbg" id="shopModal">
@@ -273,6 +327,7 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
         <button onclick="window.location.href='/live.html'" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128308; Ir en vivo</button>
+<button onclick="openKyc()" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff;font-size:11px;padding:8px 14px">&#128274; Verificar cuenta</button>
       </div>
     </div>
     <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.<br>Proximamente: Regalos &middot; Feed &middot; KYC</p>
@@ -297,7 +352,9 @@ window.addEventListener('DOMContentLoaded',function(){
   if(lm) lm.classList.remove('open');sb.auth.getSession().then(function(r){if(r.data.session)setUser(r.data.session.user);});loadCount();});
 sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)setUser(session.user);if(evt==='SIGNED_OUT')clearUser();});
 function loadCount(){sb.from('profiles').select('*',{count:'exact',head:true}).then(function(r){if(r.count!==null){var el=document.getElementById('statUsers');if(el)el.textContent=r.count>=1000?(r.count/1000).toFixed(1)+'K':r.count;}});}
-function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{};document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex';closeAuth();});}
+function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{};document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
+    offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex';
+    loadKycStatus();closeAuth();});}
 function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none';}
 function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
 function openAuth(t){document.getElementById('authModal').classList.add('open');switchTab(t==='login'?'l':'r');document.getElementById('authOk').style.display='none';}
@@ -472,6 +529,221 @@ function toggleCam(){
   var b=document.getElementById('camBtn');
   if(b){b.textContent=camOn?'&#128247; Cam ON':'&#128247; Cam OFF';b.className='lbtn'+(camOn?'':' off');}
 }
+
+// =============================================
+// FEATURE A: WebAuthn (Face ID / Touch ID)
+// =============================================
+var _webAuthnCredId = localStorage.getItem('sn_credential_id');
+
+// Show Face ID button if WebAuthn is supported and credential exists
+function initFaceIdBtn(){
+  var btn = document.getElementById('faceIdLoginBtn');
+  if(!btn) return;
+  if(window.PublicKeyCredential && _webAuthnCredId){
+    btn.style.display = 'block';
+  }
+}
+
+// Register Face ID after first login
+async function registerFaceId(){
+  if(!window.PublicKeyCredential || !window.currentUser) return;
+  try{
+    var challenge = new Uint8Array(32);
+    window.crypto.getRandomValues(challenge);
+    var userId = new TextEncoder().encode(window.currentUser.id);
+    var cred = await navigator.credentials.create({
+      publicKey:{
+        challenge: challenge,
+        rp: { name: 'SHADOWNET', id: location.hostname },
+        user: { id: userId, name: window.currentUser.email, displayName: window.currentUser.email },
+        pubKeyCredParams: [{alg:-7,type:'public-key'},{alg:-257,type:'public-key'}],
+        authenticatorSelection: { authenticatorAttachment:'platform', userVerification:'required' },
+        timeout: 60000
+      }
+    });
+    if(cred){
+      var credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+      localStorage.setItem('sn_credential_id', credId);
+      _webAuthnCredId = credId;
+      // Save to Supabase
+      if(window.sb && window.currentUser){
+        window.sb.from('webauthn_credentials').upsert({
+          user_id: window.currentUser.id,
+          credential_id: credId,
+          public_key: btoa(JSON.stringify({type:cred.type})),
+          counter: 0
+        }).then(function(){});
+        window.sb.from('profiles').update({webauthn_credential_id:credId}).eq('id',window.currentUser.id).then(function(){});
+      }
+      showToast('\u{1F512} Face ID activado correctamente');
+    }
+  }catch(e){
+    if(e.name!=='NotAllowedError') console.log('WebAuthn register error:',e.message);
+  }
+}
+
+// Login with Face ID
+function loginWithFaceId(){
+  if(!window.PublicKeyCredential||!_webAuthnCredId){ return; }
+  var btn = document.getElementById('faceIdLoginBtn');
+  if(btn){ btn.disabled=true; btn.textContent='\u{1F50D} Verificando...'; }
+  var challenge = new Uint8Array(32);
+  window.crypto.getRandomValues(challenge);
+  var credIdBytes = Uint8Array.from(atob(_webAuthnCredId), function(c){ return c.charCodeAt(0); });
+  navigator.credentials.get({
+    publicKey:{
+      challenge: challenge,
+      allowCredentials:[{id:credIdBytes,type:'public-key'}],
+      userVerification:'required',
+      timeout:60000
+    }
+  }).then(function(assertion){
+    // Get user from Supabase by credential ID
+    if(window.sb){
+      window.sb.from('webauthn_credentials').select('user_id').eq('credential_id',_webAuthnCredId).single()
+        .then(function(r){
+          if(r.data){
+            // Get full user session via magic link fallback or mark as biometric authenticated
+            window.sb.from('profiles').select('*').eq('id',r.data.user_id).single()
+              .then(function(p){
+                if(p.data){
+                  window._biometricUserId = r.data.user_id;
+                  // Sign in silently using stored session
+                  window.sb.auth.getSession().then(function(sess){
+                    if(sess.data.session){
+                      setUser(sess.data.session.user);
+                    } else {
+                      // Session expired - show password prompt
+                      showToast('Sesión expirada. Ingresa tu contraseña.');
+                    }
+                  });
+                }
+              });
+          }
+        });
+    }
+    if(btn){ btn.disabled=false; btn.innerHTML='\u{1F512} Acceder con Face ID / Huella'; }
+  }).catch(function(e){
+    if(btn){ btn.disabled=false; btn.innerHTML='\u{1F512} Acceder con Face ID / Huella'; }
+    if(e.name!=='NotAllowedError') console.log('WebAuthn login error:',e.message);
+  });
+}
+
+// Show Face ID registration prompt after login
+function offerFaceIdRegistration(){
+  if(!window.PublicKeyCredential) return;
+  if(_webAuthnCredId) return; // Already registered
+  setTimeout(function(){
+    if(confirm('\u{1F512} ¿Activar Face ID / Huella para iniciar sesión más rápido?')){
+      registerFaceId();
+    }
+  }, 1500);
+}
+
+// =============================================
+// FEATURE B: KYC Verification
+// =============================================
+var _kycDocFile = null;
+var _kycSelfieFile = null;
+
+function openKyc(){
+  var section = document.getElementById('kycSection');
+  if(!section) return;
+  section.style.display = section.style.display==='none'?'block':'none';
+  if(section.style.display==='block') loadKycStatus();
+}
+
+function loadKycStatus(){
+  if(!window.sb||!window.currentUser) return;
+  window.sb.from('profiles').select('verification_status,doc_url,selfie_url').eq('id',window.currentUser.id).single()
+    .then(function(r){
+      if(!r.data) return;
+      var status = r.data.verification_status || 'unverified';
+      var badge = document.getElementById('kycBadge');
+      var content = document.getElementById('kycContent');
+      var kycSection = document.getElementById('kycSection');
+      if(badge){
+        badge.className = 'kyc-status';
+        if(status==='unverified'){ badge.classList.add('kyc-unverified'); badge.textContent='SIN VERIFICAR'; }
+        else if(status==='pending'){ badge.classList.add('kyc-pending'); badge.textContent='\u{23F3} PENDIENTE'; }
+        else if(status==='verified'){ badge.classList.add('kyc-verified'); badge.textContent='\u{2713} VERIFICADO'; }
+      }
+      if(status==='verified' && content){
+        content.innerHTML='<p style="color:#00ff88;font-size:13px;text-align:center;padding:16px">\u{2705} Tu cuenta está verificada. Insignia activada.</p>';
+        // Show verified badge in dashboard
+        var dashUser = document.getElementById('dashUser');
+        if(dashUser && !dashUser.nextSibling?.classList?.contains('verified-badge')){
+          var badgeEl = document.createElement('span');
+          badgeEl.className='verified-badge';
+          badgeEl.innerHTML='\u{2713} VERIFICADO';
+          badgeEl.style.marginLeft='8px';
+          dashUser.parentNode.insertBefore(badgeEl, dashUser.nextSibling);
+        }
+      } else if(status==='pending' && content){
+        content.innerHTML='<p style="color:#00e5ff;font-size:13px;text-align:center;padding:16px">\u{23F3} Tu solicitud está siendo revisada. Te notificaremos pronto.</p>';
+      }
+    });
+}
+
+function kycFileSelected(type){
+  var input = document.getElementById(type==='doc'?'docFile':'selfieFile');
+  var doneEl = document.getElementById(type==='doc'?'docDone':'selfieDone');
+  var box = input?.parentElement;
+  if(input && input.files[0]){
+    if(type==='doc') _kycDocFile = input.files[0];
+    else _kycSelfieFile = input.files[0];
+    if(doneEl) doneEl.style.display='block';
+    if(box) box.style.borderColor='#00ff88';
+  }
+  // Enable submit if both files selected
+  var submitBtn = document.getElementById('kycSubmitBtn');
+  if(submitBtn) submitBtn.disabled = !(_kycDocFile && _kycSelfieFile);
+}
+
+async function submitKyc(){
+  if(!_kycDocFile||!_kycSelfieFile||!window.currentUser||!window.sb) return;
+  var btn = document.getElementById('kycSubmitBtn');
+  var msg = document.getElementById('kycMsg');
+  btn.disabled=true; btn.textContent='Subiendo...';
+  try{
+    var uid = window.currentUser.id;
+    var ts = Date.now();
+    // Upload doc photo
+    var docPath = 'kyc/'+uid+'/doc_'+ts+'.jpg';
+    var selfPath = 'kyc/'+uid+'/selfie_'+ts+'.jpg';
+    var docUp = await window.sb.storage.from('documents').upload(docPath, _kycDocFile, {upsert:true});
+    var selfUp = await window.sb.storage.from('documents').upload(selfPath, _kycSelfieFile, {upsert:true});
+    if(docUp.error||selfUp.error){
+      throw new Error(docUp.error?.message||selfUp.error?.message);
+    }
+    // Get public URLs
+    var docUrl = window.sb.storage.from('documents').getPublicUrl(docPath).data.publicUrl;
+    var selfUrl = window.sb.storage.from('documents').getPublicUrl(selfPath).data.publicUrl;
+    // Update profile
+    await window.sb.from('profiles').update({
+      verification_status:'pending',
+      verification_submitted_at: new Date().toISOString(),
+      doc_url: docUrl,
+      selfie_url: selfUrl
+    }).eq('id', uid);
+    // Show success
+    if(msg){ msg.textContent='\u{2713} Solicitud enviada. Revisaremos en 24-48h.'; msg.style.display='block'; }
+    btn.textContent='\u{2713} Enviado';
+    // Refresh status
+    setTimeout(loadKycStatus, 1000);
+  }catch(e){
+    btn.disabled=false; btn.textContent='\u{1F4E4} ENVIAR PARA VERIFICACIÓN';
+    if(msg){ msg.textContent='Error: '+e.message; msg.style.color='#ff2255'; msg.style.display='block'; }
+  }
+}
+
+// Hook into existing login flow
+var _origSetUser = typeof setUser==='function' ? setUser : null;
+
+// Initialize on DOMContentLoaded
+window.addEventListener('DOMContentLoaded', function(){
+  initFaceIdBtn();
+});
 </script>
 
 

@@ -314,30 +314,78 @@ function closeShop(){document.getElementById('shopModal').classList.remove('open
 document.getElementById('shopModal').addEventListener('click',function(e){if(e.target===this)closeShop();});
 function renderPacks(){var g=document.getElementById('packGrid');g.innerHTML=PACKS.map(function(p,i){return '<div class="pack'+(p.hot?' hot':'')+'" id="pk'+i+'" onclick="pickPack('+i+')">'+'<div class="pskulls">&#128128; '+p.skulls.toLocaleString()+'</div>'+(p.bonus>0?'<div class="pbonus">+'+p.bonus+' BONUS</div>':'<div style="height:14px"></div>')+'<div class="pprice">$'+p.price.toFixed(2)+'</div>'+'<div class="plabel">'+p.label+'</div>'+'</div>';}).join('');}
 function pickPack(i){chosenPack=PACKS[i];for(var j=0;j<PACKS.length;j++){var el=document.getElementById('pk'+j);if(el)el.className='pack'+(PACKS[j].hot?' hot':'')+(j===i?' sel':'');}var total=chosenPack.skulls+(chosenPack.bonus||0);document.getElementById('payInfo').textContent='$'+chosenPack.price.toFixed(2)+' = '+total+' Almas';var btn=document.getElementById('payBtn');btn.disabled=false;btn.style.opacity='1';btn.textContent='Pagar $'+chosenPack.price.toFixed(2);btn.onclick=startPay;}
-function startPay(){
-  if(!chosenPack)return;
-  if(!stripe){stripe=Stripe('pk_live_51TFkgnQyXILkKK9a1UbYHbqNiwSXb1CJP1pAqDIItHnN3zpKFT7aW5AZNnE7eSCUfmbsjl8rLBISVbcpyMQ6fCis004FOpN49X');}
-  var s={style:{base:{color:'#e8f4ff',fontFamily:'Arial,sans-serif',fontSize:'15px','::placeholder':{color:'#1e3a55'}},invalid:{color:'#ff2255'}}};
-  var numDiv=document.getElementById('card-num');
-  var expDiv=document.getElementById('card-exp');
-  var cvcDiv=document.getElementById('card-cvc');
-  if(!cardEl){
-    var els=stripe.elements();
-    cardEl=els.create('cardNumber',s);
-    cardEl.mount('#card-num');
-    var expEl=els.create('cardExpiry',s);
-    expEl.mount('#card-exp');
-    var cvcEl=els.create('cardCvc',s);
-    cvcEl.mount('#card-cvc');
-    window._exp=expEl; window._cvc=cvcEl;
-    [cardEl,expEl,cvcEl].forEach(function(e){e.on('change',function(ev){document.getElementById('card-error').textContent=ev.error?ev.error.message:'';});});
-    numDiv.style.display='block';
-    expDiv.style.display='block';
-    cvcDiv.style.display='block';
-  }
+async function startPay(){
+  var errEl=document.getElementById('card-error');
   var btn=document.getElementById('payBtn');
-  btn.textContent='Confirmar $'+chosenPack.price.toFixed(2);
-  btn.onclick=confirmPay;
+  var info=document.getElementById('payInfo');
+  if(!errEl||!btn) return;
+  errEl.textContent='';
+  btn.disabled=true;
+  btn.textContent='Procesando...';
+
+  try {
+    // 1. Crear Payment Intent en el backend
+    info.textContent='Iniciando pago...';
+    var packId=window._selectedPack||'p1';
+    var userId=window.currentUser?.id||'';
+    if(!userId){errEl.textContent='Debes iniciar sesion';btn.disabled=false;btn.textContent='Pagar';return;}
+
+    var backendRes=await fetch('/api/pay',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({packId:packId,userId:userId})
+    });
+    var backendData=await backendRes.json();
+    if(backendData.error){errEl.textContent=backendData.error;btn.disabled=false;btn.textContent='Pagar';return;}
+
+    var clientSecret=backendData.clientSecret;
+
+    // 2. Confirmar el pago con la tarjeta
+    info.textContent='Confirmando pago...';
+    var cardNum=document.getElementById('card-num');
+    var cardExp=document.getElementById('card-exp');
+    var cardCvc=document.getElementById('card-cvc');
+
+    // Crear PaymentMethod
+    var pmResult=await window._stripe.createPaymentMethod({
+      type:'card',
+      card:{
+        number:cardNum?.value?.replace(/\s/g,''),
+        exp_month:parseInt((cardExp?.value||'').split('/')[0]),
+        exp_year:parseInt('20'+(cardExp?.value||'').split('/')[1]),
+        cvc:cardCvc?.value
+      }
+    });
+
+    if(pmResult.error){errEl.textContent=pmResult.error.message;btn.disabled=false;btn.textContent='Pagar';return;}
+
+    // 3. Confirmar el PaymentIntent
+    var confirmResult=await window._stripe.confirmCardPayment(clientSecret,{
+      payment_method:pmResult.paymentMethod.id
+    });
+
+    if(confirmResult.error){
+      errEl.textContent=confirmResult.error.message;
+      btn.disabled=false;
+      btn.textContent='Pagar';
+    } else if(confirmResult.paymentIntent.status==='succeeded'){
+      // Pago exitoso - el webhook acreditara las Almas automaticamente
+      info.textContent='';
+      closeShop();
+      // Refresh coins after short delay
+      setTimeout(async function(){
+        if(window.sb&&window.currentUser){
+          var r=await window.sb.from('profiles').select('coins_balance').eq('id',window.currentUser.id).single();
+          if(r.data) document.getElementById('dashCoins').textContent=r.data.coins_balance||0;
+        }
+        showToast('Almas acreditadas correctamente!');
+      },3000);
+    }
+  } catch(err){
+    errEl.textContent='Error: '+err.message;
+    btn.disabled=false;
+    btn.textContent='Pagar';
+  }
 }
 function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;if(window.__expEl){window.__expEl.destroy();window.__expEl=null;}if(window.__cvcEl){window.__cvcEl.destroy();window.__cvcEl=null;}['card-num','card-exp','card-cvc'].forEach(function(id){var el=document.getElementById(id);if(el)el.className='';});closeShop();var notif=document.createElement('div');
     notif.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#070f1e,#0d1f35);border:1px solid var(--g);color:var(--g);font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;padding:16px 28px;border-radius:8px;z-index:9999;text-align:center;box-shadow:0 0 30px rgba(0,255,136,.3)';

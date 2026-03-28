@@ -291,7 +291,10 @@ var STRIPE_PK='pk_test_51TFkhFQr2AD2XzelHOV2DvNyfFFq3V6e0ee47FA9beg0NfsH7WEuUD3a
 var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 var currentUser=null,stripe=null,cardEl=null,chosenPack=null;
 var PACKS=[{skulls:100,bonus:0,price:0.99,label:'Iniciado'},{skulls:500,bonus:50,price:4.99,label:'Devoto'},{skulls:1200,bonus:200,price:9.99,label:'Acolito',hot:true},{skulls:2600,bonus:600,price:19.99,label:'Elegido'}];
-window.addEventListener('DOMContentLoaded',function(){sb.auth.getSession().then(function(r){if(r.data.session)setUser(r.data.session.user);});loadCount();});
+window.addEventListener('DOMContentLoaded',function(){
+  // Asegurar que modales están cerrados al cargar
+  var lm=document.getElementById('liveModal');
+  if(lm) lm.classList.remove('open');sb.auth.getSession().then(function(r){if(r.data.session)setUser(r.data.session.user);});loadCount();});
 sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)setUser(session.user);if(evt==='SIGNED_OUT')clearUser();});
 function loadCount(){sb.from('profiles').select('*',{count:'exact',head:true}).then(function(r){if(r.count!==null){var el=document.getElementById('statUsers');if(el)el.textContent=r.count>=1000?(r.count/1000).toFixed(1)+'K':r.count;}});}
 function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{};document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex';closeAuth();});}

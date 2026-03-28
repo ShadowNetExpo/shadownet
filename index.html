@@ -318,73 +318,45 @@ async function startPay(){
   var errEl=document.getElementById('card-error');
   var btn=document.getElementById('payBtn');
   var info=document.getElementById('payInfo');
-  if(!errEl||!btn) return;
   errEl.textContent='';
   btn.disabled=true;
   btn.textContent='Procesando...';
-
-  try {
+  try{
     // 1. Crear Payment Intent en el backend
-    info.textContent='Iniciando pago...';
+    info.textContent='Iniciando...';
     var packId=window._selectedPack||'p1';
-    var userId=window.currentUser?.id||'';
+    var userId=window.currentUser&&window.currentUser.id;
     if(!userId){errEl.textContent='Debes iniciar sesion';btn.disabled=false;btn.textContent='Pagar';return;}
-
-    var backendRes=await fetch('/api/pay',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({packId:packId,userId:userId})
-    });
-    var backendData=await backendRes.json();
-    if(backendData.error){errEl.textContent=backendData.error;btn.disabled=false;btn.textContent='Pagar';return;}
-
-    var clientSecret=backendData.clientSecret;
-
-    // 2. Confirmar el pago con la tarjeta
-    info.textContent='Confirmando pago...';
+    var res=await fetch('/api/pay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({packId:packId,userId:userId})});
+    var data=await res.json();
+    if(data.error){errEl.textContent=data.error;btn.disabled=false;btn.textContent='Pagar';return;}
+    // 2. Confirmar pago con tarjeta
+    info.textContent='Confirmando...';
     var cardNum=document.getElementById('card-num');
     var cardExp=document.getElementById('card-exp');
     var cardCvc=document.getElementById('card-cvc');
-
-    // Crear PaymentMethod
-    var pmResult=await window._stripe.createPaymentMethod({
-      type:'card',
-      card:{
-        number:cardNum?.value?.replace(/\s/g,''),
-        exp_month:parseInt((cardExp?.value||'').split('/')[0]),
-        exp_year:parseInt('20'+(cardExp?.value||'').split('/')[1]),
-        cvc:cardCvc?.value
-      }
-    });
-
-    if(pmResult.error){errEl.textContent=pmResult.error.message;btn.disabled=false;btn.textContent='Pagar';return;}
-
-    // 3. Confirmar el PaymentIntent
-    var confirmResult=await window._stripe.confirmCardPayment(clientSecret,{
-      payment_method:pmResult.paymentMethod.id
-    });
-
-    if(confirmResult.error){
-      errEl.textContent=confirmResult.error.message;
-      btn.disabled=false;
-      btn.textContent='Pagar';
-    } else if(confirmResult.paymentIntent.status==='succeeded'){
-      // Pago exitoso - el webhook acreditara las Almas automaticamente
+    var expParts=(cardExp.value||'').split('/');
+    var pm=await window._stripe.createPaymentMethod({type:'card',card:{number:cardNum.value.replace(/\s/g,''),exp_month:parseInt(expParts[0]),exp_year:parseInt('20'+expParts[1]),cvc:cardCvc.value}});
+    if(pm.error){errEl.textContent=pm.error.message;btn.disabled=false;btn.textContent='Pagar';return;}
+    var confirm=await window._stripe.confirmCardPayment(data.clientSecret,{payment_method:pm.paymentMethod.id});
+    if(confirm.error){
+      errEl.textContent=confirm.error.message;
+      btn.disabled=false;btn.textContent='Pagar';
+    } else if(confirm.paymentIntent.status==='succeeded'){
       info.textContent='';
       closeShop();
-      // Refresh coins after short delay
       setTimeout(async function(){
         if(window.sb&&window.currentUser){
           var r=await window.sb.from('profiles').select('coins_balance').eq('id',window.currentUser.id).single();
-          if(r.data) document.getElementById('dashCoins').textContent=r.data.coins_balance||0;
+          if(r.data){document.getElementById('dashCoins').textContent=r.data.coins_balance||0;}
         }
-        showToast('Almas acreditadas correctamente!');
+        var t=document.getElementById('toastMsg');
+        if(t){t.textContent='💀 Almas acreditadas!';t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
       },3000);
     }
-  } catch(err){
+  }catch(err){
     errEl.textContent='Error: '+err.message;
-    btn.disabled=false;
-    btn.textContent='Pagar';
+    btn.disabled=false;btn.textContent='Pagar';
   }
 }
 function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;if(window.__expEl){window.__expEl.destroy();window.__expEl=null;}if(window.__cvcEl){window.__cvcEl.destroy();window.__cvcEl=null;}['card-num','card-exp','card-cvc'].forEach(function(id){var el=document.getElementById(id);if(el)el.className='';});closeShop();var notif=document.createElement('div');

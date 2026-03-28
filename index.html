@@ -3,436 +3,251 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>SHADOWNET — Sin límites. Sin cadenas.</title>
+  <title>SHADOWNET</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    :root{--cyan:#00e5ff;--blue:#0088ff;--red:#ff2255;--orange:#ff6600;--green:#00ff88;--bg:#01020c;--card:#070f1e;--border:#0d2744;--t1:#e8f4ff;--t2:#5a8aaa;--t3:#1e3a55}
-    body{background:var(--bg);color:var(--t1);font-family:'Rajdhani',sans-serif;overflow-x:hidden;background-image:radial-gradient(rgba(0,229,255,.06) 1px,transparent 1px);background-size:24px 24px}
-    @keyframes neon{0%,100%{text-shadow:0 0 12px var(--cyan),0 0 24px var(--blue)}50%{text-shadow:0 0 24px var(--cyan),0 0 48px var(--blue)}}
+    :root{--c:#00e5ff;--b:#0088ff;--r:#ff2255;--o:#ff6600;--g:#00ff88;--bg:#01020c;--cd:#070f1e;--br:#0d2744;--t1:#e8f4ff;--t2:#5a8aaa;--t3:#1e3a55;--gl:#ffd200}
+    body{background:var(--bg);color:var(--t1);font-family:Rajdhani,sans-serif;overflow-x:hidden;background-image:radial-gradient(rgba(0,229,255,.06) 1px,transparent 1px);background-size:24px 24px}
+    @keyframes neon{0%,100%{text-shadow:0 0 12px var(--c),0 0 24px var(--b)}50%{text-shadow:0 0 24px var(--c),0 0 48px var(--b)}}
     @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
     @keyframes spin{to{transform:rotate(360deg)}}
-    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(1,2,12,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
-    .logo{font-family:'Orbitron',sans-serif;font-size:18px;color:var(--cyan);letter-spacing:.2em;text-shadow:0 0 12px var(--cyan);text-decoration:none;cursor:pointer}
-    .nav-btns{display:flex;gap:10px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:9px 22px;border-radius:3px;cursor:pointer;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);text-decoration:none;transition:all .2s;border:none;gap:6px}
-    .btn-primary{background:linear-gradient(135deg,var(--red),var(--orange));color:#fff;box-shadow:0 0 20px #ff225544}
-    .btn-primary:hover{box-shadow:0 0 40px #ff225577;transform:translateY(-2px)}
-    .btn-ghost{background:transparent;border:1.5px solid var(--cyan);color:var(--cyan)}
-    .btn-ghost:hover{background:#00e5ff12;transform:translateY(-2px)}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(1,2,12,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--br);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-family:Orbitron,sans-serif;font-size:18px;color:var(--c);letter-spacing:.2em;text-shadow:0 0 12px var(--c);cursor:pointer}
+    .nav-btns{display:flex;gap:8px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:9px 20px;border-radius:4px;cursor:pointer;text-decoration:none;transition:all .2s;border:none;gap:6px}
+    .bp{background:linear-gradient(135deg,var(--r),var(--o));color:#fff}
+    .bp:hover{box-shadow:0 0 24px rgba(255,34,85,.5);transform:translateY(-1px)}
+    .bg{background:transparent;border:1.5px solid var(--c);color:var(--c)}
+    .bg:hover{background:rgba(0,229,255,.1);transform:translateY(-1px)}
     .btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
     .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;position:relative}
-    .orb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border-radius:50%;background:radial-gradient(ellipse,#00e5ff06,transparent 70%);pointer-events:none}
-    h1{font-family:'Orbitron',sans-serif;font-size:clamp(48px,10vw,96px);color:var(--cyan);letter-spacing:.1em;line-height:.95;animation:neon 4s ease-in-out infinite,fadeUp .8s ease both;margin-bottom:10px}
-    .tagline{font-family:'Orbitron',sans-serif;font-size:clamp(12px,2vw,18px);color:var(--t2);letter-spacing:.25em;margin-bottom:28px;animation:fadeUp .8s .2s ease both}
-    .hero-desc{max-width:520px;font-size:15px;line-height:1.8;color:var(--t2);font-style:italic;margin-bottom:40px;animation:fadeUp .8s .4s ease both}
+    .orb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,229,255,.04),transparent 70%);pointer-events:none}
+    h1{font-family:Orbitron,sans-serif;font-size:clamp(48px,10vw,96px);color:var(--c);letter-spacing:.1em;line-height:.95;animation:neon 4s ease-in-out infinite,fadeUp .8s ease both;margin-bottom:10px}
+    .tag{font-family:Orbitron,sans-serif;font-size:clamp(12px,2vw,18px);color:var(--t2);letter-spacing:.25em;margin-bottom:28px;animation:fadeUp .8s .2s ease both}
+    .desc{max-width:520px;font-size:15px;line-height:1.8;color:var(--t2);font-style:italic;margin-bottom:40px;animation:fadeUp .8s .4s ease both}
     .btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeUp .8s .5s ease both}
     .stats{display:flex;gap:40px;margin-top:56px;flex-wrap:wrap;justify-content:center;animation:fadeUp .8s .7s ease both}
-    .stat-num{font-family:'Orbitron',sans-serif;font-size:32px;color:var(--cyan);text-shadow:0 0 12px #00e5ff88}
-    .stat-lbl{font-size:10px;color:var(--t2);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
+    .snum{font-family:Orbitron,sans-serif;font-size:32px;color:var(--c)}
+    .slbl{font-size:10px;color:var(--t2);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
     section{padding:72px 20px}
     .inner{max-width:1080px;margin:0 auto}
-    .sec-tag{font-size:10px;color:var(--cyan);letter-spacing:.35em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:14px}
-    .sec-tag::before{content:'';width:20px;height:2px;background:var(--cyan)}
-    .sec-title{font-family:'Orbitron',sans-serif;font-size:clamp(24px,4vw,44px);color:var(--t1);margin-bottom:12px}
-    .sec-title span{color:var(--cyan)}
+    .stag{font-size:10px;color:var(--c);letter-spacing:.35em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+    .stag::before{content:"";width:20px;height:2px;background:var(--c)}
+    .stitle{font-family:Orbitron,sans-serif;font-size:clamp(24px,4vw,44px);color:var(--t1);margin-bottom:12px}
+    .stitle span{color:var(--c)}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:40px}
-    .card{background:linear-gradient(135deg,#070f1eee,#040916cc);border:1px solid var(--border);border-radius:14px;padding:26px;position:relative;overflow:hidden;transition:all .3s}
-    .card:hover{border-color:#00e5ff33;transform:translateY(-4px)}
-    .card-icon{font-size:32px;margin-bottom:14px;display:inline-block;animation:float 4s ease-in-out infinite}
-    .card-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:var(--t1);margin-bottom:6px}
-    .card-desc{font-size:13px;color:var(--t2);line-height:1.7}
-    .badge{position:absolute;top:14px;right:14px;background:#ff225518;border:1px solid #ff225544;color:var(--red);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
-    .dark-sec{background:#070f1e}
-    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:40px}
-    .step{padding:28px 22px;text-align:center;border-right:1px solid var(--border)}
+    .card{background:linear-gradient(135deg,rgba(7,15,30,.9),rgba(4,9,22,.8));border:1px solid var(--br);border-radius:14px;padding:26px;position:relative;overflow:hidden;transition:all .3s}
+    .card:hover{border-color:rgba(0,229,255,.3);transform:translateY(-4px)}
+    .cico{font-size:32px;margin-bottom:14px;display:inline-block;animation:float 4s ease-in-out infinite}
+    .ctit{font-family:Rajdhani,sans-serif;font-weight:700;font-size:17px;color:var(--t1);margin-bottom:6px}
+    .cdesc{font-size:13px;color:var(--t2);line-height:1.7}
+    .cbadge{position:absolute;top:14px;right:14px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.4);color:var(--r);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
+    .dsec{background:var(--cd)}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border:1px solid var(--br);border-radius:14px;overflow:hidden;margin-top:40px}
+    .step{padding:28px 22px;text-align:center;border-right:1px solid var(--br)}
     .step:last-child{border-right:none}
-    .step-num{font-family:'Orbitron',sans-serif;font-size:56px;color:var(--border);line-height:1;margin-bottom:14px}
-    .step-title{font-size:14px;font-weight:700;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
-    .step-desc{font-size:12px;color:var(--t2);line-height:1.7}
-    .modal-bg{position:fixed;inset:0;background:#000000cc;z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
-    .modal-bg.open{display:flex}
-    .modal{background:#070f1e;border:1.5px solid var(--cyan);border-radius:16px;padding:32px;width:100%;max-width:420px;position:relative;box-shadow:0 0 60px #00e5ff22}
-    .modal-title{font-family:'Orbitron',sans-serif;font-size:18px;color:var(--cyan);margin-bottom:6px;letter-spacing:.1em}
-    .modal-sub{font-size:12px;color:var(--t2);margin-bottom:24px}
-    .modal-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--t2);font-size:20px;cursor:pointer}
-    .tabs{display:flex;margin-bottom:24px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
-    .tab{flex:1;padding:10px;text-align:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:transparent;border:none;color:var(--t2);transition:all .2s}
-    .tab.active{background:#00e5ff18;color:var(--cyan);border-bottom:2px solid var(--cyan)}
-    .form-group{margin-bottom:16px}
-    .form-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block}
-    .form-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;color:var(--t1);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
-    .form-input:focus{border-color:var(--cyan)}
-    .form-input::placeholder{color:var(--t3)}
-    .form-error{font-size:11px;color:var(--red);margin-top:4px;min-height:16px}
-    .form-success{background:#00ff8812;border:1px solid #00ff8844;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;padding:12px;border-radius:8px;text-align:center;margin-bottom:16px;display:none}
-    .spinner{width:16px;height:16px;border:2px solid #ffffff44;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-    .dashboard{display:none;min-height:100vh;padding:100px 20px 40px}
-    .dashboard.open{display:block}
-    .landing.hidden{display:none}
-    .dash-header{max-width:800px;margin:0 auto 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
-    .dash-welcome{font-family:'Orbitron',sans-serif;font-size:22px;color:var(--cyan)}
-    .dash-sub{font-size:13px;color:var(--t2);margin-top:4px}
-    .dash-grid{max-width:800px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
-    .dash-card{background:linear-gradient(135deg,#070f1eee,#040916cc);border:1px solid var(--border);border-radius:12px;padding:20px}
-    .dash-card-label{font-family:'Rajdhani',sans-serif;font-size:10px;color:var(--t2);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
-    .dash-card-value{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900}
-    .dash-info{max-width:800px;margin:0 auto;background:#00e5ff08;border:1px solid #00e5ff33;border-radius:12px;padding:20px}
-    footer{background:#040916;border-top:1px solid var(--border);padding:32px 20px;text-align:center}
-    .foot-logo{font-family:'Orbitron',sans-serif;font-size:16px;color:var(--cyan);letter-spacing:.2em;margin-bottom:4px}
-    .foot-links{display:flex;gap:24px;justify-content:center;margin:18px 0 14px;list-style:none;flex-wrap:wrap}
-    .foot-links a{font-size:11px;color:var(--t2);text-decoration:none;letter-spacing:.1em}
-    .foot-links a:hover{color:var(--cyan)}
-    @media(max-width:600px){nav{padding:12px 16px}.steps{grid-template-columns:1fr}.step{border-right:none;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}}
+    .snum2{font-family:Orbitron,sans-serif;font-size:56px;color:var(--br);line-height:1;margin-bottom:14px}
+    .stit2{font-size:14px;font-weight:700;color:var(--c);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+    .sdesc2{font-size:12px;color:var(--t2);line-height:1.7}
+    .mbg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
+    .mbg.open{display:flex}
+    .mbox{background:var(--cd);border:1.5px solid var(--c);border-radius:16px;padding:32px;width:100%;max-width:420px;position:relative;box-shadow:0 0 60px rgba(0,229,255,.15)}
+    .mtit{font-family:Orbitron,sans-serif;font-size:18px;color:var(--c);margin-bottom:6px;letter-spacing:.1em}
+    .msub{font-size:12px;color:var(--t2);margin-bottom:24px}
+    .mclose{position:absolute;top:14px;right:14px;background:transparent;border:none;color:var(--t2);font-size:20px;cursor:pointer;line-height:1}
+    .tabs{display:flex;margin-bottom:24px;border-radius:8px;overflow:hidden;border:1px solid var(--br)}
+    .tab{flex:1;padding:10px;text-align:center;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:transparent;border:none;color:var(--t2);transition:all .2s}
+    .tab.on{background:rgba(0,229,255,.12);color:var(--c);border-bottom:2px solid var(--c)}
+    .fg{margin-bottom:16px}
+    .fl{font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;color:var(--c);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block}
+    .fi{width:100%;background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:12px 14px;color:var(--t1);font-family:Rajdhani,sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+    .fi:focus{border-color:var(--c)}
+    .fi::placeholder{color:var(--t3)}
+    .ferr{font-size:11px;color:var(--r);margin-top:4px;min-height:16px}
+    .fok{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);color:var(--g);font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;padding:12px;border-radius:8px;text-align:center;margin-bottom:16px;display:none}
+    .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+    .dash{display:none;min-height:100vh;padding:90px 20px 40px}
+    .dash.on{display:block}
+    .land.off{display:none}
+    .dh{max-width:800px;margin:0 auto 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .dwelcome{font-family:Orbitron,sans-serif;font-size:20px;color:var(--c)}
+    .dsub{font-size:13px;color:var(--t2);margin-top:4px}
+    .dgrid{max-width:800px;margin:0 auto 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+    .dcard{background:linear-gradient(135deg,rgba(7,15,30,.9),rgba(4,9,22,.8));border:1px solid var(--br);border-radius:12px;padding:18px}
+    .dclbl{font-family:Rajdhani,sans-serif;font-size:10px;color:var(--t2);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+    .dcval{font-family:Orbitron,sans-serif;font-size:26px;font-weight:900}
+    .dinfo{max-width:800px;margin:0 auto 16px;background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);border-radius:12px;padding:18px}
+    .sbg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:none;align-items:center;justify-content:center;padding:16px}
+    .sbg.open{display:flex}
+    .sbox{background:var(--cd);border:1.5px solid var(--gl);border-radius:16px;padding:28px;width:100%;max-width:460px;position:relative;box-shadow:0 0 50px rgba(255,210,0,.15);max-height:90vh;overflow-y:auto}
+    .sclose{position:absolute;top:14px;right:14px;background:transparent;border:none;color:var(--t2);font-size:18px;cursor:pointer;line-height:1}
+    .stitlesh{font-family:Orbitron,sans-serif;font-size:16px;color:var(--gl);margin-bottom:4px;letter-spacing:.1em}
+    .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+    .pack{background:linear-gradient(135deg,rgba(7,15,30,.9),rgba(4,9,22,.8));border:1.5px solid var(--br);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative}
+    .pack:hover,.pack.sel{border-color:var(--gl);box-shadow:0 0 12px rgba(255,210,0,.2)}
+    .pack.hot{border-color:var(--c)}
+    .pack.hot::before{content:"POPULAR";position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--c);color:var(--bg);font-size:8px;font-weight:800;letter-spacing:.1em;padding:2px 8px;border-radius:0 0 4px 4px}
+    .pskulls{font-family:Orbitron,sans-serif;font-size:18px;color:var(--gl);font-weight:900}
+    .pbonus{font-size:10px;color:var(--g)}
+    .pprice{font-family:Orbitron,sans-serif;font-size:13px;color:var(--t1);margin-top:4px}
+    .plabel{font-size:9px;color:var(--t2)}
+    #card-element{background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:14px;margin-bottom:8px;display:none}
+    #card-element.show{display:block}
+    #card-error{color:var(--r);font-size:11px;min-height:14px;margin-bottom:8px}
+    .payinfo{font-family:Orbitron,sans-serif;font-size:16px;color:var(--gl);text-align:center;margin-bottom:12px;min-height:22px}
+    footer{background:rgba(4,9,22,.8);border-top:1px solid var(--br);padding:28px 20px;text-align:center}
+    .flogo{font-family:Orbitron,sans-serif;font-size:16px;color:var(--c);letter-spacing:.2em;margin-bottom:4px}
+    .flinks{display:flex;gap:20px;justify-content:center;margin:14px 0 10px;list-style:none;flex-wrap:wrap}
+    .flinks a{font-size:11px;color:var(--t2);text-decoration:none;letter-spacing:.1em}
+    .flinks a:hover{color:var(--c)}
+    @media(max-width:600px){nav{padding:12px 16px}.steps{grid-template-columns:1fr}.step{border-right:none;border-bottom:1px solid var(--br)}.step:last-child{border-bottom:none}}
   </style>
 </head>
 <body>
 <nav>
   <span class="logo" onclick="goHome()">SHADOWNET</span>
   <div class="nav-btns">
-    <button class="btn btn-ghost" id="loginBtn" onclick="openModal('login')">Iniciar sesión</button>
-    <button class="btn btn-primary" id="registerBtn" onclick="openModal('register')">🔥 Registrarse</button>
-    <button class="btn btn-ghost" id="logoutBtn" style="display:none" onclick="logout()">Salir</button>
+    <button class="btn bg" id="loginBtn" onclick="openAuth('login')">Iniciar sesion</button>
+    <button class="btn bp" id="registerBtn" onclick="openAuth('register')">Registrarse</button>
+    <button class="btn bg" id="logoutBtn" style="display:none" onclick="doLogout()">Salir</button>
   </div>
 </nav>
-
-<div class="modal-bg" id="authModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <p class="modal-title">SHADOWNET</p>
-    <p class="modal-sub">Sin límites · Sin cadenas · +18</p>
+<div class="mbg" id="authModal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeAuth()">&#x2715;</button>
+    <p class="mtit">SHADOWNET</p>
+    <p class="msub">Sin limites &middot; Sin cadenas &middot; +18</p>
     <div class="tabs">
-      <button class="tab active" id="tabRegister" onclick="switchTab('register')">Registrarse</button>
-      <button class="tab" id="tabLogin" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="tab on" id="tabR" onclick="switchTab('r')">Registrarse</button>
+      <button class="tab" id="tabL" onclick="switchTab('l')">Iniciar sesion</button>
     </div>
-    <div id="successMsg" class="form-success"></div>
-    <div id="registerForm">
-      <div class="form-group">
-        <label class="form-label">Nombre de usuario</label>
-        <input class="form-input" id="regUsername" type="text" placeholder="@tu_usuario" maxlength="30">
-        <p class="form-error" id="regUsernameErr"></p>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Correo electrónico</label>
-        <input class="form-input" id="regEmail" type="email" placeholder="tu@correo.com">
-        <p class="form-error" id="regEmailErr"></p>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Contraseña</label>
-        <input class="form-input" id="regPass" type="password" placeholder="Mínimo 8 caracteres">
-        <p class="form-error" id="regPassErr"></p>
-      </div>
-      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:14px;clip-path:none;border-radius:8px" id="regBtn" onclick="register()">Crear cuenta gratis</button>
+    <div id="authOk" class="fok"></div>
+    <div id="formR">
+      <div class="fg"><label class="fl">Usuario</label><input class="fi" id="rUser" type="text" placeholder="@tu_usuario" maxlength="30"><p class="ferr" id="rUserErr"></p></div>
+      <div class="fg"><label class="fl">Correo</label><input class="fi" id="rEmail" type="email" placeholder="tu@correo.com"><p class="ferr" id="rEmailErr"></p></div>
+      <div class="fg"><label class="fl">Contrasena</label><input class="fi" id="rPass" type="password" placeholder="Minimo 8 caracteres"><p class="ferr" id="rPassErr"></p></div>
+      <button class="btn bp" id="rBtn" onclick="doRegister()" style="width:100%;padding:14px;font-size:14px;border-radius:8px">Crear cuenta gratis</button>
     </div>
-    <div id="loginForm" style="display:none">
-      <div class="form-group">
-        <label class="form-label">Correo electrónico</label>
-        <input class="form-input" id="loginEmail" type="email" placeholder="tu@correo.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Contraseña</label>
-        <input class="form-input" id="loginPass" type="password" placeholder="Tu contraseña">
-        <p class="form-error" id="loginErr"></p>
-      </div>
-      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:14px;clip-path:none;border-radius:8px" id="loginSubmitBtn" onclick="login()">Iniciar sesión</button>
+    <div id="formL" style="display:none">
+      <div class="fg"><label class="fl">Correo</label><input class="fi" id="lEmail" type="email" placeholder="tu@correo.com"></div>
+      <div class="fg"><label class="fl">Contrasena</label><input class="fi" id="lPass" type="password" placeholder="Tu contrasena"><p class="ferr" id="lErr"></p></div>
+      <button class="btn bp" id="lBtn" onclick="doLogin()" style="width:100%;padding:14px;font-size:14px;border-radius:8px">Iniciar sesion</button>
     </div>
-    <p style="text-align:center;font-size:11px;color:var(--t3);margin-top:16px">Al registrarte confirmas que tienes +18 años.</p>
+    <p style="text-align:center;font-size:10px;color:var(--t3);margin-top:14px">Al registrarte confirmas que tienes +18 anos.</p>
   </div>
 </div>
-
-<div class="landing" id="landingPage">
+<div class="sbg" id="shopModal">
+  <div class="sbox">
+    <button class="sclose" onclick="closeShop()">&#x2715;</button>
+    <p class="stitlesh">&#128128; COMPRAR ALMAS</p>
+    <p style="font-size:12px;color:var(--t2);margin-bottom:4px">Envia regalos en los lives de tus creadores favoritos</p>
+    <div class="pgrid" id="packGrid"></div>
+    <div id="card-element"></div>
+    <p id="card-error"></p>
+    <div class="payinfo" id="payInfo"></div>
+    <button class="btn bp" id="payBtn" onclick="startPay()" disabled style="width:100%;padding:13px;font-size:13px;border-radius:8px;opacity:.5">Selecciona un paquete</button>
+    <p style="text-align:center;font-size:10px;color:var(--t3);margin-top:8px">&#128274; Pago seguro con Stripe &middot; SSL</p>
+  </div>
+</div>
+<div class="land" id="landPage">
   <section class="hero">
     <div class="orb"></div>
-    <p style="font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--cyan);text-shadow:0 0 8px var(--cyan);margin-bottom:18px">⬡ La plataforma para creadores adultos</p>
+    <p style="font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--c);margin-bottom:18px">La plataforma para creadores adultos</p>
     <h1>SHADOW<br>NET</h1>
-    <p class="tagline">SIN LÍMITES · SIN CADENAS</p>
-    <p class="hero-desc">La red social para creadores adultos con transmisiones en vivo, regalos animados, club de fans y monetización real.</p>
+    <p class="tag">SIN LIMITES &middot; SIN CADENAS</p>
+    <p class="desc">La red social para creadores adultos con lives, regalos animados, club de fans y monetizacion real.</p>
     <div class="btns">
-      <button class="btn btn-primary" onclick="openModal('register')">🔥 Crear cuenta gratis</button>
-      <a href="#features" class="btn btn-ghost">Ver características →</a>
+      <button class="btn bp" onclick="openAuth('register')">Crear cuenta gratis</button>
+      <a href="#features" class="btn bg">Ver caracteristicas</a>
     </div>
     <div class="stats">
-      <div style="text-align:center"><div class="stat-num" id="statUsers">—</div><div class="stat-lbl">Usuarios registrados</div></div>
-      <div style="text-align:center"><div class="stat-num">60%</div><div class="stat-lbl">Comisión creador</div></div>
-      <div style="text-align:center"><div class="stat-num">28</div><div class="stat-lbl">Tipos de regalos</div></div>
-      <div style="text-align:center"><div class="stat-num">100</div><div class="stat-lbl">Rangos Fan Club</div></div>
+      <div style="text-align:center"><div class="snum" id="statUsers">0</div><div class="slbl">Usuarios</div></div>
+      <div style="text-align:center"><div class="snum">60%</div><div class="slbl">Comision</div></div>
+      <div style="text-align:center"><div class="snum">28</div><div class="slbl">Regalos</div></div>
+      <div style="text-align:center"><div class="snum">100</div><div class="slbl">Rangos</div></div>
     </div>
   </section>
-  <section id="features" class="dark-sec">
+  <section id="features" class="dsec">
     <div class="inner">
-      <p class="sec-tag">Características</p>
-      <h2 class="sec-title">Todo lo que necesitas para<br><span>crear sin límites</span></h2>
+      <p class="stag">Caracteristicas</p>
+      <h2 class="stitle">Todo lo que necesitas para <span>crear sin limites</span></h2>
       <div class="grid">
-        <div class="card"><div class="badge">EN VIVO</div><div class="card-icon">📺</div><h3 class="card-title">Transmisiones en vivo</h3><p class="card-desc">Streaming HD con misiones, regalos y co-anfitriones en tiempo real.</p></div>
-        <div class="card"><div class="card-icon" style="animation-delay:.3s">👁️‍🗨️</div><h3 class="card-title">Club de Fans</h3><p class="card-desc">100 rangos con puntos. Regalos exclusivos. Únete con el regalo MIÉNTEME.</p></div>
-        <div class="card"><div class="card-icon" style="animation-delay:.6s">🎁</div><h3 class="card-title">28 Regalos animados</h3><p class="card-desc">Normales, Club de Fans y Dinámicos. Cada uno con animación única.</p></div>
-        <div class="card"><div class="badge">+18</div><div class="card-icon" style="animation-delay:.9s">🔐</div><h3 class="card-title">Verificación KYC</h3><p class="card-desc">Documento oficial + reconocimiento facial IA. Cumplimiento legal.</p></div>
-        <div class="card"><div class="card-icon" style="animation-delay:1.1s">💰</div><h3 class="card-title">60% de comisión</h3><p class="card-desc">La mayor tasa del mercado. Retiros semanales vía Stripe.</p></div>
-        <div class="card"><div class="card-icon" style="animation-delay:1.3s">📱</div><h3 class="card-title">Feed + Reels + Lives</h3><p class="card-desc">Feed inteligente, momentos cortos, historias 24h y contenido exclusivo.</p></div>
+        <div class="card"><div class="cbadge">EN VIVO</div><div class="cico">&#128250;</div><h3 class="ctit">Transmisiones en vivo</h3><p class="cdesc">Streaming HD con misiones y regalos en tiempo real.</p></div>
+        <div class="card"><div class="cico" style="animation-delay:.3s">&#128065;</div><h3 class="ctit">Club de Fans</h3><p class="cdesc">100 rangos con puntos. Regalos exclusivos.</p></div>
+        <div class="card"><div class="cico" style="animation-delay:.6s">&#127873;</div><h3 class="ctit">28 Regalos</h3><p class="cdesc">Normales, Fan Club y Dinamicos. Animaciones unicas.</p></div>
+        <div class="card"><div class="cbadge">+18</div><div class="cico" style="animation-delay:.9s">&#128274;</div><h3 class="ctit">Verificacion KYC</h3><p class="cdesc">Documento + reconocimiento facial IA.</p></div>
+        <div class="card"><div class="cico" style="animation-delay:1.1s">&#128176;</div><h3 class="ctit">60% comision</h3><p class="cdesc">La mayor tasa del mercado. Retiros semanales.</p></div>
+        <div class="card"><div class="cico" style="animation-delay:1.3s">&#128241;</div><h3 class="ctit">Feed + Reels</h3><p class="cdesc">Feed inteligente, momentos, historias y exclusivo.</p></div>
       </div>
     </div>
   </section>
-  <section>
-    <div class="inner">
-      <p class="sec-tag">Cómo funciona</p>
-      <h2 class="sec-title">Simple. <span>Rápido. Tuyo.</span></h2>
-      <div class="steps">
-        <div class="step"><div class="step-num">01</div><h3 class="step-title">Regístrate</h3><p class="step-desc">Email + contraseña. Sin tarjeta. En 30 segundos.</p></div>
-        <div class="step"><div class="step-num">02</div><h3 class="step-title">Verifica</h3><p class="step-desc">Documento + selfie IA. 2 minutos. Datos eliminados automáticamente.</p></div>
-        <div class="step"><div class="step-num">03</div><h3 class="step-title">Crea</h3><p class="step-desc">Posts, reels, historias, lives. Ponle precio a lo exclusivo.</p></div>
-        <div class="step"><div class="step-num">04</div><h3 class="step-title">Cobra</h3><p class="step-desc">60% de todo lo que generes. Retiro mínimo $20 USD.</p></div>
-      </div>
-    </div>
-  </section>
-  <div style="text-align:center;padding:80px 20px;background:radial-gradient(ellipse at 50% 50%,#00e5ff04,transparent 70%)">
-    <h2 style="font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,56px);color:var(--t1);margin-bottom:14px">Empieza hoy.<br><span style="color:var(--cyan)">Gratis.</span></h2>
-    <p style="color:var(--t2);font-size:14px;line-height:1.8;max-width:480px;margin:14px auto 36px;font-style:italic">Sin tarjeta. Sin contrato. Tu contenido, tus reglas, tu dinero.</p>
-    <button class="btn btn-primary" style="font-size:15px;padding:16px 48px;clip-path:none;border-radius:8px" onclick="openModal('register')">🔥 Crear mi cuenta</button>
+  <div style="text-align:center;padding:72px 20px">
+    <h2 style="font-family:Orbitron,sans-serif;font-size:clamp(28px,5vw,52px);color:var(--t1);margin-bottom:12px">Empieza hoy.<br><span style="color:var(--c)">Gratis.</span></h2>
+    <p style="color:var(--t2);font-size:14px;line-height:1.8;max-width:480px;margin:12px auto 32px;font-style:italic">Sin tarjeta. Sin contrato.</p>
+    <button class="btn bp" onclick="openAuth('register')" style="font-size:15px;padding:16px 48px;border-radius:8px">Crear mi cuenta</button>
   </div>
 </div>
-
-<div class="dashboard" id="dashboardPage">
-  <div class="dash-header">
+<div class="dash" id="dashPage">
+  <div class="dh">
     <div>
-      <p class="dash-welcome">¡Bienvenido, <span id="dashUsername" style="color:var(--cyan)">@usuario</span>! 🔥</p>
-      <p class="dash-sub">Tu cuenta está activa · 💀 100 Almas de bienvenida</p>
+      <p class="dwelcome">Bienvenido, <span id="dashUser" style="color:var(--c)">@usuario</span>! &#128293;</p>
+      <p class="dsub">Tu cuenta esta activa &middot; &#128128; 100 Almas de bienvenida</p>
     </div>
-    <span style="background:#00ff8815;border:1px solid #00ff8844;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;padding:6px 14px;border-radius:4px;letter-spacing:.1em">✓ CUENTA ACTIVA</span>
+    <span style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--g);font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;padding:6px 14px;border-radius:4px">&#10003; CUENTA ACTIVA</span>
   </div>
-  <div class="dash-grid">
-    <div class="dash-card"><p class="dash-card-label">💀 Almas</p><p class="dash-card-value" style="color:var(--cyan)">100</p></div>
-    <div class="dash-card"><p class="dash-card-label">👥 Seguidores</p><p class="dash-card-value" style="color:var(--blue)">0</p></div>
-    <div class="dash-card"><p class="dash-card-label">💰 Ganancias</p><p class="dash-card-value" style="color:var(--green)">$0.00</p></div>
-    <div class="dash-card"><p class="dash-card-label">🏆 Rango</p><p class="dash-card-value" style="color:var(--orange);font-size:16px;padding-top:6px">Lv.1 Sombra</p></div>
+  <div class="dgrid">
+    <div class="dcard"><p class="dclbl">&#128128; Almas</p><p class="dcval" style="color:var(--c)" id="dashCoins">100</p></div>
+    <div class="dcard"><p class="dclbl">&#128101; Seguidores</p><p class="dcval" style="color:var(--b)">0</p></div>
+    <div class="dcard"><p class="dclbl">&#128176; Ganancias</p><p class="dcval" style="color:var(--g)">$0.00</p></div>
+    <div class="dcard"><p class="dclbl">&#127942; Rango</p><p class="dcval" style="color:var(--o);font-size:16px;padding-top:6px">Lv.1 Sombra</p></div>
   </div>
-  <div class="dash-info">
-    <p style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--cyan);margin-bottom:8px">🚀 Próximas funciones en desarrollo</p>
-    <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta ya está conectada a la base de datos real.<br>Pronto activaremos: 📺 Lives · 🎁 Regalos · 📱 Feed · 💳 Pagos Stripe · 🔐 Verificación de edad</p>
+  <div class="dinfo">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:var(--c)">&#128640; Proximas funciones</p>
+      <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
+    </div>
+    <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.<br>Proximamente: Lives &middot; Regalos &middot; Feed &middot; Stripe &middot; KYC</p>
   </div>
 </div>
-
 <footer>
-  <p class="foot-logo">SHADOWNET</p>
-  <p style="font-size:9px;color:var(--t3);letter-spacing:.2em;text-transform:uppercase">Sin límites · Sin cadenas</p>
-  <ul class="foot-links"><li><a href="#">Términos</a></li><li><a href="#">Privacidad</a></li><li><a href="#">+18 Legal</a></li><li><a href="#">Soporte</a></li></ul>
-  <p style="font-size:10px;color:var(--t3)">© 2026 SHADOWNET Inc. · soporte@shadownet.app</p>
+  <p class="flogo">SHADOWNET</p>
+  <p style="font-size:9px;color:var(--t3);letter-spacing:.2em;text-transform:uppercase">Sin limites &middot; Sin cadenas</p>
+  <ul class="flinks"><li><a href="#">Terminos</a></li><li><a href="#">Privacidad</a></li><li><a href="#">+18 Legal</a></li><li><a href="#">Soporte</a></li></ul>
+  <p style="font-size:10px;color:var(--t3)">2026 SHADOWNET Inc.</p>
 </footer>
-
 <script>
-const SUPABASE_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let currentUser = null;
-
-window.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) await setUser(session.user);
-  loadUserCount();
-});
-
-sb.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session?.user) await setUser(session.user);
-  if (event === 'SIGNED_OUT') clearUser();
-});
-
-async function loadUserCount() {
-  try {
-    const { count } = await sb.from('profiles').select('*', { count: 'exact', head: true });
-    if (count !== null) {
-      const el = document.getElementById('statUsers');
-      if (el) el.textContent = count >= 1000 ? (count/1000).toFixed(1)+'K' : count || '0';
-    }
-  } catch(e) {}
-}
-
-async function setUser(user) {
-  currentUser = user;
-  const { data: p } = await sb.from('profiles').select('username').eq('id', user.id).single();
-  const uname = p?.username || user.email.split('@')[0];
-  document.getElementById('dashUsername').textContent = '@' + uname;
-  document.getElementById('landingPage').classList.add('hidden');
-  document.getElementById('dashboardPage').classList.add('open');
-  document.getElementById('loginBtn').style.display = 'none';
-  document.getElementById('registerBtn').style.display = 'none';
-  document.getElementById('logoutBtn').style.display = 'inline-flex';
-  closeModal();
-}
-
-function clearUser() {
-  currentUser = null;
-  document.getElementById('landingPage').classList.remove('hidden');
-  document.getElementById('dashboardPage').classList.remove('open');
-  document.getElementById('loginBtn').style.display = 'inline-flex';
-  document.getElementById('registerBtn').style.display = 'inline-flex';
-  document.getElementById('logoutBtn').style.display = 'none';
-}
-
-function goHome() { if (!currentUser) window.scrollTo({top:0,behavior:'smooth'}); }
-
-function openModal(tab) {
-  document.getElementById('authModal').classList.add('open');
-  switchTab(tab || 'register');
-  document.getElementById('successMsg').style.display = 'none';
-}
-
-function closeModal() {
-  document.getElementById('authModal').classList.remove('open');
-  clearErrors();
-}
-
-function switchTab(tab) {
-  const r = tab === 'register';
-  document.getElementById('registerForm').style.display = r ? 'block' : 'none';
-  document.getElementById('loginForm').style.display = r ? 'none' : 'block';
-  document.getElementById('tabRegister').classList.toggle('active', r);
-  document.getElementById('tabLogin').classList.toggle('active', !r);
-  document.getElementById('successMsg').style.display = 'none';
-  clearErrors();
-}
-
-document.getElementById('authModal').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
-
-function clearErrors() {
-  ['regUsernameErr','regEmailErr','regPassErr','loginErr'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=''; });
-}
-
-function setLoading(id, on) {
-  const b = document.getElementById(id);
-  if (!b) return;
-  b.disabled = on;
-  b.innerHTML = on ? '<span class="spinner"></span> Procesando...' : (id==='regBtn' ? 'Crear cuenta gratis' : 'Iniciar sesión');
-}
-
-async function register() {
-  clearErrors();
-  const username = document.getElementById('regUsername').value.trim().replace(/[^a-zA-Z0-9_.]/g,'');
-  const email = document.getElementById('regEmail').value.trim();
-  const pass = document.getElementById('regPass').value;
-  let ok = true;
-  if (!username || username.length < 3) { document.getElementById('regUsernameErr').textContent='Mínimo 3 caracteres'; ok=false; }
-  if (!email || !email.includes('@')) { document.getElementById('regEmailErr').textContent='Correo inválido'; ok=false; }
-  if (!pass || pass.length < 8) { document.getElementById('regPassErr').textContent='Mínimo 8 caracteres'; ok=false; }
-  if (!ok) return;
-  setLoading('regBtn', true);
-  const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { username } } });
-  setLoading('regBtn', false);
-  if (error) { document.getElementById('regEmailErr').textContent = error.message.includes('already') ? 'Este correo ya está registrado' : error.message; return; }
-  if (data.user && !data.session) { const s=document.getElementById('successMsg'); s.textContent='✅ ¡Cuenta creada! Revisa tu email para confirmar.'; s.style.display='block'; return; }
-  if (data.session) await setUser(data.user);
-}
-
-async function login() {
-  clearErrors();
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  if (!email || !pass) { document.getElementById('loginErr').textContent='Completa todos los campos'; return; }
-  setLoading('loginSubmitBtn', true);
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-  setLoading('loginSubmitBtn', false);
-  if (error) { document.getElementById('loginErr').textContent='Correo o contraseña incorrectos'; return; }
-  await setUser(data.user);
-}
-
-async function logout() { await sb.auth.signOut(); clearUser(); }
-</script>
-</body>
-</html>
-
-
-<div id="shopModal" style="position:fixed;inset:0;background:#000c;z-index:600;display:none;align-items:center;justify-content:center;padding:16px">
-  <div style="background:#070f1e;border:1.5px solid #ffd200;border-radius:16px;padding:28px;width:100%;max-width:460px;position:relative;box-shadow:0 0 50px #ffd20022">
-    <button onclick="document.getElementById('shopModal').style.display='none'" style="position:absolute;top:14px;right:14px;background:transparent;border:none;color:#5a8aaa;font-size:18px;cursor:pointer">&#x2715;</button>
-    <p style="font-family:Orbitron,sans-serif;font-size:16px;color:#ffd200;margin-bottom:4px;letter-spacing:.1em">&#128128; COMPRAR ALMAS</p>
-    <p style="font-size:12px;color:#5a8aaa;margin-bottom:14px">Envía regalos en los lives de tus creadores</p>
-    <div id="packGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
-    <div id="payInfo" style="font-family:Orbitron,sans-serif;font-size:16px;color:#ffd200;text-align:center;margin-bottom:12px;min-height:22px"></div>
-    <button id="payBtn" onclick="demoPayment()" disabled style="width:100%;padding:13px;font-size:13px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(135deg,#ff2255,#ff6600);color:#fff;border:none;border-radius:8px;cursor:pointer;opacity:.5">Selecciona un paquete</button>
-    <p style="text-align:center;font-size:10px;color:#1e3a55;margin-top:8px">&#128274; Pagos seguros con Stripe (requiere configuracion)</p>
-  </div>
-</div>
-
-<script>
+var SUPABASE_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SUPABASE_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
 var STRIPE_PK='pk_test_51TFkhFQr2AD2XzelHOV2DvNyfFFq3V6e0ee47FA9beg0NfsH7WEuUD3ay6vRpzaiJYNEXACRHB4qUPERY6A1JpjK00qn3RsrHi';
-var PACKS=[{s:100,b:0,price:0.99,label:'Iniciado'},{s:500,b:50,price:4.99,label:'Devoto'},{s:1200,b:200,price:9.99,label:'Acolito',hot:true},{s:2600,b:600,price:19.99,label:'Elegido'}];
-var chosenPack=null;
-function renderPacks(){
-  var g=document.getElementById('packGrid');
-  g.innerHTML=PACKS.map(function(p,i){
-    return '<div onclick="choosePack('+i+')" id="pk'+i+'" style="background:linear-gradient(135deg,#070f1e,#040916);border:1.5px solid #0d2744;border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:border-color .2s">'+
-    '<div style="font-family:Orbitron,sans-serif;font-size:16px;color:#ffd200;font-weight:900">&#128128; '+p.s.toLocaleString()+'</div>'+
-    (p.b>0?'<div style="font-size:10px;color:#00ff88">+'+p.b+' BONUS</div>':'<div style="height:14px"></div>')+
-    '<div style="font-family:Orbitron,sans-serif;font-size:12px;color:#e8f4ff;margin-top:3px">$'+p.price+'</div>'+
-    '<div style="font-size:9px;color:#5a8aaa">'+p.label+(p.hot?' &#11088;':'')+'</div></div>';
-  }).join('');
-}
-function choosePack(i){
-  chosenPack=PACKS[i];
-  for(var j=0;j<PACKS.length;j++){var el=document.getElementById('pk'+j);if(el)el.style.borderColor=j===i?'#ffd200':'#0d2744';}
-  document.getElementById('payInfo').textContent='$'+chosenPack.price.toFixed(2)+' = '+(chosenPack.s+chosenPack.b)+' Almas';
-  var btn=document.getElementById('payBtn');btn.disabled=false;btn.style.opacity='1';btn.textContent='Pagar $'+chosenPack.price.toFixed(2)+' USD';
-}
-function demoPayment(){
-  if(!chosenPack)return;
-  var btn=document.getElementById('payBtn');
-  btn.disabled=true;
-  btn.textContent='Procesando...';
-  var stripe=Stripe(STRIPE_PK);
-  var elements=stripe.elements();
-  var card=elements.create('card',{style:{base:{color:'#e8f4ff',fontFamily:'Arial',fontSize:'15px','::placeholder':{color:'#1e3a55'}},invalid:{color:'#ff2255'}}});
-  var cardDiv=document.getElementById('card-el');
-  cardDiv.innerHTML='';
-  card.mount('#card-el');
-  document.getElementById('card-el').style.display='block';
-  btn.disabled=false;
-  btn.textContent='Confirmar pago 
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+var currentUser=null,stripe=null,cardEl=null,chosenPack=null;
+var PACKS=[{skulls:100,bonus:0,price:0.99,label:'Iniciado'},{skulls:500,bonus:50,price:4.99,label:'Devoto'},{skulls:1200,bonus:200,price:9.99,label:'Acolito',hot:true},{skulls:2600,bonus:600,price:19.99,label:'Elegido'}];
+window.addEventListener('DOMContentLoaded',function(){sb.auth.getSession().then(function(r){if(r.data.session)setUser(r.data.session.user);});loadCount();});
+sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)setUser(session.user);if(evt==='SIGNED_OUT')clearUser();});
+function loadCount(){sb.from('profiles').select('*',{count:'exact',head:true}).then(function(r){if(r.count!==null){var el=document.getElementById('statUsers');if(el)el.textContent=r.count>=1000?(r.count/1000).toFixed(1)+'K':r.count;}});}
+function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{};document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex';closeAuth();});}
+function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none';}
+function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
+function openAuth(t){document.getElementById('authModal').classList.add('open');switchTab(t==='login'?'l':'r');document.getElementById('authOk').style.display='none';}
+function closeAuth(){document.getElementById('authModal').classList.remove('open');clearErrs();}
+function switchTab(t){document.getElementById('formR').style.display=t==='r'?'block':'none';document.getElementById('formL').style.display=t==='l'?'block':'none';document.getElementById('tabR').className='tab'+(t==='r'?' on':'');document.getElementById('tabL').className='tab'+(t==='l'?' on':'');document.getElementById('authOk').style.display='none';clearErrs();}
+document.getElementById('authModal').addEventListener('click',function(e){if(e.target===this)closeAuth();});
+function clearErrs(){['rUserErr','rEmailErr','rPassErr','lErr'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='';});}
+function setLoad(id,on){var b=document.getElementById(id);if(!b)return;b.disabled=on;b.innerHTML=on?'<span class="spin"></span> Procesando...':(id==='rBtn'?'Crear cuenta gratis':'Iniciar sesion');}
+function doRegister(){clearErrs();var u=document.getElementById('rUser').value.trim().replace(/[^a-zA-Z0-9_.]/g,'');var e=document.getElementById('rEmail').value.trim();var p=document.getElementById('rPass').value;var ok=true;if(!u||u.length<3){document.getElementById('rUserErr').textContent='Minimo 3 caracteres';ok=false;}if(!e||!e.includes('@')){document.getElementById('rEmailErr').textContent='Correo invalido';ok=false;}if(!p||p.length<8){document.getElementById('rPassErr').textContent='Minimo 8 caracteres';ok=false;}if(!ok)return;setLoad('rBtn',true);sb.auth.signUp({email:e,password:p,options:{data:{username:u}}}).then(function(r){setLoad('rBtn',false);if(r.error){document.getElementById('rEmailErr').textContent=r.error.message.includes('already')?'Correo ya registrado':r.error.message;return;}if(r.data.session){setUser(r.data.user);}else{var ok=document.getElementById('authOk');ok.textContent='Cuenta creada! Verifica tu email.';ok.style.display='block';}});}
+function doLogin(){clearErrs();var e=document.getElementById('lEmail').value.trim();var p=document.getElementById('lPass').value;if(!e||!p){document.getElementById('lErr').textContent='Completa todos los campos';return;}setLoad('lBtn',true);sb.auth.signInWithPassword({email:e,password:p}).then(function(r){setLoad('lBtn',false);if(r.error){document.getElementById('lErr').textContent='Correo o contrasena incorrectos';return;}setUser(r.data.user);});}
+function doLogout(){sb.auth.signOut();}
+function openShop(){if(!currentUser){openAuth('login');return;}chosenPack=null;cardEl=null;document.getElementById('shopModal').classList.add('open');renderPacks();document.getElementById('payInfo').textContent='';document.getElementById('card-element').className='';document.getElementById('card-element').innerHTML='';document.getElementById('card-error').textContent='';var btn=document.getElementById('payBtn');btn.disabled=true;btn.style.opacity='0.5';btn.textContent='Selecciona un paquete';btn.onclick=startPay;}
+function closeShop(){document.getElementById('shopModal').classList.remove('open');}
+document.getElementById('shopModal').addEventListener('click',function(e){if(e.target===this)closeShop();});
+function renderPacks(){var g=document.getElementById('packGrid');g.innerHTML=PACKS.map(function(p,i){return '<div class="pack'+(p.hot?' hot':'')+'" id="pk'+i+'" onclick="pickPack('+i+')">'+'<div class="pskulls">&#128128; '+p.skulls.toLocaleString()+'</div>'+(p.bonus>0?'<div class="pbonus">+'+p.bonus+' BONUS</div>':'<div style="height:14px"></div>')+'<div class="pprice">$'+p.price.toFixed(2)+'</div>'+'<div class="plabel">'+p.label+'</div>'+'</div>';}).join('');}
+function pickPack(i){chosenPack=PACKS[i];for(var j=0;j<PACKS.length;j++){var el=document.getElementById('pk'+j);if(el)el.className='pack'+(PACKS[j].hot?' hot':'')+(j===i?' sel':'');}var total=chosenPack.skulls+(chosenPack.bonus||0);document.getElementById('payInfo').textContent='$'+chosenPack.price.toFixed(2)+' = '+total+' Almas';var btn=document.getElementById('payBtn');btn.disabled=false;btn.style.opacity='1';btn.textContent='Pagar $'+chosenPack.price.toFixed(2);btn.onclick=startPay;}
+function startPay(){if(!chosenPack)return;if(!stripe){stripe=Stripe(STRIPE_PK);}var cardDiv=document.getElementById('card-element');if(!cardEl){var els=stripe.elements();cardEl=els.create('card',{style:{base:{color:'#e8f4ff',fontFamily:'Arial,sans-serif',fontSize:'15px','::placeholder':{color:'#1e3a55'}},invalid:{color:'#ff2255'}}});cardEl.mount('#card-element');cardEl.on('change',function(e){document.getElementById('card-error').textContent=e.error?e.error.message:'';});cardDiv.className='show';}var btn=document.getElementById('payBtn');btn.textContent='Confirmar $'+chosenPack.price.toFixed(2);btn.onclick=confirmPay;}
+function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;document.getElementById('card-element').className='';closeShop();alert('Metodo de pago recibido!\n\n'+total+' Almas seran acreditadas.\n\nPara cobro real necesitas el backend.');});}
 </script>
-
-<footer>
-  <p style="font-family:Orbitron,sans-serif;font-size:16px;color:#00e5ff;letter-spacing:.2em;margin-bottom:4px;text-align:center">SHADOWNET</p>
-  <p style="font-size:9px;color:#1e3a55;letter-spacing:.2em;text-transform:uppercase;text-align:center">Sin limites - Sin cadenas</p>
-  <ul style="display:flex;gap:24px;justify-content:center;margin:16px 0 12px;list-style:none;flex-wrap:wrap">
-    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Terminos</a></li>
-    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Privacidad</a></li>
-    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">+18 Legal</a></li>
-    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Soporte</a></li>
-  </ul>
-  <p style="font-size:10px;color:#1e3a55;text-align:center">2026 SHADOWNET Inc.</p>
-</footer>
-</body>
-</html>
-+chosenPack.price.toFixed(2);
-  btn.onclick=async function(){
-    btn.disabled=true;
-    btn.textContent='Procesando...';
-    var res=await stripe.createPaymentMethod({type:'card',card:card});
-    if(res.error){
-      document.getElementById('card-err').textContent=res.error.message;
-      btn.disabled=false;
-      btn.textContent='Intentar de nuevo';
-      return;
-    }
-    // Payment method created - in production send to backend
-    var total=chosenPack.s+chosenPack.b;
-    document.getElementById('shopModal').style.display='none';
-    card.destroy();
-    alert('✅ Método de pago recibido!\n\n💀 '+total+' Almas.\n\nPara completar el cobro real necesitas un backend.\nContacta soporte@shadownet.app');
-  };
-}
-</script>
-
-<footer>
-  <p style="font-family:Orbitron,sans-serif;font-size:16px;color:#00e5ff;letter-spacing:.2em;margin-bottom:4px;text-align:center">SHADOWNET</p>
-  <p style="font-size:9px;color:#1e3a55;letter-spacing:.2em;text-transform:uppercase;text-align:center">Sin limites - Sin cadenas</p>
-  <ul style="display:flex;gap:24px;justify-content:center;margin:16px 0 12px;list-style:none;flex-wrap:wrap">
-    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Terminos</a></li>
-    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Privacidad</a></li>
-    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">+18 Legal</a></li>
-    <li><a href="#" style="font-size:11px;color:#5a8aaa;text-decoration:none">Soporte</a></li>
-  </ul>
-  <p style="font-size:10px;color:#1e3a55;text-align:center">2026 SHADOWNET Inc.</p>
-</footer>
 </body>
 </html>

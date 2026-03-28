@@ -347,75 +347,119 @@ var micOn=true,camOn=true,liveTimer=null,liveTimer2=null,liveSeconds=0;
 function openLive(){if(!currentUser){openAuth('login');return;}document.getElementById('liveModal').classList.add('open');}
 function closeLive(){stopLive();document.getElementById('liveModal').classList.remove('open');}
 async function startLive(){
-  var st=document.getElementById('liveStatus');
-  if(!st) return;
-  st.textContent='Iniciando camara...';
-  st.style.color='var(--c)';
-  try{
-    // getUserMedia - no token needed, works on any device
-    var stream = await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},
-      audio:true
-    });
-    // Show video
-    var vidDiv=document.getElementById('localVid');
-    var vid=document.createElement('video');
-    vid.srcObject=stream;
-    vid.autoplay=true;
-    vid.muted=true;
-    vid.playsInline=true;
-    vid.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:0';
-    vidDiv.innerHTML='';
+  var st = document.getElementById('liveStatus');
+  if (!st) return;
+  st.textContent = 'Solicitando permiso de camara...';
+  st.style.color = 'var(--c)';
+
+  // Verificar soporte
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    st.textContent = 'Tu navegador no soporta camara. Usa Chrome o Safari.';
+    st.style.color = 'var(--r)';
+    return;
+  }
+
+  try {
+    // Primero solo video para iOS (mas compatible)
+    var stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch(e1) {
+      // Si falla con audio, intentar solo video
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      } catch(e2) {
+        throw e2;
+      }
+    }
+
+    window._liveStream = stream;
+
+    // Crear elemento video compatible con iOS
+    var vidDiv = document.getElementById('localVid');
+    if (!vidDiv) return;
+    vidDiv.innerHTML = '';
+
+    var vid = document.createElement('video');
+    // Atributos criticos para iOS Safari
+    vid.setAttribute('autoplay', '');
+    vid.setAttribute('muted', '');
+    vid.setAttribute('playsinline', ''); // SIN esto iOS no muestra video
+    vid.setAttribute('webkit-playsinline', ''); // Para iOS mas antiguo
+    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0';
+    vid.srcObject = stream;
     vidDiv.appendChild(vid);
-    window._liveStream=stream;
-    // Hide setup, show controls
-    document.getElementById('liveSetup').style.display='none';
-    document.getElementById('liveCtrls').style.display='flex';
-    document.getElementById('liveBadge').style.display='inline-block';
-    // Start timer
-    liveSeconds=0;
-    if(liveTimer) clearInterval(liveTimer);
-    liveTimer=setInterval(function(){
+
+    // Forzar reproduccion
+    var playPromise = vid.play();
+    if (playPromise) {
+      playPromise.catch(function(err) {
+        // Silenciar error de autoplay — el video igual aparece
+        console.log('autoplay:', err.message);
+      });
+    }
+
+    // Mostrar controles y ocultar setup
+    document.getElementById('liveSetup').style.display = 'none';
+    document.getElementById('liveCtrls').style.display = 'flex';
+    document.getElementById('liveBadge').style.display = 'inline-block';
+
+    // Timer
+    liveSeconds = 0;
+    if (liveTimer) clearInterval(liveTimer);
+    liveTimer = setInterval(function(){
       liveSeconds++;
-      var m=Math.floor(liveSeconds/60),s=liveSeconds%60;
-      var el=document.getElementById('liveTime');
-      if(el) el.textContent=(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
-    },1000);
-    // Save to DB
-    if(currentUser){
-      sb.from('live_streams').insert({
-        host_id:currentUser.id,
-        title:'Live',
-        is_active:true,
-        started_at:new Date().toISOString()
+      var m = Math.floor(liveSeconds / 60);
+      var s = liveSeconds % 60;
+      var el = document.getElementById('liveTime');
+      if (el) el.textContent = (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s);
+    }, 1000);
+
+    // Guardar en BD
+    if (window.currentUser) {
+      window.sb && window.sb.from('live_streams').insert({
+        host_id: currentUser.id,
+        title: 'Live de ' + (document.getElementById('dashUser')?.textContent || '@usuario'),
+        is_active: true,
+        started_at: new Date().toISOString()
       }).then(function(){});
     }
-  } catch(e){
-    st.textContent='Error: '+e.message;
-    st.style.color='var(--r)';
-    console.error('Live error:',e);
+
+  } catch(err) {
+    var msg;
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      msg = 'Permiso denegado. Ve a Ajustes > Safari > Camara y activa el permiso.';
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      msg = 'No se encontro camara en este dispositivo.';
+    } else if (err.name === 'NotReadableError') {
+      msg = 'La camara esta siendo usada por otra app. Cierrala e intenta de nuevo.';
+    } else if (err.name === 'OverconstrainedError') {
+      msg = 'Camara no compatible. Intenta con otro dispositivo.';
+    } else {
+      msg = 'Error: ' + err.message;
+    }
+    st.textContent = msg;
+    st.style.color = 'var(--r)';
   }
 }
 async function stopLive(){
-  // Stop all media tracks
-  if(window._liveStream){
-    window._liveStream.getTracks().forEach(t=>t.stop());
-    window._liveStream=null;
+  if (window._liveStream) {
+    window._liveStream.getTracks().forEach(function(t){ t.stop(); });
+    window._liveStream = null;
   }
-  var vidDiv=document.getElementById('localVid');
-  if(vidDiv) vidDiv.innerHTML='';
-  if(liveTimer){clearInterval(liveTimer);liveTimer=null;}
-  if(liveTimer2){clearInterval(liveTimer2);liveTimer2=null;}
-  document.getElementById('liveSetup').style.display='flex';
-  document.getElementById('liveCtrls').style.display='none';
-  document.getElementById('liveBadge').style.display='none';
-  var viewers=document.getElementById('liveViewers');
-  if(viewers) viewers.textContent='';
-  var timeEl=document.getElementById('liveTime');
-  if(timeEl) timeEl.textContent='00:00';
-  var st=document.getElementById('liveStatus');
-  if(st){st.textContent='Listo para transmitir';st.style.color='var(--g)';}
-  micOn=true;camOn=true;
+  var vidDiv = document.getElementById('localVid');
+  if (vidDiv) vidDiv.innerHTML = '';
+  if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
+  document.getElementById('liveSetup').style.display = 'flex';
+  document.getElementById('liveCtrls').style.display = 'none';
+  document.getElementById('liveBadge').style.display = 'none';
+  var viewers = document.getElementById('liveViewers');
+  if (viewers) viewers.textContent = '';
+  var timeEl = document.getElementById('liveTime');
+  if (timeEl) timeEl.textContent = '00:00';
+  var st = document.getElementById('liveStatus');
+  if (st) { st.textContent = 'Listo para transmitir'; st.style.color = 'var(--g)'; }
+  micOn = true; camOn = true;
 }
 function toggleMic(){
   micOn=!micOn;

@@ -249,12 +249,11 @@
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
       <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:var(--c)">&#128640; Tu estudio</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
-      <button onclick="openLive()" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128250; Ir en vivo</button>
-      <button class="btn" onclick="openLive()" style="border-radius:6px;padding:8px 18px;font-size:12px;background:linear-gradient(135deg,#ff2255,#ff0000);color:#fff;border:none">&#128250; Ir en vivo</button>
+        <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
+        <button onclick="openLive()" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128250; Ir en vivo</button>
+      </div>
     </div>
-    </div>
-    <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.<br>Proximamente: Lives &middot; Regalos &middot; Feed &middot; Stripe &middot; KYC</p>
+    <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.<br>Proximamente: Regalos &middot; Feed &middot; KYC</p>
   </div>
 </div>
 <footer>
@@ -318,7 +317,7 @@ function startPay(){
 function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.getElementById('payBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Procesando...';stripe.createPaymentMethod({type:'card',card:cardEl}).then(function(res){if(res.error){document.getElementById('card-error').textContent=res.error.message;btn.disabled=false;btn.textContent='Intentar de nuevo';return;}var total=chosenPack.skulls+(chosenPack.bonus||0);cardEl.destroy();cardEl=null;if(window.__expEl){window.__expEl.destroy();window.__expEl=null;}if(window.__cvcEl){window.__cvcEl.destroy();window.__cvcEl=null;}['card-num','card-exp','card-cvc'].forEach(function(id){var el=document.getElementById(id);if(el)el.className='';});closeShop();alert('Metodo de pago recibido!\n\n'+total+' Almas seran acreditadas.\n\nPara cobro real necesitas el backend.');});}
 
 
-var AGORA_APP_ID='a877ebb2e7cb46709983bb9a22105db7';
+var AGORA_APP_ID='97632de735ad497ebe68343d998b790a';
 var agoraClient=null,localVidTrack=null,localAudTrack=null,micOn=true,camOn=true,liveTimer=null,liveSeconds=0;
 function openLive(){if(!currentUser){openAuth('login');return;}document.getElementById('liveModal').classList.add('open');}
 function closeLive(){stopLive();document.getElementById('liveModal').classList.remove('open');}

@@ -2,1032 +2,320 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff2255">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Perfil</title>
+<title>SHADOWNET</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
-header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,12,.95);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px}
-.logo{font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
-.back-btn{padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;border:1px solid #0d2744;background:transparent;color:#5a8aaa}
+header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:10px}
+.logo{font-family:Orbitron,sans-serif;font-size:14px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
+.back-btn{padding:6px 12px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;margin-left:auto}
 .back-btn:hover{border-color:#00e5ff;color:#00e5ff}
-.wrap{max-width:700px;margin:0 auto;padding:0 0 40px}
-.cover{height:200px;background:linear-gradient(135deg,#0a0518,#1a0520,#0d1035);position:relative;overflow:hidden}
-.cover-edit{position:absolute;bottom:12px;right:12px}
-.cover-edit-btn{padding:6px 12px;background:rgba(1,2,12,.7);border:1px solid rgba(255,255,255,.2);color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer}
-.profile-header{padding:0 20px 20px;position:relative}
-.avatar-wrap{position:relative;display:inline-block;margin-top:-50px;margin-bottom:12px}
-.avatar-lg{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:36px;color:#fff;border:3px solid #01020c;overflow:hidden}
-.avatar-lg img{width:100%;height:100%;object-fit:cover}
-.avatar-edit-btn{position:absolute;bottom:4px;right:4px;width:26px;height:26px;border-radius:50%;background:#00e5ff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px}
-.profile-info{margin-bottom:16px}
-.profile-name{font-family:Orbitron,sans-serif;font-size:18px;color:#e8f4ff;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.verified-badge{background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.4);color:#00e5ff;padding:3px 8px;border-radius:12px;font-size:10px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em}
-.profile-bio{font-size:14px;color:#8a9bb0;line-height:1.5;margin-bottom:12px}
-.bio-placeholder{color:#3a5060;font-style:italic}
-.profile-stats{display:flex;gap:24px;margin-bottom:16px}
-.stat{text-align:center;cursor:pointer}
-.stat-num{font-family:Orbitron,sans-serif;font-size:18px;color:#e8f4ff}
-.stat-lbl{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em}
-.profile-actions{display:flex;gap:10px;flex-wrap:wrap}
-.follow-btn-lg{padding:10px 28px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;border:none;background:linear-gradient(135deg,#00e5ff,#0060cc);color:#000}
-.follow-btn-lg.following{background:transparent;border:1px solid #5a8aaa;color:#5a8aaa}
-.edit-profile-btn{padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;border:1px solid #0d2744;background:transparent;color:#e8f4ff}
-.edit-profile-btn:hover{border-color:#00e5ff;color:#00e5ff}
-.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:4px}
-.post-thumb{aspect-ratio:1;overflow:hidden;cursor:pointer;background:rgba(7,15,30,.5);position:relative}
-.post-thumb img,.post-thumb video{width:100%;height:100%;object-fit:cover}
-.post-thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .2s;display:flex;align-items:center;justify-content:center;opacity:0}
-.post-thumb:hover .post-thumb-overlay{background:rgba(0,0,0,.5);opacity:1}
-.post-thumb-likes{color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px}
-.no-posts{grid-column:1/-1;text-align:center;padding:48px;color:#5a8aaa}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:none;align-items:center;justify-content:center}
-.modal.open{display:flex}
-.modal-box{background:#070f1e;border:1px solid #0d2744;border-radius:12px;padding:24px;width:100%;max-width:440px;margin:0 16px}
-.modal-title{font-family:Orbitron,sans-serif;font-size:13px;color:#00e5ff;margin-bottom:16px;letter-spacing:.1em}
-.inp{width:100%;padding:10px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none}
-.inp:focus{border-color:#00e5ff}
-textarea.inp{resize:none;height:80px}
-.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
-.save-btn{padding:10px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
-.cancel-btn{padding:10px 16px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
-.divider{border:none;border-top:1px solid #0d2744;margin:16px 20px}
-@media(max-width:480px){.posts-grid{grid-template-columns:repeat(2,1fr)}.profile-stats{gap:14px}}
-
-.sub-box{background:linear-gradient(135deg,rgba(255,34,85,.12),rgba(150,0,50,.08));border:1px solid rgba(255,34,85,.35);border-radius:12px;padding:18px;margin:16px 20px 0}
-.sub-title{font-family:Orbitron,sans-serif;font-size:12px;color:#ff6680;letter-spacing:.1em;margin-bottom:8px}
-.sub-price{font-family:Orbitron,sans-serif;font-size:28px;color:#e8f4ff;margin-bottom:6px}
-.sub-desc{font-size:13px;color:#8a9bb0;margin-bottom:14px;line-height:1.5}
-.sub-btn{width:100%;padding:13px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em}
-.sub-btn:disabled{opacity:.5;cursor:not-allowed}
-.sub-btn.active{background:linear-gradient(135deg,#00ff88,#00aa55);color:#000}
-.sub-setup{background:rgba(7,15,30,.5);border:1px solid #0d2744;border-radius:10px;padding:16px;margin:16px 20px 0}
-.sub-setup-title{font-size:12px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;font-family:Orbitron,sans-serif}
-.price-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
-.price-prefix{font-size:20px;color:#5a8aaa;font-weight:700}
-.price-inp{flex:1;padding:10px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;outline:none;width:100px}
-.price-inp:focus{border-color:#ff2255}
-.sub-save-btn{padding:10px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
-.subs-count{font-size:12px;color:#ff6680;font-weight:700;margin-top:8px}
-
-.profile-rank-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:12px;font-size:11px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em;background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00;margin-top:8px;cursor:pointer}
-.profile-rank-badge:hover{background:linear-gradient(135deg,rgba(255,170,0,.25),rgba(200,80,0,.15))}
-
-.profile-cover{width:100%;height:180px;background:linear-gradient(135deg,#1a0020 0%,#000814 50%,#0a0020 100%);position:relative;overflow:hidden;cursor:pointer}
+.profile-cover{width:100%;height:160px;background:linear-gradient(135deg,#1a0020 0%,#000814 50%,#0a0020 100%);position:relative;overflow:hidden}
 .profile-cover img{width:100%;height:100%;object-fit:cover}
-.profile-cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(1,2,12,.8))}
-.sub-price-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-top:8px}
-.sub-price-paid{background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff6680}
-.sub-price-free{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);color:#00e5ff}
-.sub-action-btn{padding:10px 24px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;border:none;margin-top:10px;width:100%}
-.sub-action-subscribed{background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.3);color:#00ff88}
-.sub-action-subscribe{background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff}
-.sub-action-free{background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000}
-.edit-profile-btn{padding:8px 18px;border-radius:8px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
-.edit-profile-btn:hover{border-color:#00e5ff;color:#00e5ff}
-.coins-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.2);color:#ff6680;margin-left:8px}
+.cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(1,2,12,.9))}
+.profile-wrap{max-width:700px;margin:0 auto;padding:0 16px 80px}
+.profile-header{position:relative;margin-bottom:16px}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;border:3px solid #01020c;overflow:hidden;margin-top:-40px;position:relative;z-index:2}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-info{margin-top:12px}
+.profile-username{font-family:Orbitron,sans-serif;font-size:16px;color:#e8f4ff;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.v-badge{color:#00e5ff;font-size:13px}
+.role-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;background:rgba(255,34,85,.15);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
+.profile-bio{font-size:14px;color:#8a9bb0;line-height:1.6;margin-top:8px}
+.rank-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:12px;font-size:11px;font-family:Rajdhani,sans-serif;font-weight:700;background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00;margin-top:8px;cursor:pointer}
+.rank-badge:hover{background:linear-gradient(135deg,rgba(255,170,0,.25),rgba(200,80,0,.15))}
+.profile-actions{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.action-btn{padding:8px 16px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;border:1px solid #0d2744;background:transparent;color:#5a8aaa;transition:all .2s}
+.action-btn:hover{border-color:#00e5ff;color:#00e5ff}
+.action-btn.following{border-color:rgba(0,229,255,.4);color:#00e5ff}
+.action-btn.primary{background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff}
+.action-btn.primary:hover{background:linear-gradient(135deg,#ff4477,#cc0044)}
+.coins-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.2);color:#ff6680}
+.profile-stats{display:flex;gap:0;margin-top:16px;border:1px solid #0d2744;border-radius:10px;overflow:hidden}
+.stat{flex:1;text-align:center;padding:12px 8px;border-right:1px solid #0d2744;cursor:pointer;transition:background .15s}
+.stat:last-child{border-right:none}
+.stat:hover{background:rgba(0,229,255,.04)}
+.stat-num{font-family:Orbitron,sans-serif;font-size:16px;color:#e8f4ff}
+.stat-lbl{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+.sub-section{margin-top:16px;padding:14px;background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px}
+.sub-price{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:10px}
+.sub-price.paid{background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff6680}
+.sub-price.free{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);color:#00e5ff}
+.sub-btn{width:100%;padding:10px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase;border:none}
+.sub-btn.paid{background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff}
+.sub-btn.free{background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000}
+.sub-btn.active{background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.3);color:#00ff88}
+.posts-title{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em;margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid #0d2744}
+.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.post-thumb{aspect-ratio:1;background:rgba(7,15,30,.7);border-radius:4px;overflow:hidden;cursor:pointer;position:relative}
+.post-thumb img,.post-thumb video{width:100%;height:100%;object-fit:cover}
+.post-thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background .2s}
+.post-thumb:hover .post-thumb-overlay{background:rgba(0,0,0,.4)}
+.post-thumb-stats{color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .2s}
+.post-thumb:hover .post-thumb-stats{opacity:1}
+.post-thumb.premium::after{content:"🔒";position:absolute;top:4px;right:4px;font-size:12px}
+.empty-posts{text-align:center;padding:40px;color:#5a8aaa;grid-column:1/-1}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
 </style>
 </head>
 <body>
 <header>
-  <span class="logo" onclick="window.location.href='/'">SHADOWNET</span>
-  <button class="back-btn" onclick="history.back()">&#8592; Volver</button>
-
-  <button onclick="window.location.href='/search.html'" style="padding:7px 12px;border:1px solid rgba(0,229,255,.25);background:rgba(0,229,255,.08);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-left:auto">&#128269;</button>
+  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <button class="back-btn" onclick="history.back()">&larr; Volver</button>
 </header>
-<div id="profileWrap" class="wrap">
-  <div class="cover" id="coverEl">
-    <label class="cover-edit" id="coverEditBtn" style="display:none"><input type="file" id="coverInput" accept="image/*" style="display:none"><button class="cover-edit-btn" onclick="document.getElementById('coverInput').click()">&#128247; Cambiar portada</button></label>
-  </div>
+<div class="profile-cover" id="profileCover"></div>
+<div class="profile-wrap">
   <div class="profile-header">
-    <div class="avatar-wrap">
-      <div class="avatar-lg" id="avatarEl">?</div>
-      <label id="avatarEditBtn" style="display:none"><input type="file" id="avatarInput" accept="image/*" style="display:none"><button class="avatar-edit-btn" onclick="document.getElementById('avatarInput').click()">&#9998;</button></label>
-    </div>
-    <div class="profile-info">
-      <div class="profile-name" id="profileName">Cargando...</div>
-      <div class="profile-bio" id="profileBio"><span class="bio-placeholder">Sin biografia</span></div>
-    </div>
-    <div class="profile-stats">
-      <div class="stat"><div class="stat-num" id="statPosts">0</div><div class="stat-lbl">Posts</div></div>
-      <div class="stat"><div class="stat-num" id="statFollowers">0</div><div class="stat-lbl">Seguidores</div></div>
-      <div class="stat"><div class="stat-num" id="statFollowing">0</div><div class="stat-lbl">Siguiendo</div></div>
-    <div class="stat"><div class="stat-num c-red" id="statSubs">0</div><div class="stat-lbl">Suscriptores</div></div>
-    <div class="stat" onclick="window.location.href='/leaderboard.html'" style="cursor:pointer"><div class="stat-num" id="statRank" style="color:#ffaa00;font-size:14px">-</div><div class="stat-lbl">Rango</div></div>
-    </div>
+    <div class="profile-avatar" id="profileAvatar"></div>
+  </div>
+  <div class="profile-info">
+    <div class="profile-username" id="profileUsername"></div>
+    <div class="profile-bio" id="profileBio"></div>
+    <div id="profileRankBadge"></div>
     <div class="profile-actions" id="profileActions"></div>
+    <div id="profileSubSection"></div>
   </div>
-  <hr class="divider">
-  <div class="posts-grid" id="postsGrid"><div class="no-posts">Cargando...</div></div>
-</div>
-<div id="editModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-title">EDITAR PERFIL</div>
-    <input class="inp" id="editBio" placeholder="Tu biografia...">
-    <div class="modal-btns">
-      <button class="cancel-btn" onclick="document.getElementById('editModal').classList.remove('open')">Cancelar</button>
-      <button class="save-btn" onclick="saveProfile()">Guardar</button>
+  <div class="profile-stats">
+    <div class="stat" onclick="window.location.href='/leaderboard.html'">
+      <div class="stat-num" id="statFollowers">0</div>
+      <div class="stat-lbl">Seguidores</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statFollowing">0</div>
+      <div class="stat-lbl">Siguiendo</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statSubs">0</div>
+      <div class="stat-lbl">Suscriptores</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statPosts">0</div>
+      <div class="stat-lbl">Posts</div>
+    </div>
+    <div class="stat" onclick="window.location.href='/leaderboard.html'" style="cursor:pointer">
+      <div class="stat-num" id="statRank" style="color:#ffaa00;font-size:14px">-</div>
+      <div class="stat-lbl">Rango</div>
     </div>
   </div>
+  <div class="posts-title">PUBLICACIONES</div>
+  <div class="posts-grid" id="postsGrid"><div class="empty-posts">Cargando...</div></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
-var SB_URL = "https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY = "sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb = supabase.createClient(SB_URL, SB_KEY);
-var currentUser = null;
-var profileData = null;
-var isOwnProfile = false;
+var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
+var currentProfile=null;
+var targetProfile=null;
 
-var params = new URLSearchParams(location.search);
-var targetUsername = params.get("u");
-var targetId = params.get("id");
-
-sb.auth.getSession().then(function(r) {
-  if (r.data.session) currentUser = r.data.session.user;
-  loadProfile();
+// Init
+sb.auth.getSession().then(function(r){
+  if(r.data.session){
+    currentUser=r.data.session.user;
+    sb.from("profiles").select("*").eq("id",currentUser.id).single().then(function(p){ currentProfile=p.data; });
+  }
+  var params=new URLSearchParams(location.search);
+  var targetUsername=params.get("u")||null;
+  var targetId=params.get("id")||null;
+  if(targetUsername) loadProfileByUsername(targetUsername);
+  else if(targetId) loadProfileById(targetId);
+  else if(currentUser) loadProfileById(currentUser.id);
+  else window.location.href="/";
 });
 
-async function loadProfile() {
-  var query;
-  if (targetUsername) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("username", targetUsername).single();
-  else if (targetId) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("id", targetId).single();
-  else if (currentUser) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("id", currentUser.id).single();
-  else { document.getElementById("profileName").textContent = "Perfil no encontrado"; return; }
-  var r = await query;
-  if (r.error || !r.data) { document.getElementById("profileName").textContent = "Usuario no encontrado"; return; }
-  profileData = r.data;
-  isOwnProfile = currentUser && currentUser.id === r.data.id;
+async function loadProfileByUsername(username){
+  var r=await sb.from("profiles").select("*").eq("username",username).single();
+  if(r.error||!r.data){ showToast("Usuario no encontrado",true); return; }
   renderProfile(r.data);
   loadPosts(r.data.id);
-  if (isOwnProfile) {
-    document.getElementById("coverEditBtn").style.display = "block";
-    document.getElementById("avatarEditBtn").style.display = "block";
-  }
 }
 
-async function renderProfile(p) {
-  document.title = "@" + p.username + " — SHADOWNET";
-  var nameEl = document.getElementById("profileName");
-  nameEl.textContent = "@" + p.username;
-  if (p.verification_status === "verified") {
-    var badge = document.createElement("span"); badge.className = "verified-badge"; badge.textContent = "\u2713 VERIFICADO";
-    nameEl.appendChild(badge);
-  }
-  var bioEl = document.getElementById("profileBio");
-  bioEl.innerHTML = p.bio ? p.bio : '<span class="bio-placeholder">Sin biograf\xEDa</span>';
-  // Show fan rank badge
-  var existingRank=document.getElementById("profileRankBadge");
-  if(existingRank)existingRank.remove();
-  if(p.fan_points>0){
-    var rankBadge=document.createElement("div");rankBadge.id="profileRankBadge";rankBadge.className="profile-rank-badge";
-    rankBadge.innerHTML='\u2B50 '+( p.fan_rank_name||"Sombra")+' Lv.'+(p.fan_rank||1)+' &bull; '+(p.fan_points||0)+' pts';
-    rankBadge.addEventListener("click",function(){window.location.href="/leaderboard.html";});
-    bioEl.parentNode.insertBefore(rankBadge,bioEl.nextSibling);
-  }
-  document.getElementById("statPosts").textContent = p.posts_count || 0;
-  document.getElementById("statFollowers").textContent = p.followers_count || 0;
-  document.getElementById("statFollowing").textContent = p.following_count || 0;
-  var ss=document.getElementById("statSubs"); if(ss) ss.textContent=p.subscribers_count||0;
-  var sr=document.getElementById("statRank"); if(sr&&p.fan_rank_name) sr.textContent="Lv."+(p.fan_rank||1);
-  var av = document.getElementById("avatarEl");
-  if (p.avatar_url) { av.innerHTML = '<img src="' + p.avatar_url + '">'; }
-  else av.textContent = p.username[0].toUpperCase();
-  var cover = document.getElementById("coverEl");
-  if (p.cover_url) cover.style.backgroundImage = 'url("' + p.cover_url + '")'; 
-  renderSubSection(p);
-  var actions = document.getElementById("profileActions");
-  actions.innerHTML = "";
-  if (isOwnProfile) {
-    var editBtn = document.createElement("button"); editBtn.className = "edit-profile-btn"; editBtn.textContent = "\u270E Editar perfil";
-    editBtn.addEventListener("click", function() {
-      document.getElementById("editBio").value = profileData.bio || "";
-      document.getElementById("editModal").classList.add("open");
-    });
-    actions.appendChild(editBtn);
-    var feedBtn = document.createElement("button"); feedBtn.className = "edit-profile-btn"; feedBtn.textContent = "\uD83D\uDCF0 Ver Feed";
-    feedBtn.addEventListener("click", function() { window.location.href = "/feed.html"; });
-    actions.appendChild(feedBtn);
-  } else if (currentUser) {
-    var followBtn = document.createElement("button"); followBtn.className = "follow-btn-lg"; followBtn.textContent = "Seguir";
-    followBtn.dataset.uid = p.id; followBtn.dataset.following = "0";
-    followBtn.addEventListener("click", function() { toggleFollow(this); });
-    var fr = await sb.from("follows").select("id").eq("follower_id", currentUser.id).eq("following_id", p.id).single();
-    if (fr.data) { followBtn.textContent = "Siguiendo"; followBtn.classList.add("following"); followBtn.dataset.following = "1"; }
-    actions.appendChild(followBtn);
-    var dmBtn=document.createElement("button");dmBtn.className="edit-profile-btn";dmBtn.textContent="\uD83D\uDCAC Mensaje";
-    dmBtn.addEventListener("click",function(){window.location.href="/messages.html?with="+p.username;});
-    actions.appendChild(dmBtn);
-  }
+async function loadProfileById(id){
+  var r=await sb.from("profiles").select("*").eq("id",id).single();
+  if(r.error||!r.data){ showToast("Perfil no encontrado",true); return; }
+  renderProfile(r.data);
+  loadPosts(r.data.id);
 }
 
-async function loadPosts(userId) {
-  var grid = document.getElementById("postsGrid");
-  var r = await sb.from("posts").select("id,media_url,media_type,likes_count,content").eq("user_id", userId).order("created_at",{ascending:false}).limit(30);
-  if (r.error || !r.data || r.data.length === 0) { grid.innerHTML = '<div class="no-posts">Sin publicaciones a\xFAn</div>'; return; }
-  grid.innerHTML = "";
-  r.data.forEach(function(post) {
-    var thumb = document.createElement("div"); thumb.className = "post-thumb";
-    thumb.addEventListener("click", function() { window.location.href = "/feed.html"; });
-    if (post.media_url) {
-      var img = document.createElement("img"); img.src = post.media_url; img.alt = "post"; thumb.appendChild(img);
-    } else {
-      var txt = document.createElement("div"); txt.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:12px;font-size:12px;color:#5a8aaa;text-align:center";
-      txt.textContent = (post.content || "").slice(0,60);
-      thumb.appendChild(txt);
-    }
-    var ov = document.createElement("div"); ov.className = "post-thumb-overlay";
-    ov.innerHTML = '&#10084; ' + (post.likes_count || 0);
-    ov.className = "post-thumb-overlay post-thumb-likes";
-    thumb.appendChild(ov);
-    grid.appendChild(thumb);
-  });
-}
+function renderProfile(p){
+  targetProfile=p;
+  var isOwn=currentUser&&p.id===currentUser.id;
+  document.title="@"+p.username+" — SHADOWNET";
 
-async function toggleFollow(btn) {
-  if (!currentUser) { window.location.href = "/"; return; }
-  var uid = btn.dataset.uid;
-  var isFollowing = btn.dataset.following === "1";
-  if (isFollowing) {
-    await sb.from("follows").delete().eq("follower_id", currentUser.id).eq("following_id", uid);
-    btn.textContent = "Seguir"; btn.classList.remove("following"); btn.dataset.following = "0";
-    var fc = document.getElementById("statFollowers");
-    if (fc) fc.textContent = Math.max(0, parseInt(fc.textContent)-1);
-    showToast("Dejaste de seguir");
-  } else {
-    await sb.from("follows").insert({ follower_id: currentUser.id, following_id: uid });
-    btn.textContent = "Siguiendo"; btn.classList.add("following"); btn.dataset.following = "1";
-    var fc2 = document.getElementById("statFollowers");
-    if (fc2) fc2.textContent = parseInt(fc2.textContent)+1;
-    showToast("\u2713 Ahora sigues a @" + (profileData.username||""));
-  }
-}
+  // Cover
+  var coverEl=document.getElementById("profileCover");
+  if(p.cover_url){var ci=document.createElement("img");ci.src=p.cover_url;coverEl.appendChild(ci);}
+  var overlay=document.createElement("div");overlay.className="cover-overlay";coverEl.appendChild(overlay);
 
-async function saveProfile() {
-  var bio = document.getElementById("editBio").value.trim();
-  await sb.from("profiles").update({ bio: bio }).eq("id", currentUser.id);
-  profileData.bio = bio;
-  document.getElementById("profileBio").innerHTML = bio || '<span class="bio-placeholder">Sin biograf\xEDa</span>';
-  document.getElementById("editModal").classList.remove("open");
-  showToast("\u2713 Perfil actualizado");
-}
-
-document.getElementById("avatarInput").addEventListener("change", async function() {
-  var file = this.files[0]; if (!file || !currentUser) return;
-  var path = "avatars/" + currentUser.id + "." + file.name.split(".").pop();
-  var up = await sb.storage.from("media").upload(path, file, {upsert:true});
-  if (up.error) { showToast("Error subiendo avatar", true); return; }
-  var url = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
-  await sb.from("profiles").update({ avatar_url: url }).eq("id", currentUser.id);
-  var av = document.getElementById("avatarEl"); av.innerHTML = '<img src="' + url + '">'; 
-  showToast("\u2713 Avatar actualizado");
-});
-
-document.getElementById("coverInput").addEventListener("change", async function() {
-  var file = this.files[0]; if (!file || !currentUser) return;
-  var path = "covers/" + currentUser.id + "." + file.name.split(".").pop();
-  var up = await sb.storage.from("media").upload(path, file, {upsert:true});
-  if (up.error) { showToast("Error subiendo portada", true); return; }
-  var url = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
-  await sb.from("profiles").update({ cover_url: url }).eq("id", currentUser.id);
-  document.getElementById("coverEl").style.backgroundImage = 'url("' + url + '")'; document.getElementById("coverEl").style.backgroundSize = "cover"; document.getElementById("coverEl").style.backgroundPosition = "center";
-  showToast("\u2713 Portada actualizada");
-});
-
-function showToast(msg, isErr) {
-  var t = document.getElementById("toast");
-  t.textContent = msg;
-  t.style.borderColor = isErr ? "#ff2255" : "#00ff88";
-  t.style.color = isErr ? "#ff2255" : "#00ff88";
-  t.style.display = "block";
-  setTimeout(function() { t.style.display = "none"; }, 2500);
-}
-
-function renderSubSection(p){
-  var existing=document.getElementById("subSection");
-  if(existing)existing.remove();
-  var wrap=document.getElementById("profileWrap");
-  var divider=wrap.querySelector(".divider");
-  var sec=document.createElement("div");
-  sec.id="subSection";
-  if(isOwnProfile){
-    var box=document.createElement("div");box.className="sub-setup";
-    var title=document.createElement("div");title.className="sub-setup-title";title.textContent="\uD83D\uDCC2 Configurar Suscripci\xF3n";
-    var prow=document.createElement("div");prow.className="price-row";
-    var prefix=document.createElement("span");prefix.className="price-prefix";prefix.textContent="$";
-    var pinp=document.createElement("input");pinp.className="price-inp";pinp.id="subPriceInp";pinp.type="number";pinp.min="0";pinp.max="99.99";pinp.step="0.01";pinp.placeholder="9.99";if(p.subscription_price)pinp.value=p.subscription_price;
-    var plbl=document.createElement("span");plbl.style.cssText="font-size:12px;color:#5a8aaa";plbl.textContent="USD/mes";
-    prow.appendChild(prefix);prow.appendChild(pinp);prow.appendChild(plbl);
-    var dinp=document.createElement("input");dinp.className="inp";dinp.id="subDescInp";dinp.placeholder="Qu\xE9 incluye tu suscripci\xF3n...";dinp.style.marginBottom="10px";if(p.subscription_description)dinp.value=p.subscription_description;
-    var sbtn=document.createElement("button");sbtn.className="sub-save-btn";sbtn.textContent="Guardar precio";
-    sbtn.addEventListener("click",saveSubscriptionSettings);
-    var scount=document.createElement("div");scount.className="subs-count";
-    scount.textContent=(p.subscribers_count||0)+" suscriptores \u2022 Ganancias: $"+parseFloat(p.total_earnings||0).toFixed(2);
-    box.appendChild(title);box.appendChild(prow);box.appendChild(dinp);box.appendChild(sbtn);box.appendChild(scount);
-    sec.appendChild(box);
-    if(divider)wrap.insertBefore(sec,divider);else wrap.appendChild(sec);
-  } else if(p.subscription_price>0){
-    checkSubscription(p.id).then(function(isSubbed){
-      var box=document.createElement("div");box.className="sub-box";
-      var stitle=document.createElement("div");stitle.className="sub-title";stitle.textContent="\u2B50 CONTENIDO EXCLUSIVO";
-      var sprice=document.createElement("div");sprice.className="sub-price";
-      sprice.innerHTML="$"+parseFloat(p.subscription_price).toFixed(2)+"<span style=\"font-size:14px;color:#5a8aaa\">/mes</span>";
-      var sdesc=document.createElement("div");sdesc.className="sub-desc";sdesc.textContent=p.subscription_description||"Accede a contenido exclusivo, lives privados y mensajes directos.";
-      var sbtn=document.createElement("button");
-      if(isSubbed){
-        sbtn.className="sub-btn active";sbtn.textContent="\u2713 Suscrito";sbtn.disabled=true;
-      } else {
-        sbtn.className="sub-btn";sbtn.textContent="\uD83D\uDD12 Suscribirse por $"+parseFloat(p.subscription_price).toFixed(2)+"/mes";
-        sbtn.dataset.creatorId=p.id;
-        sbtn.dataset.price=p.subscription_price;
-        sbtn.dataset.desc=p.subscription_description||"";
-        sbtn.addEventListener("click",function(){
-          openSubModal(this.dataset.creatorId,parseFloat(this.dataset.price),this.dataset.desc);
-        });
-      }
-      box.appendChild(stitle);box.appendChild(sprice);box.appendChild(sdesc);box.appendChild(sbtn);
-      sec.appendChild(box);
-      if(divider)wrap.insertBefore(sec,divider);else wrap.appendChild(sec);
-    });
-  }
-}
-
-// =============================================
-// SUBSCRIPCIONES
-// =============================================
-var _subCreatorId = null;
-var _subPrice = 0;
-
-async function checkSubscription(creatorId){
-  if(!currentUser) return false;
-  var r = await sb.from("subscriptions").select("id,status").eq("subscriber_id",currentUser.id).eq("creator_id",creatorId).eq("status","active").single();
-  return !!r.data;
-}
-
-function openSubModal(creatorId, price, desc){
-  _subCreatorId = creatorId;
-  _subPrice = price;
-  document.getElementById("subModalPrice").textContent = "$" + parseFloat(price).toFixed(2);
-  document.getElementById("subModalDesc").textContent = desc || "Accede a contenido exclusivo de este creador.";
-  document.getElementById("subModal").classList.add("open");
-}
-
-async function confirmSubscription(){
-  if(!currentUser){window.location.href="/";return;}
-  if(!_subCreatorId)return;
-  var btn=document.getElementById("subConfirmBtn");
-  btn.disabled=true;btn.textContent="Procesando...";
-  try{
-    var expDate=new Date();expDate.setMonth(expDate.getMonth()+1);
-    var r=await sb.from("subscriptions").upsert({
-      subscriber_id:currentUser.id,creator_id:_subCreatorId,
-      status:"active",price:_subPrice,
-      started_at:new Date().toISOString(),expires_at:expDate.toISOString()
-    });
-    if(r.error)throw new Error(r.error.message);
-    await sb.from("transactions").insert({
-      user_id:currentUser.id,type:"subscription",
-      amount:-_subPrice,description:"Suscripci\xF3n mensual"
-    });
-    var creatorCut=parseFloat(_subPrice)*0.60;
-    await sb.from("profiles").update({
-      total_earnings:parseFloat(profileData&&profileData.total_earnings||0)+creatorCut
-    }).eq("id",_subCreatorId);
-    document.getElementById("subModal").classList.remove("open");
-    showToast("\u2713 Suscripci\xF3n activa!");
-    setTimeout(loadProfile,500);
-  }catch(e){
-    btn.disabled=false;btn.textContent="\uD83D\uDD12 Suscribirse";
-    showToast("Error: "+e.message,true);
-  }
-}
-
-async function saveSubscriptionSettings(){
-  var price = parseFloat(document.getElementById("subPriceInp").value) || 0;
-  var desc = document.getElementById("subDescInp").value.trim();
-  if(price > 0 && price < 1){ showToast("El precio m\xEDnimo es $1.00", true); return; }
-  var r = await sb.from("profiles").update({
-    subscription_price: price,
-    subscription_description: desc,
-    is_creator: price > 0
-  }).eq("id", currentUser.id);
-  if(r.error){ showToast("Error: "+r.error.message, true); return; }
-  profileData.subscription_price = price;
-  profileData.subscription_description = desc;
-  showToast("\u2713 Configuraci\xF3n guardada");
-  renderSubSection(profileData);
-}
-</script>
-
-<!-- Subscription Payment Modal -->
-<div id="subModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-title">&#128274; SUSCRIBIRSE</div>
-    <div id="subModalContent">
-      <p style="font-size:13px;color:#8a9bb0;margin-bottom:16px;line-height:1.6" id="subModalDesc">Accede a contenido exclusivo de este creador.</p>
-      <div style="text-align:center;margin-bottom:16px">
-        <div style="font-family:Orbitron,sans-serif;font-size:32px;color:#e8f4ff" id="subModalPrice">$9.99</div>
-        <div style="font-size:12px;color:#5a8aaa;margin-top:4px">por mes</div>
-      </div>
-      <div style="background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:12px;margin-bottom:16px">
-        <p style="font-size:12px;color:#00ff88;line-height:1.5">&#10003; Acceso a contenido premium<br>&#10003; Mensajes directos con el creador<br>&#10003; Badge de suscriptor exclusivo<br>&#10003; Cancela cuando quieras</p>
-      </div>
-      <div style="background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:8px;padding:10px;margin-bottom:16px;font-size:12px;color:#5a8aaa;line-height:1.5">
-        &#128274; Pago seguro procesado por Stripe. El creador recibe el 60% de cada suscripci\xF3n.
-      </div>
-    </div>
-    <div class="modal-btns">
-      <button class="cancel-btn" onclick="document.getElementById('subModal').classList.remove('open')">Cancelar</button>
-      <button class="save-btn" id="subConfirmBtn" onclick="confirmSubscription()">&#128274; Suscribirse</button>
-    </div>
-  </div>
-</div>
-</body>
-</html>function renderProfile(p, isOwn) {
-  document.title = "@" + p.username + " — SHADOWNET";
-  // Cover photo
-  var coverEl = document.getElementById("profileCover");
-  if(coverEl){
-    if(p.cover_url){ var ci=document.createElement("img"); ci.src=p.cover_url; coverEl.appendChild(ci); }
-    coverEl.style.display="block";
-  }
   // Avatar
   var av=document.getElementById("profileAvatar");
-  if(av){
-    if(p.avatar_url){var img=document.createElement("img");img.src=p.avatar_url;av.appendChild(img);}
-    else av.textContent=(p.username||"?")[0].toUpperCase();
-  }
-  // Name + verified
+  if(p.avatar_url){var ai=document.createElement("img");ai.src=p.avatar_url;av.appendChild(ai);}
+  else av.textContent=(p.username||"?")[0].toUpperCase();
+
+  // Username + badges
   var nameEl=document.getElementById("profileUsername");
-  if(nameEl){
-    nameEl.textContent="@"+p.username;
-    if(p.verification_status==="verified"){var vb=document.createElement("span");vb.style.cssText="color:#00e5ff;font-size:14px;margin-left:6px";vb.textContent="✓";nameEl.appendChild(vb);}
-    if(p.role==="creator"){var rb=document.createElement("span");rb.className="role-badge role-creator";rb.style.marginLeft="8px";rb.textContent="🌟 CREADOR";nameEl.appendChild(rb);}
-  }
+  nameEl.textContent="@"+p.username;
+  if(p.verification_status==="verified"){var vb=document.createElement("span");vb.className="v-badge";vb.textContent="✓";nameEl.appendChild(vb);}
+  if(p.role==="creator"){var rt=document.createElement("span");rt.className="role-tag";rt.textContent="🌟 CREADOR";nameEl.appendChild(rt);}
+
   // Bio
   var bioEl=document.getElementById("profileBio");
-  if(bioEl){
-    bioEl.innerHTML=p.bio?"<p>"+p.bio+"</p>":'<span class="bio-placeholder">Sin biografía</span>';
-    // Fan rank badge
-    if(p.fan_points>0){
-      var rankBadge=document.createElement("div");rankBadge.id="profileRankBadge";rankBadge.className="profile-rank-badge";
-      rankBadge.innerHTML='⭐ '+(p.fan_rank_name||"Sombra")+' Lv.'+(p.fan_rank||1)+' • '+(p.fan_points||0)+' pts';
-      rankBadge.addEventListener("click",function(){window.location.href="/leaderboard.html";});
-      bioEl.parentNode.insertBefore(rankBadge,bioEl.nextSibling);
-    }
+  bioEl.textContent=p.bio||"";
+
+  // Fan rank badge
+  var rankEl=document.getElementById("profileRankBadge");
+  if(p.fan_points>0){
+    var rb=document.createElement("div");rb.className="rank-badge";
+    rb.textContent="⭐ "+(p.fan_rank_name||"Sombra")+" Lv."+(p.fan_rank||1)+" • "+(p.fan_points||0)+" pts";
+    rb.addEventListener("click",function(){window.location.href="/leaderboard.html";});
+    rankEl.appendChild(rb);
   }
+
   // Stats
   var sf=document.getElementById("statFollowers");if(sf)sf.textContent=p.followers_count||0;
   var sfw=document.getElementById("statFollowing");if(sfw)sfw.textContent=p.following_count||0;
   var ss=document.getElementById("statSubs");if(ss)ss.textContent=p.subscribers_count||0;
   var sp=document.getElementById("statPosts");if(sp)sp.textContent=p.posts_count||0;
-  var sr=document.getElementById("statRank");if(sr&&p.fan_rank_name)sr.textContent="Lv."+(p.fan_rank||1);
+  var sr=document.getElementById("statRank");if(sr&&p.fan_rank)sr.textContent="Lv."+(p.fan_rank||1);
+
   // Actions
   var actions=document.getElementById("profileActions");
-  if(actions){
-    actions.innerHTML="";
-    if(isOwn){
-      var editBtn=document.createElement("button");editBtn.className="edit-profile-btn";editBtn.textContent="✏️ Editar Perfil";
-      editBtn.addEventListener("click",function(){window.location.href="/settings.html";});
-      actions.appendChild(editBtn);
-      if(p.coins_balance!==undefined){
-        var cb=document.createElement("span");cb.className="coins-badge";cb.textContent="💀 "+(p.coins_balance||0)+" Almas";
-        actions.appendChild(cb);
-      }
-    } else {
-      // Follow button
-      var followBtn=document.createElement("button");followBtn.className="edit-profile-btn";
-      followBtn.id="mainFollowBtn";followBtn.dataset.uid=p.id;
-      followBtn.textContent="Seguir";
-      followBtn.addEventListener("click",function(){toggleFollowMain(this,p.id);});
-      checkFollowingMain(p.id,followBtn);
-      actions.appendChild(followBtn);
-      // DM button
-      var dmBtn=document.createElement("button");dmBtn.className="edit-profile-btn";dmBtn.textContent="💬 Mensaje";
-      dmBtn.addEventListener("click",function(){window.location.href="/messages.html?with="+p.username;});
-      actions.appendChild(dmBtn);
-    }
-    // Subscription section for creators
-    if(p.role==="creator"){
-      var subDiv=document.createElement("div");subDiv.style.cssText="margin-top:14px;padding-top:14px;border-top:1px solid rgba(13,39,68,.4)";
-      var price=parseFloat(p.subscription_price||0);
-      var priceTag=document.createElement("div");
-      priceTag.className="sub-price-tag "+(price>0?"sub-price-paid":"sub-price-free");
-      priceTag.textContent=price>0?"🐍 $"+price.toFixed(2)+"/mes":"🔓 Contenido gratuito";
-      subDiv.appendChild(priceTag);
-      if(!isOwn){
-        var subBtn=document.createElement("button");
-        subBtn.className="sub-action-btn";
-        subBtn.id="subBtn";subBtn.dataset.creatorId=p.id;subBtn.dataset.price=price;subBtn.dataset.paypal=p.paypal_email||"";
-        subBtn.textContent=price>0?"Suscribirse — $"+price.toFixed(2)+"/mes":"Seguir gratis";
-        subBtn.className="sub-action-btn "+(price>0?"sub-action-subscribe":"sub-action-free");
-        subBtn.addEventListener("click",function(){handleSubscribe(p.id,price,p.paypal_email,p.username);});
-        checkSubscriptionMain(p.id,subBtn);
-        subDiv.appendChild(subBtn);
-      }
-      actions.appendChild(subDiv);
-    }
-  }
-}
-body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
-header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,12,.95);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px}
-.logo{font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
-.back-btn{padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;border:1px solid #0d2744;background:transparent;color:#5a8aaa}
-.back-btn:hover{border-color:#00e5ff;color:#00e5ff}
-.wrap{max-width:700px;margin:0 auto;padding:0 0 40px}
-.cover{height:200px;background:linear-gradient(135deg,#0a0518,#1a0520,#0d1035);position:relative;overflow:hidden}
-.cover-edit{position:absolute;bottom:12px;right:12px}
-.cover-edit-btn{padding:6px 12px;background:rgba(1,2,12,.7);border:1px solid rgba(255,255,255,.2);color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer}
-.profile-header{padding:0 20px 20px;position:relative}
-.avatar-wrap{position:relative;display:inline-block;margin-top:-50px;margin-bottom:12px}
-.avatar-lg{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:36px;color:#fff;border:3px solid #01020c;overflow:hidden}
-.avatar-lg img{width:100%;height:100%;object-fit:cover}
-.avatar-edit-btn{position:absolute;bottom:4px;right:4px;width:26px;height:26px;border-radius:50%;background:#00e5ff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px}
-.profile-info{margin-bottom:16px}
-.profile-name{font-family:Orbitron,sans-serif;font-size:18px;color:#e8f4ff;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.verified-badge{background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.4);color:#00e5ff;padding:3px 8px;border-radius:12px;font-size:10px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em}
-.profile-bio{font-size:14px;color:#8a9bb0;line-height:1.5;margin-bottom:12px}
-.bio-placeholder{color:#3a5060;font-style:italic}
-.profile-stats{display:flex;gap:24px;margin-bottom:16px}
-.stat{text-align:center;cursor:pointer}
-.stat-num{font-family:Orbitron,sans-serif;font-size:18px;color:#e8f4ff}
-.stat-lbl{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em}
-.profile-actions{display:flex;gap:10px;flex-wrap:wrap}
-.follow-btn-lg{padding:10px 28px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;border:none;background:linear-gradient(135deg,#00e5ff,#0060cc);color:#000}
-.follow-btn-lg.following{background:transparent;border:1px solid #5a8aaa;color:#5a8aaa}
-.edit-profile-btn{padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;border:1px solid #0d2744;background:transparent;color:#e8f4ff}
-.edit-profile-btn:hover{border-color:#00e5ff;color:#00e5ff}
-.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:4px}
-.post-thumb{aspect-ratio:1;overflow:hidden;cursor:pointer;background:rgba(7,15,30,.5);position:relative}
-.post-thumb img,.post-thumb video{width:100%;height:100%;object-fit:cover}
-.post-thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .2s;display:flex;align-items:center;justify-content:center;opacity:0}
-.post-thumb:hover .post-thumb-overlay{background:rgba(0,0,0,.5);opacity:1}
-.post-thumb-likes{color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px}
-.no-posts{grid-column:1/-1;text-align:center;padding:48px;color:#5a8aaa}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:none;align-items:center;justify-content:center}
-.modal.open{display:flex}
-.modal-box{background:#070f1e;border:1px solid #0d2744;border-radius:12px;padding:24px;width:100%;max-width:440px;margin:0 16px}
-.modal-title{font-family:Orbitron,sans-serif;font-size:13px;color:#00e5ff;margin-bottom:16px;letter-spacing:.1em}
-.inp{width:100%;padding:10px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none}
-.inp:focus{border-color:#00e5ff}
-textarea.inp{resize:none;height:80px}
-.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
-.save-btn{padding:10px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
-.cancel-btn{padding:10px 16px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
-.divider{border:none;border-top:1px solid #0d2744;margin:16px 20px}
-@media(max-width:480px){.posts-grid{grid-template-columns:repeat(2,1fr)}.profile-stats{gap:14px}}
-
-.sub-box{background:linear-gradient(135deg,rgba(255,34,85,.12),rgba(150,0,50,.08));border:1px solid rgba(255,34,85,.35);border-radius:12px;padding:18px;margin:16px 20px 0}
-.sub-title{font-family:Orbitron,sans-serif;font-size:12px;color:#ff6680;letter-spacing:.1em;margin-bottom:8px}
-.sub-price{font-family:Orbitron,sans-serif;font-size:28px;color:#e8f4ff;margin-bottom:6px}
-.sub-desc{font-size:13px;color:#8a9bb0;margin-bottom:14px;line-height:1.5}
-.sub-btn{width:100%;padding:13px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em}
-.sub-btn:disabled{opacity:.5;cursor:not-allowed}
-.sub-btn.active{background:linear-gradient(135deg,#00ff88,#00aa55);color:#000}
-.sub-setup{background:rgba(7,15,30,.5);border:1px solid #0d2744;border-radius:10px;padding:16px;margin:16px 20px 0}
-.sub-setup-title{font-size:12px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;font-family:Orbitron,sans-serif}
-.price-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
-.price-prefix{font-size:20px;color:#5a8aaa;font-weight:700}
-.price-inp{flex:1;padding:10px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;outline:none;width:100px}
-.price-inp:focus{border-color:#ff2255}
-.sub-save-btn{padding:10px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
-.subs-count{font-size:12px;color:#ff6680;font-weight:700;margin-top:8px}
-
-.profile-rank-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:12px;font-size:11px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em;background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00;margin-top:8px;cursor:pointer}
-.profile-rank-badge:hover{background:linear-gradient(135deg,rgba(255,170,0,.25),rgba(200,80,0,.15))}
-
-.profile-cover{width:100%;height:180px;background:linear-gradient(135deg,#1a0020 0%,#000814 50%,#0a0020 100%);position:relative;overflow:hidden;cursor:pointer}
-.profile-cover img{width:100%;height:100%;object-fit:cover}
-.profile-cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(1,2,12,.8))}
-.sub-price-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-top:8px}
-.sub-price-paid{background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff6680}
-.sub-price-free{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);color:#00e5ff}
-.sub-action-btn{padding:10px 24px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;border:none;margin-top:10px;width:100%}
-.sub-action-subscribed{background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.3);color:#00ff88}
-.sub-action-subscribe{background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff}
-.sub-action-free{background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000}
-.edit-profile-btn{padding:8px 18px;border-radius:8px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
-.edit-profile-btn:hover{border-color:#00e5ff;color:#00e5ff}
-.coins-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.2);color:#ff6680;margin-left:8px}
-</style>
-</head>
-<body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SHADOWNET</span>
-  <button class="back-btn" onclick="history.back()">&#8592; Volver</button>
-
-  <button onclick="window.location.href='/search.html'" style="padding:7px 12px;border:1px solid rgba(0,229,255,.25);background:rgba(0,229,255,.08);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-left:auto">&#128269;</button>
-</header>
-<div id="profileWrap" class="wrap">
-  <div class="cover" id="coverEl">
-    <label class="cover-edit" id="coverEditBtn" style="display:none"><input type="file" id="coverInput" accept="image/*" style="display:none"><button class="cover-edit-btn" onclick="document.getElementById('coverInput').click()">&#128247; Cambiar portada</button></label>
-  </div>
-  <div class="profile-header">
-    <div class="avatar-wrap">
-      <div class="avatar-lg" id="avatarEl">?</div>
-      <label id="avatarEditBtn" style="display:none"><input type="file" id="avatarInput" accept="image/*" style="display:none"><button class="avatar-edit-btn" onclick="document.getElementById('avatarInput').click()">&#9998;</button></label>
-    </div>
-    <div class="profile-info">
-      <div class="profile-name" id="profileName">Cargando...</div>
-      <div class="profile-bio" id="profileBio"><span class="bio-placeholder">Sin biografia</span></div>
-    </div>
-    <div class="profile-stats">
-      <div class="stat"><div class="stat-num" id="statPosts">0</div><div class="stat-lbl">Posts</div></div>
-      <div class="stat"><div class="stat-num" id="statFollowers">0</div><div class="stat-lbl">Seguidores</div></div>
-      <div class="stat"><div class="stat-num" id="statFollowing">0</div><div class="stat-lbl">Siguiendo</div></div>
-    <div class="stat"><div class="stat-num c-red" id="statSubs">0</div><div class="stat-lbl">Suscriptores</div></div>
-    <div class="stat" onclick="window.location.href='/leaderboard.html'" style="cursor:pointer"><div class="stat-num" id="statRank" style="color:#ffaa00;font-size:14px">-</div><div class="stat-lbl">Rango</div></div>
-    </div>
-    <div class="profile-actions" id="profileActions"></div>
-  </div>
-  <hr class="divider">
-  <div class="posts-grid" id="postsGrid"><div class="no-posts">Cargando...</div></div>
-</div>
-<div id="editModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-title">EDITAR PERFIL</div>
-    <input class="inp" id="editBio" placeholder="Tu biografia...">
-    <div class="modal-btns">
-      <button class="cancel-btn" onclick="document.getElementById('editModal').classList.remove('open')">Cancelar</button>
-      <button class="save-btn" onclick="saveProfile()">Guardar</button>
-    </div>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-var SB_URL = "https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY = "sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb = supabase.createClient(SB_URL, SB_KEY);
-var currentUser = null;
-var profileData = null;
-var isOwnProfile = false;
-
-var params = new URLSearchParams(location.search);
-var targetUsername = params.get("u");
-var targetId = params.get("id");
-
-sb.auth.getSession().then(function(r) {
-  if (r.data.session) currentUser = r.data.session.user;
-  loadProfile();
-});
-
-async function loadProfile() {
-  var query;
-  if (targetUsername) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("username", targetUsername).single();
-  else if (targetId) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("id", targetId).single();
-  else if (currentUser) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("id", currentUser.id).single();
-  else { document.getElementById("profileName").textContent = "Perfil no encontrado"; return; }
-  var r = await query;
-  if (r.error || !r.data) { document.getElementById("profileName").textContent = "Usuario no encontrado"; return; }
-  profileData = r.data;
-  isOwnProfile = currentUser && currentUser.id === r.data.id;
-  renderProfile(r.data);
-  loadPosts(r.data.id);
-  if (isOwnProfile) {
-    document.getElementById("coverEditBtn").style.display = "block";
-    document.getElementById("avatarEditBtn").style.display = "block";
-  }
-}
-
-async function renderProfile(p) {
-  document.title = "@" + p.username + " \u2014 SHADOWNET";
-  var nameEl = document.getElementById("profileName");
-  nameEl.textContent = "@" + p.username;
-  if (p.verification_status === "verified") {
-    var badge = document.createElement("span"); badge.className = "verified-badge"; badge.textContent = "\u2713 VERIFICADO";
-    nameEl.appendChild(badge);
-  }
-  var bioEl = document.getElementById("profileBio");
-  bioEl.innerHTML = p.bio ? p.bio : '<span class="bio-placeholder">Sin biograf\xEDa</span>';
-  // Show fan rank badge
-  var existingRank=document.getElementById("profileRankBadge");
-  if(existingRank)existingRank.remove();
-  if(p.fan_points>0){
-    var rankBadge=document.createElement("div");rankBadge.id="profileRankBadge";rankBadge.className="profile-rank-badge";
-    rankBadge.innerHTML='\u2B50 '+( p.fan_rank_name||"Sombra")+' Lv.'+(p.fan_rank||1)+' &bull; '+(p.fan_points||0)+' pts';
-    rankBadge.addEventListener("click",function(){window.location.href="/leaderboard.html";});
-    bioEl.parentNode.insertBefore(rankBadge,bioEl.nextSibling);
-  }
-  document.getElementById("statPosts").textContent = p.posts_count || 0;
-  document.getElementById("statFollowers").textContent = p.followers_count || 0;
-  document.getElementById("statFollowing").textContent = p.following_count || 0;
-  var ss=document.getElementById("statSubs"); if(ss) ss.textContent=p.subscribers_count||0;
-  var sr=document.getElementById("statRank"); if(sr&&p.fan_rank_name) sr.textContent="Lv."+(p.fan_rank||1);
-  var av = document.getElementById("avatarEl");
-  if (p.avatar_url) { av.innerHTML = '<img src="' + p.avatar_url + '">'; }
-  else av.textContent = p.username[0].toUpperCase();
-  var cover = document.getElementById("coverEl");
-  if (p.cover_url) cover.style.backgroundImage = 'url("' + p.cover_url + '")'; 
-  renderSubSection(p);
-  var actions = document.getElementById("profileActions");
-  actions.innerHTML = "";
-  if (isOwnProfile) {
-    var editBtn = document.createElement("button"); editBtn.className = "edit-profile-btn"; editBtn.textContent = "\u270E Editar perfil";
-    editBtn.addEventListener("click", function() {
-      document.getElementById("editBio").value = profileData.bio || "";
-      document.getElementById("editModal").classList.add("open");
-    });
+  actions.innerHTML="";
+  if(isOwn){
+    var editBtn=document.createElement("button");editBtn.className="action-btn";
+    editBtn.innerHTML="✏ Editar Perfil";
+    editBtn.addEventListener("click",function(){window.location.href="/settings.html";});
     actions.appendChild(editBtn);
-    var feedBtn = document.createElement("button"); feedBtn.className = "edit-profile-btn"; feedBtn.textContent = "\uD83D\uDCF0 Ver Feed";
-    feedBtn.addEventListener("click", function() { window.location.href = "/feed.html"; });
-    actions.appendChild(feedBtn);
-  } else if (currentUser) {
-    var followBtn = document.createElement("button"); followBtn.className = "follow-btn-lg"; followBtn.textContent = "Seguir";
-    followBtn.dataset.uid = p.id; followBtn.dataset.following = "0";
-    followBtn.addEventListener("click", function() { toggleFollow(this); });
-    var fr = await sb.from("follows").select("id").eq("follower_id", currentUser.id).eq("following_id", p.id).single();
-    if (fr.data) { followBtn.textContent = "Siguiendo"; followBtn.classList.add("following"); followBtn.dataset.following = "1"; }
+    if(p.coins_balance!==undefined){
+      var cb=document.createElement("span");cb.className="coins-badge";
+      cb.textContent="💀 "+(p.coins_balance||0)+" Almas";
+      actions.appendChild(cb);
+    }
+  } else {
+    var followBtn=document.createElement("button");followBtn.className="action-btn";
+    followBtn.id="mainFollowBtn";followBtn.dataset.uid=p.id;followBtn.textContent="Seguir";
+    followBtn.addEventListener("click",function(){toggleFollow(this,p.id);});
+    checkFollowState(p.id,followBtn);
     actions.appendChild(followBtn);
-    var dmBtn=document.createElement("button");dmBtn.className="edit-profile-btn";dmBtn.textContent="\uD83D\uDCAC Mensaje";
+    var dmBtn=document.createElement("button");dmBtn.className="action-btn";
+    dmBtn.textContent="💬 Mensaje";
     dmBtn.addEventListener("click",function(){window.location.href="/messages.html?with="+p.username;});
     actions.appendChild(dmBtn);
   }
+
+  // Subscription section (creators only)
+  if(p.role==="creator"){
+    var subSec=document.getElementById("profileSubSection");
+    subSec.innerHTML="";
+    var subDiv=document.createElement("div");subDiv.className="sub-section";
+    var price=parseFloat(p.subscription_price||0);
+    var priceTag=document.createElement("div");
+    priceTag.className="sub-price "+(price>0?"paid":"free");
+    priceTag.textContent=price>0?"🐍 $"+price.toFixed(2)+"/mes":"🔓 Contenido gratuito";
+    subDiv.appendChild(priceTag);
+    if(!isOwn){
+      var subBtn=document.createElement("button");
+      subBtn.className="sub-btn "+(price>0?"paid":"free");
+      subBtn.id="subActionBtn";
+      subBtn.dataset.creatorId=p.id;subBtn.dataset.price=String(price);
+      subBtn.dataset.paypal=p.paypal_email||"";subBtn.dataset.username=p.username;
+      subBtn.textContent=price>0?"Suscribirse — $"+price.toFixed(2)+"/mes":"Seguir gratis";
+      subBtn.addEventListener("click",function(){
+        handleSubscribe(this.dataset.creatorId,parseFloat(this.dataset.price),this.dataset.paypal,this.dataset.username);
+      });
+      checkSubState(p.id,subBtn);
+      subDiv.appendChild(subBtn);
+    }
+    subSec.appendChild(subDiv);
+  }
 }
 
-async function loadPosts(userId) {
-  var grid = document.getElementById("postsGrid");
-  var r = await sb.from("posts").select("id,media_url,media_type,likes_count,content").eq("user_id", userId).order("created_at",{ascending:false}).limit(30);
-  if (r.error || !r.data || r.data.length === 0) { grid.innerHTML = '<div class="no-posts">Sin publicaciones a\xFAn</div>'; return; }
-  grid.innerHTML = "";
-  r.data.forEach(function(post) {
-    var thumb = document.createElement("div"); thumb.className = "post-thumb";
-    thumb.addEventListener("click", function() { window.location.href = "/feed.html"; });
-    if (post.media_url) {
-      var img = document.createElement("img"); img.src = post.media_url; img.alt = "post"; thumb.appendChild(img);
+async function checkFollowState(uid,btn){
+  if(!currentUser)return;
+  var r=await sb.from("follows").select("id").eq("follower_id",currentUser.id).eq("following_id",uid).single();
+  if(r.data){btn.textContent="✓ Siguiendo";btn.classList.add("following");}
+}
+
+async function toggleFollow(btn,uid){
+  if(!currentUser){window.location.href="/";return;}
+  var isF=btn.classList.contains("following");
+  if(isF){
+    await sb.from("follows").delete().eq("follower_id",currentUser.id).eq("following_id",uid);
+    btn.textContent="Seguir";btn.classList.remove("following");
+  } else {
+    await sb.from("follows").insert({follower_id:currentUser.id,following_id:uid});
+    btn.textContent="✓ Siguiendo";btn.classList.add("following");
+    if(currentProfile) await sb.from("notifications").insert({user_id:uid,from_user_id:currentUser.id,type:"follow",message:"@"+currentProfile.username+" empezó a seguirte"});
+  }
+  var sf=document.getElementById("statFollowers");
+  if(sf) sf.textContent=parseInt(sf.textContent||0)+(isF?-1:1);
+}
+
+async function checkSubState(creatorId,btn){
+  if(!currentUser||!btn)return;
+  var r=await sb.from("subscriptions").select("id,status").eq("subscriber_id",currentUser.id).eq("creator_id",creatorId).single();
+  if(r.data&&r.data.status==="active"){btn.className="sub-btn active";btn.textContent="✓ Suscrito";}
+}
+
+async function handleSubscribe(creatorId,price,paypalEmail,creatorUsername){
+  if(!currentUser){window.location.href="/";return;}
+  if(price>0){
+    if(paypalEmail){
+      var handle=paypalEmail.split("@")[0];
+      var paypalUrl="https://www.paypal.com/paypalme/"+handle+"/"+price;
+      if(confirm("Se abrirá PayPal para suscribirte a @"+creatorUsername+" por $"+price.toFixed(2)+"/mes.
+¿Continuar?")){
+        window.open(paypalUrl,"_blank");
+        await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"pending",amount:price});
+        showToast("Completa el pago en PayPal");
+      }
     } else {
-      var txt = document.createElement("div"); txt.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:12px;font-size:12px;color:#5a8aaa;text-align:center";
-      txt.textContent = (post.content || "").slice(0,60);
-      thumb.appendChild(txt);
+      showToast("Este creador aún no configuró su método de pago",true);
     }
-    var ov = document.createElement("div"); ov.className = "post-thumb-overlay";
-    ov.innerHTML = '&#10084; ' + (post.likes_count || 0);
-    ov.className = "post-thumb-overlay post-thumb-likes";
-    thumb.appendChild(ov);
+  } else {
+    await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"active",amount:0});
+    if(currentProfile) await sb.from("notifications").insert({user_id:creatorId,from_user_id:currentUser.id,type:"subscription",message:"@"+currentProfile.username+" se suscribió a tu contenido"});
+    var btn=document.getElementById("subActionBtn");
+    if(btn){btn.className="sub-btn active";btn.textContent="✓ Suscrito";}
+    showToast("✓ Ahora sigues a @"+creatorUsername+" gratuitamente");
+  }
+}
+
+async function loadPosts(userId){
+  var grid=document.getElementById("postsGrid");
+  var r=await sb.from("posts").select("*").eq("user_id",userId).order("created_at",{ascending:false}).limit(30);
+  if(r.error||!r.data||r.data.length===0){
+    grid.innerHTML="<div class=\"empty-posts\">Sin publicaciones aún</div>";return;
+  }
+  grid.innerHTML="";
+  r.data.forEach(function(post){
+    var thumb=document.createElement("div");thumb.className="post-thumb"+(post.is_premium?" premium":"");
+    var isOwn2=currentUser&&post.user_id===currentUser.id;
+    if(post.media_url){
+      if(post.media_type==="video"){var v=document.createElement("video");v.src=post.media_url;v.muted=true;v.preload="metadata";thumb.appendChild(v);}
+      else{var img=document.createElement("img");img.src=post.media_url;img.loading="lazy";thumb.appendChild(img);}
+    } else {
+      var td=document.createElement("div");td.style.cssText="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px;font-size:11px;color:#5a8aaa;line-height:1.3";
+      td.textContent=(post.content||"").slice(0,60);thumb.appendChild(td);
+    }
+    var overlay2=document.createElement("div");overlay2.className="post-thumb-overlay";
+    var stats=document.createElement("div");stats.className="post-thumb-stats";
+    stats.innerHTML="❤ "+(post.likes_count||0)+" 💬 "+(post.comments_count||0);
+    overlay2.appendChild(stats);thumb.appendChild(overlay2);
+    thumb.addEventListener("click",function(){window.location.href="/feed.html?post="+post.id;});
     grid.appendChild(thumb);
   });
 }
 
-async function toggleFollow(btn) {
-  if (!currentUser) { window.location.href = "/"; return; }
-  var uid = btn.dataset.uid;
-  var isFollowing = btn.dataset.following === "1";
-  if (isFollowing) {
-    await sb.from("follows").delete().eq("follower_id", currentUser.id).eq("following_id", uid);
-    btn.textContent = "Seguir"; btn.classList.remove("following"); btn.dataset.following = "0";
-    var fc = document.getElementById("statFollowers");
-    if (fc) fc.textContent = Math.max(0, parseInt(fc.textContent)-1);
-    showToast("Dejaste de seguir");
-  } else {
-    await sb.from("follows").insert({ follower_id: currentUser.id, following_id: uid });
-    btn.textContent = "Siguiendo"; btn.classList.add("following"); btn.dataset.following = "1";
-    var fc2 = document.getElementById("statFollowers");
-    if (fc2) fc2.textContent = parseInt(fc2.textContent)+1;
-    showToast("\u2713 Ahora sigues a @" + (profileData.username||""));
-  }
-}
-
-async function saveProfile() {
-  var bio = document.getElementById("editBio").value.trim();
-  await sb.from("profiles").update({ bio: bio }).eq("id", currentUser.id);
-  profileData.bio = bio;
-  document.getElementById("profileBio").innerHTML = bio || '<span class="bio-placeholder">Sin biograf\xEDa</span>';
-  document.getElementById("editModal").classList.remove("open");
-  showToast("\u2713 Perfil actualizado");
-}
-
-document.getElementById("avatarInput").addEventListener("change", async function() {
-  var file = this.files[0]; if (!file || !currentUser) return;
-  var path = "avatars/" + currentUser.id + "." + file.name.split(".").pop();
-  var up = await sb.storage.from("media").upload(path, file, {upsert:true});
-  if (up.error) { showToast("Error subiendo avatar", true); return; }
-  var url = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
-  await sb.from("profiles").update({ avatar_url: url }).eq("id", currentUser.id);
-  var av = document.getElementById("avatarEl"); av.innerHTML = '<img src="' + url + '">'; 
-  showToast("\u2713 Avatar actualizado");
-});
-
-document.getElementById("coverInput").addEventListener("change", async function() {
-  var file = this.files[0]; if (!file || !currentUser) return;
-  var path = "covers/" + currentUser.id + "." + file.name.split(".").pop();
-  var up = await sb.storage.from("media").upload(path, file, {upsert:true});
-  if (up.error) { showToast("Error subiendo portada", true); return; }
-  var url = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
-  await sb.from("profiles").update({ cover_url: url }).eq("id", currentUser.id);
-  document.getElementById("coverEl").style.backgroundImage = 'url("' + url + '")'; document.getElementById("coverEl").style.backgroundSize = "cover"; document.getElementById("coverEl").style.backgroundPosition = "center";
-  showToast("\u2713 Portada actualizada");
-});
-
-function showToast(msg, isErr) {
-  var t = document.getElementById("toast");
-  t.textContent = msg;
-  t.style.borderColor = isErr ? "#ff2255" : "#00ff88";
-  t.style.color = isErr ? "#ff2255" : "#00ff88";
-  t.style.display = "block";
-  setTimeout(function() { t.style.display = "none"; }, 2500);
-}
-
-function renderSubSection(p){
-  var existing=document.getElementById("subSection");
-  if(existing)existing.remove();
-  var wrap=document.getElementById("profileWrap");
-  var divider=wrap.querySelector(".divider");
-  var sec=document.createElement("div");
-  sec.id="subSection";
-  if(isOwnProfile){
-    var box=document.createElement("div");box.className="sub-setup";
-    var title=document.createElement("div");title.className="sub-setup-title";title.textContent="\uD83D\uDCC2 Configurar Suscripci\xF3n";
-    var prow=document.createElement("div");prow.className="price-row";
-    var prefix=document.createElement("span");prefix.className="price-prefix";prefix.textContent="$";
-    var pinp=document.createElement("input");pinp.className="price-inp";pinp.id="subPriceInp";pinp.type="number";pinp.min="0";pinp.max="99.99";pinp.step="0.01";pinp.placeholder="9.99";if(p.subscription_price)pinp.value=p.subscription_price;
-    var plbl=document.createElement("span");plbl.style.cssText="font-size:12px;color:#5a8aaa";plbl.textContent="USD/mes";
-    prow.appendChild(prefix);prow.appendChild(pinp);prow.appendChild(plbl);
-    var dinp=document.createElement("input");dinp.className="inp";dinp.id="subDescInp";dinp.placeholder="Qu\xE9 incluye tu suscripci\xF3n...";dinp.style.marginBottom="10px";if(p.subscription_description)dinp.value=p.subscription_description;
-    var sbtn=document.createElement("button");sbtn.className="sub-save-btn";sbtn.textContent="Guardar precio";
-    sbtn.addEventListener("click",saveSubscriptionSettings);
-    var scount=document.createElement("div");scount.className="subs-count";
-    scount.textContent=(p.subscribers_count||0)+" suscriptores \u2022 Ganancias: $"+parseFloat(p.total_earnings||0).toFixed(2);
-    box.appendChild(title);box.appendChild(prow);box.appendChild(dinp);box.appendChild(sbtn);box.appendChild(scount);
-    sec.appendChild(box);
-    if(divider)wrap.insertBefore(sec,divider);else wrap.appendChild(sec);
-  } else if(p.subscription_price>0){
-    checkSubscription(p.id).then(function(isSubbed){
-      var box=document.createElement("div");box.className="sub-box";
-      var stitle=document.createElement("div");stitle.className="sub-title";stitle.textContent="\u2B50 CONTENIDO EXCLUSIVO";
-      var sprice=document.createElement("div");sprice.className="sub-price";
-      sprice.innerHTML="$"+parseFloat(p.subscription_price).toFixed(2)+"<span style=\"font-size:14px;color:#5a8aaa\">/mes</span>";
-      var sdesc=document.createElement("div");sdesc.className="sub-desc";sdesc.textContent=p.subscription_description||"Accede a contenido exclusivo, lives privados y mensajes directos.";
-      var sbtn=document.createElement("button");
-      if(isSubbed){
-        sbtn.className="sub-btn active";sbtn.textContent="\u2713 Suscrito";sbtn.disabled=true;
-      } else {
-        sbtn.className="sub-btn";sbtn.textContent="\uD83D\uDD12 Suscribirse por $"+parseFloat(p.subscription_price).toFixed(2)+"/mes";
-        sbtn.dataset.creatorId=p.id;
-        sbtn.dataset.price=p.subscription_price;
-        sbtn.dataset.desc=p.subscription_description||"";
-        sbtn.addEventListener("click",function(){
-          openSubModal(this.dataset.creatorId,parseFloat(this.dataset.price),this.dataset.desc);
-        });
-      }
-      box.appendChild(stitle);box.appendChild(sprice);box.appendChild(sdesc);box.appendChild(sbtn);
-      sec.appendChild(box);
-      if(divider)wrap.insertBefore(sec,divider);else wrap.appendChild(sec);
-    });
-  }
-}
-
-// =============================================
-// SUBSCRIPCIONES
-// =============================================
-var _subCreatorId = null;
-var _subPrice = 0;
-
-async function checkSubscription(creatorId){
-  if(!currentUser) return false;
-  var r = await sb.from("subscriptions").select("id,status").eq("subscriber_id",currentUser.id).eq("creator_id",creatorId).eq("status","active").single();
-  return !!r.data;
-}
-
-function openSubModal(creatorId, price, desc){
-  _subCreatorId = creatorId;
-  _subPrice = price;
-  document.getElementById("subModalPrice").textContent = "$" + parseFloat(price).toFixed(2);
-  document.getElementById("subModalDesc").textContent = desc || "Accede a contenido exclusivo de este creador.";
-  document.getElementById("subModal").classList.add("open");
-}
-
-async function confirmSubscription(){
-  if(!currentUser){window.location.href="/";return;}
-  if(!_subCreatorId)return;
-  var btn=document.getElementById("subConfirmBtn");
-  btn.disabled=true;btn.textContent="Procesando...";
-  try{
-    var expDate=new Date();expDate.setMonth(expDate.getMonth()+1);
-    var r=await sb.from("subscriptions").upsert({
-      subscriber_id:currentUser.id,creator_id:_subCreatorId,
-      status:"active",price:_subPrice,
-      started_at:new Date().toISOString(),expires_at:expDate.toISOString()
-    });
-    if(r.error)throw new Error(r.error.message);
-    await sb.from("transactions").insert({
-      user_id:currentUser.id,type:"subscription",
-      amount:-_subPrice,description:"Suscripci\xF3n mensual"
-    });
-    var creatorCut=parseFloat(_subPrice)*0.60;
-    await sb.from("profiles").update({
-      total_earnings:parseFloat(profileData&&profileData.total_earnings||0)+creatorCut
-    }).eq("id",_subCreatorId);
-    document.getElementById("subModal").classList.remove("open");
-    showToast("\u2713 Suscripci\xF3n activa!");
-    setTimeout(loadProfile,500);
-  }catch(e){
-    btn.disabled=false;btn.textContent="\uD83D\uDD12 Suscribirse";
-    showToast("Error: "+e.message,true);
-  }
-}
-
-async function saveSubscriptionSettings(){
-  var price = parseFloat(document.getElementById("subPriceInp").value) || 0;
-  var desc = document.getElementById("subDescInp").value.trim();
-  if(price > 0 && price < 1){ showToast("El precio m\xEDnimo es $1.00", true); return; }
-  var r = await sb.from("profiles").update({
-    subscription_price: price,
-    subscription_description: desc,
-    is_creator: price > 0
-  }).eq("id", currentUser.id);
-  if(r.error){ showToast("Error: "+r.error.message, true); return; }
-  profileData.subscription_price = price;
-  profileData.subscription_description = desc;
-  showToast("\u2713 Configuraci\xF3n guardada");
-  renderSubSection(profileData);
-}
-
-async function checkFollowingMain(uid, btn){
-  if(!currentUser) return;
-  var r=await sb.from("follows").select("id").eq("follower_id",currentUser.id).eq("following_id",uid).single();
-  if(r.data){btn.textContent="\u2713 Siguiendo";btn.style.borderColor="rgba(0,229,255,.4)";btn.style.color="#00e5ff";}
-}
-
-async function toggleFollowMain(btn,uid){
-  if(!currentUser){window.location.href="/";return;}
-  var isF=btn.textContent.includes("Siguiendo");
-  if(isF){
-    await sb.from("follows").delete().eq("follower_id",currentUser.id).eq("following_id",uid);
-    btn.textContent="Seguir";btn.style.borderColor="#0d2744";btn.style.color="#5a8aaa";
-  } else {
-    await sb.from("follows").insert({follower_id:currentUser.id,following_id:uid});
-    btn.textContent="\u2713 Siguiendo";btn.style.borderColor="rgba(0,229,255,.4)";btn.style.color="#00e5ff";
-    await sb.from("notifications").insert({user_id:uid,from_user_id:currentUser.id,type:"follow",message:"@"+currentProfile?.username+" empez\u00F3 a seguirte"});
-  }
-}
-
-async function checkSubscriptionMain(creatorId, btn){
-  if(!currentUser||!btn) return;
-  var r=await sb.from("subscriptions").select("id,status").eq("subscriber_id",currentUser.id).eq("creator_id",creatorId).single();
-  if(r.data&&r.data.status==="active"){
-    btn.textContent="\u2713 Suscrito";btn.className="sub-action-btn sub-action-subscribed";
-    btn.onclick=null;
-  }
-}
-
-async function handleSubscribe(creatorId, price, paypalEmail, creatorUsername){
-  if(!currentUser){window.location.href="/";return;}
-  if(price>0){
-    // Redirect to PayPal if configured
-    if(paypalEmail){
-      var url="https://www.paypal.com/paypalme/"+paypalEmail.replace("@","").split("@")[0]+"/"+price;
-      if(confirm("Se abrir\u00E1 PayPal para completar la suscripci\u00F3n de $"+price.toFixed(2)+"/mes a @"+creatorUsername+".
-\u00BFContinuar?")){
-        window.open(url,"_blank");
-        // Register pending subscription
-        await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"pending",amount:price});
-        showToast("\uD83D\uDD17 Completa el pago en PayPal");
-      }
-    } else {
-      showToast("Este creador a\u00FAn no configur\u00F3 su m\u00E9todo de pago",true);
-    }
-  } else {
-    // Free follow/subscription
-    await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"active",amount:0});
-    await sb.from("notifications").insert({user_id:creatorId,from_user_id:currentUser.id,type:"subscription",message:"@"+currentProfile?.username+" se suscribi\u00F3 a tu contenido"});
-    // Give fan points
-    await sb.from("profiles").update({fan_points:currentProfile?.fan_points+100||100}).eq("id",currentUser.id);
-    var btn=document.getElementById("subBtn");
-    if(btn){btn.textContent="\u2713 Suscrito";btn.className="sub-action-btn sub-action-subscribed";}
-    showToast("\u2713 Ahora sigues a @"+creatorUsername+" gratuitamente");
-  }
+function showToast(msg,err){
+  var t=document.getElementById("toast");t.textContent=msg;
+  t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
+  t.style.display="block";setTimeout(function(){t.style.display="none";},3000);
 }
 </script>
-
-<!-- Subscription Payment Modal -->
-<div id="subModal" class="modal">
-  <div class="modal-box">
-    <div class="modal-title">&#128274; SUSCRIBIRSE</div>
-    <div id="subModalContent">
-      <p style="font-size:13px;color:#8a9bb0;margin-bottom:16px;line-height:1.6" id="subModalDesc">Accede a contenido exclusivo de este creador.</p>
-      <div style="text-align:center;margin-bottom:16px">
-        <div style="font-family:Orbitron,sans-serif;font-size:32px;color:#e8f4ff" id="subModalPrice">$9.99</div>
-        <div style="font-size:12px;color:#5a8aaa;margin-top:4px">por mes</div>
-      </div>
-      <div style="background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:12px;margin-bottom:16px">
-        <p style="font-size:12px;color:#00ff88;line-height:1.5">&#10003; Acceso a contenido premium<br>&#10003; Mensajes directos con el creador<br>&#10003; Badge de suscriptor exclusivo<br>&#10003; Cancela cuando quieras</p>
-      </div>
-      <div style="background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:8px;padding:10px;margin-bottom:16px;font-size:12px;color:#5a8aaa;line-height:1.5">
-        &#128274; Pago seguro procesado por Stripe. El creador recibe el 60% de cada suscripci\xF3n.
-      </div>
-    </div>
-    <div class="modal-btns">
-      <button class="cancel-btn" onclick="document.getElementById('subModal').classList.remove('open')">Cancelar</button>
-      <button class="save-btn" id="subConfirmBtn" onclick="confirmSubscription()">&#128274; Suscribirse</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>

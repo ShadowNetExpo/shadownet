@@ -698,7 +698,7 @@ async function loadProfile() {
 }
 
 async function renderProfile(p) {
-  document.title = "@" + p.username + " — SHADOWNET";
+  document.title = "@" + p.username + " \u2014 SHADOWNET";
   var nameEl = document.getElementById("profileName");
   nameEl.textContent = "@" + p.username;
   if (p.verification_status === "verified") {
@@ -952,7 +952,7 @@ async function saveSubscriptionSettings(){
 async function checkFollowingMain(uid, btn){
   if(!currentUser) return;
   var r=await sb.from("follows").select("id").eq("follower_id",currentUser.id).eq("following_id",uid).single();
-  if(r.data){btn.textContent="✓ Siguiendo";btn.style.borderColor="rgba(0,229,255,.4)";btn.style.color="#00e5ff";}
+  if(r.data){btn.textContent="\u2713 Siguiendo";btn.style.borderColor="rgba(0,229,255,.4)";btn.style.color="#00e5ff";}
 }
 
 async function toggleFollowMain(btn,uid){
@@ -963,8 +963,8 @@ async function toggleFollowMain(btn,uid){
     btn.textContent="Seguir";btn.style.borderColor="#0d2744";btn.style.color="#5a8aaa";
   } else {
     await sb.from("follows").insert({follower_id:currentUser.id,following_id:uid});
-    btn.textContent="✓ Siguiendo";btn.style.borderColor="rgba(0,229,255,.4)";btn.style.color="#00e5ff";
-    await sb.from("notifications").insert({user_id:uid,from_user_id:currentUser.id,type:"follow",message:"@"+currentProfile?.username+" empezó a seguirte"});
+    btn.textContent="\u2713 Siguiendo";btn.style.borderColor="rgba(0,229,255,.4)";btn.style.color="#00e5ff";
+    await sb.from("notifications").insert({user_id:uid,from_user_id:currentUser.id,type:"follow",message:"@"+currentProfile?.username+" empez\u00F3 a seguirte"});
   }
 }
 
@@ -972,7 +972,7 @@ async function checkSubscriptionMain(creatorId, btn){
   if(!currentUser||!btn) return;
   var r=await sb.from("subscriptions").select("id,status").eq("subscriber_id",currentUser.id).eq("creator_id",creatorId).single();
   if(r.data&&r.data.status==="active"){
-    btn.textContent="✓ Suscrito";btn.className="sub-action-btn sub-action-subscribed";
+    btn.textContent="\u2713 Suscrito";btn.className="sub-action-btn sub-action-subscribed";
     btn.onclick=null;
   }
 }
@@ -983,25 +983,25 @@ async function handleSubscribe(creatorId, price, paypalEmail, creatorUsername){
     // Redirect to PayPal if configured
     if(paypalEmail){
       var url="https://www.paypal.com/paypalme/"+paypalEmail.replace("@","").split("@")[0]+"/"+price;
-      if(confirm("Se abrirá PayPal para completar la suscripción de $"+price.toFixed(2)+"/mes a @"+creatorUsername+".
-¿Continuar?")){
+      if(confirm("Se abrir\u00E1 PayPal para completar la suscripci\u00F3n de $"+price.toFixed(2)+"/mes a @"+creatorUsername+".
+\u00BFContinuar?")){
         window.open(url,"_blank");
         // Register pending subscription
         await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"pending",amount:price});
         showToast("\uD83D\uDD17 Completa el pago en PayPal");
       }
     } else {
-      showToast("Este creador aún no configuró su método de pago",true);
+      showToast("Este creador a\u00FAn no configur\u00F3 su m\u00E9todo de pago",true);
     }
   } else {
     // Free follow/subscription
     await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"active",amount:0});
-    await sb.from("notifications").insert({user_id:creatorId,from_user_id:currentUser.id,type:"subscription",message:"@"+currentProfile?.username+" se suscribió a tu contenido"});
+    await sb.from("notifications").insert({user_id:creatorId,from_user_id:currentUser.id,type:"subscription",message:"@"+currentProfile?.username+" se suscribi\u00F3 a tu contenido"});
     // Give fan points
     await sb.from("profiles").update({fan_points:currentProfile?.fan_points+100||100}).eq("id",currentUser.id);
     var btn=document.getElementById("subBtn");
-    if(btn){btn.textContent="✓ Suscrito";btn.className="sub-action-btn sub-action-subscribed";}
-    showToast("✓ Ahora sigues a @"+creatorUsername+" gratuitamente");
+    if(btn){btn.textContent="\u2713 Suscrito";btn.className="sub-action-btn sub-action-subscribed";}
+    showToast("\u2713 Ahora sigues a @"+creatorUsername+" gratuitamente");
   }
 }
 </script>

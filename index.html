@@ -246,6 +246,26 @@ body.has-nav .dashPage{padding-bottom:70px}
 .apply-label{font-size:12px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block}
 .apply-select{width:100%;padding:10px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:12px;outline:none}
 .apply-select:focus{border-color:#ff2255}
+
+/* Fan Rank */
+.fan-rank-bar{background:linear-gradient(135deg,rgba(255,170,0,.1),rgba(200,80,0,.05));border:1px solid rgba(255,170,0,.25);border-radius:10px;padding:12px 16px;margin-top:12px;display:none}
+.fan-rank-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fan-rank-badge{font-family:Orbitron,sans-serif;font-size:11px;color:#ffaa00;background:rgba(255,170,0,.15);border:1px solid rgba(255,170,0,.3);padding:3px 10px;border-radius:12px;letter-spacing:.06em}
+.fan-rank-pts{font-size:12px;color:#5a8aaa;margin-left:auto}
+.fan-rank-progress{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.fan-rank-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ffaa00);border-radius:3px;transition:width .5s ease}
+/* Stories bar in dashboard */
+.dash-stories{margin-top:14px}
+.dash-stories-title{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.dash-stories-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.dash-stories-row::-webkit-scrollbar{display:none}
+.ds-bubble{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex-shrink:0}
+.ds-ring{width:50px;height:50px;border-radius:50%;padding:2px;background:linear-gradient(135deg,#ff2255,#ffaa00)}
+.ds-av{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;border:2px solid #01020c;overflow:hidden}
+.ds-av img{width:100%;height:100%;object-fit:cover}
+.ds-name{font-size:10px;color:#c8d8e8;max-width:54px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ds-add-ring{background:rgba(13,39,68,.8);border:2px dashed #0d2744}
+.ds-add-av{color:#5a8aaa;font-size:20px;background:rgba(1,2,12,.5)}
 </style>
 </head>
 <body>
@@ -293,6 +313,7 @@ body.has-nav .dashPage{padding-bottom:70px}
     <button onclick="window.location.href='/profile.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,34,85,.15),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680">&#128100; Mi Perfil</button>
     <button onclick="window.location.href='/stats.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(0,150,80,.1));border:1px solid rgba(0,255,136,.4);color:#00ff88">&#128202; Mis Stats</button>
     <button onclick="window.location.href='/messages.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,200,.1));border:1px solid rgba(0,229,255,.3);color:#00e5ff">&#128172; DMs</button>
+    <button onclick="window.location.href='/stories.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00">&#9203; Stories</button>
   </div>
 </div>
 <!-- SECTION: TODOS (fans + creadores) -->
@@ -301,6 +322,7 @@ body.has-nav .dashPage{padding-bottom:70px}
     <button onclick="window.location.href='/explore.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
     <button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,200,.1));border:1px solid rgba(0,229,255,.3);color:#00e5ff">&#128248; Feed</button>
     <button onclick="window.location.href='/messages.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(0,80,150,.08));border:1px solid rgba(0,229,255,.25);color:#00e5ff">&#128172; Mensajes</button>
+    <button onclick="window.location.href='/stories.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00">&#9203; Stories</button>
   </div>
 </div>
 <!-- Apply creator button for fans -->
@@ -418,7 +440,28 @@ body.has-nav .dashPage{padding-bottom:70px}
 <button id="verifyAccountBtn" onclick="openKyc()" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff;font-size:11px;padding:8px 14px">&#128274; Verificar cuenta</button>
       </div>
     </div>
-    <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.<br>Proximamente: Regalos &middot; Feed &middot; KYC</p>
+    <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.</p>
+      <!-- Fan Rank Bar -->
+      <div class="fan-rank-bar" id="fanRankBar">
+        <div class="fan-rank-row">
+          <span class="fan-rank-badge" id="fanRankName">&#127775; Sombra</span>
+          <span style="font-size:12px;color:#e8f4ff;font-family:Orbitron,sans-serif" id="fanRankNum">Lv.1</span>
+          <span class="fan-rank-pts" id="fanPts">0 pts</span>
+        </div>
+        <div class="fan-rank-progress"><div class="fan-rank-fill" id="fanRankFill" style="width:0%"></div></div>
+        <p style="font-size:11px;color:#5a8aaa;margin-top:6px">Gana puntos dando likes, comentando y suscribi&#233;ndote a creadores</p>
+      </div>
+      <!-- Stories Bar -->
+      <div class="dash-stories" id="dashStoriesSection" style="display:none">
+        <div class="dash-stories-title">STORIES</div>
+        <div class="dash-stories-row" id="dashStoriesRow">
+          <div class="ds-bubble" onclick="window.location.href='/stories.html'">
+            <div class="ds-ring ds-add-ring"><div class="ds-av ds-add-av">+</div></div>
+            <div class="ds-name">Stories</div>
+          </div>
+        </div>
+      </div>
+      <p style="display:none"><br>Proximamente: Regalos &middot; Feed &middot; KYC</p>
   </div>
 </div>
 <footer>
@@ -442,7 +485,7 @@ sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)se
 function loadCount(){sb.from('profiles').select('*',{count:'exact',head:true}).then(function(r){if(r.count!==null){var el=document.getElementById('statUsers');if(el)el.textContent=r.count>=1000?(r.count/1000).toFixed(1)+'K':r.count;}});}
 function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
     offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex'; document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
-    loadKycStatus();closeAuth(); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
+    loadKycStatus();closeAuth();loadFanRank();loadDashStories(); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
 function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none'; document.getElementById('bottomNav').classList.remove('visible'); document.body.classList.remove('has-nav');}
 function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
 function openAuth(t){document.getElementById('authModal').classList.add('open');switchTab(t==='login'?'l':'r');document.getElementById('authOk').style.display='none';}
@@ -1183,6 +1226,64 @@ function openApplyModal(){
   if(!window.currentUser){ openAuth("login"); return; }
   document.getElementById("applyCreatorModal").classList.add("open");
 }
+
+// =============================================
+// FAN RANK + STORIES EN DASHBOARD
+// =============================================
+async function loadFanRank(){
+  if(!window.currentUser||!window.sb) return;
+  var r = await window.sb.from("profiles").select("fan_points,fan_rank,fan_rank_name").eq("id",window.currentUser.id).single();
+  if(!r.data) return;
+  var pts = r.data.fan_points||0;
+  var rank = r.data.fan_rank||1;
+  var rankName = r.data.fan_rank_name||"Sombra";
+  var bar = document.getElementById("fanRankBar");
+  if(bar) bar.style.display="block";
+  var el = document.getElementById("fanRankName"); if(el) el.textContent="⭐ "+rankName;
+  var rn = document.getElementById("fanRankNum"); if(rn) rn.textContent="Lv."+rank;
+  var pp = document.getElementById("fanPts"); if(pp) pp.textContent=pts+" pts";
+  var fill = document.getElementById("fanRankFill");
+  if(fill){
+    var nextLvPts = rank*100;
+    var pct = Math.min(100, (pts % 100));
+    fill.style.width = pct+"%";
+  }
+}
+
+async function loadDashStories(){
+  if(!window.sb) return;
+  var storiesSection = document.getElementById("dashStoriesSection");
+  var storiesRow = document.getElementById("dashStoriesRow");
+  if(!storiesSection||!storiesRow) return;
+  var r = await window.sb.from("stories")
+    .select("id,user_id,media_url,media_type,profiles(username,avatar_url)")
+    .gt("expires_at",new Date().toISOString())
+    .order("created_at",{ascending:false}).limit(15);
+  if(r.error||!r.data||r.data.length===0) return;
+  storiesSection.style.display="block";
+  // Keep the + button and add story bubbles
+  var addBtn = storiesRow.querySelector(".ds-bubble");
+  storiesRow.innerHTML="";
+  if(addBtn) storiesRow.appendChild(addBtn);
+  // Group by user
+  var seen = {};
+  r.data.forEach(function(s){
+    if(seen[s.user_id]) return;
+    seen[s.user_id]=true;
+    var p = s.profiles||{};
+    var uname = p.username||"usuario";
+    var bubble = document.createElement("div"); bubble.className="ds-bubble";
+    var ring = document.createElement("div"); ring.className="ds-ring";
+    var av = document.createElement("div"); av.className="ds-av";
+    if(p.avatar_url){var img=document.createElement("img");img.src=p.avatar_url;av.appendChild(img);}
+    else av.textContent=(uname[0]||"?").toUpperCase();
+    ring.appendChild(av);
+    var name = document.createElement("div"); name.className="ds-name"; name.textContent="@"+uname;
+    bubble.appendChild(ring); bubble.appendChild(name);
+    bubble.addEventListener("click",function(){window.location.href="/stories.html";});
+    storiesRow.appendChild(bubble);
+  });
+}
 </script>
 
 
@@ -1279,6 +1380,9 @@ function openApplyModal(){
   </button>
   <button class="bn-item" onclick="window.location.href='/feed.html'">
     <span class="bn-icon">&#128248;</span>Feed
+  </button>
+  <button class="bn-item" onclick="window.location.href='/stories.html'">
+    <span class="bn-icon">&#9203;</span>Stories
   </button>
   <button class="bn-item" onclick="window.location.href='/explore.html'">
     <span class="bn-icon">&#128269;</span>Explorar

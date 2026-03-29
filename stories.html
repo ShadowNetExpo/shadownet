@@ -60,6 +60,43 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .preview-box img,.preview-box video{width:100%;border-radius:8px;max-height:200px;object-fit:cover}
 .section-title{font-family:Orbitron,sans-serif;font-size:12px;color:#5a8aaa;letter-spacing:.1em;margin-bottom:14px;padding-bottom:8px;border-top:1px solid #0d2744;padding-top:20px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+
+/* Instagram-style Story Reactions */
+.story-reactions-bar{position:absolute;bottom:70px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:20;padding:0 16px}
+.story-reaction-emoji{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:transform .2s,background .2s;border:1px solid rgba(255,255,255,.2)}
+.story-reaction-emoji:hover,.story-reaction-emoji.selected{transform:scale(1.3);background:rgba(255,255,255,.3)}
+.story-reaction-emoji.selected{border-color:#ff2255}
+.story-reaction-count{position:absolute;top:-6px;right:-4px;background:#ff2255;color:#fff;font-size:9px;font-weight:800;border-radius:8px;padding:1px 5px;min-width:16px;text-align:center;display:none}
+.story-reaction-emoji.has-count .story-reaction-count{display:block}
+/* Story reply input */
+.sv-reply{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:24px;padding:10px 16px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none}
+.sv-reply:focus{border-color:#ff2255}
+/* Story Highlights on stories page */
+.highlights-section{margin-bottom:20px}
+.highlights-title{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #0d2744}
+.highlights-row{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.highlights-row::-webkit-scrollbar{display:none}
+.highlight-bubble{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
+.highlight-ring{width:64px;height:64px;border-radius:50%;padding:2px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);position:relative}
+.highlight-av{width:100%;height:100%;border-radius:50%;background:rgba(7,15,30,.8);display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid #01020c;overflow:hidden}
+.highlight-av img{width:100%;height:100%;object-fit:cover}
+.highlight-name{font-size:11px;color:#c8d8e8;text-align:center;max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.highlight-add-ring{background:linear-gradient(135deg,#0d2744,#1a3a60);padding:2px}
+.add-highlight-btn{width:64px;height:64px;border-radius:50%;background:rgba(7,15,30,.8);display:flex;align-items:center;justify-content:center;font-size:26px;color:#5a8aaa;border:2px dashed #0d2744;border-radius:50%;cursor:pointer;transition:border-color .2s}
+.add-highlight-btn:hover{border-color:#833ab4;color:#c8d8e8}
+/* Create highlight modal */
+.hl-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center}
+.hl-modal.open{display:flex}
+.hl-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:24px;width:100%;max-width:360px;margin:0 16px}
+.hl-title{font-family:Orbitron,sans-serif;font-size:13px;color:#833ab4;letter-spacing:.1em;margin-bottom:16px}
+.hl-emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
+.hl-emoji-btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.hl-emoji-btn:hover,.hl-emoji-btn.sel{background:rgba(131,58,180,.3);border-color:#833ab4}
+.hl-inp{width:100%;padding:10px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;margin-bottom:14px}
+.hl-inp:focus{border-color:#833ab4}
+.hl-btns{display:flex;gap:10px}
+.hl-cancel{flex:1;padding:10px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+.hl-save{flex:2;padding:10px;background:linear-gradient(135deg,#833ab4,#fd1d1d);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -68,6 +105,16 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
   <span class="page-title">STORIES</span>
 </header>
 <div class="wrap">
+  <!-- Highlights Section -->
+  <div class="highlights-section" id="highlightsSection" style="display:none">
+    <div class="highlights-title">DESTACADOS</div>
+    <div class="highlights-row" id="highlightsRow">
+      <div class="highlight-bubble" onclick="openCreateHighlight()">
+        <div class="add-highlight-btn">+</div>
+        <div class="highlight-name">Nuevo</div>
+      </div>
+    </div>
+  </div>
   <div class="stories-row" id="storiesRow">
     <div style="color:#5a8aaa;font-size:13px;padding:20px">Cargando...</div>
   </div>
@@ -105,6 +152,8 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <div class="sv-prev" onclick="prevStory()"></div>
     <div class="sv-next" onclick="nextStory()"></div>
   </div>
+  <div class="story-reactions-bar" id="storyReactionsBar" style="display:none">
+    </div>
   <div class="sv-footer">
     <input class="sv-reply" id="svReply" placeholder="Responder a la story...">
     <div class="sv-views" id="svViews">👁 0</div>
@@ -131,7 +180,7 @@ sb.auth.getSession().then(function(r){
   sb.from("profiles").select("username,avatar_url,role").eq("id",currentUser.id).single().then(function(p){
     currentProfile=p.data;
     if(p.data&&p.data.role==="creator") document.getElementById("uploadSection").style.display="block";
-    loadStories();
+    loadStories(); loadHighlights();
   });
 });
 
@@ -185,7 +234,7 @@ function showStory(){
   document.getElementById("svUsername").textContent="@"+uname;
   document.getElementById("svTime").textContent=getTimeLeft(story.expires_at);
   document.getElementById("svCaption").textContent=story.caption||"";
-  document.getElementById("svViews").textContent="👁 "+(story.views_count||0);
+  document.getElementById("svViews").textContent="\uD83D\uDC41 "+(story.views_count||0);
   var media=document.getElementById("svMedia");
   media.innerHTML="";
   if(story.media_type==="video"){var vid=document.createElement("video");vid.src=story.media_url;vid.autoplay=true;vid.muted=false;vid.loop=false;media.appendChild(vid);storyDuration=15000;}
@@ -244,14 +293,14 @@ async function publishStory(){
   var ext=storyFile.name.split(".").pop();
   var path="stories/"+currentUser.id+"/"+Date.now()+"."+ext;
   var up=await sb.storage.from("media").upload(path,storyFile,{upsert:true});
-  if(up.error){showToast("Error: "+up.error.message,true);btn.disabled=false;btn.textContent="⏰ PUBLICAR STORY";return;}
+  if(up.error){showToast("Error: "+up.error.message,true);btn.disabled=false;btn.textContent="\u23F0 PUBLICAR STORY";return;}
   var url=sb.storage.from("media").getPublicUrl(path).data.publicUrl;
   var caption=document.getElementById("captionInp").value.trim();
   var mt=storyFile.type.startsWith("video")?"video":"image";
   var r=await sb.from("stories").insert({user_id:currentUser.id,media_url:url,media_type:mt,caption:caption||null});
   if(r.error){showToast("Error: "+r.error.message,true);}
-  else{showToast("✓ Story publicado. Expira en 24h.");document.getElementById("captionInp").value="";document.getElementById("previewBox").style.display="none";storyFile=null;loadStories();}
-  btn.disabled=false;btn.textContent="⏰ PUBLICAR STORY (24H)";
+  else{showToast("\u2713 Story publicado. Expira en 24h.");document.getElementById("captionInp").value="";document.getElementById("previewBox").style.display="none";storyFile=null;loadStories();}
+  btn.disabled=false;btn.textContent="\u23F0 PUBLICAR STORY (24H)";
 }
 
 function getTimeLeft(exp){
@@ -270,6 +319,113 @@ function showToast(msg,err){
   t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
   t.style.display="block";setTimeout(function(){t.style.display="none";},3000);
 }
+
+// =============================================
+// INSTAGRAM: Highlights + Reactions
+// =============================================
+var _hlEmoji = '\u2B50';
+var STORY_REACTIONS = ['\u2764\uFE0F','\uD83D\uDE0D','\uD83D\uDE02','\uD83D\uDE2E','\uD83D\uDE22','\uD83D\uDD25','\uD83D\uDC4F','\uD83E\uDD29'];
+
+async function loadHighlights(){
+  if(!currentUser) return;
+  var sec=document.getElementById('highlightsSection');
+  if(!sec)return;
+  var r=await sb.from('story_highlights').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:true});
+  if(r.error||!r.data||r.data.length===0){sec.style.display='none';return;}
+  sec.style.display='block';
+  var row=document.getElementById('highlightsRow');
+  var addBtn=row.querySelector('.highlight-bubble');
+  row.innerHTML='';
+  if(addBtn)row.appendChild(addBtn);
+  r.data.forEach(function(hl){
+    var bubble=document.createElement('div');bubble.className='highlight-bubble';
+    var ring=document.createElement('div');ring.className='highlight-ring';
+    var av=document.createElement('div');av.className='highlight-av';
+    if(hl.cover_url){var img=document.createElement('img');img.src=hl.cover_url;av.appendChild(img);}
+    else av.textContent=hl.emoji||'\u2B50';
+    ring.appendChild(av);
+    var name=document.createElement('div');name.className='highlight-name';name.textContent=hl.title;
+    bubble.appendChild(ring);bubble.appendChild(name);
+    bubble.addEventListener('click',function(){viewHighlight(hl);});
+    row.appendChild(bubble);
+  });
+  sec.style.display='block';
+}
+
+function openCreateHighlight(){
+  if(!currentUser){window.location.href='/';return;}
+  var grid=document.getElementById('hlEmojiGrid');
+  grid.innerHTML='';
+  ['\u2B50','\uD83D\uDD25','\u2764\uFE0F','\uD83C\uDF1F','\uD83D\uDC51','\uD83D\uDC8E','\uD83C\uDF89','\uD83D\uDCAB','\uD83C\uDF99','\uD83C\uDFA5','\uD83D\uDCF8','\uD83D\uDCA5'].forEach(function(em){
+    var btn=document.createElement('button');btn.className='hl-emoji-btn';btn.textContent=em;
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.hl-emoji-btn').forEach(function(b){b.classList.remove('sel');});
+      this.classList.add('sel');_hlEmoji=em;
+    });
+    grid.appendChild(btn);
+  });
+  document.getElementById('hlNameInp').value='';
+  document.getElementById('hlModal').classList.add('open');
+}
+
+async function createHighlight(){
+  var name=document.getElementById('hlNameInp').value.trim();
+  if(!name||!currentUser){showToast('Escribe un nombre',true);return;}
+  var r=await sb.from('story_highlights').insert({user_id:currentUser.id,title:name,emoji:_hlEmoji});
+  if(r.error){showToast('Error: '+r.error.message,true);return;}
+  document.getElementById('hlModal').classList.remove('open');
+  showToast('\u2713 Destacado creado!');
+  loadHighlights();
+}
+
+async function viewHighlight(hl){
+  var r=await sb.from('highlight_stories').select('*,stories(*)').eq('highlight_id',hl.id).order('added_at',{ascending:false});
+  var stories=(r.data||[]).map(function(hs){return hs.stories;}).filter(Boolean);
+  if(stories.length===0){showToast('Este destacado no tiene stories todavia',true);return;}
+  storyGroups=[{user:{username:hl.title,avatar_url:hl.cover_url},stories:stories}];
+  activeGroupIdx=0;activeStoryIdx=0;
+  showStory();
+  document.getElementById('storyViewer').classList.add('open');
+}
+
+// Story Reactions
+async function loadStoryReactions(storyId){
+  var bar=document.getElementById('storyReactionsBar');
+  if(!bar)return;
+  bar.innerHTML='';
+  var r=await sb.from('story_reactions').select('emoji').eq('story_id',storyId);
+  var counts={};
+  (r.data||[]).forEach(function(x){counts[x.emoji]=(counts[x.emoji]||0)+1;});
+  var myR=currentUser?(await sb.from('story_reactions').select('emoji').eq('story_id',storyId).eq('user_id',currentUser.id).single()).data?.emoji:null;
+  STORY_REACTIONS.forEach(function(em){
+    var btn=document.createElement('div');btn.className='story-reaction-emoji'+(myR===em?' selected':'')+(counts[em]?' has-count':'');
+    btn.textContent=em;
+    var cnt=document.createElement('div');cnt.className='story-reaction-count';cnt.textContent=counts[em]||0;
+    btn.appendChild(cnt);
+    btn.addEventListener('click',function(){reactToStory(storyId,em);});
+    bar.appendChild(btn);
+  });
+  bar.style.display='flex';
+}
+
+async function reactToStory(storyId,emoji){
+  if(!currentUser){window.location.href='/';return;}
+  await sb.from('story_reactions').upsert({story_id:storyId,user_id:currentUser.id,emoji:emoji});
+  loadStoryReactions(storyId);
+  showToast(emoji+' Reaccion enviada!');
+}
 </script>
+<!-- Create Highlight Modal -->
+<div class="hl-modal" id="hlModal">
+  <div class="hl-box">
+    <div class="hl-title">&#127775; NUEVO DESTACADO</div>
+    <div class="hl-emoji-grid" id="hlEmojiGrid"></div>
+    <input class="hl-inp" id="hlNameInp" placeholder="Nombre del destacado..." maxlength="20">
+    <div class="hl-btns">
+      <button class="hl-cancel" onclick="document.getElementById('hlModal').classList.remove('open')">Cancelar</button>
+      <button class="hl-save" onclick="createHighlight()">Crear</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

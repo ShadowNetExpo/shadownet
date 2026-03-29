@@ -323,6 +323,7 @@ body.has-nav .dashPage{padding-bottom:70px}
     <button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,200,.1));border:1px solid rgba(0,229,255,.3);color:#00e5ff">&#128248; Feed</button>
     <button onclick="window.location.href='/messages.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(0,80,150,.08));border:1px solid rgba(0,229,255,.25);color:#00e5ff">&#128172; Mensajes</button>
     <button onclick="window.location.href='/stories.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00">&#9203; Stories</button>
+    <button onclick="window.location.href='/leaderboard.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(200,150,0,.08));border:1px solid rgba(255,215,0,.3);color:#ffd700">&#127942; Ranking</button>
   </div>
 </div>
 <!-- Apply creator button for fans -->
@@ -450,6 +451,7 @@ body.has-nav .dashPage{padding-bottom:70px}
         </div>
         <div class="fan-rank-progress"><div class="fan-rank-fill" id="fanRankFill" style="width:0%"></div></div>
         <p style="font-size:11px;color:#5a8aaa;margin-top:6px">Gana puntos dando likes, comentando y suscribi&#233;ndote a creadores</p>
+      <div id="refCodeBar" style="display:none;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:#5a8aaa">Tu c&#243;digo:</span><span id="myRefCode" style="font-family:Orbitron,sans-serif;font-size:13px;color:#00ff88;letter-spacing:.08em">-</span><button onclick="copyMyRef()" style="padding:4px 10px;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.3);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer">Copiar</button><span style="font-size:11px;color:#ffaa00;margin-left:auto"><span id="myRefCount">0</span> referidos</span></div>
       </div>
       <!-- Stories Bar -->
       <div class="dash-stories" id="dashStoriesSection" style="display:none">
@@ -485,7 +487,7 @@ sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)se
 function loadCount(){sb.from('profiles').select('*',{count:'exact',head:true}).then(function(r){if(r.count!==null){var el=document.getElementById('statUsers');if(el)el.textContent=r.count>=1000?(r.count/1000).toFixed(1)+'K':r.count;}});}
 function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
     offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex'; document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
-    loadKycStatus();closeAuth();loadFanRank();loadDashStories(); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
+    loadKycStatus();closeAuth();loadFanRank();loadDashStories();loadReferralCode();processReferralAfterRegister(currentUser.id); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
 function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none'; document.getElementById('bottomNav').classList.remove('visible'); document.body.classList.remove('has-nav');}
 function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
 function openAuth(t){document.getElementById('authModal').classList.add('open');switchTab(t==='login'?'l':'r');document.getElementById('authOk').style.display='none';}
@@ -1283,6 +1285,48 @@ async function loadDashStories(){
     bubble.addEventListener("click",function(){window.location.href="/stories.html";});
     storiesRow.appendChild(bubble);
   });
+}
+
+// =============================================
+// SISTEMA DE REFERIDOS
+// =============================================
+function checkReferralCode(){
+  var params = new URLSearchParams(location.search);
+  var ref = params.get("ref");
+  if(ref) localStorage.setItem("sn_ref_code", ref);
+}
+
+async function processReferralAfterRegister(userId){
+  var ref = localStorage.getItem("sn_ref_code");
+  if(!ref) return;
+  localStorage.removeItem("sn_ref_code");
+  try{
+    await window.sb.rpc("process_referral", {p_new_user_id: userId, p_referral_code: ref});
+  }catch(e){ console.log("referral error:", e.message); }
+}
+
+async function loadReferralCode(){
+  if(!window.currentUser||!window.sb) return;
+  var r = await window.sb.from("profiles").select("referral_code,referral_count").eq("id",window.currentUser.id).single();
+  if(!r.data) return;
+  // Show referral info in fan rank bar if it exists
+  var refBar = document.getElementById("refCodeBar");
+  if(refBar&&r.data.referral_code){
+    refBar.style.display="flex";
+    var codeEl=document.getElementById("myRefCode");
+    if(codeEl)codeEl.textContent=r.data.referral_code;
+    var countEl=document.getElementById("myRefCount");
+    if(countEl)countEl.textContent=r.data.referral_count||0;
+  }
+}
+
+checkReferralCode();
+
+function copyMyRef(){
+  var code = document.getElementById("myRefCode")?.textContent;
+  if(!code||code==="-") return;
+  var url = location.origin+"/?ref="+code;
+  navigator.clipboard.writeText(url).then(function(){showToast("\u2713 Link de referido copiado!");}).catch(function(){showToast("C\xF3digo: "+code);});
 }
 </script>
 

@@ -183,6 +183,15 @@
 .kyc-submit-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00e5ff,#0080ff);color:#000;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
 .kyc-submit-btn:disabled{opacity:.4;cursor:not-allowed}
 .verified-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;padding:3px 8px;border-radius:12px;font-size:10px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em}
+
+.live-chat{display:flex;flex-direction:column;height:160px;border-top:1px solid #0d2744;margin-top:12px}
+.chat-msgs{flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:4px}
+.chat-msg{font-size:12px;line-height:1.4;color:#c8d8e8}
+.chat-msg .cn{color:#00e5ff;font-weight:700;margin-right:4px}
+.chat-input-row{display:flex;gap:6px;padding:8px 12px;border-top:1px solid #0d2744}
+.chat-inp{flex:1;background:rgba(1,2,12,.6);border:1px solid #0d2744;color:#e8f4ff;border-radius:20px;padding:6px 12px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none}
+.chat-inp:focus{border-color:#00e5ff}
+.chat-send{padding:6px 14px;background:#ff2255;color:#fff;border:none;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -316,7 +325,7 @@
     <span style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--g);font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;padding:6px 14px;border-radius:4px">&#10003; CUENTA ACTIVA</span>
   </div>
   <div class="dgrid">
-    <div class="dcard"><p class="dclbl">&#128128; Almas</p><p class="dcval" style="color:var(--c)" id="dashCoins">100</p></div>
+    <div class="dcard"><p class="dclbl">&#128128; Almas</p><p class="dcval" style="color:var(--c)" id="dashCoins" style="cursor:pointer" onclick="window.location.href='/feed.html'">100</p></div>
     <div class="dcard"><p class="dclbl">&#128101; Seguidores</p><p class="dcval" style="color:var(--b)">0</p></div>
     <div class="dcard"><p class="dclbl">&#128176; Ganancias</p><p class="dcval" style="color:var(--g)">$0.00</p></div>
     <div class="dcard"><p class="dclbl">&#127942; Rango</p><p class="dcval" style="color:var(--o);font-size:16px;padding-top:6px">Lv.1 Sombra</p></div>
@@ -327,6 +336,8 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
         <button onclick="window.location.href='/live.html'" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128308; Ir en vivo</button>
+<button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff">&#128248; Feed</button>
+<button onclick="window.location.href='/profile.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,34,85,.15),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680">&#128100; Mi Perfil</button>
 <button id="verifyAccountBtn" onclick="openKyc()" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff;font-size:11px;padding:8px 14px">&#128274; Verificar cuenta</button>
       </div>
     </div>
@@ -424,7 +435,7 @@ function confirmPay(){if(!stripe||!cardEl||!chosenPack)return;var btn=document.g
 
 
 var micOn=true,camOn=true,liveTimer=null,liveTimer2=null,liveSeconds=0;
-function openLive(){if(!currentUser){openAuth('login');return;}document.getElementById('liveModal').classList.add('open');}
+function openLive(){if(!currentUser){openAuth('login');return;}document.getElementById('liveModal').classList.add('open'); var lc=document.getElementById('liveChat'); if(lc)lc.style.display='flex'; _liveStreamId='live_'+Date.now(); subscribeLiveChat();}
 function closeLive(){stopLive();document.getElementById('liveModal').classList.remove('open');}
 function startLive(){
   if(!window.currentUser){openAuth('login');return;}
@@ -813,6 +824,74 @@ var _origSetUser = typeof setUser==='function' ? setUser : null;
 window.addEventListener('DOMContentLoaded', function(){
   initFaceIdBtn();
 });
+
+// =============================================
+// LIVE CHAT
+// =============================================
+var _chatSub = null;
+var _liveStreamId = null;
+
+function openLiveChat(){
+  var chatDiv = document.getElementById('liveChat');
+  if(chatDiv) chatDiv.style.display='flex';
+  var chatBtn = document.getElementById('chatToggleBtn');
+  if(chatBtn) chatBtn.textContent = '&#128172; Chat';
+}
+
+async function sendChatMsg(){
+  var inp = document.getElementById('chatInp');
+  var msg = inp ? inp.value.trim() : '';
+  if(!msg || !window.currentUser || !window.sb) return;
+  inp.value = '';
+  var username = '@' + (window.currentUser.email?.split('@')[0] || 'user');
+  // Get username from profile
+  var p = await window.sb.from('profiles').select('username').eq('id', window.currentUser.id).single();
+  if(p.data) username = '@' + p.data.username;
+  await window.sb.from('live_messages').insert({
+    stream_id: _liveStreamId || 'general',
+    user_id: window.currentUser.id,
+    username: username,
+    message: msg
+  });
+}
+
+function subscribeLiveChat(){
+  if(_chatSub) { window.sb.removeChannel(_chatSub); _chatSub=null; }
+  _chatSub = window.sb.channel('live-chat-' + (_liveStreamId||'general'))
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'live_messages'},function(payload){
+      addChatMsg(payload.new);
+    })
+    .subscribe();
+  // Load recent messages
+  window.sb.from('live_messages').select('*')
+    .eq('stream_id', _liveStreamId||'general')
+    .order('created_at',{ascending:false}).limit(20)
+    .then(function(r){
+      if(r.data) r.data.reverse().forEach(addChatMsg);
+    });
+}
+
+function addChatMsg(msg){
+  var el = document.getElementById('chatMsgs');
+  if(!el) return;
+  var div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.innerHTML = '<span class="cn">' + (msg.username||'@user') + '</span>' + escHtml(msg.message);
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  // Keep max 50 messages
+  while(el.children.length > 50) el.removeChild(el.firstChild);
+}
+
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Hook into startLive to open chat
+var _origStartLive = typeof startLive === 'function' ? startLive : null;
+
+document.addEventListener('DOMContentLoaded', function(){
+  var chatInp = document.getElementById('chatInp');
+  if(chatInp) chatInp.addEventListener('keydown', function(e){ if(e.key==='Enter') sendChatMsg(); });
+});
 </script>
 
 
@@ -864,6 +943,13 @@ window.addEventListener('DOMContentLoaded', function(){
     <button id="camBtn" onclick="toggleCam()" style="background:rgba(0,229,255,.1);border:1px solid var(--c);color:var(--c);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128247; Cam ON</button>
     <div style="flex:1"></div>
     <button onclick="openShop()" style="background:rgba(255,210,0,.1);border:1px solid var(--gl);color:var(--gl);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128128; Enviar regalo</button>
+<div class="live-chat" id="liveChat" style="display:none">
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="chat-input-row">
+    <input class="chat-inp" id="chatInp" placeholder="Escribe un mensaje..." maxlength="120">
+    <button class="chat-send" onclick="sendChatMsg()">&#9658;</button>
+  </div>
+</div>
   </div>
 </div>
 

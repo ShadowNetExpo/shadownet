@@ -274,6 +274,13 @@ body.has-nav .dashPage{padding-bottom:70px}
 .ds-add-av{color:#5a8aaa;font-size:20px;background:rgba(1,2,12,.5)}
 
 .action-btn.saved{color:#ffaa00}
+
+.bn-item{position:relative}
+.nav-badge{position:absolute;top:2px;right:8px;width:8px;height:8px;background:#ff2255;border-radius:50%;border:2px solid #01020c;display:none}
+.nav-badge.show{display:block}
+.notif-bell-wrap{position:relative;display:inline-flex}
+.notif-dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;background:#ff2255;border-radius:50%;border:2px solid #01020c;display:none}
+.notif-dot.show{display:block!important}
 </style>
 </head>
 <body>
@@ -517,7 +524,7 @@ function loadCount(){
 }
 function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
     offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex'; document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
-    loadKycStatus();closeAuth();loadFanRank();loadDashStories();loadReferralCode();processReferralAfterRegister(currentUser.id); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
+    loadKycStatus();closeAuth();loadFanRank();loadDashStories();loadReferralCode();processReferralAfterRegister(currentUser.id);updateNavBadges();subscribeNotifBadge(); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
 function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none'; document.getElementById('bottomNav').classList.remove('visible'); document.body.classList.remove('has-nav');}
 function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
 function openAuth(t){document.getElementById('authModal').classList.add('open');switchTab(t==='login'?'l':'r');document.getElementById('authOk').style.display='none';}
@@ -1396,6 +1403,47 @@ function installApp(){
     if(r.outcome==="accepted") showToast("\u2713 Instalando SHADOWNET...");
     deferredPrompt = null;
   });
+}
+
+// =============================================
+// BADGES DE NOTIFICACIONES EN NAV
+// =============================================
+async function updateNavBadges(){
+  if(!window.currentUser||!window.sb) return;
+  // Unread notifications
+  var nr=await window.sb.from("notifications").select("*",{count:"exact",head:true}).eq("user_id",window.currentUser.id).eq("is_read",false);
+  var unreadNotifs=nr.count||0;
+  var dot=document.getElementById("notifDot");
+  if(!dot){
+    dot=document.createElement("span");dot.id="notifDot";dot.className="notif-dot";
+    var bell=document.getElementById("notifBtn");
+    if(bell){bell.style.position="relative";bell.appendChild(dot);}
+  }
+  if(dot) dot.className="notif-dot"+(unreadNotifs>0?" show":"");
+  var nb=document.getElementById("notifBadge");
+  if(nb) nb.textContent=unreadNotifs>0?"("+unreadNotifs+")":"";
+
+  // Unread DMs — check conversations with unread
+  try{
+    var dm=await window.sb.from("conversations")
+      .select("unread_count_1,unread_count_2,user1_id")
+      .or("user1_id.eq."+window.currentUser.id+",user2_id.eq."+window.currentUser.id);
+    var unreadDMs=0;
+    (dm.data||[]).forEach(function(c){
+      unreadDMs+=c.user1_id===window.currentUser.id?c.unread_count_1||0:c.unread_count_2||0;
+    });
+    var msgBadge=document.getElementById("msgBadge");
+    if(msgBadge) msgBadge.className="nav-badge"+(unreadDMs>0?" show":"");
+  }catch(e){}
+}
+
+// Subscribe to real-time notifications for badge
+function subscribeNotifBadge(){
+  if(!window.currentUser||!window.sb) return;
+  window.sb.channel("notif-badge-"+window.currentUser.id)
+    .on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+window.currentUser.id},function(){
+      updateNavBadges();
+    }).subscribe();
 }
 </script>
 

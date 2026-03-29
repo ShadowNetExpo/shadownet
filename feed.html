@@ -2,6 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2255">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET — Feed</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -89,6 +93,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
   <div class="nav-btns">
     <button class="nbtn active" onclick="window.location.href='/feed.html'">Feed</button>
     <button class="nbtn" onclick="window.location.href='/'">Inicio</button>
+    <button class="nbtn" onclick="window.location.href='/search.html'">&#128269;</button>
     <button class="nbtn" id="logoutNavBtn" style="display:none" onclick="doLogout()">Salir</button>
   </div>
 </header>
@@ -290,6 +295,8 @@ function buildPostCard(post, profile, liked, saved) {
   footer.appendChild(saveBtn);
   // Delete (own posts)
   if(isOwn){var delBtn=document.createElement("button");delBtn.className="action-btn";delBtn.textContent="🗑";delBtn.style.color="#ff2255";delBtn.dataset.postId=post.id;delBtn.addEventListener("click",function(){deletePost(this.dataset.postId);});footer.appendChild(delBtn);}
+  // Report button (for others' posts)
+  if(!isOwn&&currentUser){var repBtn=document.createElement("button");repBtn.className="action-btn";repBtn.innerHTML="&#8942;";repBtn.title="Reportar";repBtn.style.color="#5a8aaa";repBtn.dataset.postId=post.id;repBtn.dataset.userId=post.user_id;repBtn.addEventListener("click",function(){openReport(this.dataset.postId,"post",this.dataset.userId);});footer.appendChild(repBtn);}
   card.appendChild(footer);
   // Comments section
   var cmtSection=document.createElement("div");cmtSection.className="comments-section";cmtSection.id="comments-"+post.id;cmtSection.style.display="none";
@@ -539,6 +546,68 @@ async function sharePost(postId, username){
     await sb.from("posts").update({shares_count:1}).eq("id",postId);
   }
 }
+
+// =============================================
+// SISTEMA DE REPORTES
+// =============================================
+function openReport(contentId, contentType, reportedUserId){
+  if(!currentUser){ showToast("Inicia sesion para reportar", true); return; }
+  document.getElementById("reportContentId").value = contentId;
+  document.getElementById("reportContentType").value = contentType;
+  document.getElementById("reportedUserId").value = reportedUserId||"";
+  document.getElementById("reportReason").value = "";
+  document.getElementById("reportDesc").value = "";
+  document.getElementById("reportMsg").style.display = "none";
+  document.getElementById("reportModal").classList.add("open");
+}
+
+async function submitReport(){
+  var reason = document.getElementById("reportReason").value;
+  var desc = document.getElementById("reportDesc").value.trim();
+  var contentId = document.getElementById("reportContentId").value;
+  var contentType = document.getElementById("reportContentType").value;
+  var reportedUserId = document.getElementById("reportedUserId").value;
+  var msg = document.getElementById("reportMsg");
+  if(!reason){ msg.textContent="Selecciona un motivo"; msg.style.color="#ff2255"; msg.style.display="block"; return; }
+  var r = await sb.from("reports").insert({
+    reporter_id: currentUser.id,
+    reported_user_id: reportedUserId||null,
+    content_type: contentType,
+    content_id: contentId,
+    reason: reason,
+    description: desc||null
+  });
+  if(r.error){ msg.textContent="Error: "+r.error.message; msg.style.color="#ff2255"; msg.style.display="block"; return; }
+  document.getElementById("reportModal").classList.remove("open");
+  showToast("\u2713 Reporte enviado. Lo revisaremos pronto.");
+}
 </script>
+
+<!-- Report Modal -->
+<div class="new-chat-modal" id="reportModal" style="align-items:center;justify-content:center">
+  <div class="modal-box" style="max-width:400px">
+    <div style="font-family:Orbitron,sans-serif;font-size:13px;color:#ff2255;margin-bottom:16px;letter-spacing:.1em">&#9888; REPORTAR CONTENIDO</div>
+    <input type="hidden" id="reportContentId">
+    <input type="hidden" id="reportContentType">
+    <input type="hidden" id="reportedUserId">
+    <p style="font-size:13px;color:#5a8aaa;margin-bottom:14px;line-height:1.5">Selecciona el motivo del reporte:</p>
+    <select id="reportReason" style="width:100%;padding:10px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none">
+      <option value="">Selecciona un motivo...</option>
+      <option value="spam">Spam o publicidad</option>
+      <option value="nudity">Desnudez no consensuada</option>
+      <option value="harassment">Acoso o intimidacion</option>
+      <option value="fake">Cuenta falsa o suplantacion</option>
+      <option value="violence">Violencia o contenido dañino</option>
+      <option value="minors">Contenido con menores</option>
+      <option value="other">Otro motivo</option>
+    </select>
+    <textarea id="reportDesc" style="width:100%;padding:10px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;resize:none;height:70px;margin-bottom:14px;outline:none" placeholder="Descripcion adicional (opcional)..."></textarea>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('reportModal').classList.remove('open')" style="flex:1;padding:10px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;cursor:pointer">Cancelar</button>
+      <button onclick="submitReport()" style="flex:2;padding:10px;background:#ff2255;color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase">Enviar Reporte</button>
+    </div>
+    <p id="reportMsg" style="font-size:12px;margin-top:8px;display:none"></p>
+  </div>
+</div>
 </body>
 </html>

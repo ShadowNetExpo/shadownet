@@ -59,6 +59,18 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 
 .profile-cover img{transition:object-position .1s}
 .profile-cover{cursor:default}
+
+/* Story Highlights on Profile */
+.profile-highlights{margin:16px 0 0;overflow:hidden}
+.highlights-scroll{display:flex;gap:14px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
+.highlights-scroll::-webkit-scrollbar{display:none}
+.hl-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;cursor:pointer;min-width:72px}
+.hl-ring{width:66px;height:66px;border-radius:50%;padding:2px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
+.hl-inner{width:100%;height:100%;border-radius:50%;background:rgba(7,15,30,.8);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid #01020c;overflow:hidden}
+.hl-inner img{width:100%;height:100%;object-fit:cover}
+.hl-label{font-size:11px;color:#c8d8e8;text-align:center;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hl-add-ring{background:linear-gradient(135deg,#0d2744,#1a3a60)}
+.hl-add-inner{font-size:22px;color:#5a8aaa;background:rgba(7,15,30,.6);border:2px dashed #0d2744}
 </style>
 </head>
 <body>
@@ -100,6 +112,9 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
       <div class="stat-lbl">Rango</div>
     </div>
   </div>
+  <div class="profile-highlights" id="profileHighlights" style="display:none">
+    <div class="highlights-scroll" id="highlightsScroll"></div>
+  </div>
   <div class="posts-title">PUBLICACIONES</div>
   <div class="posts-grid" id="postsGrid"><div class="empty-posts">Cargando...</div></div>
 </div>
@@ -131,12 +146,14 @@ async function loadByUsername(username){
   var r=await sb.from("profiles").select("*").eq("username",username).single();
   if(r.error||!r.data){showToast("Usuario no encontrado",true);return;}
   renderProfile(r.data); loadPosts(r.data.id);
+  loadProfileHighlights(r.data.id, !!(currentUser&&r.data.id===currentUser.id));
 }
 
 async function loadById(id){
   var r=await sb.from("profiles").select("*").eq("id",id).single();
   if(r.error||!r.data){showToast("Perfil no encontrado",true);return;}
   renderProfile(r.data); loadPosts(r.data.id);
+  loadProfileHighlights(r.data.id, !!(currentUser&&r.data.id===currentUser.id));
 }
 
 function renderProfile(p){
@@ -330,6 +347,51 @@ function showToast(msg,err){
   var t=document.getElementById("toast");t.textContent=msg;
   t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
   t.style.display="block";setTimeout(function(){t.style.display="none";},3000);
+}
+
+// =============================================
+// INSTAGRAM: STORY HIGHLIGHTS ON PROFILE
+// =============================================
+async function loadProfileHighlights(userId, isOwn) {
+  var sec = document.getElementById("profileHighlights");
+  var scroll = document.getElementById("highlightsScroll");
+  if(!sec||!scroll) return;
+
+  var r = await sb.from("story_highlights").select("*").eq("user_id", userId).order("created_at",{ascending:true});
+  var highlights = r.data||[];
+
+  // Show "Add" button if own profile
+  if(isOwn && highlights.length === 0 && !currentUser) return;
+
+  scroll.innerHTML="";
+
+  if(isOwn){
+    var addItem = document.createElement("div"); addItem.className="hl-item";
+    var addRing = document.createElement("div"); addRing.className="hl-ring hl-add-ring";
+    var addInner = document.createElement("div"); addInner.className="hl-inner hl-add-inner"; addInner.textContent="+";
+    addRing.appendChild(addInner);
+    var addLabel = document.createElement("div"); addLabel.className="hl-label"; addLabel.textContent="Nuevo";
+    addItem.appendChild(addRing); addItem.appendChild(addLabel);
+    addItem.addEventListener("click",function(){window.location.href="/stories.html";});
+    scroll.appendChild(addItem);
+  }
+
+  highlights.forEach(function(hl){
+    var item = document.createElement("div"); item.className="hl-item";
+    var ring = document.createElement("div"); ring.className="hl-ring";
+    var inner = document.createElement("div"); inner.className="hl-inner";
+    if(hl.cover_url){var img=document.createElement("img");img.src=hl.cover_url;inner.appendChild(img);}
+    else inner.textContent = hl.emoji||"\u2B50";
+    ring.appendChild(inner);
+    var label = document.createElement("div"); label.className="hl-label"; label.textContent=hl.title;
+    item.appendChild(ring); item.appendChild(label);
+    item.addEventListener("click",function(){window.location.href="/stories.html";});
+    scroll.appendChild(item);
+  });
+
+  if(isOwn || highlights.length > 0){
+    sec.style.display="block";
+  }
 }
 </script>
 </body>

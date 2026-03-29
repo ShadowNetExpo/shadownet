@@ -664,38 +664,40 @@ function loadKycStatus(){
       if(badge){
         badge.className='kyc-status';
         if(status==='unverified'){badge.classList.add('kyc-unverified');badge.textContent='SIN VERIFICAR';}
-        else if(status==='pending'){badge.classList.add('kyc-pending');badge.textContent='\u23F3 PENDIENTE';}
-        else if(status==='verified'){badge.classList.add('kyc-verified');badge.textContent='\u2713 VERIFICADO';}
-        else if(status==='rejected'){badge.classList.add('kyc-unverified');badge.textContent='\u2716 RECHAZADO';}
+        else if(status==='pending'){badge.classList.add('kyc-pending');badge.textContent='⏳ PENDIENTE';}
+        else if(status==='verified'){badge.classList.add('kyc-verified');badge.textContent='✓ VERIFICADO';}
+        else if(status==='rejected'){badge.classList.add('kyc-unverified');badge.textContent='✖ RECHAZADO';}
       }
       if(status==='verified'&&content){
-        content.innerHTML='<p style="color:#00ff88;font-size:13px;text-align:center;padding:16px">\u2705 Tu cuenta est\xE1 verificada. Insignia activada.</p>';
+        content.innerHTML='<p style="color:#00ff88;font-size:13px;text-align:center;padding:16px">✅ Tu cuenta está verificada.</p>';
         var dashUser=document.getElementById('dashUser');
         if(dashUser&&!document.querySelector('.verified-badge')){
           var badgeEl=document.createElement('span');
           badgeEl.className='verified-badge';
-          badgeEl.innerHTML='\u2713 VERIFICADO';
+          badgeEl.innerHTML='✓ VERIFICADO';
           badgeEl.style.marginLeft='8px';
           dashUser.parentNode.insertBefore(badgeEl,dashUser.nextSibling);
         }
       } else if(status==='pending'&&content){
-        // Generate signed URLs to show uploaded photos
         var docSigned='',selfSigned='';
         if(r.data.doc_url){
           var d=await window.sb.storage.from('documents').createSignedUrl(r.data.doc_url,3600);
-          docSigned=d.data?.signedUrl||'';
+          docSigned=d.data&&d.data.signedUrl?d.data.signedUrl:'';
         }
         if(r.data.selfie_url){
           var s=await window.sb.storage.from('documents').createSignedUrl(r.data.selfie_url,3600);
-          selfSigned=s.data?.signedUrl||'';
+          selfSigned=s.data&&s.data.signedUrl?s.data.signedUrl:'';
         }
-        content.innerHTML='<div style="text-align:center;padding:8px 0 12px"><p style="color:#00e5ff;font-size:12px">\u23F3 Solicitud en revisi\xF3n. Te notificaremos pronto.</p></div>'
-          +(docSigned||selfSigned ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">'
-            +(docSigned?'<div><p style="font-size:10px;color:#5a8aaa;text-align:center;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Documento</p><img src="'+docSigned+'" style="width:100%;border-radius:6px;border:1px solid #0d2744" onerror="this.style.display='none'"></div>':'')
-            +(selfSigned?'<div><p style="font-size:10px;color:#5a8aaa;text-align:center;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Selfie</p><img src="'+selfSigned+'" style="width:100%;border-radius:6px;border:1px solid #0d2744" onerror="this.style.display='none'"></div>':'')
-            +'</div>' : '');
+        var html='<div style="text-align:center;padding:8px 0 12px"><p style="color:#00e5ff;font-size:12px">⏳ Solicitud en revisión.</p></div>';
+        if(docSigned||selfSigned){
+          html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">';
+          if(docSigned) html+='<div><p style="font-size:10px;color:#5a8aaa;text-align:center;margin-bottom:4px">DOCUMENTO</p><img src="'+docSigned+'" style="width:100%;border-radius:6px;border:1px solid #0d2744"></div>';
+          if(selfSigned) html+='<div><p style="font-size:10px;color:#5a8aaa;text-align:center;margin-bottom:4px">SELFIE</p><img src="'+selfSigned+'" style="width:100%;border-radius:6px;border:1px solid #0d2744"></div>';
+          html+='</div>';
+        }
+        content.innerHTML=html;
       } else if(status==='rejected'&&content){
-        content.innerHTML='<p style="color:#ff2255;font-size:13px;text-align:center;padding:16px">\u2716 Solicitud rechazada. Puedes volver a enviar los documentos.</p>';
+        content.innerHTML='<p style="color:#ff2255;font-size:13px;text-align:center;padding:16px">✖ Solicitud rechazada. Puedes volver a enviar los documentos.</p>';
       }
     });
 }

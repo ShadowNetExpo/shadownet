@@ -54,6 +54,21 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out}
 .lb.open{display:flex}
 .lb img{max-width:90vw;max-height:90vh;border-radius:8px}
+
+.app-card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.app-header{padding:14px 16px;border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between}
+.app-user{font-weight:700;font-size:14px}
+.app-date{font-size:11px;color:#5a8aaa}
+.app-body{padding:14px 16px}
+.app-field{margin-bottom:10px}
+.app-field-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.app-field-value{font-size:13px;color:#c8d8e8;line-height:1.5}
+.app-type{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(255,34,85,.15);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
+.app-footer{padding:12px 16px;border-top:1px solid #0d2744;display:flex;gap:8px;flex-direction:column}
+.note-inp{width:100%;padding:8px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:12px;resize:none;height:52px;display:none;margin-bottom:6px}
+.note-inp.show{display:block}
+.reject-confirm2{width:100%;padding:8px;background:#ff2255;color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;display:none}
+.reject-confirm2.show{display:block}
 </style>
 </head>
 <body>
@@ -87,7 +102,16 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
     <div class="sec-title">VERIFICACIONES KYC</div>
     <div class="filters" id="filters"></div>
     <div id="grid" class="grid"><div class="empty">Cargando...</div></div>
+  
+<!-- Creator Applications Section -->
+<div style="margin-top:28px">
+  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+    &#127775; SOLICITUDES DE CREADOR
+    <span id="appCount" style="font-size:12px;color:#ff6680">Cargando...</span>
   </div>
+  <div id="appsGrid"></div>
+</div>
+</div>
 </div>
 <div class="lb" id="lb"><img id="lbimg" src=""></div>
 <div class="toast" id="toast"></div>
@@ -142,6 +166,7 @@ function showDash(name) {
   document.getElementById("adminDash").style.display = "block";
   loadStats();
   loadCards("pending");
+  loadCreatorApps();
 }
 
 async function loadStats() {
@@ -304,6 +329,117 @@ sb.auth.getSession().then(function(s) {
     if (p.data && p.data.is_admin) showDash(p.data.username || "admin");
   });
 });
+
+// =============================================
+// SOLICITUDES DE CREADORES
+// =============================================
+async function loadCreatorApps(){
+  var grid = document.getElementById("appsGrid");
+  var count = document.getElementById("appCount");
+  if(!grid) return;
+  grid.innerHTML = "<div class=\"loader\">Cargando solicitudes...</div>";
+  var r = await sb.from("creator_applications").select("*").order("created_at",{ascending:false}).limit(30);
+  if(r.error){ grid.innerHTML="<div class=\"empty\">Error: "+r.error.message+"</div>"; return; }
+  var apps = (r.data||[]);
+  var pending = apps.filter(function(a){return a.status==="pending";});
+  if(count) count.textContent = pending.length + " pendientes";
+  if(apps.length===0){ grid.innerHTML="<div class=\"empty\">No hay solicitudes</div>"; return; }
+  grid.innerHTML="";
+  apps.forEach(function(app){ grid.appendChild(buildAppCard(app)); });
+}
+
+function buildAppCard(app){
+  var card = document.createElement("div"); card.className="app-card"; card.id="app-"+app.id;
+  var statusClass={pending:"b-p",approved:"b-v",rejected:"b-r"}[app.status]||"b-p";
+  var statusText={pending:"Pendiente",approved:"Aprobado",rejected:"Rechazado"}[app.status]||"Pendiente";
+  var dt = app.created_at ? new Date(app.created_at).toLocaleDateString("es-ES") : "N/A";
+  var typeLabels={photos:"Fotos/Galería",video:"Video/Reels",live:"Lives/Streams",mixed:"Contenido Mixto",adult:"Contenido +18"};
+
+  // Header
+  var header=document.createElement("div");header.className="app-header";
+  var userDiv=document.createElement("div");
+  var nameEl=document.createElement("div");nameEl.className="app-user";nameEl.textContent="@"+(app.username||"usuario");
+  var dateEl=document.createElement("div");dateEl.className="app-date";dateEl.textContent="Enviado: "+dt;
+  userDiv.appendChild(nameEl);userDiv.appendChild(dateEl);
+  var badge=document.createElement("span");badge.className="badge "+statusClass;badge.textContent=statusText;
+  header.appendChild(userDiv);header.appendChild(badge);card.appendChild(header);
+
+  // Body
+  var body=document.createElement("div");body.className="app-body";
+  if(app.content_type){
+    var f1=document.createElement("div");f1.className="app-field";
+    var l1=document.createElement("div");l1.className="app-field-label";l1.textContent="Tipo de Contenido";
+    var v1=document.createElement("div");v1.className="app-type";v1.textContent=typeLabels[app.content_type]||app.content_type;
+    f1.appendChild(l1);f1.appendChild(v1);body.appendChild(f1);
+  }
+  if(app.motivation){
+    var f2=document.createElement("div");f2.className="app-field";
+    var l2=document.createElement("div");l2.className="app-field-label";l2.textContent="Motivación";
+    var v2=document.createElement("div");v2.className="app-field-value";v2.textContent=app.motivation;
+    f2.appendChild(l2);f2.appendChild(v2);body.appendChild(f2);
+  }
+  if(app.social_links){
+    var f3=document.createElement("div");f3.className="app-field";
+    var l3=document.createElement("div");l3.className="app-field-label";l3.textContent="Redes Sociales";
+    var v3=document.createElement("div");v3.className="app-field-value";v3.textContent=app.social_links;
+    f3.appendChild(l3);f3.appendChild(v3);body.appendChild(f3);
+  }
+  if(app.review_note){
+    var f4=document.createElement("div");f4.style.cssText="margin-top:8px;padding:8px;background:rgba(255,34,85,.08);border-radius:6px";
+    var l4=document.createElement("div");l4.style.cssText="font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px";l4.textContent="Nota admin";
+    var v4=document.createElement("div");v4.style.cssText="font-size:12px;color:#c8d8e8";v4.textContent=app.review_note;
+    f4.appendChild(l4);f4.appendChild(v4);body.appendChild(f4);
+  }
+  card.appendChild(body);
+
+  // Actions (only for pending)
+  if(app.status==="pending"){
+    var footer=document.createElement("div");footer.className="app-footer";
+    var arow=document.createElement("div");arow.className="arow";
+    var abtn=document.createElement("button");abtn.className="abtn";abtn.textContent="\u2713 Aprobar";
+    abtn.dataset.appId=app.id;abtn.dataset.userId=app.user_id;
+    abtn.addEventListener("click",function(){ approveCreatorApp(this.dataset.appId,this.dataset.userId); });
+    var rbtn=document.createElement("button");rbtn.className="rbtn";rbtn.textContent="\u2716 Rechazar";
+    rbtn.dataset.appId=app.id;
+    rbtn.addEventListener("click",function(){ showAppReject(this.dataset.appId); });
+    arow.appendChild(abtn);arow.appendChild(rbtn);footer.appendChild(arow);
+    var noteInp=document.createElement("textarea");noteInp.className="note-inp";noteInp.id="note-"+app.id;noteInp.placeholder="Motivo del rechazo...";
+    var rcbtn=document.createElement("button");rcbtn.className="reject-confirm2";rcbtn.id="rc2-"+app.id;rcbtn.textContent="CONFIRMAR RECHAZO";
+    rcbtn.dataset.appId=app.id;rcbtn.dataset.userId=app.user_id;
+    rcbtn.addEventListener("click",function(){ rejectCreatorApp(this.dataset.appId,this.dataset.userId); });
+    footer.appendChild(noteInp);footer.appendChild(rcbtn);card.appendChild(footer);
+  }
+  return card;
+}
+
+function showAppReject(appId){
+  var n=document.getElementById("note-"+appId);
+  var r=document.getElementById("rc2-"+appId);
+  if(n)n.classList.toggle("show");
+  if(r)r.classList.toggle("show");
+}
+
+async function approveCreatorApp(appId, userId){
+  var r = await sb.from("creator_applications").update({
+    status:"approved", reviewed_by: (await sb.auth.getUser()).data.user?.id, reviewed_at:new Date().toISOString()
+  }).eq("id",appId);
+  if(r.error){ showToast("Error: "+r.error.message,true); return; }
+  var card=document.getElementById("app-"+appId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("\u2713 Creador aprobado"); loadStats(); loadCreatorApps();
+}
+
+async function rejectCreatorApp(appId, userId){
+  var note=(document.getElementById("note-"+appId)||{}).value||"No cumple los requisitos";
+  var r = await sb.from("creator_applications").update({
+    status:"rejected",review_note:note,
+    reviewed_by:(await sb.auth.getUser()).data.user?.id,reviewed_at:new Date().toISOString()
+  }).eq("id",appId);
+  if(r.error){ showToast("Error: "+r.error.message,true); return; }
+  var card=document.getElementById("app-"+appId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("Solicitud rechazada"); loadCreatorApps();
+}
 </script>
 </body>
 </html>

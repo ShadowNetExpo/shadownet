@@ -87,6 +87,27 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .note-btns{display:flex;gap:8px}
 .note-clear-btn{flex:1;padding:10px;background:transparent;border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
 .note-save-btn{flex:2;padding:10px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
+
+/* DM Requests (Instagram style) */
+.dm-requests-btn{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(13,39,68,.4);cursor:pointer;transition:background .15s}
+.dm-requests-btn:hover{background:rgba(0,229,255,.04)}
+.dm-requests-label{font-size:13px;font-weight:700;color:#e8f4ff;display:flex;align-items:center;gap:8px}
+.dm-requests-count{background:#ff2255;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px}
+.dm-requests-arrow{color:#5a8aaa;font-size:16px}
+/* Requests panel */
+.requests-panel{position:fixed;inset:0;background:#01020c;z-index:1000;display:none;flex-direction:column}
+.requests-panel.open{display:flex}
+.requests-header{padding:14px 16px;border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px;font-family:Orbitron,sans-serif;font-size:12px;color:#e8f4ff;letter-spacing:.1em}
+.requests-header button{background:transparent;border:none;color:#5a8aaa;font-size:22px;cursor:pointer;padding:0}
+.request-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(13,39,68,.3)}
+.request-av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px}
+.request-av img{width:100%;height:100%;object-fit:cover}
+.request-info{flex:1}
+.request-name{font-size:13px;font-weight:700;color:#e8f4ff}
+.request-preview{font-size:12px;color:#5a8aaa;margin-top:2px}
+.request-actions{display:flex;gap:8px;flex-shrink:0}
+.req-accept{padding:7px 14px;background:#ff2255;border:none;color:#fff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer}
+.req-decline{padding:7px 14px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -112,6 +133,13 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
         <div class="note-username">Tu nota</div>
       </div>
     </div>
+  </div>
+  <div class="dm-requests-btn" id="dmRequestsBtn" onclick="openRequestsPanel()" style="display:none">
+    <div class="dm-requests-label">
+      <span>&#128172;</span> Solicitudes de mensajes
+      <span class="dm-requests-count" id="requestsCount">0</span>
+    </div>
+    <span class="dm-requests-arrow">&#8250;</span>
   </div>
   <div class="conv-list" id="convList"><div style="padding:20px;color:#5a8aaa;font-size:13px">Sin conversaciones</div></div>
   </div>
@@ -159,6 +187,7 @@ sb.auth.getSession().then(function(r){
     loadConversations();
     subscribeToNewMessages();
     loadNotes();
+    loadMessageRequests();
     var target=new URLSearchParams(location.search).get("with");
     if(target) openChatWith(target);
   });
@@ -426,6 +455,86 @@ document.addEventListener("DOMContentLoaded",function(){
   var inp=document.getElementById("noteInp");
   if(inp)inp.addEventListener("input",updateNoteCount);
 });
+
+// =============================================
+// DM REQUESTS (Instagram style)
+// =============================================
+async function loadMessageRequests(){
+  if(!currentUser) return;
+  // Get conversations from non-followed users
+  var follows=await sb.from("follows").select("following_id").eq("follower_id",currentUser.id);
+  var followedIds=(follows.data||[]).map(function(f){return f.following_id;});
+  followedIds.push(currentUser.id);
+
+  var r=await sb.from("conversations").select("*,profiles!conversations_participant1_id_fkey(id,username,avatar_url)").or("participant2_id.eq."+currentUser.id+",participant1_id.eq."+currentUser.id).limit(50);
+  var requests=(r.data||[]).filter(function(conv){
+    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    return !followedIds.includes(otherId);
+  });
+
+  var btn=document.getElementById("dmRequestsBtn");
+  var cnt=document.getElementById("requestsCount");
+  if(requests.length>0){
+    if(btn){btn.style.display="flex";}
+    if(cnt){cnt.textContent=requests.length;}
+  }
+}
+
+function openRequestsPanel(){
+  document.getElementById("requestsPanel").classList.add("open");
+  renderRequests();
+}
+
+async function renderRequests(){
+  var list=document.getElementById("requestsList");
+  if(!list||!currentUser)return;
+  list.innerHTML="<div style='padding:20px;color:#5a8aaa;text-align:center'>Cargando...</div>";
+
+  var follows=await sb.from("follows").select("following_id").eq("follower_id",currentUser.id);
+  var followedIds=(follows.data||[]).map(function(f){return f.following_id;});
+  followedIds.push(currentUser.id);
+
+  var r=await sb.from("conversations").select("*").or("participant2_id.eq."+currentUser.id+",participant1_id.eq."+currentUser.id).limit(50);
+  var requests=(r.data||[]).filter(function(conv){
+    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    return !followedIds.includes(otherId);
+  });
+
+  if(!requests.length){list.innerHTML="<div style='padding:40px;color:#5a8aaa;text-align:center'>No tienes solicitudes pendientes</div>";return;}
+  list.innerHTML="";
+
+  for(var i=0;i<requests.length;i++){
+    var conv=requests[i];
+    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    var prof=await sb.from("profiles").select("id,username,avatar_url").eq("id",otherId).single();
+    if(!prof.data)continue;
+    var p=prof.data;
+
+    var item=document.createElement("div");item.className="request-item";
+    var av=document.createElement("div");av.className="request-av";
+    if(p.avatar_url){var img=document.createElement("img");img.src=p.avatar_url;av.appendChild(img);}else av.textContent=(p.username||"?")[0].toUpperCase();
+    var info=document.createElement("div");info.className="request-info";
+    var name=document.createElement("div");name.className="request-name";name.textContent="@"+p.username;
+    var preview=document.createElement("div");preview.className="request-preview";preview.textContent="Quiere enviarte un mensaje";
+    info.appendChild(name);info.appendChild(preview);
+
+    var acts=document.createElement("div");acts.className="request-actions";
+    var accept=document.createElement("button");accept.className="req-accept";accept.textContent="Aceptar";
+    accept.addEventListener("click",function(uid){return function(){
+      sb.from("follows").insert({follower_id:currentUser.id,following_id:uid}).then(function(){
+        item.remove();
+        showToast("\u2713 Solicitud aceptada");
+        loadMessageRequests();
+      });
+    };}(p.id));
+    var decline=document.createElement("button");decline.className="req-decline";decline.textContent="Rechazar";
+    decline.addEventListener("click",function(){item.remove();showToast("Solicitud rechazada");});
+    acts.appendChild(accept);acts.appendChild(decline);
+
+    item.appendChild(av);item.appendChild(info);item.appendChild(acts);
+    list.appendChild(item);
+  }
+}
 </script>
 <div class="note-modal" id="noteModal">
   <div class="note-box">
@@ -443,6 +552,14 @@ document.addEventListener("DOMContentLoaded",function(){
       <span style="font-size:11px;color:#5a8aaa;cursor:pointer" onclick="document.getElementById('noteModal').classList.remove('open')">Cancelar</span>
     </div>
   </div>
+</div>
+<!-- DM Requests Panel -->
+<div class="requests-panel" id="requestsPanel">
+  <div class="requests-header">
+    <button onclick="document.getElementById('requestsPanel').classList.remove('open')">&#8592;</button>
+    SOLICITUDES DE MENSAJES
+  </div>
+  <div id="requestsList" style="overflow-y:auto;flex:1"></div>
 </div>
 </body>
 </html>

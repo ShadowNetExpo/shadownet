@@ -211,6 +211,24 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .coll-new-inp:focus{border-color:#ff2255}
 .coll-save-btn{width:100%;padding:10px;background:#ff2255;color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:none;text-transform:uppercase}
 .coll-save-btn.show{display:block}
+
+.post-audio{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;color:#c8d8e8;cursor:pointer;border-top:1px solid rgba(13,39,68,.3)}
+.post-audio:hover{color:#fff}
+.post-audio-icon{font-size:14px;animation:spinRecord 3s linear infinite;display:inline-block}
+@keyframes spinRecord{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.post-audio-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.suggestion-divider{background:rgba(7,15,30,.5);border:1px solid #0d2744;border-radius:12px;padding:14px;margin:16px 0}
+.suggestion-title{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.suggestion-list{display:flex;flex-direction:column;gap:10px}
+.suggestion-user{display:flex;align-items:center;gap:10px}
+.suggestion-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:16px;cursor:pointer}
+.suggestion-av img{width:100%;height:100%;object-fit:cover}
+.suggestion-info{flex:1}
+.suggestion-name{font-size:13px;font-weight:700;color:#e8f4ff;cursor:pointer}
+.suggestion-name:hover{color:#00e5ff}
+.suggestion-reason{font-size:11px;color:#5a8aaa}
+.suggestion-follow-btn{padding:6px 14px;background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;flex-shrink:0}
+.suggestion-follow-btn.following{background:transparent;color:#5a8aaa;border-color:#0d2744}
 </style>
 </head>
 <body>
@@ -436,6 +454,16 @@ function buildPostCard(post, profile, liked, saved) {
     locEl.innerHTML="\uD83D\uDCCD "+post.location;
     locEl.addEventListener("click",function(){window.location.href="/search.html?q="+encodeURIComponent(post.location);});
     card.appendChild(locEl);
+  }
+  // Audio attribution
+  if(post.media_url&&post.media_type==="video"){
+    var audioBar=document.createElement("div");audioBar.className="post-audio";
+    var audioIcon=document.createElement("span");audioIcon.className="post-audio-icon";audioIcon.textContent="\uD83C\uDFB5";
+    var audioName=document.createElement("span");audioName.className="post-audio-name";
+    audioName.textContent=post.audio_name||(profile?profile.username+" \u2022 Audio original":"Audio original");
+    audioBar.appendChild(audioIcon);audioBar.appendChild(audioName);
+    audioBar.addEventListener("click",function(){showToast("\uD83C\uDFB5 "+audioName.textContent);});
+    card.appendChild(audioBar);
   }
   // Footer with like + comment + share + save
   var footer=document.createElement("div");footer.className="card-footer";
@@ -1214,6 +1242,43 @@ document.addEventListener("click",function(e){
   var modal=document.getElementById("collectionsModal");
   if(modal&&modal.classList.contains("open")&&e.target===modal){closeCollections();}
 });
+
+// SUGERENCIAS PARA TI
+var _suggInserted=false;
+async function insertSuggestionCard(afterCard){
+  if(!currentUser||_suggInserted)return;
+  _suggInserted=true;
+  var follows=await sb.from("follows").select("following_id").eq("follower_id",currentUser.id);
+  var ids=(follows.data||[]).map(function(f){return f.following_id;});
+  ids.push(currentUser.id);
+  var q=sb.from("profiles").select("id,username,avatar_url,role,verification_status").eq("is_creator",true).limit(4);
+  if(ids.length>0) q=q.not("id","in","("+ids.join(",")+")");
+  var r=await q;
+  if(!r.data||!r.data.length)return;
+  var div=document.createElement("div");div.className="suggestion-divider";
+  var title=document.createElement("div");title.className="suggestion-title";
+  title.innerHTML="<span>\uD83D\uDCA1 Sugerencias para ti</span><span style='cursor:pointer;color:#ff2255;font-size:11px' onclick='this.closest(".suggestion-divider").remove()'>X</span>";
+  var list=document.createElement("div");list.className="suggestion-list";
+  r.data.forEach(function(u){
+    var row=document.createElement("div");row.className="suggestion-user";
+    var av=document.createElement("div");av.className="suggestion-av";
+    if(u.avatar_url){var img=document.createElement("img");img.src=u.avatar_url;av.appendChild(img);}else av.textContent=(u.username||"?")[0].toUpperCase();
+    av.addEventListener("click",function(){window.location.href="/profile.html?u="+u.username;});
+    var info=document.createElement("div");info.className="suggestion-info";
+    var name=document.createElement("div");name.className="suggestion-name";name.textContent="@"+u.username+(u.verification_status==="verified"?" \u2713":"");
+    name.addEventListener("click",function(){window.location.href="/profile.html?u="+u.username;});
+    var reason=document.createElement("div");reason.className="suggestion-reason";reason.textContent=u.role==="creator"?"Creador en SHADOWNET":"Sugerido para ti";
+    info.appendChild(name);info.appendChild(reason);
+    var btn=document.createElement("button");btn.className="suggestion-follow-btn";btn.textContent="Seguir";
+    btn.addEventListener("click",function(){
+      sb.from("follows").insert({follower_id:currentUser.id,following_id:u.id}).then(function(){btn.textContent="Siguiendo";btn.className="suggestion-follow-btn following";});
+    });
+    row.appendChild(av);row.appendChild(info);row.appendChild(btn);list.appendChild(row);
+  });
+  div.appendChild(title);div.appendChild(list);
+  if(afterCard&&afterCard.nextSibling)afterCard.parentNode.insertBefore(div,afterCard.nextSibling);
+  else document.getElementById("feedContainer")?.appendChild(div);
+}
 </script>
 
 <!-- Report Modal -->

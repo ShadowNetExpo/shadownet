@@ -271,42 +271,52 @@ function showToast(msg, err) {
 }
 
 function renderSubSection(p){
-  var existing = document.getElementById("subSection");
-  if(existing) existing.remove();
-  var wrap = document.getElementById("profileWrap");
-  var divider = wrap.querySelector(".divider");
-  var sec = document.createElement("div");
-  sec.id = "subSection";
+  var existing=document.getElementById("subSection");
+  if(existing)existing.remove();
+  var wrap=document.getElementById("profileWrap");
+  var divider=wrap.querySelector(".divider");
+  var sec=document.createElement("div");
+  sec.id="subSection";
   if(isOwnProfile){
-    // Creator setup panel
-    var price = p.subscription_price || 0;
-    sec.innerHTML =
-      '<div class="sub-setup">'
-      +'<div class="sub-setup-title">&#128536; Configurar Suscripci\xF3n</div>'
-      +'<div class="price-row"><span class="price-prefix">$</span>'
-      +'<input class="price-inp" id="subPriceInp" type="number" min="0" max="99.99" step="0.01" placeholder="9.99" value="'+(price||"")+'">'
-      +'<span style="font-size:12px;color:#5a8aaa">USD/mes</span></div>'
-      +'<input class="inp" id="subDescInp" placeholder="Describe qu\xE9 incluye tu suscripci\xF3n..." style="margin-bottom:10px" value="'+(p.subscription_description||"")+'">'
-      +'<button class="sub-save-btn" onclick="saveSubscriptionSettings()">Guardar precio</button>'
-      +'<div class="subs-count">'+( p.subscribers_count||0)+' suscriptores activos &bull; Ganancias: $'+parseFloat(p.total_earnings||0).toFixed(2)+'</div>'
-      +'</div>';
-  } else if(p.subscription_price > 0){
-    // Fan subscription button
+    var box=document.createElement("div");box.className="sub-setup";
+    var title=document.createElement("div");title.className="sub-setup-title";title.textContent="\uD83D\uDCC2 Configurar Suscripci\xF3n";
+    var prow=document.createElement("div");prow.className="price-row";
+    var prefix=document.createElement("span");prefix.className="price-prefix";prefix.textContent="$";
+    var pinp=document.createElement("input");pinp.className="price-inp";pinp.id="subPriceInp";pinp.type="number";pinp.min="0";pinp.max="99.99";pinp.step="0.01";pinp.placeholder="9.99";if(p.subscription_price)pinp.value=p.subscription_price;
+    var plbl=document.createElement("span");plbl.style.cssText="font-size:12px;color:#5a8aaa";plbl.textContent="USD/mes";
+    prow.appendChild(prefix);prow.appendChild(pinp);prow.appendChild(plbl);
+    var dinp=document.createElement("input");dinp.className="inp";dinp.id="subDescInp";dinp.placeholder="Qu\xE9 incluye tu suscripci\xF3n...";dinp.style.marginBottom="10px";if(p.subscription_description)dinp.value=p.subscription_description;
+    var sbtn=document.createElement("button");sbtn.className="sub-save-btn";sbtn.textContent="Guardar precio";
+    sbtn.addEventListener("click",saveSubscriptionSettings);
+    var scount=document.createElement("div");scount.className="subs-count";
+    scount.textContent=(p.subscribers_count||0)+" suscriptores \u2022 Ganancias: $"+parseFloat(p.total_earnings||0).toFixed(2);
+    box.appendChild(title);box.appendChild(prow);box.appendChild(dinp);box.appendChild(sbtn);box.appendChild(scount);
+    sec.appendChild(box);
+    if(divider)wrap.insertBefore(sec,divider);else wrap.appendChild(sec);
+  } else if(p.subscription_price>0){
     checkSubscription(p.id).then(function(isSubbed){
-      sec.innerHTML =
-        '<div class="sub-box">'
-        +'<div class="sub-title">&#11088; CONTENIDO EXCLUSIVO</div>'
-        +'<div class="sub-price">$'+parseFloat(p.subscription_price).toFixed(2)+'<span style="font-size:14px;color:#5a8aaa">/mes</span></div>'
-        +'<div class="sub-desc">'+(p.subscription_description||"Accede a contenido exclusivo, lives privados y mensajes directos.")+'</div>'
-        +(isSubbed
-          ? '<button class="sub-btn active" disabled>&#10003; Suscrito</button>'
-          : '<button class="sub-btn" onclick="openSubModal(''+p.id+'','+p.subscription_price+',''+( p.subscription_description||'').replace(/'/g,'')+'')">'
-            +'&#128274; Suscribirse por $'+parseFloat(p.subscription_price).toFixed(2)+'/mes</button>')
-        +'</div>';
+      var box=document.createElement("div");box.className="sub-box";
+      var stitle=document.createElement("div");stitle.className="sub-title";stitle.textContent="\u2B50 CONTENIDO EXCLUSIVO";
+      var sprice=document.createElement("div");sprice.className="sub-price";
+      sprice.innerHTML="$"+parseFloat(p.subscription_price).toFixed(2)+"<span style=\"font-size:14px;color:#5a8aaa\">/mes</span>";
+      var sdesc=document.createElement("div");sdesc.className="sub-desc";sdesc.textContent=p.subscription_description||"Accede a contenido exclusivo, lives privados y mensajes directos.";
+      var sbtn=document.createElement("button");
+      if(isSubbed){
+        sbtn.className="sub-btn active";sbtn.textContent="\u2713 Suscrito";sbtn.disabled=true;
+      } else {
+        sbtn.className="sub-btn";sbtn.textContent="\uD83D\uDD12 Suscribirse por $"+parseFloat(p.subscription_price).toFixed(2)+"/mes";
+        sbtn.dataset.creatorId=p.id;
+        sbtn.dataset.price=p.subscription_price;
+        sbtn.dataset.desc=p.subscription_description||"";
+        sbtn.addEventListener("click",function(){
+          openSubModal(this.dataset.creatorId,parseFloat(this.dataset.price),this.dataset.desc);
+        });
+      }
+      box.appendChild(stitle);box.appendChild(sprice);box.appendChild(sdesc);box.appendChild(sbtn);
+      sec.appendChild(box);
+      if(divider)wrap.insertBefore(sec,divider);else wrap.appendChild(sec);
     });
   }
-  if(divider) wrap.insertBefore(sec, divider);
-  else wrap.appendChild(sec);
 }
 
 // =============================================
@@ -330,41 +340,32 @@ function openSubModal(creatorId, price, desc){
 }
 
 async function confirmSubscription(){
-  if(!currentUser){ window.location.href="/"; return; }
-  if(!_subCreatorId) return;
-  var btn = document.getElementById("subConfirmBtn");
-  btn.disabled = true; btn.textContent = "Procesando...";
+  if(!currentUser){window.location.href="/";return;}
+  if(!_subCreatorId)return;
+  var btn=document.getElementById("subConfirmBtn");
+  btn.disabled=true;btn.textContent="Procesando...";
   try{
-    // Save subscription record (in production, this would go through Stripe)
-    var expDate = new Date(); expDate.setMonth(expDate.getMonth()+1);
-    var r = await sb.from("subscriptions").upsert({
-      subscriber_id: currentUser.id,
-      creator_id: _subCreatorId,
-      status: "active",
-      price: _subPrice,
-      started_at: new Date().toISOString(),
-      expires_at: expDate.toISOString()
+    var expDate=new Date();expDate.setMonth(expDate.getMonth()+1);
+    var r=await sb.from("subscriptions").upsert({
+      subscriber_id:currentUser.id,creator_id:_subCreatorId,
+      status:"active",price:_subPrice,
+      started_at:new Date().toISOString(),expires_at:expDate.toISOString()
     });
-    if(r.error) throw new Error(r.error.message);
-    // Record transaction
+    if(r.error)throw new Error(r.error.message);
     await sb.from("transactions").insert({
-      user_id: currentUser.id,
-      type: "subscription",
-      amount: -_subPrice,
-      description: "Suscripci\xF3n mensual"
+      user_id:currentUser.id,type:"subscription",
+      amount:-_subPrice,description:"Suscripci\xF3n mensual"
     });
-    // Update creator earnings
-    var creatorCut = parseFloat(_subPrice) * 0.60;
-    await sb.from("profiles").rpc || await sb.from("profiles")
-      .update({total_earnings: parseFloat(profileData?.total_earnings||0) + creatorCut})
-      .eq("id", _subCreatorId);
+    var creatorCut=parseFloat(_subPrice)*0.60;
+    await sb.from("profiles").update({
+      total_earnings:parseFloat(profileData&&profileData.total_earnings||0)+creatorCut
+    }).eq("id",_subCreatorId);
     document.getElementById("subModal").classList.remove("open");
-    showToast("\u2713 Suscripci\xF3n activa. Bienvenido al club exclusivo!");
-    // Update UI
-    setTimeout(loadProfile, 500);
+    showToast("\u2713 Suscripci\xF3n activa!");
+    setTimeout(loadProfile,500);
   }catch(e){
-    btn.disabled=false; btn.textContent="\uD83D\uDD12 Suscribirse";
-    showToast("Error: "+e.message, true);
+    btn.disabled=false;btn.textContent="\uD83D\uDD12 Suscribirse";
+    showToast("Error: "+e.message,true);
   }
 }
 

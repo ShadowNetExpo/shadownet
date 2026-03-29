@@ -200,6 +200,36 @@
 .bn-item:hover,.bn-item.active{color:#00e5ff}
 .bn-icon{font-size:20px;line-height:1}
 body.has-nav .dashPage{padding-bottom:70px}
+
+/* Animated Gifts */
+.gift-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;display:none;align-items:flex-end;justify-content:center;padding-bottom:80px}
+.gift-modal.open{display:flex}
+.gift-panel{background:#070f1e;border:1px solid #0d2744;border-radius:16px 16px 0 0;width:100%;max-width:500px;padding:20px}
+.gift-panel-title{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.gifts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.gift-item{background:rgba(1,2,12,.6);border:1px solid #0d2744;border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s}
+.gift-item:hover,.gift-item.sel{border-color:#ff2255;background:rgba(255,34,85,.1)}
+.gift-emoji{font-size:28px;margin-bottom:4px}
+.gift-name{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.04em}
+.gift-cost{font-size:11px;color:#ff2255;font-weight:700;margin-top:2px}
+.gift-send-btn{width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em}
+.gift-send-btn:disabled{opacity:.4;cursor:not-allowed}
+/* Gift animation overlay */
+.gift-anim{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:80px;z-index:9999;pointer-events:none;animation:giftPop .8s ease-out forwards}
+@keyframes giftPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}70%{transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-60%) scale(1.1)}}
+/* Notification bell */
+.notif-bell{position:relative;cursor:pointer;padding:4px 8px;font-size:20px}
+.notif-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#ff2255;display:none}
+.notif-dot.show{display:block}
+.notif-panel{position:fixed;top:60px;right:16px;width:320px;max-height:400px;overflow-y:auto;background:#070f1e;border:1px solid #0d2744;border-radius:12px;z-index:500;display:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.notif-panel.open{display:block}
+.notif-header{padding:12px 16px;border-bottom:1px solid #0d2744;display:flex;justify-content:space-between;align-items:center;font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.08em}
+.notif-item{padding:12px 16px;border-bottom:1px solid rgba(13,39,68,.5);cursor:pointer;transition:background .15s}
+.notif-item:hover{background:rgba(0,229,255,.05)}
+.notif-item.unread{background:rgba(0,229,255,.04)}
+.notif-msg{font-size:13px;color:#c8d8e8;line-height:1.4}
+.notif-time{font-size:11px;color:#5a8aaa;margin-top:3px}
+.notif-empty{padding:24px;text-align:center;color:#5a8aaa;font-size:13px}
 </style>
 </head>
 <body>
@@ -208,7 +238,7 @@ body.has-nav .dashPage{padding-bottom:70px}
   <div class="nav-btns">
     <button class="btn bg" id="loginBtn" onclick="openAuth('login')">Iniciar sesion</button>
     <button class="btn bp" id="registerBtn" onclick="openAuth('register')">Registrarse</button>
-    <button class="btn bg" id="logoutBtn" style="display:none" onclick="doLogout()">Salir</button>
+    <button class="btn bg" id="notifBell" onclick="toggleNotifPanel()" style="display:none"><span class="notif-bell">&#128276;<span class="notif-dot" id="notifDot"></span></span></button> <button id="logoutBtn" style="display:none" onclick="doLogout()">Salir</button>
   </div>
 </nav>
 <div class="mbg" id="authModal">
@@ -343,6 +373,7 @@ body.has-nav .dashPage{padding-bottom:70px}
       <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:var(--c)">&#128640; Tu estudio</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
+<button onclick="window.location.href='/explore.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
         <button onclick="window.location.href='/live.html'" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128308; Ir en vivo</button>
 <button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff">&#128248; Feed</button>
 <button onclick="window.location.href='/profile.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,34,85,.15),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680">&#128100; Mi Perfil</button>
@@ -373,7 +404,7 @@ sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)se
 function loadCount(){sb.from('profiles').select('*',{count:'exact',head:true}).then(function(r){if(r.count!==null){var el=document.getElementById('statUsers');if(el)el.textContent=r.count>=1000?(r.count/1000).toFixed(1)+'K':r.count;}});}
 function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{};document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
     offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex'; document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
-    loadKycStatus();closeAuth();});}
+    loadKycStatus();closeAuth();document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
 function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none'; document.getElementById('bottomNav').classList.remove('visible'); document.body.classList.remove('has-nav');}
 function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
 function openAuth(t){document.getElementById('authModal').classList.add('open');switchTab(t==='login'?'l':'r');document.getElementById('authOk').style.display='none';}
@@ -900,6 +931,158 @@ document.addEventListener('DOMContentLoaded', function(){
   var chatInp = document.getElementById('chatInp');
   if(chatInp) chatInp.addEventListener('keydown', function(e){ if(e.key==='Enter') sendChatMsg(); });
 });
+
+// =============================================
+// REGALOS ANIMADOS
+// =============================================
+var GIFTS = [{"id":"rose","emoji":"🌹","name":"Rosa","cost":10},{"id":"heart","emoji":"💗","name":"Corazón","cost":25},{"id":"fire","emoji":"🔥","name":"Fuego","cost":50},{"id":"skull","emoji":"💀","name":"Alma","cost":100},{"id":"crown","emoji":"👑","name":"Corona","cost":200},{"id":"gem","emoji":"💎","name":"Diamante","cost":500},{"id":"rocket","emoji":"🚀","name":"Cohete","cost":150},{"id":"star","emoji":"⭐","name":"Estrella","cost":75}];
+var selectedGift = null;
+var giftTargetUserId = null;
+var giftStreamId = null;
+
+function openGiftModal(targetUserId, streamId){
+  giftTargetUserId = targetUserId || null;
+  giftStreamId = streamId || 'general';
+  selectedGift = null;
+  var btn = document.getElementById('giftSendBtn');
+  btn.disabled = true; btn.textContent = 'Selecciona un regalo';
+  GIFTS.forEach(function(g){ var el=document.getElementById('gi-'+g.id); if(el) el.classList.remove('sel'); });
+  document.getElementById('giftModal').classList.add('open');
+  // Update balance display
+  var bal = document.getElementById('dashCoins');
+  var giftBal = document.getElementById('giftBalance');
+  if(giftBal && bal) giftBal.textContent = '\uD83D\uDC80 '+bal.textContent+' Almas';
+}
+
+function closeGiftModal(){ document.getElementById('giftModal').classList.remove('open'); }
+
+function selectGift(idx){
+  selectedGift = GIFTS[idx];
+  GIFTS.forEach(function(g){ var el=document.getElementById('gi-'+g.id); if(el) el.classList.remove('sel'); });
+  var el = document.getElementById('gi-'+selectedGift.id);
+  if(el) el.classList.add('sel');
+  var btn = document.getElementById('giftSendBtn');
+  btn.disabled = false;
+  btn.textContent = 'Enviar ' + selectedGift.emoji + ' por ' + selectedGift.cost + ' Almas';
+}
+
+async function sendGift(){
+  if(!selectedGift || !window.currentUser || !window.sb) return;
+  var btn = document.getElementById('giftSendBtn');
+  var coins = parseInt(document.getElementById('dashCoins').textContent) || 0;
+  if(coins < selectedGift.cost){
+    showToast('Almas insuficientes. Compra m\xE1s en la tienda.', true);
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  // Deduct coins
+  var newCoins = coins - selectedGift.cost;
+  await window.sb.from('profiles').update({coins_balance: newCoins}).eq('id', window.currentUser.id);
+  document.getElementById('dashCoins').textContent = newCoins;
+  // Save gift
+  var uname = document.getElementById('dashUser')?.textContent?.replace('@','') || 'user';
+  await window.sb.from('live_gifts').insert({
+    stream_id: giftStreamId,
+    from_user_id: window.currentUser.id,
+    to_user_id: giftTargetUserId || window.currentUser.id,
+    from_username: uname,
+    gift_id: selectedGift.id,
+    gift_name: selectedGift.name,
+    gift_cost: selectedGift.cost
+  });
+  closeGiftModal();
+  // Show animation
+  showGiftAnimation(selectedGift.emoji, selectedGift.name);
+  showToast('\uD83C\uDF81 Regalo enviado: ' + selectedGift.name);
+}
+
+function showGiftAnimation(emoji, name){
+  var el = document.createElement('div');
+  el.className = 'gift-anim';
+  el.textContent = emoji;
+  document.body.appendChild(el);
+  setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 900);
+}
+
+// =============================================
+// NOTIFICACIONES
+// =============================================
+var _notifSub = null;
+var _unreadCount = 0;
+
+async function loadNotifications(){
+  if(!window.currentUser || !window.sb) return;
+  var r = await window.sb.from('notifications')
+    .select('*').eq('user_id', window.currentUser.id)
+    .order('created_at',{ascending:false}).limit(20);
+  if(r.error) return;
+  var list = document.getElementById('notifList');
+  if(!list) return;
+  var notifs = r.data || [];
+  _unreadCount = notifs.filter(function(n){ return !n.is_read; }).length;
+  updateNotifBadge();
+  if(notifs.length === 0){
+    list.innerHTML = '<div class="notif-empty">Sin notificaciones</div>';
+    return;
+  }
+  list.innerHTML = '';
+  notifs.forEach(function(n){
+    var item = document.createElement('div');
+    item.className = 'notif-item' + (!n.is_read ? ' unread' : '');
+    item.dataset.id = n.id;
+    item.innerHTML = '<div class="notif-msg">' + escNotif(n.message||'') + '</div>'
+      + '<div class="notif-time">' + getTimeAgo(n.created_at) + '</div>';
+    item.addEventListener('click', function(){
+      item.classList.remove('unread');
+      window.sb.from('notifications').update({is_read:true}).eq('id',n.id).then(function(){});
+    });
+    list.appendChild(item);
+  });
+}
+
+function getTimeAgo(ts){
+  var diff=(Date.now()-new Date(ts).getTime())/1000;
+  if(diff<60) return 'ahora'; if(diff<3600) return Math.floor(diff/60)+'m';
+  if(diff<86400) return Math.floor(diff/3600)+'h'; return Math.floor(diff/86400)+'d';
+}
+
+function escNotif(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function updateNotifBadge(){
+  var dot = document.getElementById('notifDot');
+  if(dot) dot.classList.toggle('show', _unreadCount > 0);
+}
+
+function toggleNotifPanel(){
+  var panel = document.getElementById('notifPanel');
+  if(!panel) return;
+  var isOpen = panel.classList.toggle('open');
+  if(isOpen) loadNotifications();
+}
+
+async function markAllRead(){
+  if(!window.currentUser||!window.sb) return;
+  await window.sb.from('notifications').update({is_read:true}).eq('user_id',window.currentUser.id).eq('is_read',false);
+  _unreadCount = 0; updateNotifBadge();
+  document.querySelectorAll('.notif-item.unread').forEach(function(el){ el.classList.remove('unread'); });
+}
+
+function subscribeNotifications(){
+  if(_notifSub) { window.sb.removeChannel(_notifSub); }
+  _notifSub = window.sb.channel('notifs-'+window.currentUser.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+window.currentUser.id},function(p){
+      _unreadCount++; updateNotifBadge();
+      showToast('\uD83D\uDD14 ' + (p.new.message||'Nueva notificaci\xF3n'));
+    }).subscribe();
+}
+
+// Hook into setUser to show notif bell and load notifs
+function showToast(msg, isErr){
+  var t = document.getElementById('toastMsg');
+  if(!t){ t=document.createElement('div'); t.id='toastMsg'; t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap'; document.body.appendChild(t); }
+  t.textContent=msg; t.style.borderColor=isErr?'#ff2255':'#00ff88'; t.style.color=isErr?'#ff2255':'#00ff88'; t.style.border='1px solid'; t.style.display='block';
+  setTimeout(function(){t.style.display='none';},3000);
+}
 </script>
 
 
@@ -950,7 +1133,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <button id="micBtn" onclick="toggleMic()" style="background:rgba(0,229,255,.1);border:1px solid var(--c);color:var(--c);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#127908; Mic ON</button>
     <button id="camBtn" onclick="toggleCam()" style="background:rgba(0,229,255,.1);border:1px solid var(--c);color:var(--c);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128247; Cam ON</button>
     <div style="flex:1"></div>
-    <button onclick="openShop()" style="background:rgba(255,210,0,.1);border:1px solid var(--gl);color:var(--gl);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128128; Enviar regalo</button>
+    <button class="lbtn" onclick="openGiftModal(null,_liveStreamId)">&#127873; Enviar regalo</button>
 <div class="live-chat" id="liveChat" style="display:none">
   <div class="chat-msgs" id="chatMsgs"></div>
   <div class="chat-input-row">
@@ -997,8 +1180,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <button class="bn-item" onclick="window.location.href='/feed.html'">
     <span class="bn-icon">&#128248;</span>Feed
   </button>
-  <button class="bn-item" onclick="openShop()">
-    <span class="bn-icon">&#128128;</span>Almas
+  <button class="bn-item" onclick="window.location.href='/explore.html'">
+    <span class="bn-icon">&#128269;</span>Explorar
   </button>
   <button class="bn-item" onclick="window.location.href='/live.html'">
     <span class="bn-icon">&#128250;</span>Lives
@@ -1007,5 +1190,22 @@ document.addEventListener('DOMContentLoaded', function(){
     <span class="bn-icon">&#128100;</span>Perfil
   </button>
 </nav>
+<!-- Gift Modal -->
+<div class="gift-modal" id="giftModal">
+  <div class="gift-panel">
+    <div class="gift-panel-title">
+      <span>&#127873; ENVIAR REGALO</span>
+      <span id="giftBalance" style="color:#00e5ff;font-size:12px">&#128128; 0 Almas</span>
+      <button onclick="closeGiftModal()" style="background:none;border:none;color:#5a8aaa;font-size:18px;cursor:pointer">&#x2715;</button>
+    </div>
+    <div class="gifts-grid"><div class="gift-item" id="gi-rose" onclick="selectGift(0)" data-idx="0"><div class="gift-emoji">🌹</div><div class="gift-name">Rosa</div><div class="gift-cost">10 💀</div></div><div class="gift-item" id="gi-heart" onclick="selectGift(1)" data-idx="1"><div class="gift-emoji">💗</div><div class="gift-name">Corazón</div><div class="gift-cost">25 💀</div></div><div class="gift-item" id="gi-fire" onclick="selectGift(2)" data-idx="2"><div class="gift-emoji">🔥</div><div class="gift-name">Fuego</div><div class="gift-cost">50 💀</div></div><div class="gift-item" id="gi-skull" onclick="selectGift(3)" data-idx="3"><div class="gift-emoji">💀</div><div class="gift-name">Alma</div><div class="gift-cost">100 💀</div></div><div class="gift-item" id="gi-crown" onclick="selectGift(4)" data-idx="4"><div class="gift-emoji">👑</div><div class="gift-name">Corona</div><div class="gift-cost">200 💀</div></div><div class="gift-item" id="gi-gem" onclick="selectGift(5)" data-idx="5"><div class="gift-emoji">💎</div><div class="gift-name">Diamante</div><div class="gift-cost">500 💀</div></div><div class="gift-item" id="gi-rocket" onclick="selectGift(6)" data-idx="6"><div class="gift-emoji">🚀</div><div class="gift-name">Cohete</div><div class="gift-cost">150 💀</div></div><div class="gift-item" id="gi-star" onclick="selectGift(7)" data-idx="7"><div class="gift-emoji">⭐</div><div class="gift-name">Estrella</div><div class="gift-cost">75 💀</div></div></div>
+    <button class="gift-send-btn" id="giftSendBtn" onclick="sendGift()" disabled>Selecciona un regalo</button>
+  </div>
+</div>
+<!-- Notification Panel -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header">NOTIFICACIONES <span id="markAllRead" onclick="markAllRead()" style="cursor:pointer;color:#00e5ff">Leer todas</span></div>
+  <div id="notifList"><div class="notif-empty">Sin notificaciones</div></div>
+</div>
 </body>
 </html>

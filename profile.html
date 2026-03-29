@@ -264,10 +264,13 @@ document.getElementById("coverInput").addEventListener("change", async function(
   showToast("\u2713 Portada actualizada");
 });
 
-function showToast(msg, err) {
+function showToast(msg, isErr) {
   var t = document.getElementById("toast");
-  t.textContent = msg; t.style.borderColor = err?"#ff2255":"#00ff88"; t.style.color = err?"#ff2255":"#00ff88";
-  t.style.display = "block"; setTimeout(function(){t.style.display="none";},2500);
+  t.textContent = msg;
+  t.style.borderColor = isErr ? "#ff2255" : "#00ff88";
+  t.style.color = isErr ? "#ff2255" : "#00ff88";
+  t.style.display = "block";
+  setTimeout(function() { t.style.display = "none"; }, 2500);
 }
 
 function renderSubSection(p){

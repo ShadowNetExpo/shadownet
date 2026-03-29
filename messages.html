@@ -61,6 +61,32 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .login-wall{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#5a8aaa}
 .login-wall a{color:#00e5ff;text-decoration:none;font-weight:700}
 @media(max-width:600px){.sidebar{width:100%;position:absolute;z-index:10;background:#01020c;height:calc(100vh - 52px)}.sidebar.hidden{display:none}.chat-area{width:100%}}
+
+/* Instagram Notes/Status */
+.note-bar{padding:12px 16px;border-bottom:1px solid rgba(13,39,68,.4);background:rgba(7,15,30,.5)}
+.note-bar-title{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.note-bubbles-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.note-bubbles-row::-webkit-scrollbar{display:none}
+.note-bubble{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;cursor:pointer;min-width:60px}
+.note-av-wrap{position:relative}
+.note-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;border:2px solid #0d2744;overflow:hidden}
+.note-av img{width:100%;height:100%;object-fit:cover}
+.note-text-bubble{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #0d2744;border-radius:12px 12px 12px 0;padding:4px 8px;font-size:10px;color:#e8f4ff;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.note-username{font-size:10px;color:#5a8aaa;text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.my-note-bubble .note-av{border-color:#00e5ff}
+/* Note input modal */
+.note-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:none;align-items:center;justify-content:center}
+.note-modal.open{display:flex}
+.note-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:24px;width:100%;max-width:360px;margin:0 16px}
+.note-box-title{font-family:Orbitron,sans-serif;font-size:12px;color:#00e5ff;letter-spacing:.1em;margin-bottom:6px}
+.note-box-sub{font-size:12px;color:#5a8aaa;margin-bottom:16px;line-height:1.5}
+.note-inp-wrap{position:relative;margin-bottom:14px}
+.note-inp{width:100%;padding:12px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;resize:none;height:80px}
+.note-inp:focus{border-color:#00e5ff}
+.note-char-count{position:absolute;bottom:8px;right:10px;font-size:10px;color:#5a8aaa}
+.note-btns{display:flex;gap:8px}
+.note-clear-btn{flex:1;padding:10px;background:transparent;border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
+.note-save-btn{flex:2;padding:10px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -75,7 +101,19 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
       <span class="sidebar-title">CONVERSACIONES</span>
       <button class="new-chat-btn" onclick="openNewChat()">+ Nuevo</button>
     </div>
-    <div class="conv-list" id="convList"><div style="padding:20px;color:#5a8aaa;font-size:13px">Sin conversaciones</div></div>
+    <div class="note-bar" id="noteBar">
+    <div class="note-bar-title">NOTAS</div>
+    <div class="note-bubbles-row" id="noteBubblesRow">
+      <div class="note-bubble my-note-bubble" onclick="openNoteModal()">
+        <div class="note-av-wrap">
+          <div class="note-av" id="myNoteAv" style="border-color:#00e5ff;font-size:20px">+</div>
+          <div class="note-text-bubble" id="myNoteBubble" style="display:none"></div>
+        </div>
+        <div class="note-username">Tu nota</div>
+      </div>
+    </div>
+  </div>
+  <div class="conv-list" id="convList"><div style="padding:20px;color:#5a8aaa;font-size:13px">Sin conversaciones</div></div>
   </div>
   <div class="chat-area" id="chatArea">
     <div class="empty-chat" id="emptyChat"><div class="empty-chat-icon">&#128172;</div><p>Selecciona una conversación</p></div>
@@ -120,6 +158,7 @@ sb.auth.getSession().then(function(r){
     document.getElementById("mainLayout").style.display="flex";
     loadConversations();
     subscribeToNewMessages();
+    loadNotes();
     var target=new URLSearchParams(location.search).get("with");
     if(target) openChatWith(target);
   });
@@ -299,6 +338,111 @@ function showToast(msg,err){
   t.textContent=msg; t.style.borderColor=err?"#ff2255":"#00ff88"; t.style.color=err?"#ff2255":"#00ff88";
   t.style.display="block"; setTimeout(function(){t.style.display="none";},2500);
 }
+
+// =============================================
+// INSTAGRAM NOTES / STATUS
+// =============================================
+async function loadNotes(){
+  var row = document.getElementById("noteBubblesRow");
+  if(!row||!currentUser) return;
+
+  // Load my own note first
+  var myProf = await sb.from("profiles").select("username,avatar_url,note_text,note_expires_at").eq("id",currentUser.id).single();
+  if(myProf.data){
+    var myAv = document.getElementById("myNoteAv");
+    if(myAv){
+      myAv.innerHTML="";
+      if(myProf.data.avatar_url){var img=document.createElement("img");img.src=myProf.data.avatar_url;myAv.appendChild(img);}
+      else myAv.textContent=(myProf.data.username||"?")[0].toUpperCase();
+    }
+    // Show note if not expired
+    var nb=document.getElementById("myNoteBubble");
+    if(nb&&myProf.data.note_text&&new Date(myProf.data.note_expires_at)>new Date()){
+      nb.textContent=myProf.data.note_text;nb.style.display="block";
+    }
+  }
+
+  // Load notes from people I follow
+  var follows=await sb.from("follows").select("following_id").eq("follower_id",currentUser.id);
+  var ids=(follows.data||[]).map(function(f){return f.following_id;});
+  if(!ids.length) return;
+  var notes=await sb.from("profiles").select("id,username,avatar_url,note_text,note_expires_at").in("id",ids).not("note_text","is","null");
+  var now=new Date();
+  (notes.data||[]).forEach(function(p){
+    if(!p.note_text||new Date(p.note_expires_at)<now) return;
+    var bubble=document.createElement("div");bubble.className="note-bubble";
+    var wrap=document.createElement("div");wrap.className="note-av-wrap";
+    var av=document.createElement("div");av.className="note-av";
+    if(p.avatar_url){var img2=document.createElement("img");img2.src=p.avatar_url;av.appendChild(img2);}else av.textContent=(p.username||"?")[0].toUpperCase();
+    var noteTxt=document.createElement("div");noteTxt.className="note-text-bubble";noteTxt.textContent=p.note_text;
+    wrap.appendChild(noteTxt);wrap.appendChild(av);
+    var uname=document.createElement("div");uname.className="note-username";uname.textContent="@"+p.username;
+    bubble.appendChild(wrap);bubble.appendChild(uname);
+    bubble.addEventListener("click",function(){openChatWith(p.username);});
+    row.appendChild(bubble);
+  });
+}
+
+function openNoteModal(){
+  if(!currentUser){return;}
+  var inp=document.getElementById("noteInp");
+  if(inp){
+    sb.from("profiles").select("note_text").eq("id",currentUser.id).single().then(function(r){
+      inp.value=r.data?.note_text||"";
+      updateNoteCount();
+    });
+  }
+  document.getElementById("noteModal").classList.add("open");
+}
+
+function updateNoteCount(){
+  var inp=document.getElementById("noteInp");
+  var cnt=document.getElementById("noteCharCount");
+  if(inp&&cnt)cnt.textContent=inp.value.length;
+}
+
+async function saveMyNote(){
+  if(!currentUser) return;
+  var text=document.getElementById("noteInp")?.value?.trim()||"";
+  var expires=new Date(Date.now()+24*60*60*1000).toISOString();
+  await sb.from("profiles").update({note_text:text||null,note_expires_at:text?expires:null}).eq("id",currentUser.id);
+  document.getElementById("noteModal").classList.remove("open");
+  var nb=document.getElementById("myNoteBubble");
+  if(nb){nb.textContent=text;nb.style.display=text?"block":"none";}
+  showToast(text?"\u2713 Nota compartida (24h)":"Nota eliminada");
+  setTimeout(loadNotes,300);
+}
+
+async function clearMyNote(){
+  await sb.from("profiles").update({note_text:null,note_expires_at:null}).eq("id",currentUser?.id);
+  document.getElementById("noteInp").value="";
+  document.getElementById("noteModal").classList.remove("open");
+  var nb=document.getElementById("myNoteBubble");
+  if(nb){nb.textContent="";nb.style.display="none";}
+  showToast("Nota eliminada");
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+  var inp=document.getElementById("noteInp");
+  if(inp)inp.addEventListener("input",updateNoteCount);
+});
 </script>
+<div class="note-modal" id="noteModal">
+  <div class="note-box">
+    <div class="note-box-title">&#128172; TU NOTA</div>
+    <div class="note-box-sub">Comparte lo que piensas. Visible para tus seguidores durante 24h.</div>
+    <div class="note-inp-wrap">
+      <textarea class="note-inp" id="noteInp" placeholder="Escribe algo..." maxlength="60"></textarea>
+      <div class="note-char-count"><span id="noteCharCount">0</span>/60</div>
+    </div>
+    <div class="note-btns">
+      <button class="note-clear-btn" onclick="clearMyNote()">Borrar nota</button>
+      <button class="note-save-btn" onclick="saveMyNote()">Compartir</button>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <span style="font-size:11px;color:#5a8aaa;cursor:pointer" onclick="document.getElementById('noteModal').classList.remove('open')">Cancelar</span>
+    </div>
+  </div>
+</div>
 </body>
 </html>

@@ -2,6 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2255">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET — Perfil</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -81,6 +85,8 @@ textarea.inp{resize:none;height:80px}
 <header>
   <span class="logo" onclick="window.location.href='/'">SHADOWNET</span>
   <button class="back-btn" onclick="history.back()">&#8592; Volver</button>
+
+  <button onclick="window.location.href='/search.html'" style="padding:7px 12px;border:1px solid rgba(0,229,255,.25);background:rgba(0,229,255,.08);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-left:auto">&#128269;</button>
 </header>
 <div id="profileWrap" class="wrap">
   <div class="cover" id="coverEl">

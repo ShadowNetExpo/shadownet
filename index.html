@@ -2,6 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2255">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SHADOWNET">
+<link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=192&bold=true">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>SHADOWNET</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -276,7 +282,7 @@ body.has-nav .dashPage{padding-bottom:70px}
   <div class="nav-btns">
     <button class="btn bg" id="loginBtn" onclick="openAuth('login')">Iniciar sesion</button>
     <button class="btn bp" id="registerBtn" onclick="openAuth('register')">Registrarse</button>
-    <button class="btn bg" id="notifBell" onclick="toggleNotifPanel()" style="display:none"><span class="notif-bell">&#128276;<span class="notif-dot" id="notifDot"></span></span></button> <button id="logoutBtn" style="display:none" onclick="doLogout()">Salir</button>
+    <button class="btn bg" id="notifBell" onclick="toggleNotifPanel()" style="display:none"><span class="notif-bell">&#128276;<span class="notif-dot" id="notifDot"></span></span></button> <button id="searchHeaderBtn" onclick="window.location.href='/search.html'" style="display:none;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#00e5ff;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase">&#128269;</button> <button id="logoutBtn" style="display:none" onclick="doLogout()">Salir</button>
   </div>
 </nav>
 <div class="mbg" id="authModal">
@@ -328,6 +334,8 @@ body.has-nav .dashPage{padding-bottom:70px}
     <button onclick="window.location.href='/leaderboard.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(200,150,0,.08));border:1px solid rgba(255,215,0,.3);color:#ffd700">&#127942; Ranking</button>
   </div>
 </div>
+<!-- Install App button -->
+<button id="installAppBtn" onclick="installApp()" class="btn" style="display:none;width:100%;margin-top:8px;background:linear-gradient(135deg,rgba(0,255,136,.15),rgba(0,150,80,.08));border:1px solid rgba(0,255,136,.3);color:#00ff88">&#128640; Instalar SHADOWNET como App</button>
 <!-- Apply creator button for fans -->
 <button id="applyCreatorBtn" onclick="openApplyModal()" class="btn" style="display:none;margin-top:10px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680;width:100%">&#127775; Solicitar ser Creador</button>
 <div class="kyc-section" id="kycSection" style="display:none">
@@ -1349,6 +1357,45 @@ function copyMyRef(){
   if(!code||code==="-") return;
   var url = location.origin+"/?ref="+code;
   navigator.clipboard.writeText(url).then(function(){showToast("\u2713 Link de referido copiado!");}).catch(function(){showToast("C\xF3digo: "+code);});
+}
+
+// =============================================
+// PWA — SERVICE WORKER + INSTALL PROMPT
+// =============================================
+if("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("/sw.js").then(function(reg){
+      console.log("SW registered:", reg.scope);
+    }).catch(function(err){
+      console.log("SW error:", err);
+    });
+  });
+}
+
+// Install prompt
+var deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", function(e){
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install button in dashboard
+  var installBtn = document.getElementById("installAppBtn");
+  if(installBtn) installBtn.style.display = "block";
+});
+
+window.addEventListener("appinstalled", function(){
+  deferredPrompt = null;
+  var installBtn = document.getElementById("installAppBtn");
+  if(installBtn) installBtn.style.display = "none";
+  showToast("\u2713 SHADOWNET instalado como app!");
+});
+
+function installApp(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(r){
+    if(r.outcome==="accepted") showToast("\u2713 Instalando SHADOWNET...");
+    deferredPrompt = null;
+  });
 }
 </script>
 

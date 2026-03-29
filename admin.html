@@ -78,6 +78,21 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
 .rpt-actions{display:flex;gap:8px;margin-top:10px}
 .rpt-dismiss{flex:1;padding:8px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
 .rpt-ban{flex:1;padding:8px;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
+
+.commission-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:800;background:rgba(255,170,0,.15);border:1px solid rgba(255,170,0,.3);color:#ffaa00}
+.withdrawal-amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0;padding:10px;background:rgba(7,15,30,.8);border-radius:8px;border:1px solid #0d2744}
+.withdrawal-amount-item{text-align:center}
+.withdrawal-amount-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em}
+.withdrawal-amount-value{font-family:Orbitron,sans-serif;font-size:14px;margin-top:3px}
+.withdrawal-amount-value.gross{color:#e8f4ff}
+.withdrawal-amount-value.commission{color:#ff9999}
+.withdrawal-amount-value.net{color:#00ff88;font-size:16px}
+.platform-settings-section{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px;margin-bottom:16px}
+.settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.setting-item label{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px}
+.setting-inp{width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none}
+.setting-inp:focus{border-color:#00e5ff}
+.save-settings-btn{padding:10px 20px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:13px;cursor:pointer;text-transform:uppercase;margin-top:12px}
 </style>
 </head>
 <body>
@@ -381,7 +396,7 @@ function buildAppCard(app){
   var statusClass={pending:"b-p",approved:"b-v",rejected:"b-r"}[app.status]||"b-p";
   var statusText={pending:"Pendiente",approved:"Aprobado",rejected:"Rechazado"}[app.status]||"Pendiente";
   var dt = app.created_at ? new Date(app.created_at).toLocaleDateString("es-ES") : "N/A";
-  var typeLabels={photos:"Fotos/Galería",video:"Video/Reels",live:"Lives/Streams",mixed:"Contenido Mixto",adult:"Contenido +18"};
+  var typeLabels={photos:"Fotos/Galer\u00EDa",video:"Video/Reels",live:"Lives/Streams",mixed:"Contenido Mixto",adult:"Contenido +18"};
 
   // Header
   var header=document.createElement("div");header.className="app-header";
@@ -402,7 +417,7 @@ function buildAppCard(app){
   }
   if(app.motivation){
     var f2=document.createElement("div");f2.className="app-field";
-    var l2=document.createElement("div");l2.className="app-field-label";l2.textContent="Motivación";
+    var l2=document.createElement("div");l2.className="app-field-label";l2.textContent="Motivaci\u00F3n";
     var v2=document.createElement("div");v2.className="app-field-value";v2.textContent=app.motivation;
     f2.appendChild(l2);f2.appendChild(v2);body.appendChild(f2);
   }
@@ -497,10 +512,10 @@ function buildWdCard(w){
   var userInfo = document.createElement("div");
   var name = document.createElement("div");
   name.style.cssText = "font-weight:700;font-size:14px;color:#e8f4ff";
-  name.textContent = "@"+(w.profiles?.username||"usuario")+" — $"+parseFloat(w.amount).toFixed(2);
+  name.textContent = "@"+(w.profiles?.username||"usuario")+" \u2014 $"+parseFloat(w.amount).toFixed(2);
   var meta = document.createElement("div");
   meta.style.cssText = "font-size:11px;color:#5a8aaa;margin-top:3px";
-  meta.textContent = w.method.toUpperCase()+" • "+w.account_info+" • "+new Date(w.created_at).toLocaleDateString("es-ES");
+  meta.textContent = w.method.toUpperCase()+" \u2022 "+w.account_info+" \u2022 "+new Date(w.created_at).toLocaleDateString("es-ES");
   userInfo.appendChild(name); userInfo.appendChild(meta);
   var badge = document.createElement("span"); badge.className="badge "+bc; badge.textContent=bt;
   header.appendChild(userInfo); header.appendChild(badge);
@@ -509,11 +524,11 @@ function buildWdCard(w){
     var btns = document.createElement("div"); btns.style.cssText="display:flex;gap:8px";
     var ab = document.createElement("button"); ab.className="abtn";
     ab.style.cssText="flex:1;padding:9px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase";
-    ab.textContent = "✓ Marcar Procesado"; ab.dataset.wdId=w.id; ab.dataset.userId=w.user_id; ab.dataset.amount=w.amount;
+    ab.textContent = "\u2713 Marcar Procesado"; ab.dataset.wdId=w.id; ab.dataset.userId=w.user_id; ab.dataset.amount=w.amount;
     ab.addEventListener("click",function(){ processWithdrawal(this.dataset.wdId,this.dataset.userId,parseFloat(this.dataset.amount)); });
     var rb = document.createElement("button"); rb.className="rbtn";
     rb.style.cssText="flex:1;padding:9px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase";
-    rb.textContent = "✖ Rechazar"; rb.dataset.wdId=w.id; rb.dataset.userId=w.user_id; rb.dataset.amount=w.amount;
+    rb.textContent = "\u2716 Rechazar"; rb.dataset.wdId=w.id; rb.dataset.userId=w.user_id; rb.dataset.amount=w.amount;
     rb.addEventListener("click",function(){ rejectWithdrawal(this.dataset.wdId,this.dataset.userId,parseFloat(this.dataset.amount)); });
     btns.appendChild(ab); btns.appendChild(rb); card.appendChild(btns);
   }
@@ -524,10 +539,10 @@ async function processWithdrawal(wdId, userId, amount){
   var admin = (await sb.auth.getUser()).data.user;
   var r = await sb.from("withdrawals").update({status:"processed",reviewed_by:admin?.id,processed_at:new Date().toISOString()}).eq("id",wdId);
   if(r.error){showToast("Error: "+r.error.message,true);return;}
-  await sb.from("notifications").insert({user_id:userId,from_user_id:admin?.id,type:"withdrawal_processed",message:"Tu retiro de $"+parseFloat(amount).toFixed(2)+" ha sido procesado. Recibirás el pago en 3-5 días."});
+  await sb.from("notifications").insert({user_id:userId,from_user_id:admin?.id,type:"withdrawal_processed",message:"Tu retiro de $"+parseFloat(amount).toFixed(2)+" ha sido procesado. Recibir\u00E1s el pago en 3-5 d\u00EDas."});
   var card=document.getElementById("wd-"+wdId);
   if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
-  showToast("✓ Retiro procesado"); loadWithdrawals();
+  showToast("\u2713 Retiro procesado"); loadWithdrawals();
 }
 
 async function rejectWithdrawal(wdId, userId, amount){
@@ -604,7 +619,7 @@ async function dismissReport(id){
 
 async function banUser(reportId,userId){
   if(!userId)return;
-  var reason=prompt("Motivo de la suspensión:","Violación de términos de servicio");
+  var reason=prompt("Motivo de la suspensi\u00F3n:","Violaci\u00F3n de t\u00E9rminos de servicio");
   if(!reason)return;
   var admin=(await sb.auth.getUser()).data.user;
   await sb.from("profiles").update({is_banned:true,ban_reason:reason}).eq("id",userId);
@@ -613,6 +628,73 @@ async function banUser(reportId,userId){
   if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
   showToast("\uD83D\uDEAB Usuario suspendido"); loadReports();
 }
+
+// =============================================
+// STRIPE / PLATFORM SETTINGS
+// =============================================
+async function loadPlatformSettings(){
+  var r=await sb.from("platform_settings").select("*");
+  if(r.error||!r.data)return;
+  r.data.forEach(function(s){
+    var el=document.getElementById(s.key+"Inp")||document.getElementById(s.key.replace("_","")+"Inp");
+    if(el)el.value=s.value;
+    if(s.key==="commission_rate"&&document.getElementById("commissionRateInp"))document.getElementById("commissionRateInp").value=s.value;
+    if(s.key==="min_withdrawal"&&document.getElementById("minWithdrawalInp"))document.getElementById("minWithdrawalInp").value=s.value;
+    if(s.key==="currency"&&document.getElementById("currencyInp"))document.getElementById("currencyInp").value=s.value;
+    if(s.key==="stripe_enabled"&&document.getElementById("stripeEnabledInp"))document.getElementById("stripeEnabledInp").value=s.value;
+    if(s.key==="stripe_public_key"&&document.getElementById("stripeKeyInp"))document.getElementById("stripeKeyInp").value=s.value;
+  });
+  loadPlatformStats();
+}
+
+async function savePlatformSettings(){
+  var settings=[
+    {key:"commission_rate",value:document.getElementById("commissionRateInp")?.value||"10"},
+    {key:"min_withdrawal",value:document.getElementById("minWithdrawalInp")?.value||"10"},
+    {key:"currency",value:document.getElementById("currencyInp")?.value||"USD"},
+    {key:"stripe_enabled",value:document.getElementById("stripeEnabledInp")?.value||"false"},
+    {key:"stripe_public_key",value:document.getElementById("stripeKeyInp")?.value||""}
+  ];
+  for(var i=0;i<settings.length;i++){
+    await sb.from("platform_settings").upsert({key:settings[i].key,value:settings[i].value,updated_at:new Date().toISOString()},{onConflict:"key"});
+  }
+  showAdminToast("\u2713 Configuracion guardada!");
+}
+
+async function loadPlatformStats(){
+  var stats=document.getElementById("platformStats");
+  if(!stats)return;
+  // Total withdrawals processed
+  var wd=await sb.from("withdrawals").select("amount,commission_amount,net_amount").eq("status","approved");
+  var totalGross=0,totalComm=0,totalNet=0;
+  (wd.data||[]).forEach(function(w){totalGross+=parseFloat(w.amount||0);totalComm+=parseFloat(w.commission_amount||0);totalNet+=parseFloat(w.net_amount||0);});
+  // Total users
+  var users=await sb.from("profiles").select("*",{count:"exact",head:true});
+  var creators=await sb.from("profiles").select("*",{count:"exact",head:true}).eq("is_creator",true);
+  stats.innerHTML="<div style='background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#5a8aaa;margin-bottom:4px'>INGRESOS PLATAFORMA</div><div style='font-family:Orbitron,sans-serif;font-size:20px;color:#ffaa00'>$"+totalComm.toFixed(2)+"</div></div>"
+    +"<div style='background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.15);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#5a8aaa;margin-bottom:4px'>USUARIOS TOTALES</div><div style='font-family:Orbitron,sans-serif;font-size:20px;color:#00e5ff'>"+(users.count||0)+"</div></div>"
+    +"<div style='background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#5a8aaa;margin-bottom:4px'>CREADORES</div><div style='font-family:Orbitron,sans-serif;font-size:20px;color:#00ff88'>"+(creators.count||0)+"</div></div>";
+}
 </script>
+
+  <!-- Platform Settings Panel -->
+  <div id="tab-platform" class="tab-panel" style="display:none;padding:16px">
+    <h2 style="font-family:Orbitron,sans-serif;font-size:14px;color:#00e5ff;margin-bottom:16px">&#9881; CONFIGURACION DE LA PLATAFORMA</h2>
+    <div class="platform-settings-section" style="background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px;margin-bottom:16px">
+      <div style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em;margin-bottom:14px">COMISIONES Y PAGOS</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+        <div><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Comision SHADOWNET (%)</label><input class="setting-inp" id="commissionRateInp" type="number" min="0" max="50" value="10" style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"></div>
+        <div><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Retiro minimo ($)</label><input id="minWithdrawalInp" type="number" value="10" style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"></div>
+        <div><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Moneda</label><input id="currencyInp" value="USD" style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"></div>
+        <div><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Stripe</label><select id="stripeEnabledInp" style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"><option value="false">No (PayPal)</option><option value="true">Si (Stripe)</option></select></div>
+      </div>
+      <div style="margin-top:10px"><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Stripe Public Key</label><input id="stripeKeyInp" placeholder="pk_live_..." style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"></div>
+      <button onclick="savePlatformSettings()" style="margin-top:12px;padding:10px 20px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:13px;cursor:pointer;text-transform:uppercase">&#10003; Guardar</button>
+    </div>
+    <div style="background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px">
+      <div style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em;margin-bottom:14px">RESUMEN FINANCIERO</div>
+      <div id="platformStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"></div>
+    </div>
+  </div>
 </body>
 </html>

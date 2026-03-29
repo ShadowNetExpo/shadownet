@@ -218,7 +218,7 @@ async function loadCardPhotos(u) {
   var docHtml = '<div class="np">Sin documento</div>';
   var selfHtml = '<div class="np">Sin selfie</div>';
   if (u.doc_url) {
-    var docPath = u.doc_url.startsWith('http') ? (u.doc_url.match(/\/documents\/(.+?)(?:\?|$)/) || [])[1] : u.doc_url;
+    var docPath = u.doc_url.startsWith('http') ? (u.doc_url.split('/documents/')[1] || '') : u.doc_url;
     if (docPath) {
       var ds = await sb.storage.from('documents').createSignedUrl(docPath, 3600);
       if (ds.data && ds.data.signedUrl) {
@@ -227,7 +227,7 @@ async function loadCardPhotos(u) {
     }
   }
   if (u.selfie_url) {
-    var selfPath = u.selfie_url.startsWith('http') ? (u.selfie_url.match(/\/documents\/(.+?)(?:\?|$)/) || [])[1] : u.selfie_url;
+    var selfPath = u.selfie_url.startsWith('http') ? (u.selfie_url.split('/documents/')[1] || '') : u.selfie_url;
     if (selfPath) {
       var ss = await sb.storage.from('documents').createSignedUrl(selfPath, 3600);
       if (ss.data && ss.data.signedUrl) {

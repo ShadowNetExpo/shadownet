@@ -56,6 +56,9 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .post-thumb:hover .post-stats{opacity:1}
 .empty-posts{text-align:center;padding:40px;color:#5a8aaa;grid-column:1/-1}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+
+.profile-cover img{transition:object-position .1s}
+.profile-cover{cursor:default}
 </style>
 </head>
 <body>
@@ -143,7 +146,12 @@ function renderProfile(p){
 
   var coverEl=document.getElementById("profileCover");
   coverEl.innerHTML="";
-  if(p.cover_url){var ci=document.createElement("img");ci.src=p.cover_url;coverEl.appendChild(ci);}
+  if(p.cover_url){
+    var ci=document.createElement("img");ci.src=p.cover_url;
+    var pos=parseFloat(p.cover_position||50);
+    ci.style.cssText="width:100%;height:100%;object-fit:cover;object-position:center "+pos+"%;display:block";
+    coverEl.appendChild(ci);
+  }
   var ov=document.createElement("div");ov.className="cover-overlay";coverEl.appendChild(ov);
 
   var av=document.getElementById("profileAvatar");

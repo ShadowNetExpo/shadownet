@@ -111,6 +111,14 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
   </div>
   <div id="appsGrid"></div>
 </div>
+<!-- Withdrawals Section -->
+<div style="margin-top:28px">
+  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+    &#128176; SOLICITUDES DE RETIRO
+    <span id="wdCount" style="font-size:12px;color:#00ff88">Cargando...</span>
+  </div>
+  <div id="withdrawalsGrid"></div>
+</div>
 </div>
 </div>
 <div class="lb" id="lb"><img id="lbimg" src=""></div>
@@ -167,6 +175,7 @@ function showDash(name) {
   loadStats();
   loadCards("pending");
   loadCreatorApps();
+  loadWithdrawals();
 }
 
 async function loadStats() {
@@ -439,6 +448,82 @@ async function rejectCreatorApp(appId, userId){
   var card=document.getElementById("app-"+appId);
   if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
   showToast("Solicitud rechazada"); loadCreatorApps();
+}
+
+// =============================================
+// SOLICITUDES DE RETIRO
+// =============================================
+async function loadWithdrawals(){
+  var grid = document.getElementById("withdrawalsGrid");
+  var count = document.getElementById("wdCount");
+  if(!grid) return;
+  var r = await sb.from("withdrawals").select("*,profiles(username)").order("created_at",{ascending:false}).limit(30);
+  if(r.error){ grid.innerHTML="<div class=\"empty\">Error: "+r.error.message+"</div>"; return; }
+  var items = r.data||[];
+  var pending = items.filter(function(w){return w.status==="pending";});
+  if(count) count.textContent = pending.length + " pendientes";
+  if(items.length===0){ grid.innerHTML="<div class=\"empty\">Sin solicitudes de retiro</div>"; return; }
+  grid.innerHTML="";
+  items.forEach(function(w){ grid.appendChild(buildWdCard(w)); });
+}
+
+function buildWdCard(w){
+  var card = document.createElement("div");
+  card.id = "wd-"+w.id;
+  card.style.cssText = "background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:14px 16px;margin-bottom:10px";
+  var bc = w.status==="pending"?"b-p":w.status==="processed"?"b-v":"b-r";
+  var bt = w.status==="pending"?"Pendiente":w.status==="processed"?"Procesado":"Rechazado";
+  var header = document.createElement("div");
+  header.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:10px";
+  var userInfo = document.createElement("div");
+  var name = document.createElement("div");
+  name.style.cssText = "font-weight:700;font-size:14px;color:#e8f4ff";
+  name.textContent = "@"+(w.profiles?.username||"usuario")+" — $"+parseFloat(w.amount).toFixed(2);
+  var meta = document.createElement("div");
+  meta.style.cssText = "font-size:11px;color:#5a8aaa;margin-top:3px";
+  meta.textContent = w.method.toUpperCase()+" • "+w.account_info+" • "+new Date(w.created_at).toLocaleDateString("es-ES");
+  userInfo.appendChild(name); userInfo.appendChild(meta);
+  var badge = document.createElement("span"); badge.className="badge "+bc; badge.textContent=bt;
+  header.appendChild(userInfo); header.appendChild(badge);
+  card.appendChild(header);
+  if(w.status==="pending"){
+    var btns = document.createElement("div"); btns.style.cssText="display:flex;gap:8px";
+    var ab = document.createElement("button"); ab.className="abtn";
+    ab.style.cssText="flex:1;padding:9px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase";
+    ab.textContent = "✓ Marcar Procesado"; ab.dataset.wdId=w.id; ab.dataset.userId=w.user_id; ab.dataset.amount=w.amount;
+    ab.addEventListener("click",function(){ processWithdrawal(this.dataset.wdId,this.dataset.userId,parseFloat(this.dataset.amount)); });
+    var rb = document.createElement("button"); rb.className="rbtn";
+    rb.style.cssText="flex:1;padding:9px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase";
+    rb.textContent = "✖ Rechazar"; rb.dataset.wdId=w.id; rb.dataset.userId=w.user_id; rb.dataset.amount=w.amount;
+    rb.addEventListener("click",function(){ rejectWithdrawal(this.dataset.wdId,this.dataset.userId,parseFloat(this.dataset.amount)); });
+    btns.appendChild(ab); btns.appendChild(rb); card.appendChild(btns);
+  }
+  return card;
+}
+
+async function processWithdrawal(wdId, userId, amount){
+  var admin = (await sb.auth.getUser()).data.user;
+  var r = await sb.from("withdrawals").update({status:"processed",reviewed_by:admin?.id,processed_at:new Date().toISOString()}).eq("id",wdId);
+  if(r.error){showToast("Error: "+r.error.message,true);return;}
+  await sb.from("notifications").insert({user_id:userId,from_user_id:admin?.id,type:"withdrawal_processed",message:"Tu retiro de $"+parseFloat(amount).toFixed(2)+" ha sido procesado. Recibirás el pago en 3-5 días."});
+  var card=document.getElementById("wd-"+wdId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("✓ Retiro procesado"); loadWithdrawals();
+}
+
+async function rejectWithdrawal(wdId, userId, amount){
+  var admin = (await sb.auth.getUser()).data.user;
+  // Restore earnings to user
+  var prof = await sb.from("profiles").select("total_withdrawn").eq("id",userId).single();
+  if(prof.data){
+    var newWithdrawn = Math.max(0, parseFloat(prof.data.total_withdrawn||0) - amount);
+    await sb.from("profiles").update({total_withdrawn:newWithdrawn}).eq("id",userId);
+  }
+  await sb.from("withdrawals").update({status:"rejected",reviewed_by:admin?.id}).eq("id",wdId);
+  await sb.from("notifications").insert({user_id:userId,from_user_id:admin?.id,type:"withdrawal_rejected",message:"Tu solicitud de retiro de $"+parseFloat(amount).toFixed(2)+" fue rechazada. Los fondos han sido restaurados."});
+  var card=document.getElementById("wd-"+wdId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("Retiro rechazado"); loadWithdrawals();
 }
 </script>
 </body>

@@ -58,6 +58,17 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .price-symbol .field-input{padding-left:26px}
 .status-msg{font-size:13px;text-align:center;min-height:18px;margin-top:8px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+
+.cover-upload{position:relative;overflow:hidden;user-select:none}
+.cover-upload img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;cursor:grab;transition:none}
+.cover-upload img.dragging{cursor:grabbing}
+.cover-drag-hint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:3px 10px;border-radius:10px;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap}
+.cover-upload:hover .cover-drag-hint{opacity:1}
+.cover-reposition-btn{position:absolute;top:8px;right:8px;padding:5px 12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;z-index:10;display:none}
+.cover-upload.has-image .cover-reposition-btn{display:block}
+.cover-save-pos-btn{position:absolute;bottom:8px;right:8px;padding:5px 12px;background:#00ff88;color:#000;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:11px;cursor:pointer;text-transform:uppercase;z-index:10;display:none}
+.cover-upload.repositioning .cover-save-pos-btn{display:block}
+.cover-upload.repositioning .cover-drag-hint{opacity:1}
 </style>
 </head>
 <body>
@@ -80,8 +91,11 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       </div>
       <!-- Cover -->
       <span class="field-label">Foto de portada</span>
-      <div class="cover-upload" id="coverPreview" onclick="document.getElementById('coverInp').click()">
-        <span class="cover-upload-label">&#128247; Subir portada</span>
+      <div class="cover-upload" id="coverPreview" onclick="handleCoverClick(event)">
+        <span class="cover-upload-label" id="coverLabel">&#128247; Subir portada</span>
+        <button class="cover-reposition-btn" id="repositionBtn" onclick="startReposition(event)">&#8645; Ajustar</button>
+        <button class="cover-save-pos-btn" id="savePosBtn" onclick="savePosition(event)">&#10003; Listo</button>
+        <div class="cover-drag-hint" id="coverDragHint">Arrastra para ajustar la posicion</div>
         <input type="file" id="coverInp" class="upload-inp" accept="image/*">
       </div>
       <div class="field">
@@ -240,35 +254,35 @@ async function saveProfile(){
     if(!up2.error) updates.cover_url=sb.storage.from("media").getPublicUrl(path2).data.publicUrl;
   }
   var r=await sb.from("profiles").update(updates).eq("id",currentUser.id);
-  btn.disabled=false;btn.textContent="✓ Guardar Perfil";
+  btn.disabled=false;btn.textContent="\u2713 Guardar Perfil";
   if(r.error){showToast("Error: "+r.error.message,true);}
-  else{showToast("✓ Perfil actualizado!");pendingAvatarFile=null;pendingCoverFile=null;}
+  else{showToast("\u2713 Perfil actualizado!");pendingAvatarFile=null;pendingCoverFile=null;}
 }
 
 async function saveCreatorSettings(){
   var price=parseFloat(document.getElementById("priceInp").value||0);
   var paypal=document.getElementById("paypalInp").value.trim();
-  if(price>0&&price<1){showToast("Precio mínimo $1.00",true);return;}
+  if(price>0&&price<1){showToast("Precio m\u00EDnimo $1.00",true);return;}
   var r=await sb.from("profiles").update({subscription_price:price,paypal_email:paypal}).eq("id",currentUser.id);
   if(r.error){showToast("Error: "+r.error.message,true);}
-  else showToast("✓ Configuración de creador guardada!");
+  else showToast("\u2713 Configuraci\u00F3n de creador guardada!");
 }
 
 async function changePassword(){
   var pw=document.getElementById("pwInp").value;
   var pw2=document.getElementById("pw2Inp").value;
-  if(!pw){showToast("Ingresa una nueva contraseña",true);return;}
-  if(pw.length<8){showToast("Mínimo 8 caracteres",true);return;}
-  if(pw!==pw2){showToast("Las contraseñas no coinciden",true);return;}
+  if(!pw){showToast("Ingresa una nueva contrase\u00F1a",true);return;}
+  if(pw.length<8){showToast("M\u00EDnimo 8 caracteres",true);return;}
+  if(pw!==pw2){showToast("Las contrase\u00F1as no coinciden",true);return;}
   var r=await sb.auth.updateUser({password:pw});
   if(r.error){showToast("Error: "+r.error.message,true);}
-  else{showToast("✓ Contraseña cambiada!");document.getElementById("pwInp").value="";document.getElementById("pw2Inp").value="";}
+  else{showToast("\u2713 Contrase\u00F1a cambiada!");document.getElementById("pwInp").value="";document.getElementById("pw2Inp").value="";}
 }
 
 function togglePref(key,el){el.classList.toggle("on");}
 
 function confirmLogout(){
-  if(confirm("¿Cerrar sesión?")){sb.auth.signOut().then(function(){window.location.href="/";});}
+  if(confirm("\u00BFCerrar sesi\u00F3n?")){sb.auth.signOut().then(function(){window.location.href="/";});}
 }
 
 function updateBioCount(){
@@ -293,14 +307,130 @@ document.getElementById("coverInp").addEventListener("change",function(){
   var cp=document.getElementById("coverPreview");
   var existing=cp.querySelector("img");
   if(existing)existing.remove();
-  var img=document.createElement("img");img.src=url;cp.appendChild(img);
-  cp.querySelector(".cover-upload-label").style.display="none";
+  var img=document.createElement("img");
+  img.src=url;
+  img.style.objectFit="cover";
+  img.style.width="100%";
+  img.style.height="100%";
+  img.style.objectPosition="center 50%";
+  _coverOffsetY=50;
+  cp.appendChild(img);
+  var lbl=document.getElementById("coverLabel");
+  if(lbl)lbl.style.display="none";
+  initCoverReposition(img);
+  setupDragListeners();
 });
 
 function showToast(msg,err){
   var t=document.getElementById("toast");t.textContent=msg;
   t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
   t.style.display="block";setTimeout(function(){t.style.display="none";},3000);
+}
+
+// =============================================
+// COVER IMAGE DRAG-TO-REPOSITION
+// =============================================
+var _coverDragging = false;
+var _coverStartY = 0;
+var _coverOffsetY = 50; // percentage (0-100)
+var _coverStartOffset = 50;
+var _repositioning = false;
+
+function handleCoverClick(e) {
+  if (_repositioning) return;
+  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+  var cp = document.getElementById("coverPreview");
+  if (!cp.classList.contains("has-image")) {
+    document.getElementById("coverInp").click();
+  }
+}
+
+function startReposition(e) {
+  e.stopPropagation();
+  _repositioning = true;
+  var cp = document.getElementById("coverPreview");
+  cp.classList.add("repositioning");
+  var hint = document.getElementById("coverDragHint");
+  if (hint) hint.textContent = "Arrastra la imagen para ajustar";
+  setupDragListeners();
+}
+
+function setupDragListeners() {
+  var cp = document.getElementById("coverPreview");
+  var img = cp.querySelector("img");
+  if (!img) return;
+
+  function onStart(e) {
+    if (!_repositioning) return;
+    _coverDragging = true;
+    _coverStartY = e.touches ? e.touches[0].clientY : e.clientY;
+    _coverStartOffset = _coverOffsetY;
+    img.classList.add("dragging");
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!_coverDragging || !_repositioning) return;
+    var currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    var delta = currentY - _coverStartY;
+    var containerH = cp.offsetHeight;
+    var imgH = img.naturalHeight * (cp.offsetWidth / img.naturalWidth);
+    var maxDelta = Math.max(0, imgH - containerH);
+    var pctDelta = maxDelta > 0 ? (delta / maxDelta) * 100 : 0;
+    _coverOffsetY = Math.max(0, Math.min(100, _coverStartOffset - pctDelta));
+    img.style.objectPosition = "center " + _coverOffsetY + "%";
+    img.style.objectFit = "cover";
+    img.style.position = "";
+    img.style.top = "";
+    img.style.left = "";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    e.preventDefault();
+  }
+
+  function onEnd() {
+    _coverDragging = false;
+    if (img) img.classList.remove("dragging");
+  }
+
+  img.addEventListener("mousedown", onStart);
+  img.addEventListener("touchstart", onStart, {passive:false});
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("touchmove", onMove, {passive:false});
+  document.addEventListener("mouseup", onEnd);
+  document.addEventListener("touchend", onEnd);
+}
+
+function savePosition(e) {
+  e.stopPropagation();
+  _repositioning = false;
+  var cp = document.getElementById("coverPreview");
+  cp.classList.remove("repositioning");
+  var img = cp.querySelector("img");
+  if (img) img.classList.remove("dragging");
+  var hint = document.getElementById("coverDragHint");
+  if (hint) hint.textContent = "Arrastra para ajustar la posicion";
+  // Save position to profile
+  saveCoverPosition(_coverOffsetY);
+  showToast("\u2713 Posicion de portada guardada");
+}
+
+async function saveCoverPosition(posY) {
+  if (!currentUser) return;
+  await sb.from("profiles").update({cover_position: posY}).eq("id", currentUser.id);
+}
+
+// Initialize cover repositioning when cover loaded
+function initCoverReposition(img) {
+  var cp = document.getElementById("coverPreview");
+  cp.classList.add("has-image");
+  // Load saved position
+  sb.from("profiles").select("cover_position").eq("id", currentUser.id).single().then(function(r) {
+    if (r.data && r.data.cover_position !== null && r.data.cover_position !== undefined) {
+      _coverOffsetY = parseFloat(r.data.cover_position) || 50;
+      img.style.objectPosition = "center " + _coverOffsetY + "%";
+    }
+  });
 }
 </script>
 </body>

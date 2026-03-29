@@ -190,6 +190,27 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .toggle-location-btn{padding:5px 12px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;margin-bottom:8px;display:none}
 .toggle-location-btn.show{display:inline-flex;align-items:center;gap:4px}
 .toggle-location-btn:hover{border-color:#00e5ff;color:#00e5ff}
+
+/* Instagram-style Bookmark Collections */
+.collections-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:flex-end;justify-content:center}
+.collections-modal.open{display:flex}
+.collections-sheet{background:#070f1e;border:1px solid #0d2744;border-radius:16px 16px 0 0;width:100%;max-width:600px;padding:20px;max-height:70vh;overflow-y:auto}
+.coll-title{font-family:Orbitron,sans-serif;font-size:12px;color:#5a8aaa;letter-spacing:.1em;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.coll-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.coll-item{background:rgba(7,15,30,.8);border:1px solid #0d2744;border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.coll-item:hover,.coll-item.selected{border-color:#ff2255}
+.coll-thumb{height:80px;background:linear-gradient(135deg,#1a0020,#000814);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#5a8aaa;font-size:28px}
+.coll-thumb img{width:100%;height:100%;object-fit:cover}
+.coll-info{padding:8px 10px}
+.coll-name{font-size:13px;font-weight:700;color:#e8f4ff}
+.coll-count{font-size:11px;color:#5a8aaa;margin-top:2px}
+.coll-new-btn{width:100%;padding:11px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
+.coll-new-btn:hover{background:rgba(255,34,85,.3)}
+.coll-new-inp{width:100%;padding:10px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;margin-bottom:8px;display:none}
+.coll-new-inp.show{display:block}
+.coll-new-inp:focus{border-color:#ff2255}
+.coll-save-btn{width:100%;padding:10px;background:#ff2255;color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:none;text-transform:uppercase}
+.coll-save-btn.show{display:block}
 </style>
 </head>
 <body>
@@ -441,7 +462,12 @@ function buildPostCard(post, profile, liked, saved) {
   saveBtn.innerHTML=saved?"&#128278;":"&#9960;";
   saveBtn.title=saved?"Guardado":"Guardar";
   saveBtn.dataset.postId=post.id;saveBtn.dataset.saved=saved?"1":"0";
-  saveBtn.addEventListener("click",function(){toggleSave(this);});
+  saveBtn.addEventListener("click",function(e){
+    e.stopPropagation();
+    // If already saved, unsave; otherwise open collections
+    if(this.dataset.saved==="1"){toggleSave(this);}
+    else{openCollections(post.id);}
+  });
   saveBtn.style.marginLeft="auto";
   footer.appendChild(saveBtn);
   // Delete (own posts)
@@ -1108,6 +1134,86 @@ function parseHashtags(text) {
   if (!text) return text;
   return text.replace(/(#)(\w+)/g, "<span class=\"hashtag-link\" onclick=\"window.location.href=\'/search.html?q=$2\'\">$1$2</span>");
 }
+
+// =============================================
+// INSTAGRAM: BOOKMARK COLLECTIONS
+// =============================================
+var _collPostId = null;
+
+async function openCollections(postId){
+  if(!currentUser){showToast("Inicia sesion para guardar",true);return;}
+  _collPostId = postId;
+  var grid = document.getElementById("collGrid");
+  grid.innerHTML="<div style='color:#5a8aaa;font-size:13px;padding:10px'>Cargando...</div>";
+  document.getElementById("collectionsModal").classList.add("open");
+  document.getElementById("collNewInp").classList.remove("show");
+  document.getElementById("collSaveBtn").classList.remove("show");
+
+  var r = await sb.from("bookmark_collections").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false});
+  var colls = r.data||[];
+  grid.innerHTML="";
+
+  // Default "Todos guardados" option
+  var defItem = buildCollItem({id:null,name:"Todos guardados",emoji:"\uD83D\uDD16",posts_count:0},true);
+  grid.appendChild(defItem);
+
+  colls.forEach(function(c){grid.appendChild(buildCollItem(c,false));});
+}
+
+function buildCollItem(coll, isDefault){
+  var item = document.createElement("div"); item.className="coll-item"; item.dataset.collId=coll.id||"default";
+  var thumb = document.createElement("div"); thumb.className="coll-thumb";
+  if(coll.cover_url){var img=document.createElement("img");img.src=coll.cover_url;thumb.appendChild(img);}
+  else thumb.textContent = coll.emoji||"\uD83D\uDD16";
+  var info = document.createElement("div"); info.className="coll-info";
+  var name = document.createElement("div"); name.className="coll-name"; name.textContent=coll.name;
+  var cnt = document.createElement("div"); cnt.className="coll-count"; cnt.textContent=(coll.posts_count||0)+" guardados";
+  info.appendChild(name); info.appendChild(cnt);
+  item.appendChild(thumb); item.appendChild(info);
+  item.addEventListener("click",function(){saveToCollection(coll.id);});
+  return item;
+}
+
+async function saveToCollection(collId){
+  if(!currentUser||!_collPostId) return;
+  var r = await sb.from("bookmarks").upsert({
+    user_id:currentUser.id, post_id:_collPostId, collection_id:collId||null
+  });
+  if(!r.error){
+    if(collId){await sb.from("bookmark_collections").update({posts_count:1}).eq("id",collId);}
+    closeCollections();
+    showToast("\uD83D\uDD16 Guardado en coleccion!");
+  }
+}
+
+function toggleNewCollection(){
+  var inp=document.getElementById("collNewInp");
+  var btn=document.getElementById("collSaveBtn");
+  var newBtn=document.getElementById("collNewBtn");
+  inp.classList.toggle("show");
+  btn.classList.toggle("show");
+  newBtn.textContent=inp.classList.contains("show")?"Cancelar":"+ Nueva coleccion";
+  if(inp.classList.contains("show"))setTimeout(function(){inp.focus();},100);
+}
+
+async function saveNewCollection(){
+  var name=document.getElementById("collNewInp").value.trim();
+  if(!name||!currentUser){showToast("Escribe un nombre",true);return;}
+  var r=await sb.from("bookmark_collections").insert({user_id:currentUser.id,name:name,posts_count:0}).select().single();
+  if(r.error){showToast("Error: "+r.error.message,true);return;}
+  await saveToCollection(r.data.id);
+}
+
+function closeCollections(){
+  document.getElementById("collectionsModal").classList.remove("open");
+  _collPostId=null;
+}
+
+// Click outside to close
+document.addEventListener("click",function(e){
+  var modal=document.getElementById("collectionsModal");
+  if(modal&&modal.classList.contains("open")&&e.target===modal){closeCollections();}
+});
 </script>
 
 <!-- Report Modal -->
@@ -1177,6 +1283,19 @@ function parseHashtags(text) {
       <input class="vf-comment-inp" id="vfCommentInp" placeholder="Comenta algo...">
       <button class="vf-comment-send" onclick="vfSendComment()">&#9658;</button>
     </div>
+  </div>
+</div>
+<!-- Collections Modal (Instagram-style) -->
+<div class="collections-modal" id="collectionsModal">
+  <div class="collections-sheet">
+    <div class="coll-title">
+      <span>&#128278; GUARDAR EN...</span>
+      <span style="cursor:pointer;color:#5a8aaa;font-size:18px" onclick="closeCollections()">&#215;</span>
+    </div>
+    <div class="coll-grid" id="collGrid"></div>
+    <input class="coll-new-inp" id="collNewInp" placeholder="Nombre de la coleccion...">
+    <button class="coll-save-btn" id="collSaveBtn" onclick="saveNewCollection()">Crear y guardar</button>
+    <button class="coll-new-btn" id="collNewBtn" onclick="toggleNewCollection()">+ Nueva coleccion</button>
   </div>
 </div>
 </body>

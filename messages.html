@@ -108,6 +108,35 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .request-actions{display:flex;gap:8px;flex-shrink:0}
 .req-accept{padding:7px 14px;background:#ff2255;border:none;color:#fff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer}
 .req-decline{padding:7px 14px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+
+/* PPV Message (OnlyFans style) */
+.ppv-bubble{background:linear-gradient(135deg,rgba(255,34,85,.15),rgba(100,0,30,.1));border:1px solid rgba(255,34,85,.3);border-radius:12px;padding:12px;margin:4px 0;max-width:280px}
+.ppv-locked{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px}
+.ppv-lock-icon{font-size:32px}
+.ppv-price-tag{background:#ff2255;color:#fff;font-family:Orbitron,sans-serif;font-size:13px;font-weight:900;padding:6px 16px;border-radius:20px;cursor:pointer;transition:opacity .2s}
+.ppv-price-tag:hover{opacity:.85}
+.ppv-label{font-size:11px;color:#ff9999}
+.ppv-unlocked-media{width:100%;border-radius:8px;overflow:hidden}
+.ppv-unlocked-media img,.ppv-unlocked-media video{width:100%;border-radius:8px}
+/* PPV Send button in chat */
+.ppv-send-btn{padding:6px 12px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(100,0,30,.1));border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;display:none}
+.ppv-send-btn.show{display:inline-flex;align-items:center;gap:4px}
+/* Mass Message button */
+.mass-msg-btn{width:100%;padding:12px;background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,150,.08));border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.mass-msg-btn:hover{background:rgba(0,229,255,.25)}
+/* Mass msg modal */
+.mass-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:none;align-items:center;justify-content:center}
+.mass-modal.open{display:flex}
+.mass-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:24px;width:100%;max-width:420px;margin:0 16px;max-height:90vh;overflow-y:auto}
+.mass-box-title{font-family:Orbitron,sans-serif;font-size:12px;color:#00e5ff;letter-spacing:.1em;margin-bottom:16px}
+.mass-recipients{font-size:12px;color:#5a8aaa;margin-bottom:14px;padding:8px 12px;background:rgba(0,229,255,.06);border-radius:6px}
+.mass-textarea{width:100%;padding:12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;resize:vertical;min-height:80px;margin-bottom:10px}
+.mass-textarea:focus{border-color:#00e5ff}
+.mass-ppv-toggle{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:#c8d8e8;cursor:pointer}
+.mass-ppv-price{width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;margin-bottom:10px;display:none}
+.mass-ppv-price.show{display:block}
+.mass-send-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:14px;cursor:pointer;text-transform:uppercase}
+.mass-cancel{width:100%;margin-top:8px;padding:8px;background:transparent;border:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -122,7 +151,10 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
       <span class="sidebar-title">CONVERSACIONES</span>
       <button class="new-chat-btn" onclick="openNewChat()">+ Nuevo</button>
     </div>
-    <div class="note-bar" id="noteBar">
+    <div id="massMessageBtnWrap" style="padding:10px 16px;border-bottom:1px solid rgba(13,39,68,.4);display:none">
+    <button class="mass-msg-btn" onclick="openMassMessage()">&#128228; Mensaje masivo a suscriptores</button>
+  </div>
+  <div class="note-bar" id="noteBar">
     <div class="note-bar-title">NOTAS</div>
     <div class="note-bubbles-row" id="noteBubblesRow">
       <div class="note-bubble my-note-bubble" onclick="openNoteModal()">
@@ -188,6 +220,7 @@ sb.auth.getSession().then(function(r){
     subscribeToNewMessages();
     loadNotes();
     loadMessageRequests();
+    checkCreatorForMassMsg();
     var target=new URLSearchParams(location.search).get("with");
     if(target) openChatWith(target);
   });
@@ -535,6 +568,118 @@ async function renderRequests(){
     list.appendChild(item);
   }
 }
+
+// =============================================
+// ONLYFANS: PPV + MASS MESSAGE
+// =============================================
+
+// Show mass message button for creators
+async function checkCreatorForMassMsg(){
+  if(!currentUser)return;
+  var r=await sb.from("profiles").select("role").eq("id",currentUser.id).single();
+  if(r.data?.role==="creator"){
+    var wrap=document.getElementById("massMessageBtnWrap");
+    if(wrap)wrap.style.display="block";
+  }
+}
+
+async function openMassMessage(){
+  if(!currentUser)return;
+  // Count subscribers
+  var r=await sb.from("subscriptions").select("*",{count:"exact",head:true}).eq("creator_id",currentUser.id).eq("status","active");
+  var cnt=r.count||0;
+  document.getElementById("massRecipients").textContent="\uD83D\uDC65 "+cnt+" suscriptor"+(cnt!==1?"es":"")+" recibiran este mensaje";
+  document.getElementById("massMsgText").value="";
+  document.getElementById("massPPVCheck").checked=false;
+  document.getElementById("massPPVPrice").classList.remove("show");
+  document.getElementById("massPPVPrice").value="";
+  document.getElementById("massModal").classList.add("open");
+}
+
+async function sendMassMessage(){
+  if(!currentUser)return;
+  var content=document.getElementById("massMsgText").value.trim();
+  if(!content){showToast("Escribe un mensaje",true);return;}
+  var isPPV=document.getElementById("massPPVCheck").checked;
+  var ppvPrice=isPPV?parseFloat(document.getElementById("massPPVPrice").value||0):0;
+  if(isPPV&&ppvPrice<1){showToast("Precio PPV minimo: $1",true);return;}
+
+  // Get all subscribers
+  var r=await sb.from("subscriptions").select("subscriber_id").eq("creator_id",currentUser.id).eq("status","active");
+  var subs=r.data||[];
+  if(!subs.length){showToast("No tienes suscriptores todavia",true);return;}
+
+  // Save mass message record
+  await sb.from("mass_messages").insert({creator_id:currentUser.id,content:content,is_ppv:isPPV,ppv_price:ppvPrice,sent_count:subs.length});
+
+  // Send DM to each subscriber
+  var sent=0;
+  for(var i=0;i<Math.min(subs.length,50);i++){
+    var subId=subs[i].subscriber_id;
+    // Get or create conversation
+    var conv=await sb.from("conversations").select("id").or("participant1_id.eq."+currentUser.id+",participant2_id.eq."+currentUser.id).single();
+    var convId=conv.data?.id;
+    if(!convId){
+      var nc=await sb.from("conversations").insert({participant1_id:currentUser.id,participant2_id:subId}).select().single();
+      convId=nc.data?.id;
+    }
+    if(convId){
+      await sb.from("direct_messages").insert({conversation_id:convId,sender_id:currentUser.id,content:content,is_ppv:isPPV,ppv_price:ppvPrice,ppv_unlocked:!isPPV});
+      sent++;
+    }
+  }
+
+  document.getElementById("massModal").classList.remove("open");
+  showToast("\uD83D\uDCE8 Mensaje enviado a "+sent+" suscriptores!");
+}
+
+// Render PPV message bubble
+function renderPPVMessage(msg, isMine){
+  var bubble=document.createElement("div");
+  bubble.className="ppv-bubble";
+  bubble.dataset.msgId=msg.id;
+
+  if(msg.ppv_unlocked||isMine){
+    // Show content
+    if(msg.ppv_media_url){
+      var mediaWrap=document.createElement("div");mediaWrap.className="ppv-unlocked-media";
+      if(msg.ppv_media_type==="video"){
+        var vid=document.createElement("video");vid.src=msg.ppv_media_url;vid.controls=true;mediaWrap.appendChild(vid);
+      } else {
+        var img=document.createElement("img");img.src=msg.ppv_media_url;mediaWrap.appendChild(img);
+      }
+      bubble.appendChild(mediaWrap);
+    }
+    if(msg.content){var txt=document.createElement("div");txt.style.cssText="font-size:13px;color:#e8f4ff;margin-top:6px";txt.textContent=msg.content;bubble.appendChild(txt);}
+  } else {
+    // Locked PPV
+    var locked=document.createElement("div");locked.className="ppv-locked";
+    var icon=document.createElement("div");icon.className="ppv-lock-icon";icon.textContent="\uD83D\uDD12";
+    var label=document.createElement("div");label.className="ppv-label";label.textContent="Contenido exclusivo";
+    var priceBtn=document.createElement("button");priceBtn.className="ppv-price-tag";
+    priceBtn.textContent="Desbloquear por $"+parseFloat(msg.ppv_price).toFixed(2);
+    priceBtn.addEventListener("click",function(){unlockPPVMessage(msg.id,msg.ppv_price,msg.sender_id);});
+    locked.appendChild(icon);locked.appendChild(label);locked.appendChild(priceBtn);
+    bubble.appendChild(locked);
+  }
+  return bubble;
+}
+
+async function unlockPPVMessage(msgId, price, creatorId){
+  if(!currentUser){return;}
+  if(confirm("Desbloquear este mensaje por $"+parseFloat(price).toFixed(2)+"?")){
+    // Open PayPal
+    var prof=await sb.from("profiles").select("paypal_email,username").eq("id",creatorId).single();
+    if(prof.data?.paypal_email){
+      var handle=prof.data.paypal_email.replace(/@.*/,"");
+      window.open("https://www.paypal.com/paypalme/"+handle+"/"+price,"_blank");
+    }
+    // Mark as unlocked (pending manual confirmation for now)
+    await sb.from("direct_messages").update({ppv_unlocked:true}).eq("id",msgId);
+    showToast("\uD83D\uDD13 Completando pago en PayPal...");
+    setTimeout(function(){loadMessages(currentConvId);},3000);
+  }
+}
 </script>
 <div class="note-modal" id="noteModal">
   <div class="note-box">
@@ -560,6 +705,21 @@ async function renderRequests(){
     SOLICITUDES DE MENSAJES
   </div>
   <div id="requestsList" style="overflow-y:auto;flex:1"></div>
+</div>
+<!-- Mass Message Modal -->
+<div class="mass-modal" id="massModal">
+  <div class="mass-box">
+    <div class="mass-box-title">&#128228; MENSAJE MASIVO</div>
+    <div class="mass-recipients" id="massRecipients">Cargando suscriptores...</div>
+    <textarea class="mass-textarea" id="massMsgText" placeholder="Escribe tu mensaje para todos tus suscriptores..."></textarea>
+    <label class="mass-ppv-toggle">
+      <input type="checkbox" id="massPPVCheck" onchange="document.getElementById('massPPVPrice').classList.toggle('show',this.checked)">
+      Hacer PPV (contenido de pago)
+    </label>
+    <input class="mass-ppv-price" id="massPPVPrice" type="number" placeholder="Precio en $ para ver el contenido" min="1">
+    <button class="mass-send-btn" onclick="sendMassMessage()">&#128228; Enviar a todos</button>
+    <button class="mass-cancel" onclick="document.getElementById('massModal').classList.remove('open')">Cancelar</button>
+  </div>
 </div>
 </body>
 </html>

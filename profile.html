@@ -72,6 +72,9 @@ textarea.inp{resize:none;height:80px}
 .price-inp:focus{border-color:#ff2255}
 .sub-save-btn{padding:10px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
 .subs-count{font-size:12px;color:#ff6680;font-weight:700;margin-top:8px}
+
+.profile-rank-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:12px;font-size:11px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em;background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00;margin-top:8px;cursor:pointer}
+.profile-rank-badge:hover{background:linear-gradient(135deg,rgba(255,170,0,.25),rgba(200,80,0,.15))}
 </style>
 </head>
 <body>
@@ -97,6 +100,7 @@ textarea.inp{resize:none;height:80px}
       <div class="stat"><div class="stat-num" id="statFollowers">0</div><div class="stat-lbl">Seguidores</div></div>
       <div class="stat"><div class="stat-num" id="statFollowing">0</div><div class="stat-lbl">Siguiendo</div></div>
     <div class="stat"><div class="stat-num c-red" id="statSubs">0</div><div class="stat-lbl">Suscriptores</div></div>
+    <div class="stat" onclick="window.location.href='/leaderboard.html'" style="cursor:pointer"><div class="stat-num" id="statRank" style="color:#ffaa00;font-size:14px">-</div><div class="stat-lbl">Rango</div></div>
     </div>
     <div class="profile-actions" id="profileActions"></div>
   </div>
@@ -133,9 +137,9 @@ sb.auth.getSession().then(function(r) {
 
 async function loadProfile() {
   var query;
-  if (targetUsername) query = sb.from("profiles").select("*").eq("username", targetUsername).single();
-  else if (targetId) query = sb.from("profiles").select("*").eq("id", targetId).single();
-  else if (currentUser) query = sb.from("profiles").select("*").eq("id", currentUser.id).single();
+  if (targetUsername) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("username", targetUsername).single();
+  else if (targetId) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("id", targetId).single();
+  else if (currentUser) query = sb.from("profiles").select("*,fan_points,fan_rank,fan_rank_name").eq("id", currentUser.id).single();
   else { document.getElementById("profileName").textContent = "Perfil no encontrado"; return; }
   var r = await query;
   if (r.error || !r.data) { document.getElementById("profileName").textContent = "Usuario no encontrado"; return; }
@@ -159,10 +163,20 @@ async function renderProfile(p) {
   }
   var bioEl = document.getElementById("profileBio");
   bioEl.innerHTML = p.bio ? p.bio : '<span class="bio-placeholder">Sin biograf\xEDa</span>';
+  // Show fan rank badge
+  var existingRank=document.getElementById("profileRankBadge");
+  if(existingRank)existingRank.remove();
+  if(p.fan_points>0){
+    var rankBadge=document.createElement("div");rankBadge.id="profileRankBadge";rankBadge.className="profile-rank-badge";
+    rankBadge.innerHTML='\u2B50 '+( p.fan_rank_name||"Sombra")+' Lv.'+(p.fan_rank||1)+' &bull; '+(p.fan_points||0)+' pts';
+    rankBadge.addEventListener("click",function(){window.location.href="/leaderboard.html";});
+    bioEl.parentNode.insertBefore(rankBadge,bioEl.nextSibling);
+  }
   document.getElementById("statPosts").textContent = p.posts_count || 0;
   document.getElementById("statFollowers").textContent = p.followers_count || 0;
   document.getElementById("statFollowing").textContent = p.following_count || 0;
   var ss=document.getElementById("statSubs"); if(ss) ss.textContent=p.subscribers_count||0;
+  var sr=document.getElementById("statRank"); if(sr&&p.fan_rank_name) sr.textContent="Lv."+(p.fan_rank||1);
   var av = document.getElementById("avatarEl");
   if (p.avatar_url) { av.innerHTML = '<img src="' + p.avatar_url + '">'; }
   else av.textContent = p.username[0].toUpperCase();
@@ -188,6 +202,9 @@ async function renderProfile(p) {
     var fr = await sb.from("follows").select("id").eq("follower_id", currentUser.id).eq("following_id", p.id).single();
     if (fr.data) { followBtn.textContent = "Siguiendo"; followBtn.classList.add("following"); followBtn.dataset.following = "1"; }
     actions.appendChild(followBtn);
+    var dmBtn=document.createElement("button");dmBtn.className="edit-profile-btn";dmBtn.textContent="\uD83D\uDCAC Mensaje";
+    dmBtn.addEventListener("click",function(){window.location.href="/messages.html?with="+p.username;});
+    actions.appendChild(dmBtn);
   }
 }
 

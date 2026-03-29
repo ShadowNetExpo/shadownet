@@ -266,6 +266,8 @@ body.has-nav .dashPage{padding-bottom:70px}
 .ds-name{font-size:10px;color:#c8d8e8;max-width:54px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ds-add-ring{background:rgba(13,39,68,.8);border:2px dashed #0d2744}
 .ds-add-av{color:#5a8aaa;font-size:20px;background:rgba(1,2,12,.5)}
+
+.action-btn.saved{color:#ffaa00}
 </style>
 </head>
 <body>
@@ -484,7 +486,27 @@ window.addEventListener('DOMContentLoaded',function(){
   var lm=document.getElementById('liveModal');
   if(lm) lm.classList.remove('open');sb.auth.getSession().then(function(r){if(r.data.session)setUser(r.data.session.user);});loadCount();});
 sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)setUser(session.user);if(evt==='SIGNED_OUT')clearUser();});
-function loadCount(){sb.from('profiles').select('*',{count:'exact',head:true}).then(function(r){if(r.count!==null){var el=document.getElementById('statUsers');if(el)el.textContent=r.count>=1000?(r.count/1000).toFixed(1)+'K':r.count;}});}
+function loadCount(){
+  Promise.all([
+    sb.from("profiles").select("*",{count:"exact",head:true}),
+    sb.from("posts").select("*",{count:"exact",head:true}),
+    sb.from("follows").select("*",{count:"exact",head:true}),
+    sb.from("creator_applications").select("*",{count:"exact",head:true}).eq("status","approved")
+  ]).then(function(results){
+    var users = results[0].count||0;
+    var posts = results[1].count||0;
+    var follows = results[2].count||0;
+    var creators = results[3].count||0;
+    var el=document.getElementById("statUsers");
+    if(el)el.textContent=users>=1000?(users/1000).toFixed(1)+"K":users;
+    var el2=document.getElementById("statPosts");
+    if(el2)el2.textContent=posts>=1000?(posts/1000).toFixed(1)+"K":posts;
+    var el3=document.getElementById("statCreators");
+    if(el3)el3.textContent=creators>=1000?(creators/1000).toFixed(1)+"K":creators;
+    var el4=document.getElementById("statFollows");
+    if(el4)el4.textContent=follows>=1000?(follows/1000).toFixed(1)+"K":follows;
+  });
+}
 function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
     offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex'; document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
     loadKycStatus();closeAuth();loadFanRank();loadDashStories();loadReferralCode();processReferralAfterRegister(currentUser.id); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
@@ -1428,8 +1450,8 @@ function copyMyRef(){
   <button class="bn-item" onclick="window.location.href='/stories.html'">
     <span class="bn-icon">&#9203;</span>Stories
   </button>
-  <button class="bn-item" onclick="window.location.href='/explore.html'">
-    <span class="bn-icon">&#128269;</span>Explorar
+  <button class="bn-item" onclick="window.location.href='/leaderboard.html'">
+    <span class="bn-icon">&#127942;</span>Ranking
   </button>
   <button class="bn-item" onclick="window.location.href='/live.html'">
     <span class="bn-icon">&#128250;</span>Lives

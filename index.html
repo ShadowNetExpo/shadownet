@@ -232,13 +232,13 @@
     </p>
     <div class="kyc-upload-row">
       <div class="kyc-upload-box">
-        <input type="file" id="docFile" accept="image/*" onchange="kycFileSelected('doc')" capture="environment">
+        <input type="file" id="docFile" accept="image/*" onchange="kycFileSelected('doc')">
         <div class="kyc-upload-icon">&#128196;</div>
         <div class="kyc-upload-label">DNI / Pasaporte</div>
         <div class="kyc-upload-done" id="docDone" style="display:none">&#10003; Listo</div>
       </div>
       <div class="kyc-upload-box">
-        <input type="file" id="selfieFile" accept="image/*" onchange="kycFileSelected('selfie')" capture="user">
+        <input type="file" id="selfieFile" accept="image/*" onchange="kycFileSelected('selfie')">
         <div class="kyc-upload-icon">&#129315;</div>
         <div class="kyc-upload-label">Selfie con documento</div>
         <div class="kyc-upload-done" id="selfieDone" style="display:none">&#10003; Listo</div>
@@ -706,37 +706,49 @@ function loadKycStatus(){
 }
 
 function showKycUploadForm(){
-  window._kycDocFile=null;
-  window._kycSelfieFile=null;
-  var content=document.getElementById('kycContent');
-  if(!content)return;
-  content.innerHTML='<p style="font-size:12px;color:#5a8aaa;margin-bottom:14px;line-height:1.6">Sube tu DNI/Pasaporte y una selfie sosteniéndolo para verificar tu cuenta.</p>'
-    +'<div class="kyc-upload-row">'
-    +'<div class="kyc-upload-box"><input type="file" id="docFile" accept="image/*" capture="environment">'
-    +'<div class="kyc-upload-icon">📋</div><div class="kyc-upload-label">DNI / Pasaporte</div>'
-    +'<div class="kyc-upload-done" id="docDone" style="display:none">✓ Listo</div></div>'
-    +'<div class="kyc-upload-box"><input type="file" id="selfieFile" accept="image/*" capture="user">'
-    +'<div class="kyc-upload-icon">🤳</div><div class="kyc-upload-label">Selfie con doc</div>'
-    +'<div class="kyc-upload-done" id="selfieDone" style="display:none">✓ Listo</div></div></div>'
-    +'<button class="kyc-submit-btn" id="kycSubmitBtn" disabled>📤 ENVIAR PARA VERIFICACIÓN</button>'
-    +'<p id="kycMsg" style="font-size:11px;color:#00ff88;margin-top:8px;display:none"></p>';
-  document.getElementById('docFile').addEventListener('change',function(){kycFileSelected('doc');});
-  document.getElementById('selfieFile').addEventListener('change',function(){kycFileSelected('selfie');});
+  window._kycDocFile = null;
+  window._kycSelfieFile = null;
+  var content = document.getElementById('kycContent');
+  if (!content) return;
+  content.innerHTML =
+    '<p style="font-size:12px;color:#5a8aaa;margin-bottom:14px;line-height:1.6">' +
+    'Sube tu DNI/Pasaporte y una selfie sosteniéndolo para verificar tu cuenta.</p>' +
+    '<div class="kyc-upload-row">' +
+      '<div class="kyc-upload-box" id="docBox" style="cursor:pointer">' +
+        '<input type="file" id="docFile" accept="image/*,image/jpeg,image/png" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">' +
+        '<div class="kyc-upload-icon">📋</div>' +
+        '<div class="kyc-upload-label">DNI / Pasaporte</div>' +
+        '<div class="kyc-upload-done" id="docDone" style="display:none;color:#00ff88">✓ Foto lista</div>' +
+      '</div>' +
+      '<div class="kyc-upload-box" id="selfieBox" style="cursor:pointer">' +
+        '<input type="file" id="selfieFile" accept="image/*,image/jpeg,image/png" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">' +
+        '<div class="kyc-upload-icon">🤳</div>' +
+        '<div class="kyc-upload-label">Selfie con documento</div>' +
+        '<div class="kyc-upload-done" id="selfieDone" style="display:none;color:#00ff88">✓ Foto lista</div>' +
+      '</div>' +
+    '</div>' +
+    '<button class="kyc-submit-btn" id="kycSubmitBtn" onclick="submitKyc()" disabled>📤 ENVIAR PARA VERIFICACIÓN</button>' +
+    '<p id="kycMsg" style="font-size:11px;margin-top:8px;display:none"></p>';
+  // Attach change listeners
+  var df = document.getElementById('docFile');
+  var sf = document.getElementById('selfieFile');
+  if (df) df.onchange = function() { kycFileSelected('doc'); };
+  if (sf) sf.onchange = function() { kycFileSelected('selfie'); };
 }
 
 function kycFileSelected(type){
-  var inputId=type==='doc'?'docFile':'selfieFile';
-  var doneId=type==='doc'?'docDone':'selfieDone';
-  var input=document.getElementById(inputId);
-  var doneEl=document.getElementById(doneId);
-  if(input&&input.files&&input.files[0]){
-    if(type==='doc')window._kycDocFile=input.files[0];
-    else window._kycSelfieFile=input.files[0];
-    if(doneEl){doneEl.style.display='block';doneEl.style.color='#00ff88';}
-    if(input.parentElement)input.parentElement.style.borderColor='#00ff88';
+  var input = document.getElementById(type === 'doc' ? 'docFile' : 'selfieFile');
+  var done = document.getElementById(type === 'doc' ? 'docDone' : 'selfieDone');
+  var box = document.getElementById(type === 'doc' ? 'docBox' : 'selfieBox');
+  var file = input && input.files && input.files.length > 0 ? input.files[0] : null;
+  if (file) {
+    if (type === 'doc') window._kycDocFile = file;
+    else window._kycSelfieFile = file;
+    if (done) { done.style.display = 'block'; done.textContent = '✓ ' + file.name.slice(0,20); }
+    if (box) box.style.borderColor = '#00ff88';
   }
-  var submitBtn=document.getElementById('kycSubmitBtn');
-  if(submitBtn)submitBtn.disabled=!(window._kycDocFile&&window._kycSelfieFile);
+  var btn = document.getElementById('kycSubmitBtn');
+  if (btn) btn.disabled = !(window._kycDocFile && window._kycSelfieFile);
 }
 
 async function submitKyc(){

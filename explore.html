@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET — Explorar</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,12,.95);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px}
+.logo{font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255;letter-spacing:.12em;cursor:pointer;flex-shrink:0}
+.search-bar{flex:1;display:flex;align-items:center;background:rgba(7,15,30,.8);border:1px solid #0d2744;border-radius:24px;padding:0 16px;gap:10px;max-width:500px}
+.search-bar:focus-within{border-color:#00e5ff}
+.search-icon{color:#5a8aaa;font-size:16px}
+.search-inp{flex:1;background:none;border:none;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:14px;padding:10px 0;outline:none}
+.search-inp::placeholder{color:#3a5060}
+.nav-btns{display:flex;gap:8px;flex-shrink:0}
+.nbtn{padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;border:1px solid #0d2744;background:transparent;color:#5a8aaa}
+.nbtn:hover{border-color:#00e5ff;color:#00e5ff}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 16px}
+.section-title{font-family:Orbitron,sans-serif;font-size:12px;color:#5a8aaa;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #0d2744}
+.creators-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.creator-card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s}
+.creator-card:hover{border-color:rgba(0,229,255,.4);transform:translateY(-2px)}
+.creator-cover{height:80px;background:linear-gradient(135deg,#0a0518,#1a0520,#0d1035);position:relative;overflow:hidden}
+.creator-avatar{width:60px;height:60px;border-radius:50%;border:3px solid #01020c;position:absolute;bottom:-20px;left:16px;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#fff;overflow:hidden}
+.creator-avatar img{width:100%;height:100%;object-fit:cover}
+.creator-info{padding:28px 16px 14px}
+.creator-name{font-weight:700;font-size:14px;color:#e8f4ff;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.verified-badge{color:#00e5ff;font-size:11px}
+.creator-bio{font-size:12px;color:#5a8aaa;margin-bottom:10px;line-height:1.4;height:34px;overflow:hidden}
+.creator-stats{display:flex;gap:12px;margin-bottom:12px}
+.cs{font-size:11px;color:#5a8aaa;text-align:center}
+.cs-num{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;display:block}
+.follow-btn{width:100%;padding:8px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;border:1px solid rgba(0,229,255,.4);background:rgba(0,229,255,.08);color:#00e5ff;transition:all .2s}
+.follow-btn.following{border-color:#5a8aaa;color:#5a8aaa;background:transparent}
+.follow-btn:hover{background:rgba(0,229,255,.18)}
+.empty{text-align:center;padding:48px;color:#5a8aaa;font-size:14px}
+.loader{text-align:center;padding:32px;color:#5a8aaa}
+.no-results{text-align:center;padding:40px;color:#5a8aaa}
+.no-results .icon{font-size:40px;margin-bottom:12px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <div class="search-bar">
+    <span class="search-icon">&#128269;</span>
+    <input class="search-inp" id="searchInp" placeholder="Buscar creadores..." autocomplete="off">
+  </div>
+  <div class="nav-btns">
+    <button class="nbtn" onclick="window.location.href='/feed.html'">Feed</button>
+    <button class="nbtn" onclick="window.location.href='/'">Inicio</button>
+  </div>
+</header>
+<div class="wrap">
+  <div class="section-title" id="sectionTitle">Creadores destacados</div>
+  <div class="creators-grid" id="grid"><div class="loader">Cargando...</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
+var followingSet={};
+var searchTimer=null;
+
+sb.auth.getSession().then(function(r){ if(r.data.session){ currentUser=r.data.session.user; loadFollowing(); } loadCreators(""); });
+
+async function loadFollowing(){
+  if(!currentUser) return;
+  var r=await sb.from("follows").select("following_id").eq("follower_id",currentUser.id);
+  (r.data||[]).forEach(function(f){ followingSet[f.following_id]=true; });
+}
+
+async function loadCreators(query){
+  var grid=document.getElementById("grid");
+  var title=document.getElementById("sectionTitle");
+  grid.innerHTML="<div class=\"loader\">Buscando...</div>";
+  var q=sb.from("profiles").select("id,username,bio,avatar_url,cover_url,followers_count,posts_count,verification_status,is_creator");
+  if(query && query.length>0){
+    q=q.ilike("username","%"+query+"%");
+    title.textContent="Resultados para: "+query;
+  } else {
+    title.textContent="Creadores destacados";
+    q=q.order("followers_count",{ascending:false});
+  }
+  var r=await q.limit(24);
+  if(r.error||!r.data||r.data.length===0){
+    grid.innerHTML="<div class=\"no-results\"><div class=\"icon\">&#128269;</div>No se encontraron creadores</div>";
+    return;
+  }
+  grid.innerHTML="";
+  r.data.forEach(function(u){ grid.appendChild(buildCard(u)); });
+}
+
+function buildCard(u){
+  var card=document.createElement("div"); card.className="creator-card";
+  card.addEventListener("click",function(e){ if(e.target.classList.contains("follow-btn")) return; window.location.href="/profile.html?u="+u.username; });
+  var cover=document.createElement("div"); cover.className="creator-cover";
+  if(u.cover_url) cover.style.cssText="background-image:url("+u.cover_url+");background-size:cover;background-position:center";
+  var av=document.createElement("div"); av.className="creator-avatar";
+  if(u.avatar_url){var img=document.createElement("img");img.src=u.avatar_url;av.appendChild(img);}
+  else av.textContent=(u.username||"?")[0].toUpperCase();
+  cover.appendChild(av); card.appendChild(cover);
+  var info=document.createElement("div"); info.className="creator-info";
+  var name=document.createElement("div"); name.className="creator-name";
+  name.textContent="@"+(u.username||"usuario");
+  if(u.verification_status==="verified"){var vb=document.createElement("span");vb.className="verified-badge";vb.textContent="\u2713";name.appendChild(vb);}
+  var bio=document.createElement("div"); bio.className="creator-bio"; bio.textContent=u.bio||"Sin biograf\xEDa";
+  var stats=document.createElement("div"); stats.className="creator-stats";
+  stats.innerHTML="<div class=\"cs\"><span class=\"cs-num\">"+(u.followers_count||0)+"</span>Seguidores</div><div class=\"cs\"><span class=\"cs-num\">"+(u.posts_count||0)+"</span>Posts</div>";
+  var fbtn=document.createElement("button"); fbtn.className="follow-btn"+(followingSet[u.id]?" following":"");
+  fbtn.textContent=followingSet[u.id]?"Siguiendo":"Seguir";
+  fbtn.dataset.uid=u.id; fbtn.dataset.uname=u.username;
+  fbtn.addEventListener("click",function(e){ e.stopPropagation(); toggleFollow(this); });
+  info.appendChild(name); info.appendChild(bio); info.appendChild(stats); info.appendChild(fbtn);
+  card.appendChild(info); return card;
+}
+
+async function toggleFollow(btn){
+  if(!currentUser){ window.location.href="/"; return; }
+  var uid=btn.dataset.uid; var uname=btn.dataset.uname;
+  var isF=btn.classList.contains("following");
+  if(isF){
+    await sb.from("follows").delete().eq("follower_id",currentUser.id).eq("following_id",uid);
+    btn.textContent="Seguir"; btn.classList.remove("following"); delete followingSet[uid];
+    showToast("Dejaste de seguir a @"+uname);
+  } else {
+    await sb.from("follows").insert({follower_id:currentUser.id,following_id:uid});
+    btn.textContent="Siguiendo"; btn.classList.add("following"); followingSet[uid]=true;
+    showToast("\u2713 Siguiendo a @"+uname);
+  }
+}
+
+document.getElementById("searchInp").addEventListener("input",function(){
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(function(){loadCreators(document.getElementById("searchInp").value.trim());},350);
+});
+
+function showToast(msg,err){
+  var t=document.getElementById("toast");
+  t.textContent=msg; t.style.borderColor=err?"#ff2255":"#00ff88"; t.style.color=err?"#ff2255":"#00ff88";
+  t.style.display="block"; setTimeout(function(){t.style.display="none";},2500);
+}
+</script>
+</body>
+</html>

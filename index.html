@@ -192,6 +192,14 @@
 .chat-inp{flex:1;background:rgba(1,2,12,.6);border:1px solid #0d2744;color:#e8f4ff;border-radius:20px;padding:6px 12px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none}
 .chat-inp:focus{border-color:#00e5ff}
 .chat-send{padding:6px 14px;background:#ff2255;color:#fff;border:none;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+
+/* Bottom Navigation Bar */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:none;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+.bottom-nav.visible{display:flex}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 16px;border-radius:8px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+.bn-item:hover,.bn-item.active{color:#00e5ff}
+.bn-icon{font-size:20px;line-height:1}
+body.has-nav .dashPage{padding-bottom:70px}
 </style>
 </head>
 <body>
@@ -364,9 +372,9 @@ window.addEventListener('DOMContentLoaded',function(){
 sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)setUser(session.user);if(evt==='SIGNED_OUT')clearUser();});
 function loadCount(){sb.from('profiles').select('*',{count:'exact',head:true}).then(function(r){if(r.count!==null){var el=document.getElementById('statUsers');if(el)el.textContent=r.count>=1000?(r.count/1000).toFixed(1)+'K':r.count;}});}
 function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{};document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
-    offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex';
+    offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex'; document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
     loadKycStatus();closeAuth();});}
-function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none';}
+function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none'; document.getElementById('bottomNav').classList.remove('visible'); document.body.classList.remove('has-nav');}
 function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
 function openAuth(t){document.getElementById('authModal').classList.add('open');switchTab(t==='login'?'l':'r');document.getElementById('authOk').style.display='none';}
 function closeAuth(){document.getElementById('authModal').classList.remove('open');clearErrs();}
@@ -980,5 +988,24 @@ document.addEventListener('DOMContentLoaded', function(){
     <button onclick="openShop()" style="background:rgba(255,210,0,.1);border:1px solid var(--gl);color:var(--gl);padding:10px 16px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128128; Regalos</button>
   </div>
 </div>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bn-item" onclick="window.location.href='/'">
+    <span class="bn-icon">&#127968;</span>Inicio
+  </button>
+  <button class="bn-item" onclick="window.location.href='/feed.html'">
+    <span class="bn-icon">&#128248;</span>Feed
+  </button>
+  <button class="bn-item" onclick="openShop()">
+    <span class="bn-icon">&#128128;</span>Almas
+  </button>
+  <button class="bn-item" onclick="window.location.href='/live.html'">
+    <span class="bn-icon">&#128250;</span>Lives
+  </button>
+  <button class="bn-item" onclick="window.location.href='/profile.html'">
+    <span class="bn-icon">&#128100;</span>Perfil
+  </button>
+</nav>
 </body>
 </html>

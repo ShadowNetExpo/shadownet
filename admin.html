@@ -69,6 +69,15 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
 .note-inp.show{display:block}
 .reject-confirm2{width:100%;padding:8px;background:#ff2255;color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;display:none}
 .reject-confirm2.show{display:block}
+
+.rpt-card{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.rpt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.rpt-reason{font-weight:700;font-size:13px;color:#ff6680}
+.rpt-meta{font-size:11px;color:#5a8aaa;margin-top:3px}
+.rpt-detail{font-size:12px;color:#c8d8e8;background:rgba(1,2,12,.4);border-radius:6px;padding:8px;margin:8px 0;display:none}
+.rpt-actions{display:flex;gap:8px;margin-top:10px}
+.rpt-dismiss{flex:1;padding:8px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
+.rpt-ban{flex:1;padding:8px;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -110,6 +119,15 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
     <span id="appCount" style="font-size:12px;color:#ff6680">Cargando...</span>
   </div>
   <div id="appsGrid"></div>
+</div>
+
+<!-- Reports Section -->
+<div style="margin-top:28px">
+  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+    &#9888;&#65039; REPORTES DE CONTENIDO
+    <span id="rptCount" style="font-size:12px;color:#ff2255">Cargando...</span>
+  </div>
+  <div id="reportsGrid"></div>
 </div>
 <!-- Withdrawals Section -->
 <div style="margin-top:28px">
@@ -176,6 +194,7 @@ function showDash(name) {
   loadCards("pending");
   loadCreatorApps();
   loadWithdrawals();
+  loadReports();
 }
 
 async function loadStats() {
@@ -524,6 +543,75 @@ async function rejectWithdrawal(wdId, userId, amount){
   var card=document.getElementById("wd-"+wdId);
   if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
   showToast("Retiro rechazado"); loadWithdrawals();
+}
+
+// =============================================
+// REPORTES DE CONTENIDO
+// =============================================
+var REASON_LABELS={spam:"Spam",nudity:"Desnudez",harassment:"Acoso",fake:"Cuenta falsa",violence:"Violencia",minors:"Menores",other:"Otro"};
+
+async function loadReports(){
+  var grid=document.getElementById("reportsGrid");
+  var count=document.getElementById("rptCount");
+  if(!grid)return;
+  var r=await sb.from("reports").select("*,profiles!reporter_id(username),posts(content)").eq("status","pending").order("created_at",{ascending:false}).limit(20);
+  if(r.error){grid.innerHTML="<div class=\"empty\">Error: "+r.error.message+"</div>";return;}
+  var items=r.data||[];
+  if(count)count.textContent=items.length+" pendientes";
+  if(items.length===0){grid.innerHTML="<div class=\"empty\">Sin reportes pendientes \u2705</div>";return;}
+  grid.innerHTML="";
+  items.forEach(function(rpt){grid.appendChild(buildRptCard(rpt));});
+}
+
+function buildRptCard(rpt){
+  var card=document.createElement("div");card.className="rpt-card";card.id="rpt-"+rpt.id;
+  var header=document.createElement("div");header.className="rpt-header";
+  var left=document.createElement("div");
+  var reason=document.createElement("div");reason.className="rpt-reason";
+  reason.textContent="\u26A0\uFE0F "+(REASON_LABELS[rpt.reason]||rpt.reason);
+  var meta=document.createElement("div");meta.className="rpt-meta";
+  meta.textContent="Reportado por @"+(rpt.profiles?.username||"usuario")+" \u2022 "+new Date(rpt.created_at).toLocaleDateString("es-ES");
+  if(rpt.posts?.content){
+    var content=document.createElement("div");content.style.cssText="font-size:12px;color:#5a8aaa;margin-top:2px";
+    content.textContent="Post: \""+rpt.posts.content.slice(0,50)+(rpt.posts.content.length>50?"...":"")+"\"";
+    left.appendChild(reason);left.appendChild(meta);left.appendChild(content);
+  } else {left.appendChild(reason);left.appendChild(meta);}
+  var badge=document.createElement("span");badge.className="badge b-p";badge.textContent="Pendiente";
+  header.appendChild(left);header.appendChild(badge);card.appendChild(header);
+  if(rpt.details){
+    var det=document.createElement("div");det.className="rpt-detail";det.style.display="block";
+    det.textContent="Detalles: "+rpt.details;card.appendChild(det);
+  }
+  var actions=document.createElement("div");actions.className="rpt-actions";
+  var dismiss=document.createElement("button");dismiss.className="rpt-dismiss";dismiss.textContent="\u2713 Desestimar";
+  dismiss.dataset.id=rpt.id;dismiss.addEventListener("click",function(){dismissReport(this.dataset.id);});
+  var ban=document.createElement("button");ban.className="rpt-ban";ban.textContent="\uD83D\uDEAB Suspender usuario";
+  ban.dataset.id=rpt.id;ban.dataset.userId=rpt.reported_user_id;
+  ban.addEventListener("click",function(){banUser(this.dataset.id,this.dataset.userId);});
+  actions.appendChild(dismiss);
+  if(rpt.reported_user_id)actions.appendChild(ban);
+  card.appendChild(actions);
+  return card;
+}
+
+async function dismissReport(id){
+  var admin=(await sb.auth.getUser()).data.user;
+  await sb.from("reports").update({status:"dismissed",reviewed_by:admin?.id,reviewed_at:new Date().toISOString()}).eq("id",id);
+  var card=document.getElementById("rpt-"+id);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("\u2713 Reporte desestimado"); loadReports();
+}
+
+async function banUser(reportId,userId){
+  if(!userId)return;
+  var reason=prompt("Motivo de la suspensión:","Violación de términos de servicio");
+  if(!reason)return;
+  var admin=(await sb.auth.getUser()).data.user;
+  await sb.from("profiles").update({is_banned:true,ban_reason:reason}).eq("id",userId);
+  await sb.from("reports").update({status:"actioned",reviewed_by:admin?.id,reviewed_at:new Date().toISOString()}).eq("id",reportId);
+  var card=document.getElementById("rpt-"+reportId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("\uD83D\uDEAB Usuario suspendido"); loadReports();
 }
 </script>
 </body>

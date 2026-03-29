@@ -8,70 +8,65 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#01020c;--c:#00e5ff;--g:#00ff88;--r:#ff2255;--y:#ffaa00;--text:#e8f4ff;--bd:#0d2744}
-body{background:var(--bg);color:var(--text);font-family:Rajdhani,sans-serif;min-height:100vh}
-header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:Orbitron,sans-serif;font-size:16px;color:var(--r);letter-spacing:.15em}
-.atag{background:rgba(255,34,85,.15);border:1px solid var(--r);color:var(--r);padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.1em}
-.logout{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff6680;padding:8px 16px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
-.ls{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
-.lb{background:rgba(7,15,30,.8);border:1px solid var(--bd);border-radius:12px;padding:32px;width:100%;max-width:380px}
-.lt{font-family:Orbitron,sans-serif;font-size:14px;color:var(--c);text-align:center;margin-bottom:20px;letter-spacing:.1em}
-.inp{width:100%;padding:11px 14px;background:rgba(1,2,12,.8);border:1px solid var(--bd);color:var(--text);border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none}
-.inp:focus{border-color:var(--c)}
-.btn-p{width:100%;padding:12px;background:linear-gradient(135deg,var(--r),#cc0000);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
-.err{color:var(--r);font-size:12px;text-align:center;min-height:16px;margin-top:6px}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:Orbitron,sans-serif;font-size:16px;color:#ff2255;letter-spacing:.15em}
+.logout-btn{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff6680;padding:8px 16px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:80vh}
+.login-box{background:rgba(7,15,30,.8);border:1px solid #0d2744;border-radius:12px;padding:32px;width:100%;max-width:380px}
+.login-title{font-family:Orbitron,sans-serif;font-size:13px;color:#00e5ff;text-align:center;margin-bottom:20px;letter-spacing:.1em}
+.inp{width:100%;padding:11px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none}
+.inp:focus{border-color:#00e5ff}
+.btn-p{width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
+.err{color:#ff2255;font-size:12px;text-align:center;min-height:16px;margin-top:6px}
 .wrap{padding:24px;max-width:1100px;margin:0 auto}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
-.sc{background:rgba(7,15,30,.6);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.sc{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px;text-align:center}
 .sn{font-family:Orbitron,sans-serif;font-size:28px;margin-bottom:4px}
 .sl{font-size:11px;color:#5a8aaa;letter-spacing:.08em;text-transform:uppercase}
-.stitle{font-family:Orbitron,sans-serif;font-size:13px;color:var(--text);letter-spacing:.1em;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.c-blue{color:#00e5ff}.c-yellow{color:#ffaa00}.c-green{color:#00ff88}.c-red{color:#ff2255}
+.sec-title{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;letter-spacing:.1em;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #0d2744}
 .filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.fb{padding:7px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;cursor:pointer;border:1px solid var(--bd);background:transparent;color:#5a8aaa;text-transform:uppercase}
-.fb.active{border-color:var(--c);color:var(--c);background:rgba(0,229,255,.1)}
+.fb{padding:7px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;text-transform:uppercase;transition:all .2s}
+.fb.active{border-color:#00e5ff;color:#00e5ff;background:rgba(0,229,255,.1)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
-.card{background:rgba(7,15,30,.7);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
-.ch{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
-.cu{font-weight:700;font-size:14px}
+.card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;overflow:hidden}
+.ch{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #0d2744}
+.cu{font-weight:700;font-size:14px;color:#e8f4ff}
 .ci{font-size:11px;color:#5a8aaa;margin-top:2px}
-.sb{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.sp{background:rgba(255,170,0,.15);color:var(--y);border:1px solid rgba(255,170,0,.3)}
-.sv{background:rgba(0,255,136,.15);color:var(--g);border:1px solid rgba(0,255,136,.3)}
-.sr{background:rgba(255,34,85,.15);color:var(--r);border:1px solid rgba(255,34,85,.3)}
-.su{background:rgba(90,138,170,.15);color:#5a8aaa;border:1px solid rgba(90,138,170,.3)}
+.badge{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.b-pending{background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.b-verified{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid rgba(0,255,136,.3)}
+.b-rejected{background:rgba(255,34,85,.15);color:#ff2255;border:1px solid rgba(255,34,85,.3)}
 .photos{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}
-.pb{position:relative;border-radius:8px;overflow:hidden;background:rgba(1,2,12,.5);border:1px solid var(--bd)}
-.pb img{width:100%;height:140px;object-fit:cover;cursor:pointer}
-.pl{font-size:10px;color:#5a8aaa;text-align:center;padding:4px;letter-spacing:.06em;text-transform:uppercase}
-.np{width:100%;height:140px;display:flex;align-items:center;justify-content:center;color:#5a8aaa;font-size:11px}
-.cf{padding:12px 16px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:8px}
-.meta{font-size:11px;color:#5a8aaa}
-.ar{display:flex;gap:8px}
-.abtn{flex:1;padding:10px;background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(0,200,100,.1));border:1px solid rgba(0,255,136,.4);color:var(--g);border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase}
-.rbtn{flex:1;padding:10px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:var(--r);border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase}
-.rta{width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid var(--bd);color:var(--text);border-radius:6px;font-family:Rajdhani,sans-serif;font-size:12px;display:none;resize:none;height:60px}
-.rta.show{display:block}
-.rcbtn{width:100%;padding:8px;background:var(--r);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;display:none}
-.rcbtn.show{display:block}
-.empty{text-align:center;padding:48px;color:#5a8aaa;font-size:13px}
-.loading{text-align:center;padding:48px;color:var(--c);font-size:13px}
-.toast{position:fixed;bottom:24px;right:24px;background:rgba(7,15,30,.95);border:1px solid var(--g);color:var(--g);padding:12px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none}
-.lb2{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out}
-.lb2.open{display:flex}
-.lb2 img{max-width:90vw;max-height:90vh;border-radius:8px}
+.pbox{border-radius:8px;overflow:hidden;background:rgba(1,2,12,.5);border:1px solid #0d2744}
+.pbox img{width:100%;height:140px;object-fit:cover;cursor:zoom-in;display:block}
+.plabel{font-size:10px;color:#5a8aaa;text-align:center;padding:5px;text-transform:uppercase;letter-spacing:.06em}
+.nophoto{height:140px;display:flex;align-items:center;justify-content:center;color:#5a8aaa;font-size:11px}
+.cf{padding:12px 16px;border-bottom:0;border-top:1px solid #0d2744}
+.meta{font-size:11px;color:#5a8aaa;margin-bottom:8px}
+.arow{display:flex;gap:8px;margin-bottom:8px}
+.abtn{flex:1;padding:10px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
+.rbtn{flex:1;padding:10px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
+.rtxt{width:100%;padding:8px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:12px;display:none;resize:none;height:56px;margin-bottom:6px}
+.rcbtn{width:100%;padding:8px;background:#ff2255;color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;display:none}
+.empty{text-align:center;padding:48px;color:#5a8aaa}
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:12px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out}
+.lb.open{display:flex}
+.lb img{max-width:90vw;max-height:90vh;border-radius:8px}
 </style>
 </head>
 <body>
 <div id="loginScreen">
-  <header><span class="logo">SHADOWNET</span><span class="atag">ADMIN</span></header>
-  <div class="ls">
-    <div class="lb">
-      <div class="lt">PANEL DE ADMINISTRACION</div>
-      <input class="inp" type="email" id="adminEmail" placeholder="Email administrador">
-      <input class="inp" type="password" id="adminPass" placeholder="Contrasena" onkeydown="if(event.key==='Enter')doAdminLogin()">
-      <button class="btn-p" onclick="doAdminLogin()">ACCEDER</button>
-      <div class="err" id="loginErr"></div>
+  <header><span class="logo">SHADOWNET</span><span style="font-size:11px;color:#ff2255;border:1px solid #ff2255;padding:4px 10px;border-radius:4px">ADMIN</span></header>
+  <div class="login-screen">
+    <div class="login-box">
+      <div class="login-title">PANEL DE ADMINISTRACION</div>
+      <input class="inp" type="email" id="ae" placeholder="Email administrador">
+      <input class="inp" type="password" id="ap" placeholder="Contrasena" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="btn-p" onclick="doLogin()">ACCEDER</button>
+      <div class="err" id="le"></div>
     </div>
   </div>
 </div>
@@ -79,58 +74,39 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid var
   <header>
     <span class="logo">SHADOWNET <span style="color:#5a8aaa;font-size:11px">ADMIN</span></span>
     <div style="display:flex;align-items:center;gap:12px">
-      <span id="adminName" style="font-size:12px;color:#5a8aaa"></span>
-      <button class="logout" onclick="adminLogout()">Salir</button>
+      <span id="an" style="font-size:12px;color:#5a8aaa"></span>
+      <button class="logout-btn" onclick="doLogout()">Salir</button>
     </div>
   </header>
   <div class="wrap">
     <div class="stats">
-      <div class="sc"><div class="sn" id="s-total" style="color:var(--c)">-</div><div class="sl">Total</div></div>
-      <div class="sc"><div class="sn" id="s-pending" style="color:var(--y)">-</div><div class="sl">Pendientes</div></div>
-      <div class="sc"><div class="sn" id="s-verified" style="color:var(--g)">-</div><div class="sl">Verificados</div></div>
-      <div class="sc"><div class="sn" id="s-rejected" style="color:var(--r)">-</div><div class="sl">Rechazados</div></div>
+      <div class="sc"><div class="sn c-blue" id="st">-</div><div class="sl">Total</div></div>
+      <div class="sc"><div class="sn c-yellow" id="sp">-</div><div class="sl">Pendientes</div></div>
+      <div class="sc"><div class="sn c-green" id="sv">-</div><div class="sl">Verificados</div></div>
+      <div class="sc"><div class="sn c-red" id="sr">-</div><div class="sl">Rechazados</div></div>
     </div>
-    <div class="stitle">VERIFICACIONES KYC</div>
+    <div class="sec-title">VERIFICACIONES KYC</div>
     <div class="filters">
       <button class="fb active" data-f="pending" onclick="setFilter('pending')">Pendientes</button>
       <button class="fb" data-f="verified" onclick="setFilter('verified')">Verificados</button>
       <button class="fb" data-f="rejected" onclick="setFilter('rejected')">Rechazados</button>
       <button class="fb" data-f="all" onclick="setFilter('all')">Todos</button>
     </div>
-    <div id="kycGrid" class="grid"><div class="loading">Cargando...</div></div>
+    <div id="grid" class="grid"><div class="empty">Cargando...</div></div>
   </div>
 </div>
-<div class="lb2" id="lightbox" onclick="this.classList.remove('open')"><img id="lbImg" src=""></div>
+<div class="lb" id="lb" onclick="this.classList.remove('open')"><img id="lbimg" src=""></div>
 <div class="toast" id="toast"></div>
 <script>
 var SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
 var SB_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-var sb = window.supabase.createClient(SB_URL, SB_KEY);
-var currentFilter = 'pending';
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var curFilter = 'pending';
 
-function showToast(msg, type) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.borderColor = type === 'error' ? 'var(--r)' : 'var(--g)';
-  t.style.color = type === 'error' ? 'var(--r)' : 'var(--g)';
-  t.style.display = 'block';
-  setTimeout(function() { t.style.display = 'none'; }, 3000);
-}
-
-function openLightbox(url) {
-  document.getElementById('lbImg').src = url;
-  document.getElementById('lightbox').classList.add('open');
-}
-
-function adminLogout() {
-  sb.auth.signOut();
-  location.reload();
-}
-
-async function doAdminLogin() {
-  var email = document.getElementById('adminEmail').value.trim();
-  var pass = document.getElementById('adminPass').value;
-  var errEl = document.getElementById('loginErr');
+async function doLogin() {
+  var email = document.getElementById('ae').value.trim();
+  var pass = document.getElementById('ap').value;
+  var errEl = document.getElementById('le');
   errEl.textContent = '';
   if (!email || !pass) { errEl.textContent = 'Completa todos los campos'; return; }
   var r = await sb.auth.signInWithPassword({ email: email, password: pass });
@@ -141,125 +117,137 @@ async function doAdminLogin() {
     errEl.textContent = 'Acceso denegado. Sin permisos de administrador.';
     return;
   }
-  document.getElementById('adminName').textContent = '@' + (p.data.username || email.split('@')[0]);
+  document.getElementById('an').textContent = '@' + (p.data.username || email.split('@')[0]);
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('adminDash').style.display = 'block';
   loadStats();
-  loadKycCards('pending');
+  loadCards('pending');
 }
 
+async function doLogout() { await sb.auth.signOut(); location.reload(); }
+
 async function loadStats() {
-  var [total, pending, verified, rejected] = await Promise.all([
+  var res = await Promise.all([
     sb.from('profiles').select('id', { count: 'exact', head: true }),
     sb.from('profiles').select('id', { count: 'exact', head: true }).eq('verification_status', 'pending'),
     sb.from('profiles').select('id', { count: 'exact', head: true }).eq('verification_status', 'verified'),
     sb.from('profiles').select('id', { count: 'exact', head: true }).eq('verification_status', 'rejected')
   ]);
-  document.getElementById('s-total').textContent = total.count || 0;
-  document.getElementById('s-pending').textContent = pending.count || 0;
-  document.getElementById('s-verified').textContent = verified.count || 0;
-  document.getElementById('s-rejected').textContent = rejected.count || 0;
+  document.getElementById('st').textContent = res[0].count || 0;
+  document.getElementById('sp').textContent = res[1].count || 0;
+  document.getElementById('sv').textContent = res[2].count || 0;
+  document.getElementById('sr').textContent = res[3].count || 0;
 }
 
 function setFilter(f) {
-  currentFilter = f;
-  document.querySelectorAll('.fb').forEach(function(b) {
-    b.classList.toggle('active', b.getAttribute('data-f') === f);
-  });
-  loadKycCards(f);
+  curFilter = f;
+  document.querySelectorAll('.fb').forEach(function(b) { b.classList.toggle('active', b.dataset.f === f); });
+  loadCards(f);
 }
 
-async function loadKycCards(filter) {
-  var grid = document.getElementById('kycGrid');
-  grid.innerHTML = '<div class="loading">Cargando...</div>';
-  var q = sb.from('profiles').select('id,username,verification_status,verification_submitted_at,doc_url,selfie_url,verification_rejection_reason,coins_balance').order('verification_submitted_at', { ascending: false });
+async function loadCards(filter) {
+  var grid = document.getElementById('grid');
+  grid.innerHTML = '<div class="empty">Cargando...</div>';
+  var q = sb.from('profiles')
+    .select('id,username,verification_status,verification_submitted_at,doc_url,selfie_url,verification_rejection_reason,coins_balance')
+    .order('verification_submitted_at', { ascending: false });
   if (filter !== 'all') q = q.eq('verification_status', filter);
-  else q = q.neq('verification_status', 'unverified');
+  else q = q.not('verification_status', 'eq', 'unverified');
   var r = await q.limit(50);
   if (r.error) { grid.innerHTML = '<div class="empty">Error: ' + r.error.message + '</div>'; return; }
-  if (!r.data || r.data.length === 0) { grid.innerHTML = '<div class="empty">No hay solicitudes</div>'; return; }
-  grid.innerHTML = r.data.map(function(u) { return buildCard(u); }).join('');
-  // Load signed URLs for each card
-  r.data.forEach(function(u) { loadCardPhotos(u); });
+  if (!r.data || r.data.length === 0) { grid.innerHTML = '<div class="empty">No hay solicitudes ' + filter + '</div>'; return; }
+  grid.innerHTML = '';
+  r.data.forEach(function(u) { grid.innerHTML += makeCard(u); });
+  r.data.forEach(function(u) { loadPhotos(u); });
 }
 
-function buildCard(u) {
-  var sc = { unverified: 'su', pending: 'sp', verified: 'sv', rejected: 'sr' }[u.verification_status] || 'su';
-  var st = { unverified: 'Sin verificar', pending: 'Pendiente', verified: 'Verificado', rejected: 'Rechazado' }[u.verification_status] || '';
-  var date = u.verification_submitted_at ? new Date(u.verification_submitted_at).toLocaleDateString('es-ES') : 'N/A';
-  var isPending = u.verification_status === 'pending';
+function makeCard(u) {
+  var bc = u.verification_status === 'pending' ? 'b-pending' : u.verification_status === 'verified' ? 'b-verified' : 'b-rejected';
+  var bt = u.verification_status === 'pending' ? 'Pendiente' : u.verification_status === 'verified' ? 'Verificado' : 'Rechazado';
+  var dt = u.verification_submitted_at ? new Date(u.verification_submitted_at).toLocaleDateString('es-ES') : 'N/A';
   var html = '<div class="card" id="card-' + u.id + '">';
   html += '<div class="ch"><div><div class="cu">@' + (u.username || 'usuario') + '</div>';
   html += '<div class="ci">ID: ' + u.id.slice(0, 8) + '...</div></div>';
-  html += '<span class="sb ' + sc + '">' + st + '</span></div>';
-  html += '<div class="photos" id="photos-' + u.id + '">';
-  html += '<div class="pb"><div class="np">Cargando...</div><div class="pl">Documento</div></div>';
-  html += '<div class="pb"><div class="np">Cargando...</div><div class="pl">Selfie</div></div>';
-  html += '</div>';
-  html += '<div class="cf"><div class="meta">' + date + ' &bull; ' + (u.coins_balance || 0) + ' Almas</div>';
-  if (u.verification_rejection_reason) {
-    html += '<div style="font-size:11px;color:var(--r)">Razon: ' + u.verification_rejection_reason + '</div>';
-  }
-  if (isPending) {
-    html += '<div class="ar">';
+  html += '<span class="badge ' + bc + '">' + bt + '</span></div>';
+  html += '<div class="photos" id="ph-' + u.id + '">';
+  html += '<div class="pbox"><div class="nophoto">Cargando...</div><div class="plabel">Documento</div></div>';
+  html += '<div class="pbox"><div class="nophoto">Cargando...</div><div class="plabel">Selfie</div></div></div>';
+  html += '<div class="cf"><div class="meta">Fecha: ' + dt + ' | Almas: ' + (u.coins_balance || 0) + '</div>';
+  if (u.verification_rejection_reason) html += '<div style="font-size:11px;color:#ff2255;margin-bottom:6px">Motivo: ' + u.verification_rejection_reason + '</div>';
+  if (u.verification_status === 'pending') {
+    html += '<div class="arow">';
     html += '<button class="abtn" onclick="approveKyc('' + u.id + '')">Aprobar</button>';
-    html += '<button class="rbtn" onclick="showRejectForm('' + u.id + '')">Rechazar</button>';
-    html += '</div>';
-    html += '<textarea class="rta" id="reason-' + u.id + '" placeholder="Razon del rechazo..."></textarea>';
-    html += '<button class="rcbtn" id="confirm-' + u.id + '" onclick="rejectKyc('' + u.id + '')">CONFIRMAR RECHAZO</button>';
+    html += '<button class="rbtn" onclick="showReject('' + u.id + '')">Rechazar</button></div>';
+    html += '<textarea class="rtxt" id="rt-' + u.id + '" placeholder="Motivo del rechazo..."></textarea>';
+    html += '<button class="rcbtn" id="rc-' + u.id + '" onclick="rejectKyc('' + u.id + '')">CONFIRMAR RECHAZO</button>';
   }
   html += '</div></div>';
   return html;
 }
 
-async function loadCardPhotos(u) {
-  var photoDiv = document.getElementById('photos-' + u.id);
-  if (!photoDiv) return;
-  var docHtml = '<div class="np">Sin documento</div>';
-  var selfHtml = '<div class="np">Sin selfie</div>';
+async function loadPhotos(u) {
+  var ph = document.getElementById('ph-' + u.id);
+  if (!ph) return;
+  var docUrl = '', selfUrl = '';
   if (u.doc_url) {
-    var docPath = u.doc_url.startsWith('http') ? (u.doc_url.split('/documents/')[1] || '') : u.doc_url;
-    if (docPath) {
-      var ds = await sb.storage.from('documents').createSignedUrl(docPath, 3600);
-      if (ds.data && ds.data.signedUrl) {
-        docHtml = '<img src="' + ds.data.signedUrl + '" onclick="openLightbox(\'' + ds.data.signedUrl + '\')" style="width:100%;height:140px;object-fit:cover;cursor:pointer">';
-      }
+    var p = u.doc_url.startsWith('http') ? (u.doc_url.match(//documents/(.+?)(?|$)/) || [])[1] : u.doc_url;
+    if (p) {
+      var d = await sb.storage.from('documents').createSignedUrl(p, 3600);
+      docUrl = d.data && d.data.signedUrl ? d.data.signedUrl : '';
     }
   }
   if (u.selfie_url) {
-    var selfPath = u.selfie_url.startsWith('http') ? (u.selfie_url.split('/documents/')[1] || '') : u.selfie_url;
-    if (selfPath) {
-      var ss = await sb.storage.from('documents').createSignedUrl(selfPath, 3600);
-      if (ss.data && ss.data.signedUrl) {
-        selfHtml = '<img src="' + ss.data.signedUrl + '" onclick="openLightbox(\'' + ss.data.signedUrl + '\')" style="width:100%;height:140px;object-fit:cover;cursor:pointer">';
-      }
+    var ps = u.selfie_url.startsWith('http') ? (u.selfie_url.match(//documents/(.+?)(?|$)/) || [])[1] : u.selfie_url;
+    if (ps) {
+      var s = await sb.storage.from('documents').createSignedUrl(ps, 3600);
+      selfUrl = s.data && s.data.signedUrl ? s.data.signedUrl : '';
     }
   }
-  photoDiv.innerHTML = '<div class="pb">' + docHtml + '<div class="pl">Documento</div></div>' + '<div class="pb">' + selfHtml + '<div class="pl">Selfie</div></div>';
+  var html = '';
+  html += '<div class="pbox">';
+  html += docUrl ? '<img src="' + docUrl + '" alt="Doc" onclick="openLb('' + docUrl + '')">' : '<div class="nophoto">Sin foto</div>';
+  html += '<div class="plabel">Documento</div></div>';
+  html += '<div class="pbox">';
+  html += selfUrl ? '<img src="' + selfUrl + '" alt="Selfie" onclick="openLb('' + selfUrl + '')">' : '<div class="nophoto">Sin foto</div>';
+  html += '<div class="plabel">Selfie</div></div>';
+  ph.innerHTML = html;
 }
 
-function showRejectForm(id) {
-  document.getElementById('reason-' + id).classList.toggle('show');
-  document.getElementById('confirm-' + id).classList.toggle('show');
+function showReject(id) {
+  var rt = document.getElementById('rt-' + id);
+  var rc = document.getElementById('rc-' + id);
+  if (rt) rt.style.display = rt.style.display === 'block' ? 'none' : 'block';
+  if (rc) rc.style.display = rc.style.display === 'block' ? 'none' : 'block';
 }
 
-async function approveKyc(userId) {
-  var r = await sb.from('profiles').update({ verification_status: 'verified', verification_rejection_reason: null }).eq('id', userId);
-  if (r.error) { showToast('Error: ' + r.error.message, 'error'); return; }
-  var card = document.getElementById('card-' + userId);
+async function approveKyc(uid) {
+  var r = await sb.from('profiles').update({ verification_status: 'verified', verification_rejection_reason: null }).eq('id', uid);
+  if (r.error) { showToast('Error: ' + r.error.message, true); return; }
+  var card = document.getElementById('card-' + uid);
   if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(function() { card.remove(); }, 300); }
   showToast('Usuario verificado correctamente');
   loadStats();
 }
 
-async function rejectKyc(userId) {
-  var reason = (document.getElementById('reason-' + userId) || {}).value || '';
-  var r = await sb.from('profiles').update({ verification_status: 'rejected', verification_rejection_reason: reason || 'No cumple los requisitos' }).eq('id', userId);
-  if (r.error) { showToast('Error: ' + r.error.message, 'error'); return; }
-  var card = document.getElementById('card-' + userId);
+async function rejectKyc(uid) {
+  var reason = (document.getElementById('rt-' + uid) || {}).value || 'No cumple los requisitos';
+  var r = await sb.from('profiles').update({ verification_status: 'rejected', verification_rejection_reason: reason }).eq('id', uid);
+  if (r.error) { showToast('Error: ' + r.error.message, true); return; }
+  var card = document.getElementById('card-' + uid);
   if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(function() { card.remove(); }, 300); }
   showToast('Solicitud rechazada');
   loadStats();
+}
+
+function openLb(url) { document.getElementById('lbimg').src = url; document.getElementById('lb').classList.add('open'); }
+
+function showToast(msg, isErr) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = isErr ? '#ff2255' : '#00ff88';
+  t.style.color = isErr ? '#ff2255' : '#00ff88';
+  t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 3000);
 }
 
 // Auto-login if session exists
@@ -267,11 +255,11 @@ sb.auth.getSession().then(function(s) {
   if (!s.data.session) return;
   sb.from('profiles').select('username,is_admin').eq('id', s.data.session.user.id).single().then(function(p) {
     if (!p.data || !p.data.is_admin) return;
-    document.getElementById('adminName').textContent = '@' + (p.data.username || 'admin');
+    document.getElementById('an').textContent = '@' + (p.data.username || 'admin');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminDash').style.display = 'block';
     loadStats();
-    loadKycCards('pending');
+    loadCards('pending');
   });
 });
 </script>

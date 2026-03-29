@@ -740,36 +740,47 @@ function kycFileSelected(type){
 }
 
 async function submitKyc(){
-  if(!window._kycDocFile||!window._kycSelfieFile||!window.currentUser||!window.sb)return;
-  var btn=document.getElementById('kycSubmitBtn');
-  var msg=document.getElementById('kycMsg');
-  if(btn){btn.disabled=true;btn.textContent='Subiendo...';}
-  try{
-    var uid=window.currentUser.id;
-    var ts=Date.now();
-    var docPath='kyc/'+uid+'/doc_'+ts+'.jpg';
-    var selfPath='kyc/'+uid+'/selfie_'+ts+'.jpg';
-    // Upload files
-    var docUp=await window.sb.storage.from('documents').upload(docPath,window._kycDocFile,{upsert:true});
-    var selfUp=await window.sb.storage.from('documents').upload(selfPath,window._kycSelfieFile,{upsert:true});
-    if(docUp.error){throw new Error('Doc: '+docUp.error.message);}
-    if(selfUp.error){throw new Error('Selfie: '+selfUp.error.message);}
-    // Store FILE PATHS (not public URLs) - use signed URLs for viewing
-    var upd=await window.sb.from('profiles').update({
-      verification_status:'pending',
-      verification_submitted_at:new Date().toISOString(),
-      doc_url:docPath,
-      selfie_url:selfPath
-    }).eq('id',uid);
-    if(upd.error){throw new Error('DB: '+upd.error.message);}
-    if(msg){msg.textContent='\u2713 Solicitud enviada. Te notificaremos en 24-48h.';msg.style.color='#00ff88';msg.style.display='block';}
-    if(btn){btn.textContent='\u2713 Enviado';}
-    var badge=document.getElementById('kycBadge');
-    if(badge){badge.className='kyc-status kyc-pending';badge.textContent='\u23F3 PENDIENTE';}
-    setTimeout(loadKycStatus,1000);
-  }catch(e){
-    if(btn){btn.disabled=false;btn.textContent='\u{1F4E4} ENVIAR PARA VERIFICACI\xD3N';}
-    if(msg){msg.textContent='Error: '+e.message;msg.style.color='#ff2255';msg.style.display='block';}
+  var btn = document.getElementById('kycSubmitBtn');
+  var msg = document.getElementById('kycMsg');
+  // Get user from session if currentUser not set
+  if (!window.currentUser) {
+    var sess = await window.sb.auth.getSession();
+    if (sess.data && sess.data.session) window.currentUser = sess.data.session.user;
+  }
+  if (!window._kycDocFile || !window._kycSelfieFile) {
+    if (msg) { msg.textContent = 'Selecciona ambas fotos primero'; msg.style.color = '#ff2255'; msg.style.display = 'block'; }
+    return;
+  }
+  if (!window.currentUser) {
+    if (msg) { msg.textContent = 'Sesión expirada. Vuelve a iniciar sesión.'; msg.style.color = '#ff2255'; msg.style.display = 'block'; }
+    return;
+  }
+  if (!window.sb) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Subiendo...'; }
+  try {
+    var uid = window.currentUser.id;
+    var ts = Date.now();
+    var docPath = 'kyc/' + uid + '/doc_' + ts + '.jpg';
+    var selfPath = 'kyc/' + uid + '/selfie_' + ts + '.jpg';
+    var docUp = await window.sb.storage.from('documents').upload(docPath, window._kycDocFile, { upsert: true });
+    var selfUp = await window.sb.storage.from('documents').upload(selfPath, window._kycSelfieFile, { upsert: true });
+    if (docUp.error) throw new Error('Doc: ' + docUp.error.message);
+    if (selfUp.error) throw new Error('Selfie: ' + selfUp.error.message);
+    var upd = await window.sb.from('profiles').update({
+      verification_status: 'pending',
+      verification_submitted_at: new Date().toISOString(),
+      doc_url: docPath,
+      selfie_url: selfPath
+    }).eq('id', uid);
+    if (upd.error) throw new Error('DB: ' + upd.error.message);
+    if (msg) { msg.textContent = '✓ Documentos enviados. Revisaremos en 24-48h.'; msg.style.color = '#00ff88'; msg.style.display = 'block'; }
+    if (btn) { btn.textContent = '✓ Enviado'; }
+    var badge = document.getElementById('kycBadge');
+    if (badge) { badge.className = 'kyc-status kyc-pending'; badge.textContent = '⏳ PENDIENTE'; }
+    setTimeout(loadKycStatus, 1500);
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'ENVIAR PARA VERIFICACIÓN'; }
+    if (msg) { msg.textContent = 'Error: ' + e.message; msg.style.color = '#ff2255'; msg.style.display = 'block'; }
   }
 }
 

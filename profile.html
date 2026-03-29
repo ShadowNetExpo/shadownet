@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET — Perfil</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,12,.95);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px}
+.logo{font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
+.back-btn{padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;border:1px solid #0d2744;background:transparent;color:#5a8aaa}
+.back-btn:hover{border-color:#00e5ff;color:#00e5ff}
+.wrap{max-width:700px;margin:0 auto;padding:0 0 40px}
+.cover{height:200px;background:linear-gradient(135deg,#0a0518,#1a0520,#0d1035);position:relative;overflow:hidden}
+.cover-edit{position:absolute;bottom:12px;right:12px}
+.cover-edit-btn{padding:6px 12px;background:rgba(1,2,12,.7);border:1px solid rgba(255,255,255,.2);color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer}
+.profile-header{padding:0 20px 20px;position:relative}
+.avatar-wrap{position:relative;display:inline-block;margin-top:-50px;margin-bottom:12px}
+.avatar-lg{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:36px;color:#fff;border:3px solid #01020c;overflow:hidden}
+.avatar-lg img{width:100%;height:100%;object-fit:cover}
+.avatar-edit-btn{position:absolute;bottom:4px;right:4px;width:26px;height:26px;border-radius:50%;background:#00e5ff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px}
+.profile-info{margin-bottom:16px}
+.profile-name{font-family:Orbitron,sans-serif;font-size:18px;color:#e8f4ff;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.verified-badge{background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.4);color:#00e5ff;padding:3px 8px;border-radius:12px;font-size:10px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em}
+.profile-bio{font-size:14px;color:#8a9bb0;line-height:1.5;margin-bottom:12px}
+.bio-placeholder{color:#3a5060;font-style:italic}
+.profile-stats{display:flex;gap:24px;margin-bottom:16px}
+.stat{text-align:center;cursor:pointer}
+.stat-num{font-family:Orbitron,sans-serif;font-size:18px;color:#e8f4ff}
+.stat-lbl{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em}
+.profile-actions{display:flex;gap:10px;flex-wrap:wrap}
+.follow-btn-lg{padding:10px 28px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;border:none;background:linear-gradient(135deg,#00e5ff,#0060cc);color:#000}
+.follow-btn-lg.following{background:transparent;border:1px solid #5a8aaa;color:#5a8aaa}
+.edit-profile-btn{padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;border:1px solid #0d2744;background:transparent;color:#e8f4ff}
+.edit-profile-btn:hover{border-color:#00e5ff;color:#00e5ff}
+.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:4px}
+.post-thumb{aspect-ratio:1;overflow:hidden;cursor:pointer;background:rgba(7,15,30,.5);position:relative}
+.post-thumb img,.post-thumb video{width:100%;height:100%;object-fit:cover}
+.post-thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .2s;display:flex;align-items:center;justify-content:center;opacity:0}
+.post-thumb:hover .post-thumb-overlay{background:rgba(0,0,0,.5);opacity:1}
+.post-thumb-likes{color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px}
+.no-posts{grid-column:1/-1;text-align:center;padding:48px;color:#5a8aaa}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:none;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modal-box{background:#070f1e;border:1px solid #0d2744;border-radius:12px;padding:24px;width:100%;max-width:440px;margin:0 16px}
+.modal-title{font-family:Orbitron,sans-serif;font-size:13px;color:#00e5ff;margin-bottom:16px;letter-spacing:.1em}
+.inp{width:100%;padding:10px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none}
+.inp:focus{border-color:#00e5ff}
+textarea.inp{resize:none;height:80px}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.save-btn{padding:10px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
+.cancel-btn{padding:10px 16px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+.divider{border:none;border-top:1px solid #0d2744;margin:16px 20px}
+@media(max-width:480px){.posts-grid{grid-template-columns:repeat(2,1fr)}.profile-stats{gap:14px}}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="window.location.href='/'">SHADOWNET</span>
+  <button class="back-btn" onclick="history.back()">&#8592; Volver</button>
+</header>
+<div id="profileWrap" class="wrap">
+  <div class="cover" id="coverEl">
+    <label class="cover-edit" id="coverEditBtn" style="display:none"><input type="file" id="coverInput" accept="image/*" style="display:none"><button class="cover-edit-btn" onclick="document.getElementById('coverInput').click()">&#128247; Cambiar portada</button></label>
+  </div>
+  <div class="profile-header">
+    <div class="avatar-wrap">
+      <div class="avatar-lg" id="avatarEl">?</div>
+      <label id="avatarEditBtn" style="display:none"><input type="file" id="avatarInput" accept="image/*" style="display:none"><button class="avatar-edit-btn" onclick="document.getElementById('avatarInput').click()">&#9998;</button></label>
+    </div>
+    <div class="profile-info">
+      <div class="profile-name" id="profileName">Cargando...</div>
+      <div class="profile-bio" id="profileBio"><span class="bio-placeholder">Sin biografia</span></div>
+    </div>
+    <div class="profile-stats">
+      <div class="stat"><div class="stat-num" id="statPosts">0</div><div class="stat-lbl">Posts</div></div>
+      <div class="stat"><div class="stat-num" id="statFollowers">0</div><div class="stat-lbl">Seguidores</div></div>
+      <div class="stat"><div class="stat-num" id="statFollowing">0</div><div class="stat-lbl">Siguiendo</div></div>
+    </div>
+    <div class="profile-actions" id="profileActions"></div>
+  </div>
+  <hr class="divider">
+  <div class="posts-grid" id="postsGrid"><div class="no-posts">Cargando...</div></div>
+</div>
+<div id="editModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title">EDITAR PERFIL</div>
+    <input class="inp" id="editBio" placeholder="Tu biografia...">
+    <div class="modal-btns">
+      <button class="cancel-btn" onclick="document.getElementById('editModal').classList.remove('open')">Cancelar</button>
+      <button class="save-btn" onclick="saveProfile()">Guardar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var SB_URL = "https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY = "sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var currentUser = null;
+var profileData = null;
+var isOwnProfile = false;
+
+var params = new URLSearchParams(location.search);
+var targetUsername = params.get("u");
+var targetId = params.get("id");
+
+sb.auth.getSession().then(function(r) {
+  if (r.data.session) currentUser = r.data.session.user;
+  loadProfile();
+});
+
+async function loadProfile() {
+  var query;
+  if (targetUsername) query = sb.from("profiles").select("*").eq("username", targetUsername).single();
+  else if (targetId) query = sb.from("profiles").select("*").eq("id", targetId).single();
+  else if (currentUser) query = sb.from("profiles").select("*").eq("id", currentUser.id).single();
+  else { document.getElementById("profileName").textContent = "Perfil no encontrado"; return; }
+  var r = await query;
+  if (r.error || !r.data) { document.getElementById("profileName").textContent = "Usuario no encontrado"; return; }
+  profileData = r.data;
+  isOwnProfile = currentUser && currentUser.id === r.data.id;
+  renderProfile(r.data);
+  loadPosts(r.data.id);
+  if (isOwnProfile) {
+    document.getElementById("coverEditBtn").style.display = "block";
+    document.getElementById("avatarEditBtn").style.display = "block";
+  }
+}
+
+async function renderProfile(p) {
+  document.title = "@" + p.username + " — SHADOWNET";
+  var nameEl = document.getElementById("profileName");
+  nameEl.textContent = "@" + p.username;
+  if (p.verification_status === "verified") {
+    var badge = document.createElement("span"); badge.className = "verified-badge"; badge.textContent = "\u2713 VERIFICADO";
+    nameEl.appendChild(badge);
+  }
+  var bioEl = document.getElementById("profileBio");
+  bioEl.innerHTML = p.bio ? p.bio : '<span class="bio-placeholder">Sin biograf\xEDa</span>';
+  document.getElementById("statPosts").textContent = p.posts_count || 0;
+  document.getElementById("statFollowers").textContent = p.followers_count || 0;
+  document.getElementById("statFollowing").textContent = p.following_count || 0;
+  var av = document.getElementById("avatarEl");
+  if (p.avatar_url) { av.innerHTML = '<img src="' + p.avatar_url + '">'; }
+  else av.textContent = p.username[0].toUpperCase();
+  var cover = document.getElementById("coverEl");
+  if (p.cover_url) cover.style.backgroundImage = 'url("' + p.cover_url + '")'; 
+  var actions = document.getElementById("profileActions");
+  actions.innerHTML = "";
+  if (isOwnProfile) {
+    var editBtn = document.createElement("button"); editBtn.className = "edit-profile-btn"; editBtn.textContent = "\u270E Editar perfil";
+    editBtn.addEventListener("click", function() {
+      document.getElementById("editBio").value = profileData.bio || "";
+      document.getElementById("editModal").classList.add("open");
+    });
+    actions.appendChild(editBtn);
+    var feedBtn = document.createElement("button"); feedBtn.className = "edit-profile-btn"; feedBtn.textContent = "\uD83D\uDCF0 Ver Feed";
+    feedBtn.addEventListener("click", function() { window.location.href = "/feed.html"; });
+    actions.appendChild(feedBtn);
+  } else if (currentUser) {
+    var followBtn = document.createElement("button"); followBtn.className = "follow-btn-lg"; followBtn.textContent = "Seguir";
+    followBtn.dataset.uid = p.id; followBtn.dataset.following = "0";
+    followBtn.addEventListener("click", function() { toggleFollow(this); });
+    var fr = await sb.from("follows").select("id").eq("follower_id", currentUser.id).eq("following_id", p.id).single();
+    if (fr.data) { followBtn.textContent = "Siguiendo"; followBtn.classList.add("following"); followBtn.dataset.following = "1"; }
+    actions.appendChild(followBtn);
+  }
+}
+
+async function loadPosts(userId) {
+  var grid = document.getElementById("postsGrid");
+  var r = await sb.from("posts").select("id,media_url,media_type,likes_count,content").eq("user_id", userId).order("created_at",{ascending:false}).limit(30);
+  if (r.error || !r.data || r.data.length === 0) { grid.innerHTML = '<div class="no-posts">Sin publicaciones a\xFAn</div>'; return; }
+  grid.innerHTML = "";
+  r.data.forEach(function(post) {
+    var thumb = document.createElement("div"); thumb.className = "post-thumb";
+    thumb.addEventListener("click", function() { window.location.href = "/feed.html"; });
+    if (post.media_url) {
+      var img = document.createElement("img"); img.src = post.media_url; img.alt = "post"; thumb.appendChild(img);
+    } else {
+      var txt = document.createElement("div"); txt.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:12px;font-size:12px;color:#5a8aaa;text-align:center";
+      txt.textContent = (post.content || "").slice(0,60);
+      thumb.appendChild(txt);
+    }
+    var ov = document.createElement("div"); ov.className = "post-thumb-overlay";
+    ov.innerHTML = '&#10084; ' + (post.likes_count || 0);
+    ov.className = "post-thumb-overlay post-thumb-likes";
+    thumb.appendChild(ov);
+    grid.appendChild(thumb);
+  });
+}
+
+async function toggleFollow(btn) {
+  if (!currentUser) { window.location.href = "/"; return; }
+  var uid = btn.dataset.uid;
+  var isFollowing = btn.dataset.following === "1";
+  if (isFollowing) {
+    await sb.from("follows").delete().eq("follower_id", currentUser.id).eq("following_id", uid);
+    btn.textContent = "Seguir"; btn.classList.remove("following"); btn.dataset.following = "0";
+    var fc = document.getElementById("statFollowers");
+    if (fc) fc.textContent = Math.max(0, parseInt(fc.textContent)-1);
+    showToast("Dejaste de seguir");
+  } else {
+    await sb.from("follows").insert({ follower_id: currentUser.id, following_id: uid });
+    btn.textContent = "Siguiendo"; btn.classList.add("following"); btn.dataset.following = "1";
+    var fc2 = document.getElementById("statFollowers");
+    if (fc2) fc2.textContent = parseInt(fc2.textContent)+1;
+    showToast("\u2713 Ahora sigues a @" + (profileData.username||""));
+  }
+}
+
+async function saveProfile() {
+  var bio = document.getElementById("editBio").value.trim();
+  await sb.from("profiles").update({ bio: bio }).eq("id", currentUser.id);
+  profileData.bio = bio;
+  document.getElementById("profileBio").innerHTML = bio || '<span class="bio-placeholder">Sin biograf\xEDa</span>';
+  document.getElementById("editModal").classList.remove("open");
+  showToast("\u2713 Perfil actualizado");
+}
+
+document.getElementById("avatarInput").addEventListener("change", async function() {
+  var file = this.files[0]; if (!file || !currentUser) return;
+  var path = "avatars/" + currentUser.id + "." + file.name.split(".").pop();
+  var up = await sb.storage.from("media").upload(path, file, {upsert:true});
+  if (up.error) { showToast("Error subiendo avatar", true); return; }
+  var url = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
+  await sb.from("profiles").update({ avatar_url: url }).eq("id", currentUser.id);
+  var av = document.getElementById("avatarEl"); av.innerHTML = '<img src="' + url + '">'; 
+  showToast("\u2713 Avatar actualizado");
+});
+
+document.getElementById("coverInput").addEventListener("change", async function() {
+  var file = this.files[0]; if (!file || !currentUser) return;
+  var path = "covers/" + currentUser.id + "." + file.name.split(".").pop();
+  var up = await sb.storage.from("media").upload(path, file, {upsert:true});
+  if (up.error) { showToast("Error subiendo portada", true); return; }
+  var url = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
+  await sb.from("profiles").update({ cover_url: url }).eq("id", currentUser.id);
+  document.getElementById("coverEl").style.backgroundImage = 'url("' + url + '")'; document.getElementById("coverEl").style.backgroundSize = "cover"; document.getElementById("coverEl").style.backgroundPosition = "center";
+  showToast("\u2713 Portada actualizada");
+});
+
+function showToast(msg, err) {
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.style.borderColor = err?"#ff2255":"#00ff88"; t.style.color = err?"#ff2255":"#00ff88";
+  t.style.display = "block"; setTimeout(function(){t.style.display="none";},2500);
+}
+</script>
+</body>
+</html>

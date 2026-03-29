@@ -85,6 +85,29 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .premium-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:#5a8aaa;cursor:pointer;padding:4px 0}
 .premium-toggle input{cursor:pointer;accent-color:#ff2255}
 .post-premium-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff6680;margin-left:6px}
+
+.report-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center}
+.report-modal.open{display:flex}
+.report-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:24px;width:100%;max-width:400px;margin:0 16px}
+.report-title{font-family:Orbitron,sans-serif;font-size:13px;color:#ff2255;letter-spacing:.1em;margin-bottom:6px}
+.report-sub{font-size:13px;color:#5a8aaa;margin-bottom:18px;line-height:1.5}
+.report-reasons{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.report-reason{padding:10px 14px;background:rgba(1,2,12,.6);border:1px solid #0d2744;border-radius:8px;cursor:pointer;font-size:13px;color:#c8d8e8;transition:all .15s;display:flex;align-items:center;gap:10px}
+.report-reason:hover,.report-reason.sel{border-color:#ff2255;background:rgba(255,34,85,.1);color:#ff6680}
+.report-reason-icon{font-size:16px;flex-shrink:0}
+.report-detail{width:100%;padding:10px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;resize:none;height:70px;margin-bottom:14px;outline:none;display:none}
+.report-detail.show{display:block}
+.report-detail:focus{border-color:#ff2255}
+.report-btns{display:flex;gap:8px}
+.rpt-cancel{flex:1;padding:10px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+.rpt-submit{flex:2;padding:10px;background:#ff2255;color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
+.rpt-submit:disabled{opacity:.4;cursor:not-allowed}
+/* 3-dot menu on posts */
+.post-menu-btn{background:none;border:none;color:#5a8aaa;font-size:18px;cursor:pointer;padding:0 6px;line-height:1;margin-left:auto}
+.post-menu-btn:hover{color:#e8f4ff}
+.post-menu{position:absolute;top:40px;right:8px;background:#070f1e;border:1px solid #0d2744;border-radius:8px;padding:4px;z-index:50;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.post-menu-item{padding:8px 14px;font-size:13px;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;color:#c8d8e8}
+.post-menu-item:hover{background:rgba(255,34,85,.1);color:#ff6680}
 </style>
 </head>
 <body>
@@ -251,6 +274,13 @@ function buildPostCard(post, profile, liked, saved) {
     fbtn.addEventListener("click",function(){toggleFollow(this);});
     checkFollowing(post.user_id,fbtn);
     header.appendChild(fbtn);
+  }
+  // 3-dot menu for all posts
+  if(currentUser){
+    var menuBtn=document.createElement("button");menuBtn.className="post-menu-btn";menuBtn.textContent="\u22EE";menuBtn.dataset.postId=post.id;menuBtn.dataset.postUser=post.user_id;
+    menuBtn.addEventListener("click",function(e){e.stopPropagation();openPostMenu(this);});
+    header.style.position="relative";
+    header.appendChild(menuBtn);
   }
   card.appendChild(header);
   // Media
@@ -581,6 +611,98 @@ async function submitReport(){
   document.getElementById("reportModal").classList.remove("open");
   showToast("\u2713 Reporte enviado. Lo revisaremos pronto.");
 }
+
+// =============================================
+// SISTEMA DE REPORTES
+// =============================================
+var _reportPostId = null;
+var _reportUserId = null;
+var _reportReason = null;
+var REPORT_REASONS = [
+  {id:"spam",icon:"\uD83D\uDCE3",label:"Spam o publicidad"},
+  {id:"nudity",icon:"\uD83D\uDEAB",label:"Desnudez no autorizada"},
+  {id:"harassment",icon:"\u26A0\uFE0F",label:"Acoso o bullying"},
+  {id:"fake",icon:"\uD83D\uDC64",label:"Cuenta o contenido falso"},
+  {id:"violence",icon:"\uD83D\uDCA5",label:"Violencia o contenido peligroso"},
+  {id:"minors",icon:"\uD83D\uDEE1\uFE0F",label:"Contenido con menores"},
+  {id:"other",icon:"\u2753",label:"Otro motivo"}
+];
+
+function openReport(postId, userId){
+  _reportPostId=postId; _reportUserId=userId; _reportReason=null;
+  var reasons=document.getElementById("reportReasons");
+  reasons.innerHTML="";
+  REPORT_REASONS.forEach(function(r){
+    var item=document.createElement("div");item.className="report-reason";item.dataset.id=r.id;
+    item.innerHTML="<span class=\"report-reason-icon\">"+r.icon+"</span>"+r.label;
+    item.addEventListener("click",function(){
+      document.querySelectorAll(".report-reason").forEach(function(el){el.classList.remove("sel");});
+      this.classList.add("sel");
+      _reportReason=this.dataset.id;
+      document.getElementById("rptSubmitBtn").disabled=false;
+      var det=document.getElementById("reportDetail");
+      det.classList.toggle("show",_reportReason==="other");
+    });
+    reasons.appendChild(item);
+  });
+  document.getElementById("reportDetail").value="";
+  document.getElementById("reportDetail").classList.remove("show");
+  document.getElementById("rptSubmitBtn").disabled=true;
+  document.getElementById("reportModal").classList.add("open");
+}
+
+function closeReport(){
+  document.getElementById("reportModal").classList.remove("open");
+  _reportPostId=null; _reportUserId=null; _reportReason=null;
+}
+
+async function submitReport(){
+  if(!currentUser||!_reportReason) return;
+  var details=document.getElementById("reportDetail").value.trim();
+  var r=await sb.from("reports").insert({
+    reporter_id:currentUser.id,
+    reported_user_id:_reportUserId||null,
+    post_id:_reportPostId||null,
+    reason:_reportReason,
+    details:details||null
+  });
+  closeReport();
+  if(r.error){showToast("Error al enviar reporte",true);}
+  else{showToast("\u2713 Reporte enviado. Gracias.");}
+}
+
+// Close menu when clicking outside
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".post-menu")&&!e.target.closest(".post-menu-btn")){
+    document.querySelectorAll(".post-menu").forEach(function(m){m.remove();});
+  }
+});
+
+function openPostMenu(btn){
+  document.querySelectorAll(".post-menu").forEach(function(m){m.remove();});
+  var postId=btn.dataset.postId;
+  var postUser=btn.dataset.postUser;
+  var isOwn=currentUser&&postUser===currentUser.id;
+  var menu=document.createElement("div");menu.className="post-menu";
+  if(!isOwn){
+    var reportItem=document.createElement("div");reportItem.className="post-menu-item";
+    reportItem.innerHTML="\u26A0\uFE0F Reportar";
+    reportItem.addEventListener("click",function(){menu.remove();openReport(postId,postUser);});
+    menu.appendChild(reportItem);
+  }
+  var shareItem=document.createElement("div");shareItem.className="post-menu-item";
+  shareItem.innerHTML="\uD83D\uDD17 Copiar link";
+  shareItem.addEventListener("click",function(){menu.remove();sharePost(postId,"usuario");});
+  menu.appendChild(shareItem);
+  if(isOwn){
+    var delItem=document.createElement("div");delItem.className="post-menu-item";
+    delItem.style.color="#ff2255";
+    delItem.innerHTML="\uD83D\uDDD1 Eliminar post";
+    delItem.addEventListener("click",function(){menu.remove();deletePost(postId);});
+    menu.appendChild(delItem);
+  }
+  btn.parentNode.appendChild(menu);
+}
 </script>
 
 <!-- Report Modal -->
@@ -607,6 +729,20 @@ async function submitReport(){
       <button onclick="submitReport()" style="flex:2;padding:10px;background:#ff2255;color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase">Enviar Reporte</button>
     </div>
     <p id="reportMsg" style="font-size:12px;margin-top:8px;display:none"></p>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="report-modal" id="reportModal">
+  <div class="report-box">
+    <div class="report-title">&#128679; REPORTAR CONTENIDO</div>
+    <div class="report-sub">Selecciona el motivo del reporte. Los reportes son an&#243;nimos.</div>
+    <div class="report-reasons" id="reportReasons"></div>
+    <textarea class="report-detail" id="reportDetail" placeholder="Detalles adicionales (opcional)..."></textarea>
+    <div class="report-btns">
+      <button class="rpt-cancel" onclick="closeReport()">Cancelar</button>
+      <button class="rpt-submit" id="rptSubmitBtn" onclick="submitReport()" disabled>Enviar Reporte</button>
+    </div>
   </div>
 </div>
 </body>

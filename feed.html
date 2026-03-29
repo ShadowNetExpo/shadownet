@@ -229,6 +229,32 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .suggestion-reason{font-size:11px;color:#5a8aaa}
 .suggestion-follow-btn{padding:6px 14px;background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;flex-shrink:0}
 .suggestion-follow-btn.following{background:transparent;color:#5a8aaa;border-color:#0d2744}
+
+/* OnlyFans-style Tips */
+.tip-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;transition:all .2s}
+.tip-btn:hover{background:linear-gradient(135deg,rgba(255,170,0,.3),rgba(200,80,0,.15));border-color:#ffaa00}
+.tip-total{font-size:11px;color:#ffaa00;padding:2px 8px}
+/* Tip modal */
+.tip-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center}
+.tip-modal.open{display:flex}
+.tip-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:24px;width:100%;max-width:360px;margin:0 16px}
+.tip-box-title{font-family:Orbitron,sans-serif;font-size:13px;color:#ffaa00;letter-spacing:.1em;margin-bottom:6px}
+.tip-box-sub{font-size:12px;color:#5a8aaa;margin-bottom:16px}
+.tip-amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.tip-amount-btn{padding:10px 6px;border:1px solid #0d2744;background:rgba(255,170,0,.08);color:#ffaa00;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-align:center;transition:all .2s}
+.tip-amount-btn:hover,.tip-amount-btn.selected{border-color:#ffaa00;background:rgba(255,170,0,.2)}
+.tip-custom{width:100%;padding:10px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;margin-bottom:8px}
+.tip-custom:focus{border-color:#ffaa00}
+.tip-msg-inp{width:100%;padding:8px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none;margin-bottom:14px}
+.tip-send-btn{width:100%;padding:12px;background:linear-gradient(135deg,#ffaa00,#cc6600);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
+.tip-cancel{width:100%;margin-top:8px;padding:8px;background:transparent;border:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer}
+/* Premium preview counter */
+.premium-counter{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.75);color:#fff;font-size:12px;font-weight:800;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px}
+/* Discount banner on profile */
+.discount-banner{background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.discount-pct{font-family:Orbitron,sans-serif;font-size:20px;color:#ff2255;font-weight:900}
+.discount-info{font-size:12px;color:#c8d8e8;margin-left:10px}
+.discount-timer{font-size:11px;color:#ff6680;font-weight:700}
 </style>
 </head>
 <body>
@@ -454,6 +480,22 @@ function buildPostCard(post, profile, liked, saved) {
     locEl.innerHTML="\uD83D\uDCCD "+post.location;
     locEl.addEventListener("click",function(){window.location.href="/search.html?q="+encodeURIComponent(post.location);});
     card.appendChild(locEl);
+  }
+  // Tip button (OnlyFans style)
+  if(profile&&currentUser&&profile.id!==currentUser.id&&profile.role==="creator"){
+    var tipBtn=document.createElement("button");tipBtn.className="tip-btn";
+    tipBtn.innerHTML="\uD83D\uDCB0 Propina";
+    tipBtn.dataset.postId=post.id;
+    tipBtn.dataset.creatorId=profile.id;
+    tipBtn.dataset.username=profile.username||"";
+    tipBtn.addEventListener("click",function(){openTipModal(post.id,profile.id,profile.username||"");});
+    // Show tips total if exists
+    if(post.tips_total>0){
+      var tipsTotal=document.createElement("span");tipsTotal.className="tip-total";
+      tipsTotal.textContent="$"+parseFloat(post.tips_total).toFixed(0)+" en propinas";
+      card.appendChild(tipsTotal);
+    }
+    card.appendChild(tipBtn);
   }
   // Audio attribution
   if(post.media_url&&post.media_type==="video"){
@@ -1279,6 +1321,58 @@ async function insertSuggestionCard(afterCard){
   if(afterCard&&afterCard.nextSibling)afterCard.parentNode.insertBefore(div,afterCard.nextSibling);
   else document.getElementById("feedContainer")?.appendChild(div);
 }
+
+// =============================================
+// ONLYFANS: TIPS EN POSTS
+// =============================================
+var _tipPostId=null, _tipCreatorId=null, _tipCreatorUsername='', _tipAmount=5;
+
+function openTipModal(postId, creatorId, creatorUsername){
+  if(!currentUser){showToast("Inicia sesion para dar propina",true);return;}
+  if(currentUser.id===creatorId){showToast("No puedes darte propina a ti mismo",true);return;}
+  _tipPostId=postId; _tipCreatorId=creatorId; _tipCreatorUsername=creatorUsername; _tipAmount=5;
+  document.getElementById("tipBoxSub").textContent="Apoyar a @"+creatorUsername;
+  document.getElementById("tipCustomInp").value="";
+  document.getElementById("tipMsgInp").value="";
+  document.querySelectorAll(".tip-amount-btn").forEach(function(b){b.classList.remove("selected");});
+  document.querySelector(".tip-amount-btn:nth-child(2)")?.classList.add("selected");
+  document.getElementById("tipModal").classList.add("open");
+}
+
+function selectTipAmount(amt, el){
+  _tipAmount=amt;
+  document.querySelectorAll(".tip-amount-btn").forEach(function(b){b.classList.remove("selected");});
+  el.classList.add("selected");
+  document.getElementById("tipCustomInp").value="";
+}
+
+async function sendTip(){
+  if(!currentUser||!_tipPostId||!_tipCreatorId)return;
+  var custom=parseFloat(document.getElementById("tipCustomInp").value);
+  var amount=custom>0?custom:_tipAmount;
+  if(amount<1){showToast("Propina minima: $1",true);return;}
+  var msg=document.getElementById("tipMsgInp").value.trim();
+
+  // Save tip to DB
+  await sb.from("post_tips").insert({post_id:_tipPostId,from_user_id:currentUser.id,to_user_id:_tipCreatorId,amount:amount,message:msg||null});
+  // Update tips total on post
+  await sb.from("posts").update({tips_total:amount}).eq("id",_tipPostId);
+  // Notify creator
+  await sb.from("notifications").insert({user_id:_tipCreatorId,from_user_id:currentUser.id,type:"tip",message:"@"+(currentProfile?.username||"alguien")+" te envio una propina de $"+amount.toFixed(2)+(msg?" con mensaje: "+msg:"")});
+
+  document.getElementById("tipModal").classList.remove("open");
+  showToast("\uD83D\uDCB0 Propina de $"+amount.toFixed(2)+" enviada a @"+_tipCreatorUsername+"!");
+
+  // Open PayPal
+  if(_tipCreatorId){
+    sb.from("profiles").select("paypal_email").eq("id",_tipCreatorId).single().then(function(r){
+      if(r.data?.paypal_email){
+        var handle=r.data.paypal_email.replace(/@.*/,"");
+        window.open("https://www.paypal.com/paypalme/"+handle+"/"+amount,"_blank");
+      }
+    });
+  }
+}
 </script>
 
 <!-- Report Modal -->
@@ -1361,6 +1455,25 @@ async function insertSuggestionCard(afterCard){
     <input class="coll-new-inp" id="collNewInp" placeholder="Nombre de la coleccion...">
     <button class="coll-save-btn" id="collSaveBtn" onclick="saveNewCollection()">Crear y guardar</button>
     <button class="coll-new-btn" id="collNewBtn" onclick="toggleNewCollection()">+ Nueva coleccion</button>
+  </div>
+</div>
+<!-- Tips Modal -->
+<div class="tip-modal" id="tipModal">
+  <div class="tip-box">
+    <div class="tip-box-title">&#128176; ENVIAR PROPINA</div>
+    <div class="tip-box-sub" id="tipBoxSub">Apoya a este creador</div>
+    <div class="tip-amounts">
+      <div class="tip-amount-btn" onclick="selectTipAmount(3,this)">$3</div>
+      <div class="tip-amount-btn" onclick="selectTipAmount(5,this)">$5</div>
+      <div class="tip-amount-btn" onclick="selectTipAmount(10,this)">$10</div>
+      <div class="tip-amount-btn" onclick="selectTipAmount(20,this)">$20</div>
+      <div class="tip-amount-btn" onclick="selectTipAmount(50,this)">$50</div>
+      <div class="tip-amount-btn" onclick="selectTipAmount(100,this)">$100</div>
+    </div>
+    <input class="tip-custom" id="tipCustomInp" type="number" placeholder="Cantidad personalizada ($)" min="1">
+    <input class="tip-msg-inp" id="tipMsgInp" placeholder="Mensaje opcional..." maxlength="100">
+    <button class="tip-send-btn" onclick="sendTip()">&#128176; Enviar Propina</button>
+    <button class="tip-cancel" onclick="document.getElementById('tipModal').classList.remove('open')">Cancelar</button>
   </div>
 </div>
 </body>

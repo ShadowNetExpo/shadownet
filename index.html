@@ -289,7 +289,7 @@ body.has-nav .dashPage{padding-bottom:70px}
   <div class="nav-btns">
     <button class="btn bg" id="loginBtn" onclick="openAuth('login')">Iniciar sesion</button>
     <button class="btn bp" id="registerBtn" onclick="openAuth('register')">Registrarse</button>
-    <button class="btn bg" id="notifBell" onclick="toggleNotifPanel()" style="display:none"><span class="notif-bell">&#128276;<span class="notif-dot" id="notifDot"></span></span></button> <button id="searchHeaderBtn" onclick="window.location.href='/search.html'" style="display:none;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#00e5ff;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase">&#128269;</button> <button id="logoutBtn" style="display:none" onclick="doLogout()">Salir</button>
+    <button class="btn bg" id="notifBell" onclick="toggleNotifPanel()" style="display:none"><span class="notif-bell">&#128276;<span class="notif-dot" id="notifDot"></span></span></button> <button id="settingsHeaderBtn" onclick="window.location.href='/settings.html'" style="display:none;background:rgba(255,255,255,.06);border:1px solid #0d2744;color:#5a8aaa;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase">&#9881;</button> <button id="searchHeaderBtn" onclick="window.location.href='/search.html'" style="display:none;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#00e5ff;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase">&#128269;</button> <button id="logoutBtn" style="display:none" onclick="doLogout()">Salir</button>
   </div>
 </nav>
 <div class="mbg" id="authModal">
@@ -1553,6 +1553,9 @@ function subscribeNotifBadge(){
   </button>
   <button class="bn-item" onclick="window.location.href='/profile.html'">
     <span class="bn-icon">&#128100;</span>Perfil
+  </button>
+  <button class="bn-item" onclick="window.location.href='/settings.html'">
+    <span class="bn-icon">&#9881;&#65039;</span>Config
   </button>
 </nav>
 <!-- Gift Modal -->

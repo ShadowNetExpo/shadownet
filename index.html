@@ -327,7 +327,7 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
         <button onclick="window.location.href='/live.html'" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128308; Ir en vivo</button>
-<button onclick="openKyc()" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff;font-size:11px;padding:8px 14px">&#128274; Verificar cuenta</button>
+<button id="verifyAccountBtn" onclick="openKyc()" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff;font-size:11px;padding:8px 14px">&#128274; Verificar cuenta</button>
       </div>
     </div>
     <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.<br>Proximamente: Regalos &middot; Feed &middot; KYC</p>
@@ -658,23 +658,33 @@ function loadKycStatus(){
   window.sb.from('profiles').select('verification_status,doc_url,selfie_url').eq('id',window.currentUser.id).single()
     .then(async function(r){
       if(!r.data)return;
-      var status=r.data.verification_status||'unverified';
-      var badge=document.getElementById('kycBadge');
-      var content=document.getElementById('kycContent');
+      var status = r.data.verification_status || 'unverified';
+      var badge = document.getElementById('kycBadge');
+      var content = document.getElementById('kycContent');
+      var verifyBtn = document.getElementById('verifyAccountBtn');
+      var kycSection = document.getElementById('kycSection');
       if(badge){
-        badge.className='kyc-status';
+        badge.className = 'kyc-status';
         if(status==='unverified'){badge.classList.add('kyc-unverified');badge.textContent='SIN VERIFICAR';}
         else if(status==='pending'){badge.classList.add('kyc-pending');badge.textContent='⏳ PENDIENTE';}
         else if(status==='verified'){badge.classList.add('kyc-verified');badge.textContent='✓ VERIFICADO';}
         else if(status==='rejected'){badge.classList.add('kyc-unverified');badge.textContent='✖ RECHAZADO';}
       }
-      if(status==='verified'&&content){
-        content.innerHTML='<p style="color:#00ff88;font-size:13px;text-align:center;padding:16px">✅ Tu cuenta está verificada.</p>';
-        var dashUser=document.getElementById('dashUser');
-        if(dashUser&&!document.querySelector('.verified-badge')){
-          var b2=document.createElement('span');b2.className='verified-badge';b2.innerHTML='✓ VERIFICADO';b2.style.marginLeft='8px';
-          dashUser.parentNode.insertBefore(b2,dashUser.nextSibling);
+      if(status==='verified'){
+        // Ocultar botón Verificar cuenta del dashboard
+        if(verifyBtn) verifyBtn.style.display = 'none';
+        // Ocultar toda la sección KYC
+        if(kycSection) kycSection.style.display = 'none';
+        // Mostrar badge verificado en el nombre
+        var dashUser = document.getElementById('dashUser');
+        if(dashUser && !document.querySelector('.verified-badge')){
+          var b2 = document.createElement('span');
+          b2.className = 'verified-badge';
+          b2.innerHTML = '✓ VERIFICADO';
+          b2.style.marginLeft = '8px';
+          dashUser.parentNode.insertBefore(b2, dashUser.nextSibling);
         }
+        if(content) content.innerHTML = '<p style="color:#00ff88;font-size:13px;text-align:center;padding:16px">✅ Tu cuenta está verificada.</p>';
       } else if(status==='pending'&&content){
         var docSigned='',selfSigned='';
         if(r.data.doc_url){var d=await window.sb.storage.from('documents').createSignedUrl(r.data.doc_url,3600);docSigned=d.data&&d.data.signedUrl?d.data.signedUrl:'';}
@@ -686,18 +696,18 @@ function loadKycStatus(){
           if(selfSigned)html+='<div><p style="font-size:10px;color:#5a8aaa;text-align:center;margin-bottom:4px">SELFIE</p><img src="'+selfSigned+'" style="width:100%;border-radius:6px;border:1px solid #0d2744"></div>';
           html+='</div>';
         }
-        content.innerHTML=html;
-        var reBtn=document.createElement('button');
-        reBtn.style.cssText='width:100%;padding:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;margin-top:4px';
-        reBtn.textContent='↺ Volver a enviar documentos';
-        reBtn.addEventListener('click',showKycUploadForm);
+        content.innerHTML = html;
+        var reBtn = document.createElement('button');
+        reBtn.style.cssText = 'width:100%;padding:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;margin-top:4px';
+        reBtn.textContent = '↺ Volver a enviar documentos';
+        reBtn.addEventListener('click', showKycUploadForm);
         content.appendChild(reBtn);
       } else if(status==='rejected'&&content){
-        content.innerHTML='<p style="color:#ff2255;font-size:13px;text-align:center;padding:12px">✖ Solicitud rechazada. Sube nuevos documentos.</p>';
-        var reBtn2=document.createElement('button');
-        reBtn2.style.cssText='width:100%;padding:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;margin-top:8px';
-        reBtn2.textContent='↺ Enviar nuevos documentos';
-        reBtn2.addEventListener('click',showKycUploadForm);
+        content.innerHTML = '<p style="color:#ff2255;font-size:13px;text-align:center;padding:12px">✖ Solicitud rechazada. Sube nuevos documentos.</p>';
+        var reBtn2 = document.createElement('button');
+        reBtn2.style.cssText = 'width:100%;padding:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;margin-top:8px';
+        reBtn2.textContent = '↺ Enviar nuevos documentos';
+        reBtn2.addEventListener('click', showKycUploadForm);
         content.appendChild(reBtn2);
       } else if(status==='unverified'&&content){
         showKycUploadForm();

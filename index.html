@@ -701,39 +701,36 @@ function kycFileSelected(type){
 }
 
 async function submitKyc(){
-  if(!_kycDocFile||!_kycSelfieFile||!window.currentUser||!window.sb) return;
-  var btn = document.getElementById('kycSubmitBtn');
-  var msg = document.getElementById('kycMsg');
-  btn.disabled=true; btn.textContent='Subiendo...';
+  if(!window._kycDocFile||!window._kycSelfieFile||!window.currentUser||!window.sb)return;
+  var btn=document.getElementById('kycSubmitBtn');
+  var msg=document.getElementById('kycMsg');
+  if(btn){btn.disabled=true;btn.textContent='Subiendo...';}
   try{
-    var uid = window.currentUser.id;
-    var ts = Date.now();
-    // Upload doc photo
-    var docPath = 'kyc/'+uid+'/doc_'+ts+'.jpg';
-    var selfPath = 'kyc/'+uid+'/selfie_'+ts+'.jpg';
-    var docUp = await window.sb.storage.from('documents').upload(docPath, _kycDocFile, {upsert:true});
-    var selfUp = await window.sb.storage.from('documents').upload(selfPath, _kycSelfieFile, {upsert:true});
-    if(docUp.error||selfUp.error){
-      throw new Error(docUp.error?.message||selfUp.error?.message);
-    }
-    // Get public URLs
-    var docUrl = window.sb.storage.from('documents').getPublicUrl(docPath).data.publicUrl;
-    var selfUrl = window.sb.storage.from('documents').getPublicUrl(selfPath).data.publicUrl;
-    // Update profile
-    await window.sb.from('profiles').update({
+    var uid=window.currentUser.id;
+    var ts=Date.now();
+    var docPath='kyc/'+uid+'/doc_'+ts+'.jpg';
+    var selfPath='kyc/'+uid+'/selfie_'+ts+'.jpg';
+    var docUp=await window.sb.storage.from('documents').upload(docPath,window._kycDocFile,{upsert:true});
+    var selfUp=await window.sb.storage.from('documents').upload(selfPath,window._kycSelfieFile,{upsert:true});
+    if(docUp.error){throw new Error('Doc: '+docUp.error.message);}
+    if(selfUp.error){throw new Error('Selfie: '+selfUp.error.message);}
+    var docUrl=window.sb.storage.from('documents').getPublicUrl(docPath).data.publicUrl;
+    var selfUrl=window.sb.storage.from('documents').getPublicUrl(selfPath).data.publicUrl;
+    var upd=await window.sb.from('profiles').update({
       verification_status:'pending',
-      verification_submitted_at: new Date().toISOString(),
-      doc_url: docUrl,
-      selfie_url: selfUrl
-    }).eq('id', uid);
-    // Show success
-    if(msg){ msg.textContent='\u{2713} Solicitud enviada. Revisaremos en 24-48h.'; msg.style.display='block'; }
-    btn.textContent='\u{2713} Enviado';
-    // Refresh status
-    setTimeout(loadKycStatus, 1000);
+      verification_submitted_at:new Date().toISOString(),
+      doc_url:docUrl,
+      selfie_url:selfUrl
+    }).eq('id',uid);
+    if(upd.error){throw new Error('DB: '+upd.error.message);}
+    if(msg){msg.textContent='\u2713 Solicitud enviada. Te notificaremos en 24-48h.';msg.style.color='#00ff88';msg.style.display='block';}
+    if(btn){btn.textContent='\u2713 Enviado';}
+    var badge=document.getElementById('kycBadge');
+    if(badge){badge.className='kyc-status kyc-pending';badge.textContent='\u23F3 PENDIENTE';}
+    setTimeout(loadKycStatus,1000);
   }catch(e){
-    btn.disabled=false; btn.textContent='\u{1F4E4} ENVIAR PARA VERIFICACIÓN';
-    if(msg){ msg.textContent='Error: '+e.message; msg.style.color='#ff2255'; msg.style.display='block'; }
+    if(btn){btn.disabled=false;btn.textContent='\u{1F4E4} ENVIAR PARA VERIFICACI\xD3N';}
+    if(msg){msg.textContent='Error: '+e.message;msg.style.color='#ff2255';msg.style.display='block';}
   }
 }
 

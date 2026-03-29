@@ -1,0 +1,72 @@
+{
+  "name": "SHADOWNET",
+  "short_name": "SHADOWNET",
+  "description": "La red social para creadores adultos — Sin límites, Sin cadenas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#01020c",
+  "theme_color": "#ff2255",
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "categories": [
+    "social",
+    "entertainment"
+  ],
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=192&bold=true&font-size=0.5",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=512&bold=true&font-size=0.5",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Feed",
+      "url": "/feed.html",
+      "icons": [
+        {
+          "src": "https://ui-avatars.com/api/?name=F&background=00e5ff&color=000&size=96",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "url": "/messages.html",
+      "icons": [
+        {
+          "src": "https://ui-avatars.com/api/?name=M&background=ff2255&color=fff&size=96",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Stories",
+      "url": "/stories.html",
+      "icons": [
+        {
+          "src": "https://ui-avatars.com/api/?name=S&background=ffaa00&color=000&size=96",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ranking",
+      "url": "/leaderboard.html",
+      "icons": [
+        {
+          "src": "https://ui-avatars.com/api/?name=R&background=ffd700&color=000&size=96",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

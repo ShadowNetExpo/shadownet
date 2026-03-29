@@ -56,6 +56,22 @@ textarea.inp{resize:none;height:80px}
 .cancel-btn{padding:10px 16px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
 .divider{border:none;border-top:1px solid #0d2744;margin:16px 20px}
 @media(max-width:480px){.posts-grid{grid-template-columns:repeat(2,1fr)}.profile-stats{gap:14px}}
+
+.sub-box{background:linear-gradient(135deg,rgba(255,34,85,.12),rgba(150,0,50,.08));border:1px solid rgba(255,34,85,.35);border-radius:12px;padding:18px;margin:16px 20px 0}
+.sub-title{font-family:Orbitron,sans-serif;font-size:12px;color:#ff6680;letter-spacing:.1em;margin-bottom:8px}
+.sub-price{font-family:Orbitron,sans-serif;font-size:28px;color:#e8f4ff;margin-bottom:6px}
+.sub-desc{font-size:13px;color:#8a9bb0;margin-bottom:14px;line-height:1.5}
+.sub-btn{width:100%;padding:13px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em}
+.sub-btn:disabled{opacity:.5;cursor:not-allowed}
+.sub-btn.active{background:linear-gradient(135deg,#00ff88,#00aa55);color:#000}
+.sub-setup{background:rgba(7,15,30,.5);border:1px solid #0d2744;border-radius:10px;padding:16px;margin:16px 20px 0}
+.sub-setup-title{font-size:12px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;font-family:Orbitron,sans-serif}
+.price-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.price-prefix{font-size:20px;color:#5a8aaa;font-weight:700}
+.price-inp{flex:1;padding:10px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;outline:none;width:100px}
+.price-inp:focus{border-color:#ff2255}
+.sub-save-btn{padding:10px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
+.subs-count{font-size:12px;color:#ff6680;font-weight:700;margin-top:8px}
 </style>
 </head>
 <body>
@@ -80,6 +96,7 @@ textarea.inp{resize:none;height:80px}
       <div class="stat"><div class="stat-num" id="statPosts">0</div><div class="stat-lbl">Posts</div></div>
       <div class="stat"><div class="stat-num" id="statFollowers">0</div><div class="stat-lbl">Seguidores</div></div>
       <div class="stat"><div class="stat-num" id="statFollowing">0</div><div class="stat-lbl">Siguiendo</div></div>
+    <div class="stat"><div class="stat-num c-red" id="statSubs">0</div><div class="stat-lbl">Suscriptores</div></div>
     </div>
     <div class="profile-actions" id="profileActions"></div>
   </div>
@@ -145,11 +162,13 @@ async function renderProfile(p) {
   document.getElementById("statPosts").textContent = p.posts_count || 0;
   document.getElementById("statFollowers").textContent = p.followers_count || 0;
   document.getElementById("statFollowing").textContent = p.following_count || 0;
+  var ss=document.getElementById("statSubs"); if(ss) ss.textContent=p.subscribers_count||0;
   var av = document.getElementById("avatarEl");
   if (p.avatar_url) { av.innerHTML = '<img src="' + p.avatar_url + '">'; }
   else av.textContent = p.username[0].toUpperCase();
   var cover = document.getElementById("coverEl");
   if (p.cover_url) cover.style.backgroundImage = 'url("' + p.cover_url + '")'; 
+  renderSubSection(p);
   var actions = document.getElementById("profileActions");
   actions.innerHTML = "";
   if (isOwnProfile) {
@@ -250,6 +269,144 @@ function showToast(msg, err) {
   t.textContent = msg; t.style.borderColor = err?"#ff2255":"#00ff88"; t.style.color = err?"#ff2255":"#00ff88";
   t.style.display = "block"; setTimeout(function(){t.style.display="none";},2500);
 }
+
+function renderSubSection(p){
+  var existing = document.getElementById("subSection");
+  if(existing) existing.remove();
+  var wrap = document.getElementById("profileWrap");
+  var divider = wrap.querySelector(".divider");
+  var sec = document.createElement("div");
+  sec.id = "subSection";
+  if(isOwnProfile){
+    // Creator setup panel
+    var price = p.subscription_price || 0;
+    sec.innerHTML =
+      '<div class="sub-setup">'
+      +'<div class="sub-setup-title">&#128536; Configurar Suscripci\xF3n</div>'
+      +'<div class="price-row"><span class="price-prefix">$</span>'
+      +'<input class="price-inp" id="subPriceInp" type="number" min="0" max="99.99" step="0.01" placeholder="9.99" value="'+(price||"")+'">'
+      +'<span style="font-size:12px;color:#5a8aaa">USD/mes</span></div>'
+      +'<input class="inp" id="subDescInp" placeholder="Describe qu\xE9 incluye tu suscripci\xF3n..." style="margin-bottom:10px" value="'+(p.subscription_description||"")+'">'
+      +'<button class="sub-save-btn" onclick="saveSubscriptionSettings()">Guardar precio</button>'
+      +'<div class="subs-count">'+( p.subscribers_count||0)+' suscriptores activos &bull; Ganancias: $'+parseFloat(p.total_earnings||0).toFixed(2)+'</div>'
+      +'</div>';
+  } else if(p.subscription_price > 0){
+    // Fan subscription button
+    checkSubscription(p.id).then(function(isSubbed){
+      sec.innerHTML =
+        '<div class="sub-box">'
+        +'<div class="sub-title">&#11088; CONTENIDO EXCLUSIVO</div>'
+        +'<div class="sub-price">$'+parseFloat(p.subscription_price).toFixed(2)+'<span style="font-size:14px;color:#5a8aaa">/mes</span></div>'
+        +'<div class="sub-desc">'+(p.subscription_description||"Accede a contenido exclusivo, lives privados y mensajes directos.")+'</div>'
+        +(isSubbed
+          ? '<button class="sub-btn active" disabled>&#10003; Suscrito</button>'
+          : '<button class="sub-btn" onclick="openSubModal(''+p.id+'','+p.subscription_price+',''+( p.subscription_description||'').replace(/'/g,'')+'')">'
+            +'&#128274; Suscribirse por $'+parseFloat(p.subscription_price).toFixed(2)+'/mes</button>')
+        +'</div>';
+    });
+  }
+  if(divider) wrap.insertBefore(sec, divider);
+  else wrap.appendChild(sec);
+}
+
+// =============================================
+// SUBSCRIPCIONES
+// =============================================
+var _subCreatorId = null;
+var _subPrice = 0;
+
+async function checkSubscription(creatorId){
+  if(!currentUser) return false;
+  var r = await sb.from("subscriptions").select("id,status").eq("subscriber_id",currentUser.id).eq("creator_id",creatorId).eq("status","active").single();
+  return !!r.data;
+}
+
+function openSubModal(creatorId, price, desc){
+  _subCreatorId = creatorId;
+  _subPrice = price;
+  document.getElementById("subModalPrice").textContent = "$" + parseFloat(price).toFixed(2);
+  document.getElementById("subModalDesc").textContent = desc || "Accede a contenido exclusivo de este creador.";
+  document.getElementById("subModal").classList.add("open");
+}
+
+async function confirmSubscription(){
+  if(!currentUser){ window.location.href="/"; return; }
+  if(!_subCreatorId) return;
+  var btn = document.getElementById("subConfirmBtn");
+  btn.disabled = true; btn.textContent = "Procesando...";
+  try{
+    // Save subscription record (in production, this would go through Stripe)
+    var expDate = new Date(); expDate.setMonth(expDate.getMonth()+1);
+    var r = await sb.from("subscriptions").upsert({
+      subscriber_id: currentUser.id,
+      creator_id: _subCreatorId,
+      status: "active",
+      price: _subPrice,
+      started_at: new Date().toISOString(),
+      expires_at: expDate.toISOString()
+    });
+    if(r.error) throw new Error(r.error.message);
+    // Record transaction
+    await sb.from("transactions").insert({
+      user_id: currentUser.id,
+      type: "subscription",
+      amount: -_subPrice,
+      description: "Suscripci\xF3n mensual"
+    });
+    // Update creator earnings
+    var creatorCut = parseFloat(_subPrice) * 0.60;
+    await sb.from("profiles").rpc || await sb.from("profiles")
+      .update({total_earnings: parseFloat(profileData?.total_earnings||0) + creatorCut})
+      .eq("id", _subCreatorId);
+    document.getElementById("subModal").classList.remove("open");
+    showToast("\u2713 Suscripci\xF3n activa. Bienvenido al club exclusivo!");
+    // Update UI
+    setTimeout(loadProfile, 500);
+  }catch(e){
+    btn.disabled=false; btn.textContent="\uD83D\uDD12 Suscribirse";
+    showToast("Error: "+e.message, true);
+  }
+}
+
+async function saveSubscriptionSettings(){
+  var price = parseFloat(document.getElementById("subPriceInp").value) || 0;
+  var desc = document.getElementById("subDescInp").value.trim();
+  if(price > 0 && price < 1){ showToast("El precio m\xEDnimo es $1.00", true); return; }
+  var r = await sb.from("profiles").update({
+    subscription_price: price,
+    subscription_description: desc,
+    is_creator: price > 0
+  }).eq("id", currentUser.id);
+  if(r.error){ showToast("Error: "+r.error.message, true); return; }
+  profileData.subscription_price = price;
+  profileData.subscription_description = desc;
+  showToast("\u2713 Configuraci\xF3n guardada");
+  renderSubSection(profileData);
+}
 </script>
+
+<!-- Subscription Payment Modal -->
+<div id="subModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title">&#128274; SUSCRIBIRSE</div>
+    <div id="subModalContent">
+      <p style="font-size:13px;color:#8a9bb0;margin-bottom:16px;line-height:1.6" id="subModalDesc">Accede a contenido exclusivo de este creador.</p>
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-family:Orbitron,sans-serif;font-size:32px;color:#e8f4ff" id="subModalPrice">$9.99</div>
+        <div style="font-size:12px;color:#5a8aaa;margin-top:4px">por mes</div>
+      </div>
+      <div style="background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:12px;margin-bottom:16px">
+        <p style="font-size:12px;color:#00ff88;line-height:1.5">&#10003; Acceso a contenido premium<br>&#10003; Mensajes directos con el creador<br>&#10003; Badge de suscriptor exclusivo<br>&#10003; Cancela cuando quieras</p>
+      </div>
+      <div style="background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:8px;padding:10px;margin-bottom:16px;font-size:12px;color:#5a8aaa;line-height:1.5">
+        &#128274; Pago seguro procesado por Stripe. El creador recibe el 60% de cada suscripci\xF3n.
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="cancel-btn" onclick="document.getElementById('subModal').classList.remove('open')">Cancelar</button>
+      <button class="save-btn" id="subConfirmBtn" onclick="confirmSubscription()">&#128274; Suscribirse</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

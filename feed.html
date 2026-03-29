@@ -168,6 +168,28 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 /* Autoplay indicator */
 .autoplay-badge{position:absolute;top:8px;left:8px;background:rgba(255,34,85,.85);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;font-family:Rajdhani,sans-serif}
 @media(max-width:768px){.vf-player{max-width:100%}.vf-comments-panel{display:none}}
+
+/* Instagram-style Carousel */
+.carousel-wrap{position:relative;overflow:hidden;width:100%}
+.carousel-track{display:flex;transition:transform .3s ease;height:100%}
+.carousel-track img,.carousel-track video{min-width:100%;max-width:100%;object-fit:cover;flex-shrink:0}
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;z-index:5;display:flex;align-items:center;justify-content:center;font-size:16px}
+.carousel-prev{left:8px}
+.carousel-next{right:8px}
+.carousel-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.carousel-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5)}
+.carousel-dot.active{background:#fff;width:8px;height:8px}
+.carousel-count{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px}
+/* Location tag */
+.post-location{font-size:12px;color:#5a8aaa;padding:4px 16px;display:flex;align-items:center;gap:4px;cursor:pointer}
+.post-location:hover{color:#00e5ff}
+/* Location input in post box */
+.location-inp{width:100%;padding:8px 12px;background:rgba(1,2,12,.6);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none;margin-bottom:8px;display:none}
+.location-inp.show{display:block}
+.location-inp:focus{border-color:#00e5ff}
+.toggle-location-btn{padding:5px 12px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;margin-bottom:8px;display:none}
+.toggle-location-btn.show{display:inline-flex;align-items:center;gap:4px}
+.toggle-location-btn:hover{border-color:#00e5ff;color:#00e5ff}
 </style>
 </head>
 <body>
@@ -190,7 +212,9 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <div class="media-preview" id="mediaPreview"></div>
     <div class="post-actions">
       <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
-      <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label><button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
+      <button class="toggle-location-btn" id="locationToggleBtn" onclick="toggleLocationInput()">&#128205; Ubicacion</button>
+    <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, España">
+    <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label><button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
     </div>
   </div>
   <div class="tabs">
@@ -343,8 +367,38 @@ function buildPostCard(post, profile, liked, saved) {
     header.appendChild(menuBtn);
   }
   card.appendChild(header);
+  // Carousel or single media
+  if(post.media_urls&&post.media_urls.length>1){
+    var carWrap=document.createElement("div");carWrap.className="card-media carousel-wrap";carWrap.style.position="relative";
+    var track=document.createElement("div");track.className="carousel-track";
+    var curIdx=0;
+    post.media_urls.forEach(function(url,i){
+      var isVid=url.match(/\.mp4|\.webm|\.ogg/i);
+      var el=isVid?document.createElement("video"):document.createElement("img");
+      el.src=url;if(isVid){el.muted=true;el.preload="metadata";}
+      track.appendChild(el);
+    });
+    carWrap.appendChild(track);
+    var prevBtn=document.createElement("button");prevBtn.className="carousel-btn carousel-prev";prevBtn.textContent="\u2039";
+    var nextBtn=document.createElement("button");nextBtn.className="carousel-btn carousel-next";nextBtn.textContent="\u203A";
+    var dots=document.createElement("div");dots.className="carousel-dots";
+    var countEl=document.createElement("div");countEl.className="carousel-count";countEl.textContent="1/"+post.media_urls.length;
+    post.media_urls.forEach(function(_,i){
+      var dot=document.createElement("div");dot.className="carousel-dot"+(i===0?" active":"");dots.appendChild(dot);
+    });
+    function goTo(idx){
+      curIdx=Math.max(0,Math.min(idx,post.media_urls.length-1));
+      track.style.transform="translateX(-"+curIdx*100+"%)";
+      dots.querySelectorAll(".carousel-dot").forEach(function(d,i){d.className="carousel-dot"+(i===curIdx?" active":"");});
+      countEl.textContent=(curIdx+1)+"/"+post.media_urls.length;
+    }
+    prevBtn.addEventListener("click",function(e){e.stopPropagation();goTo(curIdx-1);});
+    nextBtn.addEventListener("click",function(e){e.stopPropagation();goTo(curIdx+1);});
+    carWrap.appendChild(prevBtn);carWrap.appendChild(nextBtn);carWrap.appendChild(dots);carWrap.appendChild(countEl);
+    card.appendChild(carWrap);
+  }
   // Media
-  if(post.media_url){
+  if(post.media_url&&!(post.media_urls&&post.media_urls.length>1)){
     var mediaDiv=document.createElement("div");mediaDiv.className="card-media";mediaDiv.style.position="relative";
     if(post.media_type==="video"){var vid=document.createElement("video");vid.src=post.media_url;vid.preload="metadata";vid.muted=true;vid.loop=true;vid.style.cursor="pointer";var autoBadge=document.createElement("div");autoBadge.className="autoplay-badge";autoBadge.textContent="VIDEO";mediaDiv.appendChild(vid);mediaDiv.appendChild(autoBadge);vid.addEventListener("click",function(){openVFFromCard(post,profile,vid);});vid.addEventListener("mouseenter",function(){vid.play();});vid.addEventListener("mouseleave",function(){vid.pause();});}
     else{var img2=document.createElement("img");img2.src=post.media_url;img2.alt="post";img2.style.cursor="pointer";img2.addEventListener("click",function(){openVFFromCard(post,profile,img2);});mediaDiv.appendChild(img2);}
@@ -355,6 +409,13 @@ function buildPostCard(post, profile, liked, saved) {
   }
   // Content
   if(post.content){var content=document.createElement("div");content.className="card-content";var txt=document.createElement("p");txt.className="card-text";txt.textContent=post.content;content.appendChild(txt);card.appendChild(content);}
+  // Location
+  if(post.location){
+    var locEl=document.createElement("div");locEl.className="post-location";
+    locEl.innerHTML="\uD83D\uDCCD "+post.location;
+    locEl.addEventListener("click",function(){window.location.href="/search.html?q="+encodeURIComponent(post.location);});
+    card.appendChild(locEl);
+  }
   // Footer with like + comment + share + save
   var footer=document.createElement("div");footer.className="card-footer";
   // Like
@@ -479,7 +540,8 @@ async function submitPost() {
       mediaType = mediaFile.type.startsWith("video") ? "video" : "image";
     }
     var isPremium=document.getElementById("isPremiumCheck")&&document.getElementById("isPremiumCheck").checked;
-    var r = await sb.from("posts").insert({ user_id: currentUser.id, content: text || null, media_url: mediaUrl, media_type: mediaType, is_premium: isPremium });
+    var loc=(document.getElementById("locationInp")?.value||"").trim()||null;
+    var r = await sb.from("posts").insert({ user_id: currentUser.id, content: text || null, media_url: mediaUrl, media_type: mediaType, is_premium: isPremium, location: loc });
     if (r.error) throw new Error(r.error.message);
     document.getElementById("postText").value = "";
     mediaFile = null;
@@ -601,12 +663,20 @@ function showPremiumOverlay(card, creatorId, creatorUsername){
 }
 
 // Show premium toggle for creators
+function toggleLocationInput(){
+  var inp=document.getElementById('locationInp');
+  var btn=document.getElementById('locationToggleBtn');
+  if(inp){inp.classList.toggle('show');}
+}
+
 async function checkAndShowPremiumToggle(){
   if(!currentUser) return;
   var r=await sb.from("profiles").select("role").eq("id",currentUser.id).single();
   if(r.data&&r.data.role==="creator"){
     var toggle=document.getElementById("premiumToggle");
     if(toggle)toggle.style.display="flex";
+    var locBtn=document.getElementById("locationToggleBtn");
+    if(locBtn)locBtn.classList.add("show");
   }
 }
 

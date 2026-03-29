@@ -11,39 +11,38 @@
 body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
 header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between}
 .logo{font-family:Orbitron,sans-serif;font-size:16px;color:#ff2255;letter-spacing:.15em}
-.logout-btn{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff6680;padding:8px 16px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+.logout-btn{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff6680;padding:8px 16px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
 .login-screen{display:flex;align-items:center;justify-content:center;min-height:80vh}
 .login-box{background:rgba(7,15,30,.8);border:1px solid #0d2744;border-radius:12px;padding:32px;width:100%;max-width:380px}
-.login-title{font-family:Orbitron,sans-serif;font-size:13px;color:#00e5ff;text-align:center;margin-bottom:20px;letter-spacing:.1em}
+.ltitle{font-family:Orbitron,sans-serif;font-size:13px;color:#00e5ff;text-align:center;margin-bottom:20px;letter-spacing:.1em}
 .inp{width:100%;padding:11px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none}
 .inp:focus{border-color:#00e5ff}
-.btn-p{width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
+.btn-p{width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase}
 .err{color:#ff2255;font-size:12px;text-align:center;min-height:16px;margin-top:6px}
 .wrap{padding:24px;max-width:1100px;margin:0 auto}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
 .sc{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px;text-align:center}
 .sn{font-family:Orbitron,sans-serif;font-size:28px;margin-bottom:4px}
-.sl{font-size:11px;color:#5a8aaa;letter-spacing:.08em;text-transform:uppercase}
+.sl{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em}
 .c-blue{color:#00e5ff}.c-yellow{color:#ffaa00}.c-green{color:#00ff88}.c-red{color:#ff2255}
 .sec-title{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;letter-spacing:.1em;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #0d2744}
 .filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.fb{padding:7px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;text-transform:uppercase;transition:all .2s}
+.fb{padding:7px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;text-transform:uppercase}
 .fb.active{border-color:#00e5ff;color:#00e5ff;background:rgba(0,229,255,.1)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
 .card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;overflow:hidden}
 .ch{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #0d2744}
-.cu{font-weight:700;font-size:14px;color:#e8f4ff}
-.ci{font-size:11px;color:#5a8aaa;margin-top:2px}
-.badge{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.b-pending{background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
-.b-verified{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid rgba(0,255,136,.3)}
-.b-rejected{background:rgba(255,34,85,.15);color:#ff2255;border:1px solid rgba(255,34,85,.3)}
+.cu{font-weight:700;font-size:14px}.ci{font-size:11px;color:#5a8aaa;margin-top:2px}
+.badge{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:800;text-transform:uppercase}
+.b-p{background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.b-v{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid rgba(0,255,136,.3)}
+.b-r{background:rgba(255,34,85,.15);color:#ff2255;border:1px solid rgba(255,34,85,.3)}
 .photos{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}
 .pbox{border-radius:8px;overflow:hidden;background:rgba(1,2,12,.5);border:1px solid #0d2744}
 .pbox img{width:100%;height:140px;object-fit:cover;cursor:zoom-in;display:block}
-.plabel{font-size:10px;color:#5a8aaa;text-align:center;padding:5px;text-transform:uppercase;letter-spacing:.06em}
+.plabel{font-size:10px;color:#5a8aaa;text-align:center;padding:5px;text-transform:uppercase}
 .nophoto{height:140px;display:flex;align-items:center;justify-content:center;color:#5a8aaa;font-size:11px}
-.cf{padding:12px 16px;border-bottom:0;border-top:1px solid #0d2744}
+.cf{padding:12px 16px;border-top:1px solid #0d2744}
 .meta{font-size:11px;color:#5a8aaa;margin-bottom:8px}
 .arow{display:flex;gap:8px;margin-bottom:8px}
 .abtn{flex:1;padding:10px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
@@ -62,10 +61,10 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
   <header><span class="logo">SHADOWNET</span><span style="font-size:11px;color:#ff2255;border:1px solid #ff2255;padding:4px 10px;border-radius:4px">ADMIN</span></header>
   <div class="login-screen">
     <div class="login-box">
-      <div class="login-title">PANEL DE ADMINISTRACION</div>
+      <div class="ltitle">PANEL DE ADMINISTRACION</div>
       <input class="inp" type="email" id="ae" placeholder="Email administrador">
-      <input class="inp" type="password" id="ap" placeholder="Contrasena" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="btn-p" onclick="doLogin()">ACCEDER</button>
+      <input class="inp" type="password" id="ap" placeholder="Contrasena">
+      <button class="btn-p" id="loginBtn">ACCEDER</button>
       <div class="err" id="le"></div>
     </div>
   </div>
@@ -75,7 +74,7 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
     <span class="logo">SHADOWNET <span style="color:#5a8aaa;font-size:11px">ADMIN</span></span>
     <div style="display:flex;align-items:center;gap:12px">
       <span id="an" style="font-size:12px;color:#5a8aaa"></span>
-      <button class="logout-btn" onclick="doLogout()">Salir</button>
+      <button class="logout-btn" id="logoutBtn">Salir</button>
     </div>
   </header>
   <div class="wrap">
@@ -86,180 +85,223 @@ header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d
       <div class="sc"><div class="sn c-red" id="sr">-</div><div class="sl">Rechazados</div></div>
     </div>
     <div class="sec-title">VERIFICACIONES KYC</div>
-    <div class="filters">
-      <button class="fb active" data-f="pending" onclick="setFilter('pending')">Pendientes</button>
-      <button class="fb" data-f="verified" onclick="setFilter('verified')">Verificados</button>
-      <button class="fb" data-f="rejected" onclick="setFilter('rejected')">Rechazados</button>
-      <button class="fb" data-f="all" onclick="setFilter('all')">Todos</button>
-    </div>
+    <div class="filters" id="filters"></div>
     <div id="grid" class="grid"><div class="empty">Cargando...</div></div>
   </div>
 </div>
-<div class="lb" id="lb" onclick="this.classList.remove('open')"><img id="lbimg" src=""></div>
+<div class="lb" id="lb"><img id="lbimg" src=""></div>
 <div class="toast" id="toast"></div>
 <script>
-var SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
-var SB_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var SB_URL = "https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY = "sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
 var sb = supabase.createClient(SB_URL, SB_KEY);
-var curFilter = 'pending';
+var curFilter = "pending";
+
+// FILTERS
+var FILTERS = [{k:"pending",l:"Pendientes"},{k:"verified",l:"Verificados"},{k:"rejected",l:"Rechazados"},{k:"all",l:"Todos"}];
+var fDiv = document.getElementById("filters");
+FILTERS.forEach(function(f) {
+  var btn = document.createElement("button");
+  btn.className = "fb" + (f.k === "pending" ? " active" : "");
+  btn.textContent = f.l;
+  btn.dataset.f = f.k;
+  btn.addEventListener("click", function() {
+    curFilter = f.k;
+    document.querySelectorAll(".fb").forEach(function(b) { b.classList.toggle("active", b.dataset.f === f.k); });
+    loadCards(f.k);
+  });
+  fDiv.appendChild(btn);
+});
+
+// LOGIN
+document.getElementById("loginBtn").addEventListener("click", doLogin);
+document.getElementById("ap").addEventListener("keydown", function(e) { if (e.key === "Enter") doLogin(); });
+document.getElementById("logoutBtn").addEventListener("click", function() { sb.auth.signOut().then(function() { location.reload(); }); });
+document.getElementById("lb").addEventListener("click", function() { this.classList.remove("open"); });
 
 async function doLogin() {
-  var email = document.getElementById('ae').value.trim();
-  var pass = document.getElementById('ap').value;
-  var errEl = document.getElementById('le');
-  errEl.textContent = '';
-  if (!email || !pass) { errEl.textContent = 'Completa todos los campos'; return; }
+  var email = document.getElementById("ae").value.trim();
+  var pass = document.getElementById("ap").value;
+  var errEl = document.getElementById("le");
+  errEl.textContent = "";
+  if (!email || !pass) { errEl.textContent = "Completa todos los campos"; return; }
   var r = await sb.auth.signInWithPassword({ email: email, password: pass });
   if (r.error) { errEl.textContent = r.error.message; return; }
-  var p = await sb.from('profiles').select('username,is_admin').eq('id', r.data.user.id).single();
+  var p = await sb.from("profiles").select("username,is_admin").eq("id", r.data.user.id).single();
   if (!p.data || !p.data.is_admin) {
     await sb.auth.signOut();
-    errEl.textContent = 'Acceso denegado. Sin permisos de administrador.';
+    errEl.textContent = "Acceso denegado.";
     return;
   }
-  document.getElementById('an').textContent = '@' + (p.data.username || email.split('@')[0]);
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('adminDash').style.display = 'block';
-  loadStats();
-  loadCards('pending');
+  showDash(p.data.username || email.split("@")[0]);
 }
 
-async function doLogout() { await sb.auth.signOut(); location.reload(); }
+function showDash(name) {
+  document.getElementById("an").textContent = "@" + name;
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("adminDash").style.display = "block";
+  loadStats();
+  loadCards("pending");
+}
 
 async function loadStats() {
   var res = await Promise.all([
-    sb.from('profiles').select('id', { count: 'exact', head: true }),
-    sb.from('profiles').select('id', { count: 'exact', head: true }).eq('verification_status', 'pending'),
-    sb.from('profiles').select('id', { count: 'exact', head: true }).eq('verification_status', 'verified'),
-    sb.from('profiles').select('id', { count: 'exact', head: true }).eq('verification_status', 'rejected')
+    sb.from("profiles").select("id", { count: "exact", head: true }),
+    sb.from("profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
+    sb.from("profiles").select("id", { count: "exact", head: true }).eq("verification_status", "verified"),
+    sb.from("profiles").select("id", { count: "exact", head: true }).eq("verification_status", "rejected")
   ]);
-  document.getElementById('st').textContent = res[0].count || 0;
-  document.getElementById('sp').textContent = res[1].count || 0;
-  document.getElementById('sv').textContent = res[2].count || 0;
-  document.getElementById('sr').textContent = res[3].count || 0;
-}
-
-function setFilter(f) {
-  curFilter = f;
-  document.querySelectorAll('.fb').forEach(function(b) { b.classList.toggle('active', b.dataset.f === f); });
-  loadCards(f);
+  document.getElementById("st").textContent = res[0].count || 0;
+  document.getElementById("sp").textContent = res[1].count || 0;
+  document.getElementById("sv").textContent = res[2].count || 0;
+  document.getElementById("sr").textContent = res[3].count || 0;
 }
 
 async function loadCards(filter) {
-  var grid = document.getElementById('grid');
-  grid.innerHTML = '<div class="empty">Cargando...</div>';
-  var q = sb.from('profiles')
-    .select('id,username,verification_status,verification_submitted_at,doc_url,selfie_url,verification_rejection_reason,coins_balance')
-    .order('verification_submitted_at', { ascending: false });
-  if (filter !== 'all') q = q.eq('verification_status', filter);
-  else q = q.not('verification_status', 'eq', 'unverified');
+  var grid = document.getElementById("grid");
+  grid.innerHTML = "<div class=\"empty\">Cargando...</div>";
+  var q = sb.from("profiles")
+    .select("id,username,verification_status,verification_submitted_at,doc_url,selfie_url,verification_rejection_reason,coins_balance")
+    .order("verification_submitted_at", { ascending: false });
+  if (filter !== "all") q = q.eq("verification_status", filter);
+  else q = q.not("verification_status", "eq", "unverified");
   var r = await q.limit(50);
-  if (r.error) { grid.innerHTML = '<div class="empty">Error: ' + r.error.message + '</div>'; return; }
-  if (!r.data || r.data.length === 0) { grid.innerHTML = '<div class="empty">No hay solicitudes ' + filter + '</div>'; return; }
-  grid.innerHTML = '';
-  r.data.forEach(function(u) { grid.innerHTML += makeCard(u); });
-  r.data.forEach(function(u) { loadPhotos(u); });
+  if (r.error) { grid.innerHTML = "<div class=\"empty\">Error: " + r.error.message + "</div>"; return; }
+  if (!r.data || r.data.length === 0) { grid.innerHTML = "<div class=\"empty\">No hay solicitudes</div>"; return; }
+  grid.innerHTML = "";
+  r.data.forEach(function(u) {
+    var card = buildCard(u);
+    grid.appendChild(card);
+    loadPhotos(u, card);
+  });
 }
 
-function makeCard(u) {
-  var bc = u.verification_status === 'pending' ? 'b-pending' : u.verification_status === 'verified' ? 'b-verified' : 'b-rejected';
-  var bt = u.verification_status === 'pending' ? 'Pendiente' : u.verification_status === 'verified' ? 'Verificado' : 'Rechazado';
-  var dt = u.verification_submitted_at ? new Date(u.verification_submitted_at).toLocaleDateString('es-ES') : 'N/A';
-  var html = '<div class="card" id="card-' + u.id + '">';
-  html += '<div class="ch"><div><div class="cu">@' + (u.username || 'usuario') + '</div>';
-  html += '<div class="ci">ID: ' + u.id.slice(0, 8) + '...</div></div>';
-  html += '<span class="badge ' + bc + '">' + bt + '</span></div>';
-  html += '<div class="photos" id="ph-' + u.id + '">';
-  html += '<div class="pbox"><div class="nophoto">Cargando...</div><div class="plabel">Documento</div></div>';
-  html += '<div class="pbox"><div class="nophoto">Cargando...</div><div class="plabel">Selfie</div></div></div>';
-  html += '<div class="cf"><div class="meta">Fecha: ' + dt + ' | Almas: ' + (u.coins_balance || 0) + '</div>';
-  if (u.verification_rejection_reason) html += '<div style="font-size:11px;color:#ff2255;margin-bottom:6px">Motivo: ' + u.verification_rejection_reason + '</div>';
-  if (u.verification_status === 'pending') {
-    html += '<div class="arow">';
-    html += '<button class="abtn" onclick="approveKyc('' + u.id + '')">Aprobar</button>';
-    html += '<button class="rbtn" onclick="showReject('' + u.id + '')">Rechazar</button></div>';
-    html += '<textarea class="rtxt" id="rt-' + u.id + '" placeholder="Motivo del rechazo..."></textarea>';
-    html += '<button class="rcbtn" id="rc-' + u.id + '" onclick="rejectKyc('' + u.id + '')">CONFIRMAR RECHAZO</button>';
+function buildCard(u) {
+  var bc = u.verification_status === "pending" ? "b-p" : u.verification_status === "verified" ? "b-v" : "b-r";
+  var bt = u.verification_status === "pending" ? "Pendiente" : u.verification_status === "verified" ? "Verificado" : "Rechazado";
+  var dt = u.verification_submitted_at ? new Date(u.verification_submitted_at).toLocaleDateString("es-ES") : "N/A";
+  var card = document.createElement("div");
+  card.className = "card";
+  card.id = "card-" + u.id;
+  var ch = document.createElement("div"); ch.className = "ch";
+  var info = document.createElement("div");
+  var cu = document.createElement("div"); cu.className = "cu"; cu.textContent = "@" + (u.username || "usuario");
+  var ci = document.createElement("div"); ci.className = "ci"; ci.textContent = "ID: " + u.id.slice(0, 8) + "...";
+  info.appendChild(cu); info.appendChild(ci);
+  var badge = document.createElement("span"); badge.className = "badge " + bc; badge.textContent = bt;
+  ch.appendChild(info); ch.appendChild(badge); card.appendChild(ch);
+  var photos = document.createElement("div"); photos.className = "photos"; photos.id = "ph-" + u.id;
+  var pb1 = document.createElement("div"); pb1.className = "pbox";
+  var np1 = document.createElement("div"); np1.className = "nophoto"; np1.textContent = "Cargando...";
+  var pl1 = document.createElement("div"); pl1.className = "plabel"; pl1.textContent = "Documento";
+  pb1.appendChild(np1); pb1.appendChild(pl1);
+  var pb2 = document.createElement("div"); pb2.className = "pbox";
+  var np2 = document.createElement("div"); np2.className = "nophoto"; np2.textContent = "Cargando...";
+  var pl2 = document.createElement("div"); pl2.className = "plabel"; pl2.textContent = "Selfie";
+  pb2.appendChild(np2); pb2.appendChild(pl2);
+  photos.appendChild(pb1); photos.appendChild(pb2); card.appendChild(photos);
+  var cf = document.createElement("div"); cf.className = "cf";
+  var meta = document.createElement("div"); meta.className = "meta";
+  meta.textContent = "Fecha: " + dt + " | Almas: " + (u.coins_balance || 0);
+  cf.appendChild(meta);
+  if (u.verification_rejection_reason) {
+    var rr = document.createElement("div"); rr.style.cssText = "font-size:11px;color:#ff2255;margin-bottom:6px";
+    rr.textContent = "Motivo: " + u.verification_rejection_reason;
+    cf.appendChild(rr);
   }
-  html += '</div></div>';
-  return html;
+  if (u.verification_status === "pending") {
+    var arow = document.createElement("div"); arow.className = "arow";
+    var abtn = document.createElement("button"); abtn.className = "abtn"; abtn.textContent = "Aprobar";
+    abtn.dataset.uid = u.id;
+    abtn.addEventListener("click", function() { approveKyc(this.dataset.uid); });
+    var rbtn = document.createElement("button"); rbtn.className = "rbtn"; rbtn.textContent = "Rechazar";
+    rbtn.dataset.uid = u.id;
+    rbtn.addEventListener("click", function() { showReject(this.dataset.uid); });
+    arow.appendChild(abtn); arow.appendChild(rbtn); cf.appendChild(arow);
+    var rtxt = document.createElement("textarea"); rtxt.className = "rtxt"; rtxt.id = "rt-" + u.id;
+    rtxt.placeholder = "Motivo del rechazo...";
+    var rcbtn = document.createElement("button"); rcbtn.className = "rcbtn"; rcbtn.id = "rc-" + u.id;
+    rcbtn.textContent = "CONFIRMAR RECHAZO";
+    rcbtn.dataset.uid = u.id;
+    rcbtn.addEventListener("click", function() { rejectKyc(this.dataset.uid); });
+    cf.appendChild(rtxt); cf.appendChild(rcbtn);
+  }
+  card.appendChild(cf);
+  return card;
 }
 
-async function loadPhotos(u) {
-  var ph = document.getElementById('ph-' + u.id);
+async function loadPhotos(u, card) {
+  var ph = card.querySelector(".photos");
   if (!ph) return;
-  var docUrl = '', selfUrl = '';
+  var docUrl = "", selfUrl = "";
   if (u.doc_url) {
-    var p = u.doc_url.startsWith('http') ? (u.doc_url.match(//documents/(.+?)(?|$)/) || [])[1] : u.doc_url;
-    if (p) {
-      var d = await sb.storage.from('documents').createSignedUrl(p, 3600);
-      docUrl = d.data && d.data.signedUrl ? d.data.signedUrl : '';
-    }
+    var dp = u.doc_url.startsWith("http") ? extractPath(u.doc_url) : u.doc_url;
+    if (dp) { var d = await sb.storage.from("documents").createSignedUrl(dp, 3600); docUrl = d.data && d.data.signedUrl ? d.data.signedUrl : ""; }
   }
   if (u.selfie_url) {
-    var ps = u.selfie_url.startsWith('http') ? (u.selfie_url.match(//documents/(.+?)(?|$)/) || [])[1] : u.selfie_url;
-    if (ps) {
-      var s = await sb.storage.from('documents').createSignedUrl(ps, 3600);
-      selfUrl = s.data && s.data.signedUrl ? s.data.signedUrl : '';
-    }
+    var sp2 = u.selfie_url.startsWith("http") ? extractPath(u.selfie_url) : u.selfie_url;
+    if (sp2) { var s = await sb.storage.from("documents").createSignedUrl(sp2, 3600); selfUrl = s.data && s.data.signedUrl ? s.data.signedUrl : ""; }
   }
-  var html = '';
-  html += '<div class="pbox">';
-  html += docUrl ? '<img src="' + docUrl + '" alt="Doc" onclick="openLb('' + docUrl + '')">' : '<div class="nophoto">Sin foto</div>';
-  html += '<div class="plabel">Documento</div></div>';
-  html += '<div class="pbox">';
-  html += selfUrl ? '<img src="' + selfUrl + '" alt="Selfie" onclick="openLb('' + selfUrl + '')">' : '<div class="nophoto">Sin foto</div>';
-  html += '<div class="plabel">Selfie</div></div>';
-  ph.innerHTML = html;
+  ph.innerHTML = "";
+  var pb1 = document.createElement("div"); pb1.className = "pbox";
+  if (docUrl) { var img1 = document.createElement("img"); img1.src = docUrl; img1.alt = "Doc"; img1.addEventListener("click", function() { openLb(docUrl); }); pb1.appendChild(img1); }
+  else { var np1 = document.createElement("div"); np1.className = "nophoto"; np1.textContent = "Sin foto"; pb1.appendChild(np1); }
+  var pl1 = document.createElement("div"); pl1.className = "plabel"; pl1.textContent = "Documento";
+  pb1.appendChild(pl1);
+  var pb2 = document.createElement("div"); pb2.className = "pbox";
+  if (selfUrl) { var img2 = document.createElement("img"); img2.src = selfUrl; img2.alt = "Selfie"; img2.addEventListener("click", function() { openLb(selfUrl); }); pb2.appendChild(img2); }
+  else { var np2 = document.createElement("div"); np2.className = "nophoto"; np2.textContent = "Sin foto"; pb2.appendChild(np2); }
+  var pl2 = document.createElement("div"); pl2.className = "plabel"; pl2.textContent = "Selfie";
+  pb2.appendChild(pl2);
+  ph.appendChild(pb1); ph.appendChild(pb2);
 }
 
-function showReject(id) {
-  var rt = document.getElementById('rt-' + id);
-  var rc = document.getElementById('rc-' + id);
-  if (rt) rt.style.display = rt.style.display === 'block' ? 'none' : 'block';
-  if (rc) rc.style.display = rc.style.display === 'block' ? 'none' : 'block';
+function extractPath(url) {
+  var m = url.match(/\/documents\/(.+?)(?:\?|$)/);
+  return m ? m[1] : null;
+}
+
+function showReject(uid) {
+  var rt = document.getElementById("rt-" + uid);
+  var rc = document.getElementById("rc-" + uid);
+  if (rt) rt.style.display = rt.style.display === "block" ? "none" : "block";
+  if (rc) rc.style.display = rc.style.display === "block" ? "none" : "block";
 }
 
 async function approveKyc(uid) {
-  var r = await sb.from('profiles').update({ verification_status: 'verified', verification_rejection_reason: null }).eq('id', uid);
-  if (r.error) { showToast('Error: ' + r.error.message, true); return; }
-  var card = document.getElementById('card-' + uid);
-  if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(function() { card.remove(); }, 300); }
-  showToast('Usuario verificado correctamente');
-  loadStats();
+  var r = await sb.from("profiles").update({ verification_status: "verified", verification_rejection_reason: null }).eq("id", uid);
+  if (r.error) { showToast("Error: " + r.error.message, true); return; }
+  var card = document.getElementById("card-" + uid);
+  if (card) { card.style.opacity = "0"; card.style.transition = "opacity .3s"; setTimeout(function() { card.remove(); }, 300); }
+  showToast("Usuario verificado"); loadStats();
 }
 
 async function rejectKyc(uid) {
-  var reason = (document.getElementById('rt-' + uid) || {}).value || 'No cumple los requisitos';
-  var r = await sb.from('profiles').update({ verification_status: 'rejected', verification_rejection_reason: reason }).eq('id', uid);
-  if (r.error) { showToast('Error: ' + r.error.message, true); return; }
-  var card = document.getElementById('card-' + uid);
-  if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(function() { card.remove(); }, 300); }
-  showToast('Solicitud rechazada');
-  loadStats();
+  var rt = document.getElementById("rt-" + uid);
+  var reason = rt ? rt.value.trim() : "";
+  if (!reason) reason = "No cumple los requisitos";
+  var r = await sb.from("profiles").update({ verification_status: "rejected", verification_rejection_reason: reason }).eq("id", uid);
+  if (r.error) { showToast("Error: " + r.error.message, true); return; }
+  var card = document.getElementById("card-" + uid);
+  if (card) { card.style.opacity = "0"; card.style.transition = "opacity .3s"; setTimeout(function() { card.remove(); }, 300); }
+  showToast("Solicitud rechazada"); loadStats();
 }
 
-function openLb(url) { document.getElementById('lbimg').src = url; document.getElementById('lb').classList.add('open'); }
+function openLb(url) { document.getElementById("lbimg").src = url; document.getElementById("lb").classList.add("open"); }
 
 function showToast(msg, isErr) {
-  var t = document.getElementById('toast');
+  var t = document.getElementById("toast");
   t.textContent = msg;
-  t.style.borderColor = isErr ? '#ff2255' : '#00ff88';
-  t.style.color = isErr ? '#ff2255' : '#00ff88';
-  t.style.display = 'block';
-  setTimeout(function() { t.style.display = 'none'; }, 3000);
+  t.style.borderColor = isErr ? "#ff2255" : "#00ff88";
+  t.style.color = isErr ? "#ff2255" : "#00ff88";
+  t.style.display = "block";
+  setTimeout(function() { t.style.display = "none"; }, 3000);
 }
 
-// Auto-login if session exists
 sb.auth.getSession().then(function(s) {
   if (!s.data.session) return;
-  sb.from('profiles').select('username,is_admin').eq('id', s.data.session.user.id).single().then(function(p) {
-    if (!p.data || !p.data.is_admin) return;
-    document.getElementById('an').textContent = '@' + (p.data.username || 'admin');
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminDash').style.display = 'block';
-    loadStats();
-    loadCards('pending');
+  sb.from("profiles").select("username,is_admin").eq("id", s.data.session.user.id).single().then(function(p) {
+    if (p.data && p.data.is_admin) showDash(p.data.username || "admin");
   });
 });
 </script>

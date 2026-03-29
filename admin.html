@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET ADMIN</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#01020c;--c:#00e5ff;--g:#00ff88;--r:#ff2255;--y:#ffaa00;--text:#e8f4ff;--border:#0d2744}
+body{background:var(--bg);color:var(--text);font-family:Rajdhani,sans-serif;min-height:100vh}
+header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:Orbitron,sans-serif;font-size:16px;color:var(--r);letter-spacing:.15em}
+.admin-tag{background:rgba(255,34,85,.15);border:1px solid var(--r);color:var(--r);padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.1em}
+.logout-btn{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff6680;padding:8px 16px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+/* Login screen */
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
+.login-box{background:rgba(7,15,30,.8);border:1px solid var(--border);border-radius:12px;padding:32px;width:100%;max-width:380px}
+.login-title{font-family:Orbitron,sans-serif;font-size:14px;color:var(--c);text-align:center;margin-bottom:20px;letter-spacing:.1em}
+.input{width:100%;padding:11px 14px;background:rgba(1,2,12,.8);border:1px solid var(--border);color:var(--text);border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none}
+.input:focus{border-color:var(--c)}
+.btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,var(--r),#cc0000);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
+.err{color:var(--r);font-size:12px;text-align:center;min-height:16px;margin-top:6px}
+/* Dashboard */
+.dash-wrap{padding:24px;max-width:1100px;margin:0 auto}
+/* Stats row */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:rgba(7,15,30,.6);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-num{font-family:Orbitron,sans-serif;font-size:28px;margin-bottom:4px}
+.stat-lbl{font-size:11px;color:#5a8aaa;letter-spacing:.08em;text-transform:uppercase}
+.stat-yellow{color:var(--y)}
+.stat-green{color:var(--g)}
+.stat-red{color:var(--r)}
+.stat-blue{color:var(--c)}
+/* Section title */
+.section-title{font-family:Orbitron,sans-serif;font-size:13px;color:var(--text);letter-spacing:.1em;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+/* Filters */
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:7px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;cursor:pointer;border:1px solid var(--border);background:transparent;color:#5a8aaa;text-transform:uppercase;transition:all .2s}
+.filter-btn.active{border-color:var(--c);color:var(--c);background:rgba(0,229,255,.1)}
+/* KYC Cards */
+.kyc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.kyc-card{background:rgba(7,15,30,.7);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.kyc-card:hover{border-color:rgba(0,229,255,.3)}
+.kyc-card-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.kyc-username{font-weight:700;font-size:14px;color:var(--text)}
+.kyc-email{font-size:11px;color:#5a8aaa;margin-top:2px}
+.status-badge{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.badge-pending{background:rgba(255,170,0,.15);color:var(--y);border:1px solid rgba(255,170,0,.3)}
+.badge-verified{background:rgba(0,255,136,.15);color:var(--g);border:1px solid rgba(0,255,136,.3)}
+.badge-rejected{background:rgba(255,34,85,.15);color:var(--r);border:1px solid rgba(255,34,85,.3)}
+.badge-unverified{background:rgba(90,138,170,.15);color:#5a8aaa;border:1px solid rgba(90,138,170,.3)}
+.kyc-photos{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}
+.kyc-photo-box{position:relative;border-radius:8px;overflow:hidden;background:rgba(1,2,12,.5);border:1px solid var(--border)}
+.kyc-photo-box img{width:100%;height:140px;object-fit:cover;cursor:pointer;transition:opacity .2s}
+.kyc-photo-box img:hover{opacity:.85}
+.kyc-photo-label{font-size:10px;color:#5a8aaa;text-align:center;padding:4px;letter-spacing:.06em;text-transform:uppercase}
+.no-photo{width:100%;height:140px;display:flex;align-items:center;justify-content:center;color:#5a8aaa;font-size:11px}
+.kyc-card-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.kyc-meta{font-size:11px;color:#5a8aaa}
+.action-row{display:flex;gap:8px}
+.approve-btn{flex:1;padding:10px;background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(0,200,100,.1));border:1px solid rgba(0,255,136,.4);color:var(--g);border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:all .2s}
+.approve-btn:hover{background:linear-gradient(135deg,rgba(0,255,136,.35),rgba(0,200,100,.2))}
+.reject-btn{flex:1;padding:10px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:var(--r);border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:all .2s}
+.reject-btn:hover{background:rgba(255,34,85,.2)}
+.reject-reason{width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid var(--border);color:var(--text);border-radius:6px;font-family:Rajdhani,sans-serif;font-size:12px;display:none;resize:none;height:60px}
+.reject-reason.show{display:block}
+.reject-confirm{width:100%;padding:8px;background:var(--r);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;display:none}
+.reject-confirm.show{display:block}
+/* Empty state */
+.empty{text-align:center;padding:48px;color:#5a8aaa;font-size:13px}
+/* Loading */
+.loading{text-align:center;padding:48px;color:var(--c);font-size:13px}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(7,15,30,.95);border:1px solid var(--g);color:var(--g);padding:12px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none}
+/* Lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:8px;border:1px solid var(--border)}
+@media(max-width:600px){.kyc-grid{grid-template-columns:1fr}.kyc-photos{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+  <header>
+    <span class="logo">SHADOWNET</span>
+    <span class="admin-tag">&#x1F512; ADMIN</span>
+  </header>
+  <div class="login-screen">
+    <div class="login-box">
+      <div class="login-title">&#x1F512; PANEL DE ADMINISTRACIÓN</div>
+      <input class="input" type="email" id="adminEmail" placeholder="Email de administrador">
+      <input class="input" type="password" id="adminPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doAdminLogin()">
+      <button class="btn-primary" onclick="doAdminLogin()">ACCEDER</button>
+      <div class="err" id="loginErr"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Dashboard -->
+<div id="adminDash" style="display:none">
+  <header>
+    <span class="logo">SHADOWNET <span style="color:#5a8aaa;font-size:11px">ADMIN</span></span>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span id="adminName" style="font-size:12px;color:#5a8aaa"></span>
+      <button class="logout-btn" onclick="adminLogout()">Salir</button>
+    </div>
+  </header>
+  
+  <div class="dash-wrap">
+    <!-- Stats -->
+    <div class="stats" id="statsRow">
+      <div class="stat-card"><div class="stat-num stat-blue" id="s-total">-</div><div class="stat-lbl">Total Usuarios</div></div>
+      <div class="stat-card"><div class="stat-num stat-yellow" id="s-pending">-</div><div class="stat-lbl">Pendientes</div></div>
+      <div class="stat-card"><div class="stat-num stat-green" id="s-verified">-</div><div class="stat-lbl">Verificados</div></div>
+      <div class="stat-card"><div class="stat-num stat-red" id="s-rejected">-</div><div class="stat-lbl">Rechazados</div></div>
+    </div>
+
+    <!-- KYC Section -->
+    <div class="section-title">&#x1F510; VERIFICACIONES KYC</div>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="pending" onclick="setFilter('pending')">&#x23F3; Pendientes</button>
+      <button class="filter-btn" data-filter="verified" onclick="setFilter('verified')">&#x2713; Verificados</button>
+      <button class="filter-btn" data-filter="rejected" onclick="setFilter('rejected')">&#x2716; Rechazados</button>
+      <button class="filter-btn" data-filter="all" onclick="setFilter('all')">Todos</button>
+    </div>
+    <div id="kycGrid" class="kyc-grid">
+      <div class="loading">Cargando...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <img id="lightboxImg" src="">
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.m8rwMjnhWBkbHfbvbSR3DPzn9QaHmNHiC7FOKOvNjBs';
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var currentFilter = 'pending';
+var adminUser = null;
+
+// LOGIN
+async function doAdminLogin(){
+  var email=document.getElementById('adminEmail').value.trim();
+  var pass=document.getElementById('adminPass').value;
+  var err=document.getElementById('loginErr');
+  err.textContent='';
+  if(!email||!pass){err.textContent='Completa todos los campos';return;}
+  
+  var r = await sb.auth.signInWithPassword({email,password:pass});
+  if(r.error){err.textContent=r.error.message;return;}
+  
+  // Check is_admin
+  var p = await sb.from('profiles').select('username,is_admin').eq('id',r.data.user.id).single();
+  if(!p.data?.is_admin){
+    await sb.auth.signOut();
+    err.textContent='Acceso denegado. No tienes permisos de administrador.';
+    return;
+  }
+  
+  adminUser = r.data.user;
+  document.getElementById('adminName').textContent = '@'+(p.data.username||email.split('@')[0]);
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('adminDash').style.display='block';
+  loadStats();
+  loadKycCards('pending');
+}
+
+async function adminLogout(){
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// STATS
+async function loadStats(){
+  var [total, pending, verified, rejected] = await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}),
+    sb.from('profiles').select('id',{count:'exact',head:true}).eq('verification_status','pending'),
+    sb.from('profiles').select('id',{count:'exact',head:true}).eq('verification_status','verified'),
+    sb.from('profiles').select('id',{count:'exact',head:true}).eq('verification_status','rejected'),
+  ]);
+  document.getElementById('s-total').textContent = total.count||0;
+  document.getElementById('s-pending').textContent = pending.count||0;
+  document.getElementById('s-verified').textContent = verified.count||0;
+  document.getElementById('s-rejected').textContent = rejected.count||0;
+}
+
+// FILTERS
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.filter===f);
+  });
+  loadKycCards(f);
+}
+
+// LOAD KYC CARDS
+async function loadKycCards(filter){
+  var grid=document.getElementById('kycGrid');
+  grid.innerHTML='<div class="loading">Cargando...</div>';
+  
+  var q = sb.from('profiles')
+    .select('id,username,email,verification_status,verification_submitted_at,doc_url,selfie_url,verification_rejection_reason,coins_balance,created_at')
+    .order('verification_submitted_at',{ascending:false});
+  
+  if(filter!=='all') q = q.eq('verification_status', filter);
+  else q = q.not('verification_status','eq','unverified');
+  
+  // Join with auth.users for email (via profiles - email stored there)
+  var r = await q.limit(50);
+  
+  if(r.error){grid.innerHTML='<div class="empty">Error: '+r.error.message+'</div>';return;}
+  if(!r.data||r.data.length===0){grid.innerHTML='<div class="empty">No hay solicitudes '+filter+'</div>';return;}
+  
+  grid.innerHTML = r.data.map(u=>renderCard(u)).join('');
+}
+
+function renderCard(u){
+  var statusClass = {unverified:'badge-unverified',pending:'badge-pending',verified:'badge-verified',rejected:'badge-rejected'}[u.verification_status]||'badge-unverified';
+  var statusText = {unverified:'Sin verificar',pending:'Pendiente',verified:'Verificado',rejected:'Rechazado'}[u.verification_status]||'Desconocido';
+  var submittedDate = u.verification_submitted_at ? new Date(u.verification_submitted_at).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'N/A';
+  
+  var isPending = u.verification_status === 'pending';
+  
+  return `<div class="kyc-card" id="card-${u.id}">
+    <div class="kyc-card-header">
+      <div>
+        <div class="kyc-username">@${u.username||'usuario'}</div>
+        <div class="kyc-email">${u.email||''}</div>
+      </div>
+      <span class="status-badge ${statusClass}">${statusText}</span>
+    </div>
+    <div class="kyc-photos">
+      <div class="kyc-photo-box">
+        ${u.doc_url ? `<img src="${u.doc_url}" alt="DNI" onclick="openLightbox('${u.doc_url}')">` : '<div class="no-photo">Sin documento</div>'}
+        <div class="kyc-photo-label">Documento</div>
+      </div>
+      <div class="kyc-photo-box">
+        ${u.selfie_url ? `<img src="${u.selfie_url}" alt="Selfie" onclick="openLightbox('${u.selfie_url}')">` : '<div class="no-photo">Sin selfie</div>'}
+        <div class="kyc-photo-label">Selfie</div>
+      </div>
+    </div>
+    <div class="kyc-card-footer">
+      <div class="kyc-meta">&#128197; Enviado: ${submittedDate} &nbsp;&bull;&nbsp; &#128480; ${u.coins_balance||0} Almas</div>
+      ${u.verification_rejection_reason ? `<div style="font-size:11px;color:var(--r)">Razón rechazo: ${u.verification_rejection_reason}</div>` : ''}
+      ${isPending ? `
+      <div class="action-row">
+        <button class="approve-btn" onclick="approveKyc('${u.id}')">&#10003; Aprobar</button>
+        <button class="reject-btn" onclick="showRejectForm('${u.id}')">&#10006; Rechazar</button>
+      </div>
+      <textarea class="reject-reason" id="reason-${u.id}" placeholder="Razón del rechazo (opcional)..."></textarea>
+      <button class="reject-confirm" id="confirm-reject-${u.id}" onclick="rejectKyc('${u.id}')">CONFIRMAR RECHAZO</button>
+      ` : ''}
+    </div>
+  </div>`;
+}
+
+function showRejectForm(id){
+  var r=document.getElementById('reason-'+id);
+  var c=document.getElementById('confirm-reject-'+id);
+  if(r) r.classList.toggle('show');
+  if(c) c.classList.toggle('show');
+}
+
+async function approveKyc(userId){
+  var r = await sb.from('profiles').update({
+    verification_status:'verified',
+    verification_rejection_reason:null
+  }).eq('id',userId);
+  
+  if(r.error){showToast('Error: '+r.error.message,'error');return;}
+  
+  // Remove card with animation
+  var card = document.getElementById('card-'+userId);
+  if(card){ card.style.opacity='0'; card.style.transition='opacity .3s'; setTimeout(()=>card.remove(),300); }
+  
+  showToast('\u2713 Usuario verificado correctamente');
+  loadStats();
+}
+
+async function rejectKyc(userId){
+  var reason = document.getElementById('reason-'+userId)?.value?.trim() || '';
+  var r = await sb.from('profiles').update({
+    verification_status:'rejected',
+    verification_rejection_reason: reason||'No cumple los requisitos'
+  }).eq('id',userId);
+  
+  if(r.error){showToast('Error: '+r.error.message,'error');return;}
+  
+  var card = document.getElementById('card-'+userId);
+  if(card){ card.style.opacity='0'; card.style.transition='opacity .3s'; setTimeout(()=>card.remove(),300); }
+  
+  showToast('\u2716 Solicitud rechazada');
+  loadStats();
+}
+
+function openLightbox(url){
+  document.getElementById('lightboxImg').src=url;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function showToast(msg, type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.borderColor = type==='error'?'var(--r)':'var(--g)';
+  t.style.color = type==='error'?'var(--r)':'var(--g)';
+  t.style.display='block';
+  setTimeout(()=>t.style.display='none',3000);
+}
+
+// Auto-check session
+sb.auth.getSession().then(function(s){
+  if(s.data.session){
+    sb.from('profiles').select('username,is_admin').eq('id',s.data.session.user.id).single().then(function(p){
+      if(p.data?.is_admin){
+        adminUser = s.data.session.user;
+        document.getElementById('adminName').textContent='@'+(p.data.username||'admin');
+        document.getElementById('loginScreen').style.display='none';
+        document.getElementById('adminDash').style.display='block';
+        loadStats();
+        loadKycCards('pending');
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>

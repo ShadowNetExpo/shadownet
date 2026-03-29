@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>404 — SHADOWNET</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.bg-glow{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(255,34,85,.08) 0%,transparent 70%);pointer-events:none;animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.1)}}
+.particles{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.particle{position:absolute;width:2px;height:2px;background:#ff2255;border-radius:50%;animation:float linear infinite;opacity:0}
+@keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.3}100%{transform:translateY(-20px) translateX(var(--dx));opacity:0}}
+.content{text-align:center;padding:24px;position:relative;z-index:10;max-width:500px}
+.error-code{font-family:Orbitron,sans-serif;font-size:120px;font-weight:900;line-height:1;background:linear-gradient(135deg,#ff2255,#ff6680,#ff2255);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;animation:glitch 3s ease-in-out infinite}
+@keyframes glitch{0%,95%,100%{text-shadow:none}96%{text-shadow:2px 0 0 #00e5ff,-2px 0 0 #ff2255}97%{text-shadow:-2px 0 0 #00e5ff,2px 0 0 #ff2255}98%{text-shadow:none}}
+.error-subtitle{font-family:Orbitron,sans-serif;font-size:14px;color:#ff6680;letter-spacing:.2em;margin-bottom:20px;text-transform:uppercase}
+.error-msg{font-size:16px;color:#5a8aaa;line-height:1.7;margin-bottom:32px}
+.error-msg strong{color:#e8f4ff}
+.buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-home{padding:13px 28px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-home:hover{background:linear-gradient(135deg,#ff4477,#cc0044)}
+.btn-back{padding:13px 28px;background:transparent;border:1px solid rgba(0,229,255,.4);color:#00e5ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-back:hover{background:rgba(0,229,255,.08)}
+.logo-sm{font-family:Orbitron,sans-serif;font-size:13px;color:#ff2255;letter-spacing:.15em;margin-bottom:40px}
+.scanline{position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);pointer-events:none;z-index:5}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="scanline"></div>
+<div class="particles" id="particles"></div>
+<div class="content">
+  <div class="logo-sm">SHADOWNET</div>
+  <div class="error-code">404</div>
+  <div class="error-subtitle">Página no encontrada</div>
+  <div class="error-msg">
+    Esta página no existe o fue eliminada.<br>
+    <strong>Las sombras no dejan rastro.</strong>
+  </div>
+  <div class="buttons">
+    <a href="/" class="btn-home">&#127968; Ir al inicio</a>
+    <a href="javascript:history.back()" class="btn-back">&#8592; Volver</a>
+  </div>
+</div>
+<script>
+// Generate floating particles
+var p=document.getElementById("particles");
+for(var i=0;i<30;i++){
+  var el=document.createElement("div");el.className="particle";
+  el.style.left=Math.random()*100+"%";
+  el.style.setProperty("--dx",(Math.random()*100-50)+"px");
+  el.style.animationDuration=(Math.random()*8+6)+"s";
+  el.style.animationDelay=Math.random()*10+"s";
+  el.style.background=Math.random()>.5?"#ff2255":"#00e5ff";
+  p.appendChild(el);
+}
+</script>
+</body>
+</html>

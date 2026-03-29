@@ -57,6 +57,30 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .verified-icon{color:#00e5ff;font-size:12px;margin-left:4px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
 @media(max-width:480px){.wrap{padding:12px 10px}}
+
+.comments-section{padding:0 16px 12px;border-top:1px solid rgba(13,39,68,.4)}
+.comment-form{display:flex;gap:8px;padding:10px 0;border-bottom:1px solid rgba(13,39,68,.3)}
+.comment-inp{flex:1;background:rgba(1,2,12,.6);border:1px solid #0d2744;color:#e8f4ff;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none}
+.comment-inp:focus{border-color:#00e5ff}
+.comment-send{padding:7px 14px;background:#ff2255;color:#fff;border:none;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+.comment-list{display:flex;flex-direction:column;gap:8px;padding-top:8px}
+.comment-item{display:flex;gap:8px;align-items:flex-start}
+.comment-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.comment-av img{width:100%;height:100%;object-fit:cover}
+.comment-body{flex:1;background:rgba(7,15,30,.5);border-radius:0 10px 10px 10px;padding:8px 12px}
+.comment-name{font-weight:700;font-size:12px;color:#00e5ff;margin-bottom:2px}
+.comment-text{font-size:13px;color:#c8d8e8;line-height:1.4}
+.comment-time{font-size:10px;color:#5a8aaa;margin-top:3px}
+.comments-toggle{font-size:12px;color:#5a8aaa;cursor:pointer;padding:6px 0;display:block}
+.comments-toggle:hover{color:#00e5ff}
+.premium-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(1,2,12,0) 0%,rgba(1,2,12,.95) 50%,#01020c 100%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:20px}
+.premium-lock{text-align:center;padding:16px}
+.premium-lock-icon{font-size:32px;margin-bottom:8px}
+.premium-lock-text{font-family:Orbitron,sans-serif;font-size:12px;color:#e8f4ff;margin-bottom:10px;letter-spacing:.08em}
+.premium-sub-btn{padding:10px 24px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em}
+.premium-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:#5a8aaa;cursor:pointer;padding:4px 0}
+.premium-toggle input{cursor:pointer;accent-color:#ff2255}
+.post-premium-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff6680;margin-left:6px}
 </style>
 </head>
 <body>
@@ -78,7 +102,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <div class="media-preview" id="mediaPreview"></div>
     <div class="post-actions">
       <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
-      <button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
+      <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label><button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
     </div>
   </div>
   <div class="tabs">
@@ -121,7 +145,7 @@ async function initUser(u) {
   }
   var un = document.getElementById("myUsername");
   if (un && r.data) un.textContent = "@" + r.data.username;
-  loadFeed(curTab);
+  loadFeed(curTab); checkAndShowPremiumToggle();
 }
 
 async function loadFeed(tab) {
@@ -162,70 +186,74 @@ async function loadFeed(tab) {
 }
 
 function buildPostCard(post, profile, liked) {
-  var card = document.createElement("div");
-  card.className = "card";
-  card.id = "post-" + post.id;
-  var uname = profile ? profile.username : "usuario";
-  var initials = uname[0].toUpperCase();
-  var verified = profile && profile.verification_status === "verified";
-  var timeAgo = getTimeAgo(post.created_at);
-  var isOwn = currentUser && post.user_id === currentUser.id;
+  var card=document.createElement("div"); card.className="card"; card.id="post-"+post.id;
+  var uname=profile?profile.username:"usuario";
+  var initials=uname[0].toUpperCase();
+  var verified=profile&&profile.verification_status==="verified";
+  var timeAgo=getTimeAgo(post.created_at);
+  var isOwn=currentUser&&post.user_id===currentUser.id;
   // Header
-  var header = document.createElement("div"); header.className = "card-header";
-  var av = document.createElement("div"); av.className = "avatar-sm";
-  if (profile && profile.avatar_url) { var img = document.createElement("img"); img.src = profile.avatar_url; av.appendChild(img); }
-  else av.textContent = initials;
-  var userInfo = document.createElement("div"); userInfo.className = "card-user";
-  var nameEl = document.createElement("div"); nameEl.className = "card-name";
-  nameEl.textContent = "@" + uname;
-  nameEl.addEventListener("click", function() { window.location.href = "/profile.html?u=" + uname; });
-  if (verified) { var vi = document.createElement("span"); vi.className = "verified-icon"; vi.textContent = "\u2713"; nameEl.appendChild(vi); }
-  var timeEl = document.createElement("div"); timeEl.className = "card-time"; timeEl.textContent = timeAgo;
-  userInfo.appendChild(nameEl); userInfo.appendChild(timeEl);
-  header.appendChild(av); header.appendChild(userInfo);
-  if (!isOwn && currentUser) {
-    var fbtn = document.createElement("button"); fbtn.className = "follow-btn"; fbtn.textContent = "Seguir";
-    fbtn.dataset.uid = post.user_id;
-    fbtn.addEventListener("click", function() { toggleFollow(this); });
-    checkFollowing(post.user_id, fbtn);
+  var header=document.createElement("div");header.className="card-header";
+  var av=document.createElement("div");av.className="avatar-sm";
+  if(profile&&profile.avatar_url){var img=document.createElement("img");img.src=profile.avatar_url;av.appendChild(img);}else av.textContent=initials;
+  var userInfo=document.createElement("div");userInfo.className="card-user";
+  var nameEl=document.createElement("div");nameEl.className="card-name";nameEl.textContent="@"+uname;
+  nameEl.addEventListener("click",function(){window.location.href="/profile.html?u="+uname;});
+  if(verified){var vi=document.createElement("span");vi.className="verified-icon";vi.textContent="\u2713";nameEl.appendChild(vi);}
+  if(post.is_premium){var pb=document.createElement("span");pb.className="post-premium-badge";pb.textContent="\uD83D\uDD12 EXCLUSIVO";nameEl.appendChild(pb);}
+  var timeEl=document.createElement("div");timeEl.className="card-time";timeEl.textContent=timeAgo;
+  userInfo.appendChild(nameEl);userInfo.appendChild(timeEl);
+  header.appendChild(av);header.appendChild(userInfo);
+  if(!isOwn&&currentUser){
+    var fbtn=document.createElement("button");fbtn.className="follow-btn";fbtn.textContent="Seguir";
+    fbtn.dataset.uid=post.user_id;
+    fbtn.addEventListener("click",function(){toggleFollow(this);});
+    checkFollowing(post.user_id,fbtn);
     header.appendChild(fbtn);
   }
   card.appendChild(header);
   // Media
-  if (post.media_url) {
-    var mediaDiv = document.createElement("div"); mediaDiv.className = "card-media";
-    if (post.media_type === "video") {
-      var vid = document.createElement("video"); vid.src = post.media_url; vid.controls = true; vid.preload = "metadata";
-      mediaDiv.appendChild(vid);
-    } else {
-      var img2 = document.createElement("img"); img2.src = post.media_url; img2.alt = "post";
-      img2.addEventListener("click", function() { window.open(post.media_url); });
-      mediaDiv.appendChild(img2);
-    }
+  if(post.media_url){
+    var mediaDiv=document.createElement("div");mediaDiv.className="card-media";mediaDiv.style.position="relative";
+    if(post.media_type==="video"){var vid=document.createElement("video");vid.src=post.media_url;vid.controls=true;vid.preload="metadata";mediaDiv.appendChild(vid);}
+    else{var img2=document.createElement("img");img2.src=post.media_url;img2.alt="post";img2.addEventListener("click",function(){window.open(post.media_url);});mediaDiv.appendChild(img2);}
     card.appendChild(mediaDiv);
+    // Premium overlay - check subscription async
+    if(post.is_premium&&!isOwn){
+      checkSubscriptionCached(post.user_id).then(function(isSub){
+        if(!isSub) showPremiumOverlay(card,post.user_id,uname);
+      });
+    }
   }
   // Content
-  if (post.content) {
-    var content = document.createElement("div"); content.className = "card-content";
-    var txt = document.createElement("p"); txt.className = "card-text"; txt.textContent = post.content;
-    content.appendChild(txt); card.appendChild(content);
-  }
+  if(post.content){var content=document.createElement("div");content.className="card-content";var txt=document.createElement("p");txt.className="card-text";txt.textContent=post.content;content.appendChild(txt);card.appendChild(content);}
   // Footer
-  var footer = document.createElement("div"); footer.className = "card-footer";
-  var likeBtn = document.createElement("button"); likeBtn.className = "action-btn" + (liked ? " liked" : "");
-  likeBtn.innerHTML = '<span class="heart">&#10084;</span> <span class="like-count">' + (post.likes_count || 0) + "</span>";
-  likeBtn.dataset.postId = post.id;
-  likeBtn.dataset.liked = liked ? "1" : "0";
-  likeBtn.addEventListener("click", function() { toggleLike(this); });
+  var footer=document.createElement("div");footer.className="card-footer";
+  var likeBtn=document.createElement("button");likeBtn.className="action-btn"+(liked?" liked":"");
+  likeBtn.innerHTML='<span class="heart">&#10084;</span> <span class="like-count">'+(post.likes_count||0)+"</span>";
+  likeBtn.dataset.postId=post.id;likeBtn.dataset.liked=liked?"1":"0";
+  likeBtn.addEventListener("click",function(){toggleLike(this);});
   footer.appendChild(likeBtn);
-  if (isOwn) {
-    var delBtn = document.createElement("button"); delBtn.className = "action-btn"; delBtn.textContent = "\uD83D\uDDD1 Borrar";
-    delBtn.style.marginLeft = "auto"; delBtn.style.color = "#ff2255";
-    delBtn.dataset.postId = post.id;
-    delBtn.addEventListener("click", function() { deletePost(this.dataset.postId); });
-    footer.appendChild(delBtn);
-  }
+  // Comment count button
+  var cmtBtn=document.createElement("button");cmtBtn.className="action-btn";
+  cmtBtn.innerHTML="&#128172; <span>"+(post.comments_count||0)+"</span>";
+  cmtBtn.id="cmttoggle-"+post.id;
+  cmtBtn.addEventListener("click",function(){toggleComments(post.id,this);});
+  footer.appendChild(cmtBtn);
+  if(isOwn){var delBtn=document.createElement("button");delBtn.className="action-btn";delBtn.textContent="\uD83D\uDDD1 Borrar";delBtn.style.marginLeft="auto";delBtn.style.color="#ff2255";delBtn.dataset.postId=post.id;delBtn.addEventListener("click",function(){deletePost(this.dataset.postId);});footer.appendChild(delBtn);}
   card.appendChild(footer);
+  // Comments section (hidden by default)
+  var cmtSection=document.createElement("div");cmtSection.className="comments-section";cmtSection.id="comments-"+post.id;cmtSection.style.display="none";
+  if(currentUser){
+    var cmtForm=document.createElement("div");cmtForm.className="comment-form";
+    var cmtAv=document.createElement("div");cmtAv.className="comment-av";if(currentProfile&&currentProfile.avatar_url){var cimg=document.createElement("img");cimg.src=currentProfile.avatar_url;cmtAv.appendChild(cimg);}else cmtAv.textContent=(currentProfile?.username||"?")[0].toUpperCase();
+    var cmtInp=document.createElement("input");cmtInp.className="comment-inp";cmtInp.id="cmtinp-"+post.id;cmtInp.placeholder="Escribe un comentario...";
+    cmtInp.addEventListener("keydown",function(e){if(e.key==="Enter"){postComment(post.id);}});
+    var cmtSend=document.createElement("button");cmtSend.className="comment-send";cmtSend.textContent="\u25B6";cmtSend.addEventListener("click",function(){postComment(post.id);});
+    cmtForm.appendChild(cmtAv);cmtForm.appendChild(cmtInp);cmtForm.appendChild(cmtSend);cmtSection.appendChild(cmtForm);
+  }
+  var cmtList=document.createElement("div");cmtList.className="comment-list";cmtList.id="cmtlist-"+post.id;cmtSection.appendChild(cmtList);
+  card.appendChild(cmtSection);
   return card;
 }
 
@@ -304,7 +332,8 @@ async function submitPost() {
       mediaUrl = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
       mediaType = mediaFile.type.startsWith("video") ? "video" : "image";
     }
-    var r = await sb.from("posts").insert({ user_id: currentUser.id, content: text || null, media_url: mediaUrl, media_type: mediaType });
+    var isPremium=document.getElementById("isPremiumCheck")&&document.getElementById("isPremiumCheck").checked;
+    var r = await sb.from("posts").insert({ user_id: currentUser.id, content: text || null, media_url: mediaUrl, media_type: mediaType, is_premium: isPremium });
     if (r.error) throw new Error(r.error.message);
     document.getElementById("postText").value = "";
     mediaFile = null;
@@ -333,6 +362,106 @@ function showToast(msg, err) {
   var t = document.getElementById("toast");
   t.textContent = msg; t.style.borderColor = err ? "#ff2255" : "#00ff88"; t.style.color = err ? "#ff2255" : "#00ff88";
   t.style.display = "block"; setTimeout(function() { t.style.display = "none"; }, 2500);
+}
+
+// =============================================
+// COMENTARIOS
+// =============================================
+var _openComments = {};
+
+async function toggleComments(postId, btn){
+  var section = document.getElementById("comments-"+postId);
+  if(!section) return;
+  if(section.style.display==="none"||section.style.display===""){
+    section.style.display="block";
+    btn.textContent="Ocultar comentarios";
+    if(!section.dataset.loaded){
+      section.dataset.loaded="1";
+      await loadComments(postId);
+      subscribeComments(postId);
+    }
+  } else {
+    section.style.display="none";
+    btn.textContent="&#128172; Ver comentarios";
+  }
+}
+
+async function loadComments(postId){
+  var list = document.getElementById("cmtlist-"+postId);
+  if(!list) return;
+  var r = await sb.from("comments").select("*").eq("post_id",postId).order("created_at",{ascending:true}).limit(20);
+  list.innerHTML="";
+  (r.data||[]).forEach(function(c){ list.appendChild(buildComment(c)); });
+}
+
+function buildComment(c){
+  var item = document.createElement("div"); item.className="comment-item"; item.id="cmt-"+c.id;
+  var av = document.createElement("div"); av.className="comment-av";
+  if(c.avatar_url){var img=document.createElement("img");img.src=c.avatar_url;av.appendChild(img);}
+  else av.textContent=(c.username||"?")[0].toUpperCase();
+  var body = document.createElement("div"); body.className="comment-body";
+  var name = document.createElement("div"); name.className="comment-name"; name.textContent="@"+(c.username||"usuario");
+  var text = document.createElement("div"); text.className="comment-text"; text.textContent=c.content;
+  var time = document.createElement("div"); time.className="comment-time"; time.textContent=getTimeAgo(c.created_at);
+  body.appendChild(name); body.appendChild(text); body.appendChild(time);
+  item.appendChild(av); item.appendChild(body);
+  return item;
+}
+
+async function postComment(postId){
+  var inp = document.getElementById("cmtinp-"+postId);
+  var content = inp ? inp.value.trim() : "";
+  if(!content||!currentUser) return;
+  inp.value="";
+  var username = currentProfile?.username||"usuario";
+  var avatar = currentProfile?.avatar_url||null;
+  var r = await sb.from("comments").insert({post_id:postId,user_id:currentUser.id,username:username,avatar_url:avatar,content:content});
+  if(r.error) showToast("Error: "+r.error.message,true);
+}
+
+function subscribeComments(postId){
+  sb.channel("comments-"+postId).on("postgres_changes",{event:"INSERT",schema:"public",table:"comments",filter:"post_id=eq."+postId},function(p){
+    var list=document.getElementById("cmtlist-"+postId);
+    if(list) list.appendChild(buildComment(p.new));
+  }).subscribe();
+}
+
+// =============================================
+// CONTENIDO EXCLUSIVO (PREMIUM)
+// =============================================
+var _subsCache = {};
+
+async function checkSubscriptionCached(creatorId){
+  if(!currentUser) return false;
+  if(_subsCache[creatorId]!==undefined) return _subsCache[creatorId];
+  var r=await sb.from("subscriptions").select("id").eq("subscriber_id",currentUser.id).eq("creator_id",creatorId).eq("status","active").single();
+  _subsCache[creatorId]=!!r.data;
+  return _subsCache[creatorId];
+}
+
+function showPremiumOverlay(card, creatorId, creatorUsername){
+  var media=card.querySelector(".card-media");
+  if(!media)return;
+  media.style.position="relative";
+  var overlay=document.createElement("div"); overlay.className="premium-overlay";
+  var lock=document.createElement("div"); lock.className="premium-lock";
+  lock.innerHTML="<div class=\"premium-lock-icon\">\uD83D\uDD12</div>"
+    +"<div class=\"premium-lock-text\">CONTENIDO EXCLUSIVO</div>"
+    +"<div style=\"font-size:12px;color:#8a9bb0;margin-bottom:12px\">Suscr\xEDbete para ver este contenido</div>";
+  var sbtn=document.createElement("button"); sbtn.className="premium-sub-btn";
+  sbtn.textContent="Suscribirme";
+  sbtn.addEventListener("click",function(){window.location.href="/profile.html?u="+creatorUsername;});
+  lock.appendChild(sbtn); overlay.appendChild(lock); media.appendChild(overlay);
+}
+
+// Show premium toggle for creators
+async function checkAndShowPremiumToggle(){
+  if(!currentUser) return;
+  var r=await sb.from("profiles").select("role").eq("id",currentUser.id).single();
+  if(r.data&&r.data.role==="creator"){
+    var toggle=document.getElementById("premiumToggle");
+    if(toggle)toggle.style.display="flex";
+  }
 }
 </script>
 </body>

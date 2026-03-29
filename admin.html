@@ -209,7 +209,7 @@ async function loadKycCards(filter){
   grid.innerHTML='<div class="loading">Cargando...</div>';
   
   var q = sb.from('profiles')
-    .select('id,username,email,verification_status,verification_submitted_at,doc_url,selfie_url,verification_rejection_reason,coins_balance,created_at')
+    .select('id,username,verification_status,verification_submitted_at,doc_url,selfie_url,verification_rejection_reason,coins_balance,created_at')
     .order('verification_submitted_at',{ascending:false});
   
   if(filter!=='all') q = q.eq('verification_status', filter);
@@ -235,7 +235,7 @@ function renderCard(u){
     <div class="kyc-card-header">
       <div>
         <div class="kyc-username">@${u.username||'usuario'}</div>
-        <div class="kyc-email">${u.email||''}</div>
+        <div class="kyc-email" style="color:#5a8aaa;font-size:11px">ID: ${u.id?.slice(0,8)}...</div>
       </div>
       <span class="status-badge ${statusClass}">${statusText}</span>
     </div>

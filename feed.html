@@ -108,6 +108,8 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
   <div class="tabs">
     <button class="tab active" id="tabAll" onclick="loadFeed('all')">Global</button>
     <button class="tab" id="tabFollowing" onclick="loadFeed('following')">Siguiendo</button>
+    <button class="tab" id="tabTrending" onclick="loadFeed('trending')">&#128293; Trending</button>
+    <button class="tab" id="tabSaved" onclick="loadFeed('saved')">&#128278; Guardados</button>
   </div>
   <div id="feedContainer" class="feed"><div class="loader">Cargando feed...</div></div>
 </div>
@@ -151,41 +153,75 @@ async function initUser(u) {
 async function loadFeed(tab) {
   curTab = tab;
   document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("active"); });
-  var activeTab = tab === "all" ? document.getElementById("tabAll") : document.getElementById("tabFollowing");
+  var activeTab = tab === "all" ? document.getElementById("tabAll")
+    : tab === "following" ? document.getElementById("tabFollowing")
+    : tab === "trending" ? document.getElementById("tabTrending")
+    : document.getElementById("tabSaved");
   if (activeTab) activeTab.classList.add("active");
   var container = document.getElementById("feedContainer");
   container.innerHTML = '<div class="loader">Cargando...</div>';
-  var query;
-  if (tab === "following" && currentUser) {
-    var follows = await sb.from("follows").select("following_id").eq("follower_id", currentUser.id);
-    var ids = (follows.data || []).map(function(f) { return f.following_id; });
-    if (ids.length === 0) { container.innerHTML = '<div class="empty-feed"><div class="icon">&#128065;</div><p>No sigues a nadie todav\xEDa.<br>Explora el feed global y sigue creadores.</p></div>'; return; }
-    query = sb.from("posts").select("*").in("user_id", ids).order("created_at", { ascending: false }).limit(30);
-  } else {
-    query = sb.from("posts").select("*").order("created_at", { ascending: false }).limit(30);
+  var r;
+  if (tab === "trending") {
+    r = await sb.from("trending_posts").select("*").limit(20);
+    if (r.error || !r.data || r.data.length === 0) {
+      container.innerHTML = '<div class="empty-feed"><div class="icon">&#128293;</div><p>No hay posts trending ahora.<br>Publica algo y genera engagement!</p></div>';
+      return;
+    }
+    // Map trending_posts to post format
+    var likedSet = {};
+    var savedSet = {};
+    if (currentUser) {
+      var likes = await sb.from("post_likes").select("post_id").eq("user_id", currentUser.id);
+      (likes.data||[]).forEach(function(l) { likedSet[l.post_id] = true; });
+      var saves = await sb.from("bookmarks").select("post_id").eq("user_id", currentUser.id);
+      (saves.data||[]).forEach(function(s) { savedSet[s.post_id] = true; });
+    }
+    container.innerHTML = "";
+    r.data.forEach(function(post) {
+      var profile = { id: post.user_id, username: post.username, avatar_url: post.avatar_url, verification_status: post.verification_status };
+      var card = buildPostCard(post, profile, likedSet[post.id], savedSet[post.id]);
+      container.appendChild(card);
+    });
+    return;
   }
-  var r = await query;
+  if (tab === "saved") {
+    if (!currentUser) { container.innerHTML = '<div class="empty-feed"><div class="icon">&#128278;</div><p>Inicia sesión para ver tus guardados</p></div>'; return; }
+    var saves2 = await sb.from("bookmarks").select("post_id").eq("user_id", currentUser.id).order("created_at",{ascending:false});
+    var ids = (saves2.data||[]).map(function(s){return s.post_id;});
+    if (ids.length === 0) { container.innerHTML = '<div class="empty-feed"><div class="icon">&#128278;</div><p>No tienes posts guardados.<br>Toca el icono &#128278; para guardar.</p></div>'; return; }
+    r = await sb.from("posts").select("*").in("id", ids);
+  } else if (tab === "following" && currentUser) {
+    var follows = await sb.from("follows").select("following_id").eq("follower_id", currentUser.id);
+    var ids2 = (follows.data || []).map(function(f) { return f.following_id; });
+    if (ids2.length === 0) { container.innerHTML = '<div class="empty-feed"><div class="icon">&#128065;</div><p>No sigues a nadie todavía.<br>Explora el feed global y sigue creadores.</p></div>'; return; }
+    r = await sb.from("posts").select("*").in("user_id", ids2).order("created_at", { ascending: false }).limit(30);
+  } else {
+    r = await sb.from("posts").select("*").order("created_at", { ascending: false }).limit(30);
+  }
   if (r.error || !r.data || r.data.length === 0) {
-    container.innerHTML = '<div class="empty-feed"><div class="icon">&#128248;</div><p>A\xFAn no hay publicaciones.<br>\xA1S\xE9 el primero en compartir algo!</p></div>';
+    container.innerHTML = '<div class="empty-feed"><div class="icon">&#128248;</div><p>Aún no hay publicaciones.<br>¡Sé el primero en compartir algo!</p></div>';
     return;
   }
   var userIds = [...new Set(r.data.map(function(p) { return p.user_id; }))];
   var profiles = await sb.from("profiles").select("id,username,avatar_url,verification_status").in("id", userIds);
   var profileMap = {};
   (profiles.data || []).forEach(function(p) { profileMap[p.id] = p; });
-  var likedSet = {};
+  var likedSet2 = {};
+  var savedSet2 = {};
   if (currentUser) {
-    var likes = await sb.from("post_likes").select("post_id").eq("user_id", currentUser.id);
-    (likes.data || []).forEach(function(l) { likedSet[l.post_id] = true; });
+    var likes2 = await sb.from("post_likes").select("post_id").eq("user_id", currentUser.id);
+    (likes2.data || []).forEach(function(l) { likedSet2[l.post_id] = true; });
+    var saves3 = await sb.from("bookmarks").select("post_id").eq("user_id", currentUser.id);
+    (saves3.data || []).forEach(function(s) { savedSet2[s.post_id] = true; });
   }
   container.innerHTML = "";
   r.data.forEach(function(post) {
-    var card = buildPostCard(post, profileMap[post.user_id], likedSet[post.id]);
+    var card = buildPostCard(post, profileMap[post.user_id], likedSet2[post.id], savedSet2[post.id]);
     container.appendChild(card);
   });
 }
 
-function buildPostCard(post, profile, liked) {
+function buildPostCard(post, profile, liked, saved) {
   var card=document.createElement("div"); card.className="card"; card.id="post-"+post.id;
   var uname=profile?profile.username:"usuario";
   var initials=uname[0].toUpperCase();
@@ -199,8 +235,8 @@ function buildPostCard(post, profile, liked) {
   var userInfo=document.createElement("div");userInfo.className="card-user";
   var nameEl=document.createElement("div");nameEl.className="card-name";nameEl.textContent="@"+uname;
   nameEl.addEventListener("click",function(){window.location.href="/profile.html?u="+uname;});
-  if(verified){var vi=document.createElement("span");vi.className="verified-icon";vi.textContent="\u2713";nameEl.appendChild(vi);}
-  if(post.is_premium){var pb=document.createElement("span");pb.className="post-premium-badge";pb.textContent="\uD83D\uDD12 EXCLUSIVO";nameEl.appendChild(pb);}
+  if(verified){var vi=document.createElement("span");vi.className="verified-icon";vi.textContent="✓";nameEl.appendChild(vi);}
+  if(post.is_premium){var pb=document.createElement("span");pb.className="post-premium-badge";pb.textContent="🔒 EXCLUSIVO";nameEl.appendChild(pb);}
   var timeEl=document.createElement("div");timeEl.className="card-time";timeEl.textContent=timeAgo;
   userInfo.appendChild(nameEl);userInfo.appendChild(timeEl);
   header.appendChild(av);header.appendChild(userInfo);
@@ -218,38 +254,51 @@ function buildPostCard(post, profile, liked) {
     if(post.media_type==="video"){var vid=document.createElement("video");vid.src=post.media_url;vid.controls=true;vid.preload="metadata";mediaDiv.appendChild(vid);}
     else{var img2=document.createElement("img");img2.src=post.media_url;img2.alt="post";img2.addEventListener("click",function(){window.open(post.media_url);});mediaDiv.appendChild(img2);}
     card.appendChild(mediaDiv);
-    // Premium overlay - check subscription async
     if(post.is_premium&&!isOwn){
-      checkSubscriptionCached(post.user_id).then(function(isSub){
-        if(!isSub) showPremiumOverlay(card,post.user_id,uname);
-      });
+      checkSubscriptionCached(post.user_id).then(function(isSub){if(!isSub)showPremiumOverlay(card,post.user_id,uname);});
     }
   }
   // Content
   if(post.content){var content=document.createElement("div");content.className="card-content";var txt=document.createElement("p");txt.className="card-text";txt.textContent=post.content;content.appendChild(txt);card.appendChild(content);}
-  // Footer
+  // Footer with like + comment + share + save
   var footer=document.createElement("div");footer.className="card-footer";
+  // Like
   var likeBtn=document.createElement("button");likeBtn.className="action-btn"+(liked?" liked":"");
   likeBtn.innerHTML='<span class="heart">&#10084;</span> <span class="like-count">'+(post.likes_count||0)+"</span>";
   likeBtn.dataset.postId=post.id;likeBtn.dataset.liked=liked?"1":"0";
   likeBtn.addEventListener("click",function(){toggleLike(this);});
   footer.appendChild(likeBtn);
-  // Comment count button
+  // Comment
   var cmtBtn=document.createElement("button");cmtBtn.className="action-btn";
   cmtBtn.innerHTML="&#128172; <span>"+(post.comments_count||0)+"</span>";
-  cmtBtn.id="cmttoggle-"+post.id;
   cmtBtn.addEventListener("click",function(){toggleComments(post.id,this);});
   footer.appendChild(cmtBtn);
-  if(isOwn){var delBtn=document.createElement("button");delBtn.className="action-btn";delBtn.textContent="\uD83D\uDDD1 Borrar";delBtn.style.marginLeft="auto";delBtn.style.color="#ff2255";delBtn.dataset.postId=post.id;delBtn.addEventListener("click",function(){deletePost(this.dataset.postId);});footer.appendChild(delBtn);}
+  // Share
+  var shareBtn=document.createElement("button");shareBtn.className="action-btn";
+  shareBtn.innerHTML="&#128279; <span>"+(post.shares_count||0)+"</span>";
+  shareBtn.dataset.postId=post.id;
+  shareBtn.addEventListener("click",function(){sharePost(this.dataset.postId,uname);});
+  footer.appendChild(shareBtn);
+  // Save/Bookmark
+  var saveBtn=document.createElement("button");saveBtn.className="action-btn"+(saved?" liked":"");
+  saveBtn.innerHTML="<span>"+(saved?"&#128278;":"&#128278;"+(saved?"":" "))+"</span>";
+  saveBtn.innerHTML=saved?"&#128278;":"&#9960;";
+  saveBtn.title=saved?"Guardado":"Guardar";
+  saveBtn.dataset.postId=post.id;saveBtn.dataset.saved=saved?"1":"0";
+  saveBtn.addEventListener("click",function(){toggleSave(this);});
+  saveBtn.style.marginLeft="auto";
+  footer.appendChild(saveBtn);
+  // Delete (own posts)
+  if(isOwn){var delBtn=document.createElement("button");delBtn.className="action-btn";delBtn.textContent="🗑";delBtn.style.color="#ff2255";delBtn.dataset.postId=post.id;delBtn.addEventListener("click",function(){deletePost(this.dataset.postId);});footer.appendChild(delBtn);}
   card.appendChild(footer);
-  // Comments section (hidden by default)
+  // Comments section
   var cmtSection=document.createElement("div");cmtSection.className="comments-section";cmtSection.id="comments-"+post.id;cmtSection.style.display="none";
   if(currentUser){
     var cmtForm=document.createElement("div");cmtForm.className="comment-form";
     var cmtAv=document.createElement("div");cmtAv.className="comment-av";if(currentProfile&&currentProfile.avatar_url){var cimg=document.createElement("img");cimg.src=currentProfile.avatar_url;cmtAv.appendChild(cimg);}else cmtAv.textContent=(currentProfile?.username||"?")[0].toUpperCase();
-    var cmtInp=document.createElement("input");cmtInp.className="comment-inp";cmtInp.id="cmtinp-"+post.id;cmtInp.placeholder="Escribe un comentario...";
-    cmtInp.addEventListener("keydown",function(e){if(e.key==="Enter"){postComment(post.id);}});
-    var cmtSend=document.createElement("button");cmtSend.className="comment-send";cmtSend.textContent="\u25B6";cmtSend.addEventListener("click",function(){postComment(post.id);});
+    var cmtInp=document.createElement("input");cmtInp.className="comment-inp";cmtInp.id="cmtinp-"+post.id;cmtInp.placeholder="Comenta algo...";
+    cmtInp.addEventListener("keydown",function(e){if(e.key==="Enter")postComment(post.id);});
+    var cmtSend=document.createElement("button");cmtSend.className="comment-send";cmtSend.textContent="▶";cmtSend.addEventListener("click",function(){postComment(post.id);});
     cmtForm.appendChild(cmtAv);cmtForm.appendChild(cmtInp);cmtForm.appendChild(cmtSend);cmtSection.appendChild(cmtForm);
   }
   var cmtList=document.createElement("div");cmtList.className="comment-list";cmtList.id="cmtlist-"+post.id;cmtSection.appendChild(cmtList);
@@ -461,6 +510,33 @@ async function checkAndShowPremiumToggle(){
   if(r.data&&r.data.role==="creator"){
     var toggle=document.getElementById("premiumToggle");
     if(toggle)toggle.style.display="flex";
+  }
+}
+
+async function toggleSave(btn){
+  if(!currentUser){showToast("Inicia sesión para guardar",true);return;}
+  var postId=btn.dataset.postId;
+  var isSaved=btn.dataset.saved==="1";
+  if(isSaved){
+    await sb.from("bookmarks").delete().eq("user_id",currentUser.id).eq("post_id",postId);
+    btn.innerHTML="☆";btn.title="Guardar";btn.dataset.saved="0";btn.classList.remove("liked");
+    showToast("Eliminado de guardados");
+  } else {
+    await sb.from("bookmarks").insert({user_id:currentUser.id,post_id:postId});
+    btn.innerHTML="&#128278;";btn.title="Guardado";btn.dataset.saved="1";btn.classList.add("liked");
+    showToast("\u2713 Post guardado");
+  }
+}
+
+async function sharePost(postId, username){
+  var url=window.location.origin+"/feed.html?post="+postId;
+  if(navigator.share){
+    try{await navigator.share({title:"@"+username+" en SHADOWNET",url:url});
+      await sb.from("posts").update({shares_count:1}).eq("id",postId);
+    }catch(e){}
+  } else {
+    navigator.clipboard.writeText(url).then(function(){showToast("\u2713 Link copiado al portapapeles");}).catch(function(){showToast("Link: "+url);});
+    await sb.from("posts").update({shares_count:1}).eq("id",postId);
   }
 }
 </script>

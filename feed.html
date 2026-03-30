@@ -1299,7 +1299,7 @@ async function insertSuggestionCard(afterCard){
   if(!r.data||!r.data.length)return;
   var div=document.createElement("div");div.className="suggestion-divider";
   var title=document.createElement("div");title.className="suggestion-title";
-  title.innerHTML="<span>\uD83D\uDCA1 Sugerencias para ti</span><span style='cursor:pointer;color:#ff2255;font-size:11px' onclick='this.closest(".suggestion-divider").remove()'>X</span>";
+var titleText=document.createElement("span");titleText.textContent="\uD83D\uDCA1 Sugerencias para ti";var closeX=document.createElement("span");closeX.textContent="X";closeX.style.cssText="cursor:pointer;color:#ff2255;font-size:11px";closeX.addEventListener("click",function(){this.closest(".suggestion-divider").remove();});title.appendChild(titleText);title.appendChild(closeX);
   var list=document.createElement("div");list.className="suggestion-list";
   r.data.forEach(function(u){
     var row=document.createElement("div");row.className="suggestion-user";

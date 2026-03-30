@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:10px}
+.logo{font-family:Orbitron,sans-serif;font-size:14px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
+.back-btn{padding:6px 12px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;margin-left:auto}
+.back-btn:hover{border-color:#00e5ff;color:#00e5ff}
+.profile-cover{width:100%;height:160px;background:linear-gradient(135deg,#1a0020 0%,#000814 50%,#0a0020 100%);position:relative;overflow:hidden}
+.profile-cover img{width:100%;height:100%;object-fit:cover}
+.cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(1,2,12,.9))}
+.profile-wrap{max-width:700px;margin:0 auto;padding:0 16px 80px}
+.profile-header{position:relative;margin-bottom:16px}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;border:3px solid #01020c;overflow:hidden;margin-top:-40px;position:relative;z-index:2}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-info{margin-top:12px}
+.profile-username{font-family:Orbitron,sans-serif;font-size:16px;color:#e8f4ff;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.v-badge{color:#00e5ff;font-size:13px}
+.role-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;background:rgba(255,34,85,.15);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
+.profile-bio{font-size:14px;color:#8a9bb0;line-height:1.6;margin-top:8px}
+.rank-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:12px;font-size:11px;font-family:Rajdhani,sans-serif;font-weight:700;background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00;margin-top:8px;cursor:pointer}
+.rank-badge:hover{background:linear-gradient(135deg,rgba(255,170,0,.25),rgba(200,80,0,.15))}
+.profile-actions{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.action-btn{padding:8px 16px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;border:1px solid #0d2744;background:transparent;color:#5a8aaa;transition:all .2s}
+.action-btn:hover{border-color:#00e5ff;color:#00e5ff}
+.action-btn.following{border-color:rgba(0,229,255,.4);color:#00e5ff}
+.action-btn.primary{background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff}
+.coins-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.2);color:#ff6680}
+.profile-stats{display:flex;gap:0;margin-top:16px;border:1px solid #0d2744;border-radius:10px;overflow:hidden}
+.stat{flex:1;text-align:center;padding:12px 8px;border-right:1px solid #0d2744;cursor:pointer;transition:background .15s}
+.stat:last-child{border-right:none}
+.stat:hover{background:rgba(0,229,255,.04)}
+.stat-num{font-family:Orbitron,sans-serif;font-size:16px;color:#e8f4ff}
+.stat-lbl{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+.sub-section{margin-top:16px;padding:14px;background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px}
+.sub-price{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:10px}
+.sub-price.paid{background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff6680}
+.sub-price.free{background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);color:#00e5ff}
+.sub-btn{width:100%;padding:10px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase;border:none}
+.sub-btn.paid{background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff}
+.sub-btn.free{background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000}
+.sub-btn.subscribed{background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.3);color:#00ff88}
+.posts-title{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em;margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid #0d2744}.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.post-thumb{aspect-ratio:1;background:rgba(7,15,30,.7);border-radius:4px;overflow:hidden;cursor:pointer;position:relative}
+.post-thumb img,.post-thumb video{width:100%;height:100%;object-fit:cover}
+.post-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background .2s}
+.post-thumb:hover .post-overlay{background:rgba(0,0,0,.45)}
+.post-stats{color:#fff;font-size:12px;font-weight:700;opacity:0;transition:opacity .2s;text-align:center}
+.post-thumb:hover .post-stats{opacity:1}
+.empty-posts{text-align:center;padding:40px;color:#5a8aaa;grid-column:1/-1}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+
+.profile-cover img{transition:object-position .1s}
+.profile-cover{cursor:default}
+
+/* Story Highlights on Profile */
+.profile-highlights{margin:16px 0 0;overflow:hidden}
+.highlights-scroll{display:flex;gap:14px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
+.highlights-scroll::-webkit-scrollbar{display:none}
+.hl-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;cursor:pointer;min-width:72px}
+.hl-ring{width:66px;height:66px;border-radius:50%;padding:2px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
+.hl-inner{width:100%;height:100%;border-radius:50%;background:rgba(7,15,30,.8);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid #01020c;overflow:hidden}
+.hl-inner img{width:100%;height:100%;object-fit:cover}
+.hl-label{font-size:11px;color:#c8d8e8;text-align:center;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hl-add-ring{background:linear-gradient(135deg,#0d2744,#1a3a60)}
+.hl-add-inner{font-size:22px;color:#5a8aaa;background:rgba(7,15,30,.6);border:2px dashed #0d2744}
+
+/* Instagram-style Profile Tabs */
+.profile-tabs{display:flex;border-bottom:1px solid #0d2744;margin:16px 0 0}
+.profile-tab{flex:1;padding:12px 8px;text-align:center;font-family:Orbitron,sans-serif;font-size:10px;color:#5a8aaa;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.profile-tab:hover{color:#c8d8e8}
+.profile-tab.active{color:#e8f4ff;border-bottom-color:#ff2255}
+.profile-tab-icon{font-size:14px}
+/* Empty state for tabs */
+.tab-empty{text-align:center;padding:40px 20px;color:#5a8aaa;grid-column:1/-1}
+.tab-empty-icon{font-size:36px;margin-bottom:10px}
+.tab-empty-text{font-size:13px;line-height:1.5}
+
+/* Instagram-style Profile Tabs */
+.profile-tabs{display:flex;border-bottom:1px solid #0d2744;margin:16px 0 0;gap:0}
+.profile-tab{flex:1;padding:12px 8px;text-align:center;font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:.08em;color:#5a8aaa;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.profile-tab:hover{color:#c8d8e8}
+.profile-tab.active{color:#e8f4ff;border-bottom-color:#ff2255}
+.profile-tab-icon{font-size:14px}
+/* Saved & Tagged grids */
+.saved-grid,.tagged-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.empty-tab{text-align:center;padding:40px;color:#5a8aaa;grid-column:1/-1;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <button class="back-btn" onclick="history.back()">&larr; Volver</button>
+</header>
+<div class="profile-cover" id="profileCover"></div>
+<div class="profile-wrap">
+  <div class="profile-header">
+    <div class="profile-avatar" id="profileAvatar"></div>
+  </div>
+  <div class="profile-info">
+    <div class="profile-username" id="profileUsername"></div>
+    <div class="profile-bio" id="profileBio"></div>
+    <div id="profileRankBadge"></div>
+    <div class="profile-actions" id="profileActions"></div>
+    <div id="profileSubSection"></div>
+  </div>
+  <div class="profile-stats">
+    <div class="stat" onclick="window.location.href='/leaderboard.html'">
+      <div class="stat-num" id="statFollowers">0</div>
+      <div class="stat-lbl">Seguidores</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statFollowing">0</div>
+      <div class="stat-lbl">Siguiendo</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statSubs">0</div>
+      <div class="stat-lbl">Suscriptores</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statPosts">0</div>
+      <div class="stat-lbl">Posts</div>
+    </div>
+    <div class="stat" onclick="window.location.href='/leaderboard.html'">
+      <div class="stat-num" id="statRank" style="color:#ffaa00;font-size:14px">-</div>
+      <div class="stat-lbl">Rango</div>
+    </div>
+  </div>
+  <div class="profile-highlights" id="profileHighlights" style="display:none">
+    <div class="highlights-scroll" id="highlightsScroll"></div>
+  </div>
+  <div class="profile-tabs" id="profileTabs">
+    <div class="profile-tab active" data-tab="posts" onclick="switchTab('posts')"><span class="profile-tab-icon">⋮⋮⋮⋮</span>Posts</div>
+    <div class="profile-tab" data-tab="reels" onclick="switchTab('reels')"><span class="profile-tab-icon">▶</span>Reels</div>
+    <div class="profile-tab" data-tab="saved" onclick="switchTab('saved')" id="savedTab" style="display:none"><span class="profile-tab-icon">🔖</span>Guardados</div>
+    <div class="profile-tab" data-tab="tagged" onclick="switchTab('tagged')"><span class="profile-tab-icon">🏷</span>Etiquetados</div>
+  </div>
+  <div class="posts-grid" id="postsGrid"><div class="empty-posts">Cargando...</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
+var currentProfile=null;
+var targetProfile=null;
+
+sb.auth.getSession().then(function(r){
+  if(r.data.session){
+    currentUser=r.data.session.user;
+    sb.from("profiles").select("*").eq("id",currentUser.id).single().then(function(p){
+      currentProfile=p.data;
+    });
+  }
+  var params=new URLSearchParams(location.search);
+  var u=params.get("u"),id=params.get("id");
+  if(u) loadByUsername(u);
+  else if(id) loadById(id);
+  else if(currentUser) loadById(currentUser.id);
+  else window.location.href="/";
+});
+
+async function loadByUsername(username){
+  var r=await sb.from("profiles").select("*").eq("username",username).single();
+  if(r.error||!r.data){showToast("Usuario no encontrado",true);return;}
+  renderProfile(r.data); loadPosts(r.data.id);
+  loadProfileHighlights(r.data.id, !!(currentUser&&r.data.id===currentUser.id));
+}
+
+async function loadById(id){
+  var r=await sb.from("profiles").select("*").eq("id",id).single();
+  if(r.error||!r.data){showToast("Perfil no encontrado",true);return;}
+  renderProfile(r.data); loadPosts(r.data.id);
+  loadProfileHighlights(r.data.id, !!(currentUser&&r.data.id===currentUser.id));
+}
+
+function renderProfile(p){
+  targetProfile=p;
+  var isOwn=currentUser&&p.id===currentUser.id;
+  var savedTabEl=document.getElementById("savedTab");
+  if(savedTabEl)savedTabEl.style.display=isOwn?"flex":"none";
+  document.title="@"+p.username+" \u2014 SHADOWNET";
+
+  var coverEl=document.getElementById("profileCover");
+  coverEl.innerHTML="";
+  if(p.cover_url){
+    var ci=document.createElement("img");ci.src=p.cover_url;
+    var pos=parseFloat(p.cover_position||50);
+    ci.style.cssText="width:100%;height:100%;object-fit:cover;object-position:center "+pos+"%;display:block";
+    coverEl.appendChild(ci);
+  }
+  var ov=document.createElement("div");ov.className="cover-overlay";coverEl.appendChild(ov);
+
+  var av=document.getElementById("profileAvatar");
+  av.innerHTML="";
+  if(p.avatar_url){var ai=document.createElement("img");ai.src=p.avatar_url;av.appendChild(ai);}
+  else av.textContent=(p.username||"?")[0].toUpperCase();
+
+  var nameEl=document.getElementById("profileUsername");
+  nameEl.innerHTML="";
+  nameEl.appendChild(document.createTextNode("@"+p.username));
+  if(p.verification_status==="verified"){
+    var vb=document.createElement("span");vb.className="v-badge";vb.textContent="\u2713";
+    nameEl.appendChild(vb);
+  }
+  if(p.role==="creator"){
+    var rt=document.createElement("span");rt.className="role-tag";rt.textContent="CREADOR";
+    nameEl.appendChild(rt);
+  }
+
+  document.getElementById("profileBio").textContent=p.bio||"";
+
+  var rankEl=document.getElementById("profileRankBadge");
+  rankEl.innerHTML="";
+  if(p.fan_points>0){
+    var rb=document.createElement("div");rb.className="rank-badge";
+    rb.textContent="\u2B50 "+(p.fan_rank_name||"Sombra")+" Lv."+(p.fan_rank||1)+" \u2022 "+(p.fan_points||0)+" pts";
+    rb.addEventListener("click",function(){window.location.href="/leaderboard.html";});
+    rankEl.appendChild(rb);
+  }  document.getElementById("statFollowers").textContent=p.followers_count||0;
+  document.getElementById("statFollowing").textContent=p.following_count||0;
+  document.getElementById("statSubs").textContent=p.subscribers_count||0;
+  document.getElementById("statPosts").textContent=p.posts_count||0;
+  if(p.fan_rank) document.getElementById("statRank").textContent="Lv."+(p.fan_rank||1);
+
+  var actions=document.getElementById("profileActions");
+  actions.innerHTML="";
+  if(isOwn){
+    var editBtn=document.createElement("button");editBtn.className="action-btn";
+    editBtn.textContent="Editar Perfil";
+    editBtn.addEventListener("click",function(){window.location.href="/settings.html";});
+    actions.appendChild(editBtn);
+    var cb=document.createElement("span");cb.className="coins-badge";
+    cb.textContent="\uD83D\uDC80 "+(p.coins_balance||0)+" Almas";
+    actions.appendChild(cb);
+  } else {
+    var followBtn=document.createElement("button");followBtn.className="action-btn";
+    followBtn.id="mainFollowBtn";followBtn.dataset.uid=p.id;followBtn.textContent="Seguir";
+    followBtn.addEventListener("click",function(){toggleFollow(this,p.id);});
+    checkFollowState(p.id,followBtn);
+    actions.appendChild(followBtn);
+    var dmBtn=document.createElement("button");dmBtn.className="action-btn";
+    dmBtn.textContent="Mensaje";
+    dmBtn.addEventListener("click",function(){window.location.href="/messages.html?with="+p.username;});
+    actions.appendChild(dmBtn);
+  }
+
+  var subSec=document.getElementById("profileSubSection");
+  subSec.innerHTML="";
+  if(p.role==="creator"){
+    var price=parseFloat(p.subscription_price||0);
+    var subDiv=document.createElement("div");subDiv.className="sub-section";
+    var priceTag=document.createElement("div");
+    priceTag.className="sub-price "+(price>0?"paid":"free");
+    priceTag.textContent=price>0?"$"+price.toFixed(2)+"/mes":"Contenido gratuito";
+    subDiv.appendChild(priceTag);
+    if(!isOwn){
+      var subBtn=document.createElement("button");
+      subBtn.className="sub-btn "+(price>0?"paid":"free");
+      subBtn.id="subActionBtn";
+      subBtn.dataset.creatorId=p.id;
+      subBtn.dataset.price=String(price);
+      subBtn.dataset.paypal=p.paypal_email||"";
+      subBtn.dataset.username=p.username;
+      subBtn.textContent=price>0?"Suscribirse $"+price.toFixed(2)+"/mes":"Seguir gratis";
+      subBtn.addEventListener("click",function(){
+        handleSubscribe(this.dataset.creatorId,parseFloat(this.dataset.price),this.dataset.paypal,this.dataset.username);
+      });
+      checkSubState(p.id,subBtn);
+      subDiv.appendChild(subBtn);
+    }
+    subSec.appendChild(subDiv);
+  }
+}
+
+async function checkFollowState(uid,btn){
+  if(!currentUser) return;
+  var r=await sb.from("follows").select("id").eq("follower_id",currentUser.id).eq("following_id",uid).single();
+  if(r.data){btn.textContent="Siguiendo";btn.classList.add("following");}
+}
+
+async function toggleFollow(btn,uid){
+  if(!currentUser){window.location.href="/";return;}
+  var isF=btn.classList.contains("following");
+  if(isF){
+    await sb.from("follows").delete().eq("follower_id",currentUser.id).eq("following_id",uid);
+    btn.textContent="Seguir";btn.classList.remove("following");
+  } else {
+    await sb.from("follows").insert({follower_id:currentUser.id,following_id:uid});
+    btn.textContent="Siguiendo";btn.classList.add("following");
+    if(currentProfile){
+      await sb.from("notifications").insert({
+        user_id:uid,from_user_id:currentUser.id,type:"follow",
+        message:"@"+currentProfile.username+" te empieza a seguir"
+      });
+    }
+  }
+  var sf=document.getElementById("statFollowers");
+  if(sf) sf.textContent=Math.max(0,parseInt(sf.textContent||0)+(isF?-1:1));
+}
+
+async function checkSubState(creatorId,btn){
+  if(!currentUser||!btn) return;
+  var r=await sb.from("subscriptions").select("status").eq("subscriber_id",currentUser.id).eq("creator_id",creatorId).single();
+  if(r.data&&r.data.status==="active"){
+    btn.className="sub-btn subscribed";btn.textContent="Suscrito";
+  }
+}
+async function handleSubscribe(creatorId,price,paypalEmail,creatorUsername){
+  if(!currentUser){window.location.href="/";return;}
+  if(price>0){
+    if(paypalEmail){
+      var handle=paypalEmail.replace(/@.*/,"");
+      var url="https://www.paypal.com/paypalme/"+handle+"/"+price;
+      if(confirm("Se abrira PayPal para suscribirte a @"+creatorUsername+" por $"+price.toFixed(2)+"/mes. Continuar?")){
+        window.open(url,"_blank");
+        await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"pending",amount:price});
+        showToast("Completa el pago en PayPal");
+      }
+    } else {
+      showToast("Este creador aun no configuro su metodo de pago",true);
+    }
+  } else {
+    await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"active",amount:0});
+    if(currentProfile){
+      await sb.from("notifications").insert({
+        user_id:creatorId,from_user_id:currentUser.id,type:"subscription",
+        message:"@"+currentProfile.username+" se suscribio a tu contenido"
+      });
+    }
+    var btn=document.getElementById("subActionBtn");
+    if(btn){btn.className="sub-btn subscribed";btn.textContent="Suscrito";}
+    showToast("Ahora sigues a @"+creatorUsername+" gratuitamente");
+  }
+}
+
+async function loadPosts(userId){
+  _tabUserId = userId;
+  // Show saved tab only for own profile
+  var savedTab = document.getElementById('savedTab');
+  if(savedTab && currentUser && currentUser.id === userId) savedTab.style.display='flex';
+  loadTabContent('posts', userId);
+  return;
+  // legacy below (unused)
+  var grid=document.getElementById("postsGrid");
+  var r=await sb.from("posts").select("*").eq("user_id",userId).order("created_at",{ascending:false}).limit(30);
+  if(r.error||!r.data||r.data.length===0){
+    grid.innerHTML="<div class=\"empty-posts\">Sin publicaciones aun</div>";return;
+  }
+  grid.innerHTML="";
+  r.data.forEach(function(post){
+    var thumb=document.createElement("div");thumb.className="post-thumb";
+    if(post.media_url){
+      if(post.media_type==="video"){
+        var v=document.createElement("video");v.src=post.media_url;v.muted=true;v.preload="metadata";thumb.appendChild(v);
+      } else {
+        var img=document.createElement("img");img.src=post.media_url;img.loading="lazy";thumb.appendChild(img);
+      }
+    } else {
+      var td=document.createElement("div");
+      td.style.cssText="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px;font-size:11px;color:#5a8aaa;line-height:1.3";
+      td.textContent=(post.content||"").slice(0,60);thumb.appendChild(td);
+    }
+    var ov2=document.createElement("div");ov2.className="post-overlay";
+    var st=document.createElement("div");st.className="post-stats";
+    st.textContent="\u2764 "+(post.likes_count||0)+"  \uD83D\uDCAC "+(post.comments_count||0);
+    ov2.appendChild(st);thumb.appendChild(ov2);
+    thumb.addEventListener("click",function(){window.location.href="/feed.html?post="+post.id;});
+    grid.appendChild(thumb);
+  });
+}
+
+function showToast(msg,err){
+  var t=document.getElementById("toast");t.textContent=msg;
+  t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
+  t.style.display="block";setTimeout(function(){t.style.display="none";},3000);
+}
+
+// =============================================
+// INSTAGRAM: STORY HIGHLIGHTS ON PROFILE
+// =============================================
+async function loadProfileHighlights(userId, isOwn) {
+  var sec = document.getElementById("profileHighlights");
+  var scroll = document.getElementById("highlightsScroll");
+  if(!sec||!scroll) return;
+
+  var r = await sb.from("story_highlights").select("*").eq("user_id", userId).order("created_at",{ascending:true});
+  var highlights = r.data||[];
+
+  // Show "Add" button if own profile
+  if(isOwn && highlights.length === 0 && !currentUser) return;
+
+  scroll.innerHTML="";
+
+  if(isOwn){
+    var addItem = document.createElement("div"); addItem.className="hl-item";
+    var addRing = document.createElement("div"); addRing.className="hl-ring hl-add-ring";
+    var addInner = document.createElement("div"); addInner.className="hl-inner hl-add-inner"; addInner.textContent="+";
+    addRing.appendChild(addInner);
+    var addLabel = document.createElement("div"); addLabel.className="hl-label"; addLabel.textContent="Nuevo";
+    addItem.appendChild(addRing); addItem.appendChild(addLabel);
+    addItem.addEventListener("click",function(){window.location.href="/stories.html";});
+    scroll.appendChild(addItem);
+  }
+
+  highlights.forEach(function(hl){
+    var item = document.createElement("div"); item.className="hl-item";
+    var ring = document.createElement("div"); ring.className="hl-ring";
+    var inner = document.createElement("div"); inner.className="hl-inner";
+    if(hl.cover_url){var img=document.createElement("img");img.src=hl.cover_url;inner.appendChild(img);}
+    else inner.textContent = hl.emoji||"\u2B50";
+    ring.appendChild(inner);
+    var label = document.createElement("div"); label.className="hl-label"; label.textContent=hl.title;
+    item.appendChild(ring); item.appendChild(label);
+    item.addEventListener("click",function(){window.location.href="/stories.html";});
+    scroll.appendChild(item);
+  });
+
+  if(isOwn || highlights.length > 0){
+    sec.style.display="block";
+  }
+}
+
+// =============================================
+// INSTAGRAM: PROFILE TABS
+// =============================================
+var _activeTab = 'posts';
+var _tabUserId = null;
+
+function switchTab(tab) {
+  _activeTab = tab;
+  // Update tab UI
+  document.querySelectorAll('.profile-tab').forEach(function(t){
+    t.classList.toggle('active', t.dataset.tab===tab);
+  });
+  // Load content
+  if(_tabUserId) loadTabContent(tab, _tabUserId);
+}
+
+async function loadTabContent(tab, userId) {
+  var grid = document.getElementById('postsGrid');
+  grid.innerHTML = '<div class="empty-posts">Cargando...</div>';
+
+  if(tab === 'posts'){
+    var r = await sb.from('posts').select('*').eq('user_id', userId).is('media_type', null).order('created_at',{ascending:false}).limit(30);
+    var r2 = await sb.from('posts').select('*').eq('user_id', userId).neq('media_type','video').order('created_at',{ascending:false}).limit(30);
+    renderPostsGrid(r2.data||r.data||[]);
+
+  } else if(tab === 'reels'){
+    var rr = await sb.from('posts').select('*').eq('user_id', userId).eq('media_type','video').order('created_at',{ascending:false}).limit(30);
+    if(!rr.data||!rr.data.length){
+      grid.innerHTML = '<div class="tab-empty"><div class="tab-empty-icon">\u25B6\uFE0F</div><div class="tab-empty-text">Sin reels todavia</div></div>';
+    } else renderPostsGrid(rr.data);
+
+  } else if(tab === 'saved'){
+    if(!currentUser||currentUser.id!==userId){grid.innerHTML='<div class="tab-empty"><div class="tab-empty-text">Solo tu puedes ver tus guardados</div></div>';return;}
+    var rs = await sb.from('bookmarks').select('post_id, posts(*)').eq('user_id', userId).limit(30);
+    var posts2 = (rs.data||[]).map(function(b){return b.posts;}).filter(Boolean);
+    if(!posts2.length){grid.innerHTML='<div class="tab-empty"><div class="tab-empty-icon">\uD83D\uDD16</div><div class="tab-empty-text">No has guardado nada todavia</div></div>';}
+    else renderPostsGrid(posts2);
+
+  } else if(tab === 'tagged'){
+    grid.innerHTML = '<div class="tab-empty"><div class="tab-empty-icon">\uD83C\uDFF7\uFE0F</div><div class="tab-empty-text">Sin etiquetas todavia</div></div>';
+  }
+}
+
+function renderPostsGrid(posts) {
+  var grid = document.getElementById('postsGrid');
+  grid.innerHTML = '';
+  if(!posts||!posts.length){
+    grid.innerHTML='<div class="empty-posts">Sin publicaciones aun</div>';return;
+  }
+  posts.forEach(function(post){
+    var thumb=document.createElement('div');thumb.className='post-thumb';
+    if(post.media_url){
+      if(post.media_type==='video'){
+        var v=document.createElement('video');v.src=post.media_url;v.muted=true;v.preload='metadata';thumb.appendChild(v);
+        var vBadge=document.createElement('div');vBadge.style.cssText='position:absolute;top:6px;right:6px;color:#fff;font-size:16px';vBadge.textContent='\u25B6';thumb.appendChild(vBadge);
+      } else {
+        var img=document.createElement('img');img.src=post.media_url;img.loading='lazy';thumb.appendChild(img);
+      }
+    } else {
+      var td=document.createElement('div');
+      td.style.cssText='width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px;font-size:11px;color:#5a8aaa;line-height:1.3';
+      td.textContent=(post.content||'').slice(0,60);thumb.appendChild(td);
+    }
+    var ov=document.createElement('div');ov.className='post-overlay';
+    var st=document.createElement('div');st.className='post-stats';
+    st.textContent='\u2764 '+(post.likes_count||0)+'  \uD83D\uDCAC '+(post.comments_count||0);
+    ov.appendChild(st);thumb.appendChild(ov);
+    thumb.addEventListener('click',function(){window.location.href='/feed.html?post='+post.id;});
+    grid.appendChild(thumb);
+  });
+}
+
+// =============================================
+// INSTAGRAM: PROFILE TABS
+// =============================================
+function switchProfileTab(tab, el) {
+  // Update active tab
+  document.querySelectorAll(".profile-tab").forEach(function(t){t.classList.remove("active");});
+  el.classList.add("active");
+
+  var content = document.getElementById("tabContent");
+  if(!content) return;
+
+  if(tab==="posts"){
+    content.innerHTML="<div class='posts-grid' id='postsGrid'><div class='empty-posts'>Cargando...</div></div>";
+    if(targetProfile) loadPosts(targetProfile.id);
+
+  } else if(tab==="reels"){
+    content.innerHTML="<div class='posts-grid' id='reelsGrid'></div>";
+    loadReels();
+
+  } else if(tab==="saved"){
+    content.innerHTML="<div class='saved-grid' id='savedGrid'></div>";
+    loadSavedPosts();
+
+  } else if(tab==="tagged"){
+    content.innerHTML="<div class='tagged-grid' id='taggedGrid'><div class='empty-tab'>Sin etiquetas todavia</div></div>";
+  }
+}
+
+async function loadReels(){
+  var grid=document.getElementById("reelsGrid");
+  if(!grid||!targetProfile)return;
+  var r=await sb.from("posts").select("*").eq("user_id",targetProfile.id).eq("media_type","video").order("created_at",{ascending:false}).limit(30);
+  if(r.error||!r.data||!r.data.length){grid.innerHTML="<div class='empty-tab'>Sin reels todavia</div>";return;}
+  r.data.forEach(function(post){
+    var thumb=document.createElement("div");thumb.className="post-thumb";thumb.style.position="relative";
+    var v=document.createElement("video");v.src=post.media_url;v.muted=true;v.preload="metadata";
+    v.style.cssText="width:100%;height:100%;object-fit:cover";thumb.appendChild(v);
+    var badge=document.createElement("div");badge.style.cssText="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700";
+    badge.textContent="\u25B6 REEL";thumb.appendChild(badge);
+    var ov=document.createElement("div");ov.className="post-overlay";
+    var st=document.createElement("div");st.className="post-stats";
+    st.textContent="\u2764 "+(post.likes_count||0)+"  \uD83D\uDCAC "+(post.comments_count||0);
+    ov.appendChild(st);thumb.appendChild(ov);
+    thumb.addEventListener("click",function(){window.location.href="/feed.html?post="+post.id;});
+    grid.appendChild(thumb);
+  });
+}
+
+async function loadSavedPosts(){
+  var grid=document.getElementById("savedGrid");
+  if(!grid||!currentUser)return;
+  var r=await sb.from("bookmarks").select("post_id,posts(*)").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(30);
+  if(r.error||!r.data||!r.data.length){grid.innerHTML="<div class='empty-tab'>No has guardado nada todavia</div>";return;}
+  r.data.forEach(function(bm){
+    var post=bm.posts;if(!post)return;
+    var thumb=document.createElement("div");thumb.className="post-thumb";
+    if(post.media_url){var img=document.createElement("img");img.src=post.media_url;img.loading="lazy";thumb.appendChild(img);}
+    else{var td=document.createElement("div");td.style.cssText="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px;font-size:11px;color:#5a8aaa";td.textContent=(post.content||"").slice(0,40);thumb.appendChild(td);}
+    thumb.addEventListener("click",function(){window.location.href="/feed.html?post="+post.id;});
+    grid.appendChild(thumb);
+  });
+}
+</script>
+</body>
+</html>

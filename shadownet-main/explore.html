@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET — Explorar</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:10px}
+.logo{font-family:Orbitron,sans-serif;font-size:14px;color:#ff2255;letter-spacing:.12em;cursor:pointer;flex-shrink:0}
+.search-wrap{flex:1;display:flex;align-items:center;background:rgba(7,15,30,.8);border:1px solid #0d2744;border-radius:24px;padding:0 14px;gap:8px;cursor:pointer}
+.search-wrap:hover{border-color:#00e5ff}
+.si{color:#5a8aaa;font-size:15px}
+.search-fake{flex:1;padding:10px 0;font-size:14px;color:#3a5060;pointer-events:none}
+.back-btn{padding:6px 12px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;flex-shrink:0}
+.back-btn:hover{border-color:#00e5ff;color:#00e5ff}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px}
+.section-title{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.12em;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #0d2744}
+/* Creator grid */
+.creators-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:32px}
+.creator-card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
+.creator-card:hover{border-color:rgba(0,229,255,.4);transform:translateY(-2px)}
+.creator-cover{height:80px;background:linear-gradient(135deg,#1a0020,#000814);position:relative;overflow:hidden}
+.creator-cover img{width:100%;height:100%;object-fit:cover}
+.creator-cover-grad{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,34,85,.3),rgba(0,0,50,.4))}
+.creator-av{position:absolute;bottom:-20px;left:16px;width:48px;height:48px;border-radius:50%;border:3px solid #01020c;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;overflow:hidden}
+.creator-av img{width:100%;height:100%;object-fit:cover}
+.creator-body{padding:28px 16px 14px}
+.creator-name{font-weight:700;font-size:14px;color:#e8f4ff;display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.creator-bio{font-size:12px;color:#5a8aaa;line-height:1.4;margin-bottom:10px;min-height:32px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.creator-stats{display:flex;gap:12px;margin-bottom:12px}
+.cs{text-align:center}
+.cs-num{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff}
+.cs-lbl{font-size:10px;color:#5a8aaa;text-transform:uppercase}
+.creator-price{font-size:11px;color:#00ff88;margin-bottom:8px;font-weight:700}
+.sub-btn{width:100%;padding:8px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
+.sub-btn.free{background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000}
+.v-badge{color:#00e5ff;font-size:12px}
+.rank-badge{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:700;background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.empty{text-align:center;padding:40px;color:#5a8aaa;font-size:14px}
+.loader{text-align:center;padding:30px;color:#5a8aaa;font-size:13px}
+/* Categories */
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.cat{padding:7px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em}
+.cat.active,.cat:hover{border-color:rgba(0,229,255,.4);background:rgba(0,229,255,.08);color:#00e5ff}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <div class="search-wrap" onclick="window.location.href='/search.html'">
+    <span class="si">&#128269;</span>
+    <span class="search-fake">Buscar creadores, posts...</span>
+  </div>
+  <button class="back-btn" onclick="window.location.href='/'">&#8592; Inicio</button>
+</header>
+<div class="wrap">
+  <div class="cats" id="cats">
+    <button class="cat active" data-f="all" onclick="filterCreators('all',this)">Todos</button>
+    <button class="cat" data-f="top" onclick="filterCreators('top',this)">&#128293; Top</button>
+    <button class="cat" data-f="new" onclick="filterCreators('new',this)">&#10024; Nuevos</button>
+    <button class="cat" data-f="verified" onclick="filterCreators('verified',this)">&#10003; Verificados</button>
+  </div>
+  <div class="section-title">CREADORES DESTACADOS</div>
+  <div class="creators-grid" id="creatorsGrid"><div class="loader">Cargando...</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
+var followingSet={};
+var allCreators=[];
+
+sb.auth.getSession().then(function(r){
+  if(r.data.session){
+    currentUser=r.data.session.user;
+    sb.from("follows").select("following_id").eq("follower_id",currentUser.id).then(function(f){
+      (f.data||[]).forEach(function(x){followingSet[x.following_id]=true;});
+    });
+  }
+  loadCreators();
+});
+
+async function loadCreators(){
+  var r=await sb.from("profiles")
+    .select("id,username,avatar_url,cover_url,bio,verification_status,followers_count,subscribers_count,posts_count,subscription_price,fan_rank_name,fan_rank,role")
+    .eq("role","creator").eq("is_banned",false).order("followers_count",{ascending:false}).limit(30);
+  if(r.error){document.getElementById("creatorsGrid").innerHTML="<div class=\"empty\">Error cargando creadores</div>";return;}
+  allCreators=r.data||[];
+  renderCreators(allCreators);
+}
+
+function filterCreators(filter,btn){
+  document.querySelectorAll(".cat").forEach(function(c){c.classList.remove("active");});
+  btn.classList.add("active");
+  var filtered=allCreators.slice();
+  if(filter==="top") filtered=filtered.sort(function(a,b){return (b.followers_count||0)-(a.followers_count||0);});
+  else if(filter==="new") filtered=filtered.reverse();
+  else if(filter==="verified") filtered=filtered.filter(function(c){return c.verification_status==="verified";});
+  renderCreators(filtered);
+}
+
+function renderCreators(creators){
+  var grid=document.getElementById("creatorsGrid");
+  if(!creators||creators.length===0){grid.innerHTML="<div class=\"empty\">No hay creadores en esta categor\xEDa a\xFAn</div>";return;}
+  grid.innerHTML="";
+  creators.forEach(function(c){grid.appendChild(buildCreatorCard(c));});
+}
+
+function buildCreatorCard(c){
+  var card=document.createElement("div");card.className="creator-card";
+  card.addEventListener("click",function(){window.location.href="/profile.html?u="+c.username;});
+  // Cover
+  var cover=document.createElement("div");cover.className="creator-cover";
+  if(c.cover_url){var ci=document.createElement("img");ci.src=c.cover_url;cover.appendChild(ci);}
+  var grad=document.createElement("div");grad.className="creator-cover-grad";cover.appendChild(grad);
+  var av=document.createElement("div");av.className="creator-av";
+  if(c.avatar_url){var ai=document.createElement("img");ai.src=c.avatar_url;av.appendChild(ai);}else av.textContent=(c.username||"?")[0].toUpperCase();
+  cover.appendChild(av);card.appendChild(cover);
+  // Body
+  var body=document.createElement("div");body.className="creator-body";
+  var name=document.createElement("div");name.className="creator-name";
+  name.textContent="@"+c.username;
+  if(c.verification_status==="verified"){var vb=document.createElement("span");vb.className="v-badge";vb.textContent="✓";name.appendChild(vb);}
+  if(c.fan_rank_name&&c.fan_rank>1){var rb=document.createElement("span");rb.className="rank-badge";rb.textContent="⭐ "+c.fan_rank_name;name.appendChild(rb);}
+  var bio=document.createElement("div");bio.className="creator-bio";bio.textContent=c.bio||"Creador en SHADOWNET";
+  var stats=document.createElement("div");stats.className="creator-stats";
+  [{n:c.followers_count||0,l:"Seg."},{n:c.subscribers_count||0,l:"Subs"},{n:c.posts_count||0,l:"Posts"}].forEach(function(s){
+    var cs=document.createElement("div");cs.className="cs";
+    var num=document.createElement("div");num.className="cs-num";num.textContent=s.n>=1000?(s.n/1000).toFixed(1)+"K":s.n;
+    var lbl=document.createElement("div");lbl.className="cs-lbl";lbl.textContent=s.l;
+    cs.appendChild(num);cs.appendChild(lbl);stats.appendChild(cs);
+  });
+  var price=document.createElement("div");price.className="creator-price";
+  var p=parseFloat(c.subscription_price||0);
+  price.textContent=p>0?"🐍 Suscripción: $"+p.toFixed(2)+"/mes":"🔓 Contenido gratis";
+  var subbtn=document.createElement("button");
+  subbtn.className="sub-btn"+(p===0?" free":"");
+  subbtn.textContent=p===0?"Seguir gratis":"Suscribirse";
+  subbtn.dataset.uid=c.id;subbtn.dataset.uname=c.username;
+  subbtn.addEventListener("click",function(e){e.stopPropagation();goToProfile(this.dataset.uname);});
+  body.appendChild(name);body.appendChild(bio);body.appendChild(stats);body.appendChild(price);body.appendChild(subbtn);
+  card.appendChild(body);
+  return card;
+}
+
+function goToProfile(uname){window.location.href="/profile.html?u="+uname;}
+
+function showToast(msg,err){
+  var t=document.getElementById("toast");t.textContent=msg;
+  t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
+  t.style.display="block";setTimeout(function(){t.style.display="none";},2500);
+}
+</script>
+</body>
+</html>

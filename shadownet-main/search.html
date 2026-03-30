@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET — Buscar</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:10px}
+.logo{font-family:Orbitron,sans-serif;font-size:14px;color:#ff2255;letter-spacing:.12em;cursor:pointer;flex-shrink:0}
+.search-wrap{flex:1;display:flex;align-items:center;background:rgba(7,15,30,.8);border:1px solid #0d2744;border-radius:24px;padding:0 14px;gap:8px}
+.search-wrap:focus-within{border-color:#00e5ff}
+.search-icon{color:#5a8aaa;font-size:16px;flex-shrink:0}
+.search-inp{flex:1;background:none;border:none;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:15px;padding:10px 0;outline:none}
+.search-inp::placeholder{color:#3a5060}
+.back-btn{padding:6px 12px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;flex-shrink:0}
+.back-btn:hover{border-color:#00e5ff;color:#00e5ff}
+.wrap{max-width:700px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(7,15,30,.5);border-radius:8px;padding:4px}
+.tab{flex:1;padding:8px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-align:center;border:none;background:transparent;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em}
+.tab.active{background:rgba(0,229,255,.12);color:#00e5ff}
+.results{display:flex;flex-direction:column;gap:12px}
+/* User results */
+.user-card{display:flex;align-items:center;gap:12px;background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:10px;padding:12px 16px;cursor:pointer;transition:border-color .15s}
+.user-card:hover{border-color:rgba(0,229,255,.3)}
+.av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.ui{flex:1;min-width:0}
+.un{font-weight:700;font-size:15px;color:#e8f4ff;display:flex;align-items:center;gap:6px}
+.ub{font-size:12px;color:#5a8aaa;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v-icon{color:#00e5ff;font-size:12px}
+.role-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.06em}
+.rt-creator{background:rgba(255,34,85,.15);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
+.rt-fan{background:rgba(0,229,255,.1);color:#00e5ff;border:1px solid rgba(0,229,255,.25)}
+.follow-btn{padding:6px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;border:1px solid rgba(0,229,255,.4);background:rgba(0,229,255,.08);color:#00e5ff;text-transform:uppercase;flex-shrink:0}
+.follow-btn.following{border-color:#5a8aaa;color:#5a8aaa;background:transparent}
+/* Post results */
+.post-card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.post-card:hover{border-color:rgba(0,229,255,.3)}
+.post-header{padding:10px 14px;display:flex;align-items:center;gap:10px}
+.post-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.post-av img{width:100%;height:100%;object-fit:cover}
+.post-user{font-weight:700;font-size:13px;color:#00e5ff}
+.post-time{font-size:11px;color:#5a8aaa;margin-left:auto}
+.post-content{padding:0 14px 10px;font-size:14px;color:#c8d8e8;line-height:1.5}
+.post-media{width:100%;max-height:200px;object-fit:cover;display:block}
+.post-stats{padding:8px 14px;border-top:1px solid rgba(13,39,68,.4);display:flex;gap:14px;font-size:12px;color:#5a8aaa}
+/* Empty / loading */
+.empty-msg{text-align:center;padding:40px;color:#5a8aaa;font-size:14px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.loader{text-align:center;padding:30px;color:#5a8aaa;font-size:13px}
+.section-title{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(13,39,68,.4)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <div class="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input class="search-inp" id="searchInp" placeholder="Buscar usuarios, posts..." autocomplete="off" autofocus>
+  </div>
+  <button class="back-btn" onclick="history.back()">&#8592; Volver</button>
+</header>
+<div class="wrap">
+  <div class="tabs" id="tabs" style="display:none">
+    <button class="tab active" id="tabAll" onclick="switchTab('all')">Todo</button>
+    <button class="tab" id="tabUsers" onclick="switchTab('users')">Personas</button>
+    <button class="tab" id="tabPosts" onclick="switchTab('posts')">Posts</button>
+  </div>
+  <div id="results">
+    <div class="empty-msg"><div class="empty-icon">&#128269;</div>Busca usuarios, posts o temas</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
+var followingSet={};
+var searchTimer=null;
+var curTab="all";
+var lastQuery="";
+var lastUsers=[];
+var lastPosts=[];
+
+sb.auth.getSession().then(function(r){
+  if(r.data.session){
+    currentUser=r.data.session.user;
+    sb.from("follows").select("following_id").eq("follower_id",currentUser.id).then(function(f){
+      (f.data||[]).forEach(function(x){followingSet[x.following_id]=true;});
+    });
+  }
+  // Check for ?q= param
+  var q=new URLSearchParams(location.search).get("q");
+  if(q){document.getElementById("searchInp").value=q;doSearch(q);}
+});
+
+document.getElementById("searchInp").addEventListener("input",function(){
+  var q=this.value.trim();
+  clearTimeout(searchTimer);
+  if(!q){document.getElementById("results").innerHTML="<div class=\"empty-msg\"><div class=\"empty-icon\">\uD83D\uDD0D</div>Busca usuarios, posts o temas</div>";document.getElementById("tabs").style.display="none";return;}
+  searchTimer=setTimeout(function(){doSearch(q);},350);
+});
+
+document.getElementById("searchInp").addEventListener("keydown",function(e){
+  if(e.key==="Enter"){clearTimeout(searchTimer);doSearch(this.value.trim());}
+});
+
+async function doSearch(q){
+  if(!q||q===lastQuery&&lastUsers.length+lastPosts.length>0) return;
+  lastQuery=q;
+  document.getElementById("results").innerHTML="<div class=\"loader\">Buscando...</div>";
+  document.getElementById("tabs").style.display="flex";
+  var [users,posts]=await Promise.all([
+    sb.from("profiles").select("id,username,avatar_url,bio,role,verification_status,followers_count").ilike("username","%"+q+"%").limit(10),
+    sb.from("posts").select("id,user_id,content,media_url,media_type,likes_count,comments_count,created_at").ilike("content","%"+q+"%").order("created_at",{ascending:false}).limit(10)
+  ]);
+  lastUsers=users.data||[];
+  lastPosts=posts.data||[];
+  if(lastUsers.length===0&&lastPosts.length===0){
+    document.getElementById("results").innerHTML="<div class=\"empty-msg\"><div class=\"empty-icon\">\uD83D\uDD0D</div>Sin resultados para \""+escHtml(q)+"\"</div>";
+    return;
+  }
+  renderResults(curTab);
+}
+
+function switchTab(tab){
+  curTab=tab;
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+  document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add("active");
+  renderResults(tab);
+}
+
+async function renderResults(tab){
+  var container=document.getElementById("results");
+  container.innerHTML="";
+  var showUsers=(tab==="all"||tab==="users")&&lastUsers.length>0;
+  var showPosts=(tab==="all"||tab==="posts")&&lastPosts.length>0;
+  if(showUsers){
+    if(tab==="all"){var t=document.createElement("div");t.className="section-title";t.textContent="PERSONAS";container.appendChild(t);}
+    lastUsers.forEach(function(u){container.appendChild(buildUserCard(u));});
+  }
+  if(showPosts){
+    if(tab==="all"){var t2=document.createElement("div");t2.className="section-title";t2.style.marginTop="20px";t2.textContent="PUBLICACIONES";container.appendChild(t2);}
+    // Get usernames for posts
+    var uids=[...new Set(lastPosts.map(function(p){return p.user_id;}))];
+    var profs=await sb.from("profiles").select("id,username,avatar_url").in("id",uids);
+    var pm={};(profs.data||[]).forEach(function(p){pm[p.id]=p;});
+    lastPosts.forEach(function(p){container.appendChild(buildPostCard(p,pm[p.user_id]));});
+  }
+  if(!showUsers&&!showPosts){
+    container.innerHTML="<div class=\"empty-msg\">Sin resultados en esta categoría</div>";
+  }
+}
+
+function buildUserCard(u){
+  var card=document.createElement("div");card.className="user-card";
+  card.addEventListener("click",function(){window.location.href="/profile.html?u="+u.username;});
+  var av=document.createElement("div");av.className="av";
+  if(u.avatar_url){var img=document.createElement("img");img.src=u.avatar_url;av.appendChild(img);}else av.textContent=(u.username||"?")[0].toUpperCase();
+  var info=document.createElement("div");info.className="ui";
+  var name=document.createElement("div");name.className="un";name.textContent="@"+u.username;
+  if(u.verification_status==="verified"){var vi=document.createElement("span");vi.className="v-icon";vi.textContent="✓";name.appendChild(vi);}
+  var rt=document.createElement("span");rt.className="role-tag "+(u.role==="creator"?"rt-creator":"rt-fan");rt.textContent=u.role==="creator"?"CREADOR":"FAN";name.appendChild(rt);
+  var bio=document.createElement("div");bio.className="ub";bio.textContent=u.bio||(u.followers_count||0)+" seguidores";
+  info.appendChild(name);info.appendChild(bio);
+  card.appendChild(av);card.appendChild(info);
+  if(currentUser&&u.id!==currentUser.id){
+    var fbtn=document.createElement("button");fbtn.className="follow-btn"+(followingSet[u.id]?" following":"");
+    fbtn.textContent=followingSet[u.id]?"Siguiendo":"Seguir";
+    fbtn.dataset.uid=u.id;
+    fbtn.addEventListener("click",function(e){e.stopPropagation();toggleFollow(this);});
+    card.appendChild(fbtn);
+  }
+  return card;
+}
+
+function buildPostCard(post,profile){
+  var card=document.createElement("div");card.className="post-card";
+  card.addEventListener("click",function(){window.location.href="/feed.html?post="+post.id;});
+  var ph=document.createElement("div");ph.className="post-header";
+  var pav=document.createElement("div");pav.className="post-av";
+  if(profile&&profile.avatar_url){var img=document.createElement("img");img.src=profile.avatar_url;pav.appendChild(img);}
+  else pav.textContent=(profile?.username||"?")[0].toUpperCase();
+  var pu=document.createElement("div");pu.className="post-user";pu.textContent="@"+(profile?.username||"usuario");
+  var pt=document.createElement("div");pt.className="post-time";pt.textContent=getTimeAgo(post.created_at);
+  ph.appendChild(pav);ph.appendChild(pu);ph.appendChild(pt);card.appendChild(ph);
+  if(post.media_url&&post.media_type!=="video"){var img2=document.createElement("img");img2.className="post-media";img2.src=post.media_url;img2.alt="post";card.appendChild(img2);}
+  if(post.content){var pc=document.createElement("div");pc.className="post-content";pc.textContent=post.content.slice(0,150)+(post.content.length>150?"...":"");card.appendChild(pc);}
+  var ps=document.createElement("div");ps.className="post-stats";
+  ps.innerHTML="&#10084; "+(post.likes_count||0)+" &nbsp; &#128172; "+(post.comments_count||0);
+  card.appendChild(ps);
+  return card;
+}
+
+async function toggleFollow(btn){
+  if(!currentUser){window.location.href="/";return;}
+  var uid=btn.dataset.uid;
+  var isF=btn.classList.contains("following");
+  if(isF){
+    await sb.from("follows").delete().eq("follower_id",currentUser.id).eq("following_id",uid);
+    btn.textContent="Seguir";btn.classList.remove("following");delete followingSet[uid];
+    showToast("Dejaste de seguir");
+  } else {
+    await sb.from("follows").insert({follower_id:currentUser.id,following_id:uid});
+    btn.textContent="Siguiendo";btn.classList.add("following");followingSet[uid]=true;
+    showToast("\u2713 Siguiendo");
+  }
+}
+
+function getTimeAgo(ts){var d=(Date.now()-new Date(ts))/1000;if(d<60)return "ahora";if(d<3600)return Math.floor(d/60)+"m";if(d<86400)return Math.floor(d/3600)+"h";return Math.floor(d/86400)+"d";}
+function escHtml(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function showToast(msg,err){var t=document.getElementById("toast");t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";t.style.display="block";setTimeout(function(){t.style.display="none";},2500);}
+</script>
+</body>
+</html>

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET ADMIN</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+header{padding:16px 24px;background:rgba(7,15,30,.9);border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:Orbitron,sans-serif;font-size:16px;color:#ff2255;letter-spacing:.15em}
+.logout-btn{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff6680;padding:8px 16px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:80vh}
+.login-box{background:rgba(7,15,30,.8);border:1px solid #0d2744;border-radius:12px;padding:32px;width:100%;max-width:380px}
+.ltitle{font-family:Orbitron,sans-serif;font-size:13px;color:#00e5ff;text-align:center;margin-bottom:20px;letter-spacing:.1em}
+.inp{width:100%;padding:11px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none}
+.inp:focus{border-color:#00e5ff}
+.btn-p{width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase}
+.err{color:#ff2255;font-size:12px;text-align:center;min-height:16px;margin-top:6px}
+.wrap{padding:24px;max-width:1100px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.sc{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px;text-align:center}
+.sn{font-family:Orbitron,sans-serif;font-size:28px;margin-bottom:4px}
+.sl{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em}
+.c-blue{color:#00e5ff}.c-yellow{color:#ffaa00}.c-green{color:#00ff88}.c-red{color:#ff2255}
+.sec-title{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;letter-spacing:.1em;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #0d2744}
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.fb{padding:7px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;text-transform:uppercase}
+.fb.active{border-color:#00e5ff;color:#00e5ff;background:rgba(0,229,255,.1)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;overflow:hidden}
+.ch{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #0d2744}
+.cu{font-weight:700;font-size:14px}.ci{font-size:11px;color:#5a8aaa;margin-top:2px}
+.badge{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:800;text-transform:uppercase}
+.b-p{background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.b-v{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid rgba(0,255,136,.3)}
+.b-r{background:rgba(255,34,85,.15);color:#ff2255;border:1px solid rgba(255,34,85,.3)}
+.photos{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}
+.pbox{border-radius:8px;overflow:hidden;background:rgba(1,2,12,.5);border:1px solid #0d2744}
+.pbox img{width:100%;height:140px;object-fit:cover;cursor:zoom-in;display:block}
+.plabel{font-size:10px;color:#5a8aaa;text-align:center;padding:5px;text-transform:uppercase}
+.nophoto{height:140px;display:flex;align-items:center;justify-content:center;color:#5a8aaa;font-size:11px}
+.cf{padding:12px 16px;border-top:1px solid #0d2744}
+.meta{font-size:11px;color:#5a8aaa;margin-bottom:8px}
+.arow{display:flex;gap:8px;margin-bottom:8px}
+.abtn{flex:1;padding:10px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
+.rbtn{flex:1;padding:10px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
+.rtxt{width:100%;padding:8px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:12px;display:none;resize:none;height:56px;margin-bottom:6px}
+.rcbtn{width:100%;padding:8px;background:#ff2255;color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;display:none}
+.empty{text-align:center;padding:48px;color:#5a8aaa}
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:12px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out}
+.lb.open{display:flex}
+.lb img{max-width:90vw;max-height:90vh;border-radius:8px}
+
+.app-card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.app-header{padding:14px 16px;border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between}
+.app-user{font-weight:700;font-size:14px}
+.app-date{font-size:11px;color:#5a8aaa}
+.app-body{padding:14px 16px}
+.app-field{margin-bottom:10px}
+.app-field-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.app-field-value{font-size:13px;color:#c8d8e8;line-height:1.5}
+.app-type{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(255,34,85,.15);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
+.app-footer{padding:12px 16px;border-top:1px solid #0d2744;display:flex;gap:8px;flex-direction:column}
+.note-inp{width:100%;padding:8px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:12px;resize:none;height:52px;display:none;margin-bottom:6px}
+.note-inp.show{display:block}
+.reject-confirm2{width:100%;padding:8px;background:#ff2255;color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;display:none}
+.reject-confirm2.show{display:block}
+
+.rpt-card{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.rpt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.rpt-reason{font-weight:700;font-size:13px;color:#ff6680}
+.rpt-meta{font-size:11px;color:#5a8aaa;margin-top:3px}
+.rpt-detail{font-size:12px;color:#c8d8e8;background:rgba(1,2,12,.4);border-radius:6px;padding:8px;margin:8px 0;display:none}
+.rpt-actions{display:flex;gap:8px;margin-top:10px}
+.rpt-dismiss{flex:1;padding:8px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
+.rpt-ban{flex:1;padding:8px;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
+
+.commission-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:800;background:rgba(255,170,0,.15);border:1px solid rgba(255,170,0,.3);color:#ffaa00}
+.withdrawal-amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0;padding:10px;background:rgba(7,15,30,.8);border-radius:8px;border:1px solid #0d2744}
+.withdrawal-amount-item{text-align:center}
+.withdrawal-amount-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em}
+.withdrawal-amount-value{font-family:Orbitron,sans-serif;font-size:14px;margin-top:3px}
+.withdrawal-amount-value.gross{color:#e8f4ff}
+.withdrawal-amount-value.commission{color:#ff9999}
+.withdrawal-amount-value.net{color:#00ff88;font-size:16px}
+.platform-settings-section{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px;margin-bottom:16px}
+.settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.setting-item label{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px}
+.setting-inp{width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none}
+.setting-inp:focus{border-color:#00e5ff}
+.save-settings-btn{padding:10px 20px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:13px;cursor:pointer;text-transform:uppercase;margin-top:12px}
+</style>
+</head>
+<body>
+<div id="loginScreen">
+  <header><span class="logo">SHADOWNET</span><span style="font-size:11px;color:#ff2255;border:1px solid #ff2255;padding:4px 10px;border-radius:4px">ADMIN</span></header>
+  <div class="login-screen">
+    <div class="login-box">
+      <div class="ltitle">PANEL DE ADMINISTRACION</div>
+      <input class="inp" type="email" id="ae" placeholder="Email administrador">
+      <input class="inp" type="password" id="ap" placeholder="Contrasena">
+      <button class="btn-p" id="loginBtn">ACCEDER</button>
+      <div class="err" id="le"></div>
+    </div>
+  </div>
+</div>
+<div id="adminDash" style="display:none">
+  <header>
+    <span class="logo">SHADOWNET <span style="color:#5a8aaa;font-size:11px">ADMIN</span></span>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span id="an" style="font-size:12px;color:#5a8aaa"></span>
+      <button class="logout-btn" id="logoutBtn">Salir</button>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="stats">
+      <div class="sc"><div class="sn c-blue" id="st">-</div><div class="sl">Total</div></div>
+      <div class="sc"><div class="sn c-yellow" id="sp">-</div><div class="sl">Pendientes</div></div>
+      <div class="sc"><div class="sn c-green" id="sv">-</div><div class="sl">Verificados</div></div>
+      <div class="sc"><div class="sn c-red" id="sr">-</div><div class="sl">Rechazados</div></div>
+    </div>
+    <div class="sec-title">VERIFICACIONES KYC</div>
+    <div class="filters" id="filters"></div>
+    <div id="grid" class="grid"><div class="empty">Cargando...</div></div>
+  
+<!-- Creator Applications Section -->
+<div style="margin-top:28px">
+  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+    &#127775; SOLICITUDES DE CREADOR
+    <span id="appCount" style="font-size:12px;color:#ff6680">Cargando...</span>
+  </div>
+  <div id="appsGrid"></div>
+</div>
+
+<!-- Reports Section -->
+<div style="margin-top:28px">
+  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+    &#9888;&#65039; REPORTES DE CONTENIDO
+    <span id="rptCount" style="font-size:12px;color:#ff2255">Cargando...</span>
+  </div>
+  <div id="reportsGrid"></div>
+</div>
+<!-- Withdrawals Section -->
+<div style="margin-top:28px">
+  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+    &#128176; SOLICITUDES DE RETIRO
+    <span id="wdCount" style="font-size:12px;color:#00ff88">Cargando...</span>
+  </div>
+  <div id="withdrawalsGrid"></div>
+</div>
+</div>
+</div>
+<div class="lb" id="lb"><img id="lbimg" src=""></div>
+<div class="toast" id="toast"></div>
+<script>
+var SB_URL = "https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY = "sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var curFilter = "pending";
+
+// FILTERS
+var FILTERS = [{k:"pending",l:"Pendientes"},{k:"verified",l:"Verificados"},{k:"rejected",l:"Rechazados"},{k:"all",l:"Todos"}];
+var fDiv = document.getElementById("filters");
+FILTERS.forEach(function(f) {
+  var btn = document.createElement("button");
+  btn.className = "fb" + (f.k === "pending" ? " active" : "");
+  btn.textContent = f.l;
+  btn.dataset.f = f.k;
+  btn.addEventListener("click", function() {
+    curFilter = f.k;
+    document.querySelectorAll(".fb").forEach(function(b) { b.classList.toggle("active", b.dataset.f === f.k); });
+    loadCards(f.k);
+  });
+  fDiv.appendChild(btn);
+});
+
+// LOGIN
+document.getElementById("loginBtn").addEventListener("click", doLogin);
+document.getElementById("ap").addEventListener("keydown", function(e) { if (e.key === "Enter") doLogin(); });
+document.getElementById("logoutBtn").addEventListener("click", function() { sb.auth.signOut().then(function() { location.reload(); }); });
+document.getElementById("lb").addEventListener("click", function() { this.classList.remove("open"); });
+
+async function doLogin() {
+  var email = document.getElementById("ae").value.trim();
+  var pass = document.getElementById("ap").value;
+  var errEl = document.getElementById("le");
+  errEl.textContent = "";
+  if (!email || !pass) { errEl.textContent = "Completa todos los campos"; return; }
+  var r = await sb.auth.signInWithPassword({ email: email, password: pass });
+  if (r.error) { errEl.textContent = r.error.message; return; }
+  var p = await sb.from("profiles").select("username,is_admin").eq("id", r.data.user.id).single();
+  if (!p.data || !p.data.is_admin) {
+    await sb.auth.signOut();
+    errEl.textContent = "Acceso denegado.";
+    return;
+  }
+  showDash(p.data.username || email.split("@")[0]);
+}
+
+function showDash(name) {
+  document.getElementById("an").textContent = "@" + name;
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("adminDash").style.display = "block";
+  loadStats();
+  loadCards("pending");
+  loadCreatorApps();
+  loadWithdrawals();
+  loadReports();
+}
+
+async function loadStats() {
+  var res = await Promise.all([
+    sb.from("profiles").select("id", { count: "exact", head: true }),
+    sb.from("profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
+    sb.from("profiles").select("id", { count: "exact", head: true }).eq("verification_status", "verified"),
+    sb.from("profiles").select("id", { count: "exact", head: true }).eq("verification_status", "rejected")
+  ]);
+  document.getElementById("st").textContent = res[0].count || 0;
+  document.getElementById("sp").textContent = res[1].count || 0;
+  document.getElementById("sv").textContent = res[2].count || 0;
+  document.getElementById("sr").textContent = res[3].count || 0;
+}
+
+async function loadCards(filter) {
+  var grid = document.getElementById("grid");
+  grid.innerHTML = "<div class=\"empty\">Cargando...</div>";
+  var q = sb.from("profiles")
+    .select("id,username,verification_status,verification_submitted_at,doc_url,selfie_url,verification_rejection_reason,coins_balance")
+    .order("verification_submitted_at", { ascending: false });
+  if (filter !== "all") q = q.eq("verification_status", filter);
+  else q = q.not("verification_status", "eq", "unverified");
+  var r = await q.limit(50);
+  if (r.error) { grid.innerHTML = "<div class=\"empty\">Error: " + r.error.message + "</div>"; return; }
+  if (!r.data || r.data.length === 0) { grid.innerHTML = "<div class=\"empty\">No hay solicitudes</div>"; return; }
+  grid.innerHTML = "";
+  r.data.forEach(function(u) {
+    var card = buildCard(u);
+    grid.appendChild(card);
+    loadPhotos(u, card);
+  });
+}
+
+function buildCard(u) {
+  var bc = u.verification_status === "pending" ? "b-p" : u.verification_status === "verified" ? "b-v" : "b-r";
+  var bt = u.verification_status === "pending" ? "Pendiente" : u.verification_status === "verified" ? "Verificado" : "Rechazado";
+  var dt = u.verification_submitted_at ? new Date(u.verification_submitted_at).toLocaleDateString("es-ES") : "N/A";
+  var card = document.createElement("div");
+  card.className = "card";
+  card.id = "card-" + u.id;
+  var ch = document.createElement("div"); ch.className = "ch";
+  var info = document.createElement("div");
+  var cu = document.createElement("div"); cu.className = "cu"; cu.textContent = "@" + (u.username || "usuario");
+  var ci = document.createElement("div"); ci.className = "ci"; ci.textContent = "ID: " + u.id.slice(0, 8) + "...";
+  info.appendChild(cu); info.appendChild(ci);
+  var badge = document.createElement("span"); badge.className = "badge " + bc; badge.textContent = bt;
+  ch.appendChild(info); ch.appendChild(badge); card.appendChild(ch);
+  var photos = document.createElement("div"); photos.className = "photos"; photos.id = "ph-" + u.id;
+  var pb1 = document.createElement("div"); pb1.className = "pbox";
+  var np1 = document.createElement("div"); np1.className = "nophoto"; np1.textContent = "Cargando...";
+  var pl1 = document.createElement("div"); pl1.className = "plabel"; pl1.textContent = "Documento";
+  pb1.appendChild(np1); pb1.appendChild(pl1);
+  var pb2 = document.createElement("div"); pb2.className = "pbox";
+  var np2 = document.createElement("div"); np2.className = "nophoto"; np2.textContent = "Cargando...";
+  var pl2 = document.createElement("div"); pl2.className = "plabel"; pl2.textContent = "Selfie";
+  pb2.appendChild(np2); pb2.appendChild(pl2);
+  photos.appendChild(pb1); photos.appendChild(pb2); card.appendChild(photos);
+  var cf = document.createElement("div"); cf.className = "cf";
+  var meta = document.createElement("div"); meta.className = "meta";
+  meta.textContent = "Fecha: " + dt + " | Almas: " + (u.coins_balance || 0);
+  cf.appendChild(meta);
+  if (u.verification_rejection_reason) {
+    var rr = document.createElement("div"); rr.style.cssText = "font-size:11px;color:#ff2255;margin-bottom:6px";
+    rr.textContent = "Motivo: " + u.verification_rejection_reason;
+    cf.appendChild(rr);
+  }
+  if (u.verification_status === "pending") {
+    var arow = document.createElement("div"); arow.className = "arow";
+    var abtn = document.createElement("button"); abtn.className = "abtn"; abtn.textContent = "Aprobar";
+    abtn.dataset.uid = u.id;
+    abtn.addEventListener("click", function() { approveKyc(this.dataset.uid); });
+    var rbtn = document.createElement("button"); rbtn.className = "rbtn"; rbtn.textContent = "Rechazar";
+    rbtn.dataset.uid = u.id;
+    rbtn.addEventListener("click", function() { showReject(this.dataset.uid); });
+    arow.appendChild(abtn); arow.appendChild(rbtn); cf.appendChild(arow);
+    var rtxt = document.createElement("textarea"); rtxt.className = "rtxt"; rtxt.id = "rt-" + u.id;
+    rtxt.placeholder = "Motivo del rechazo...";
+    var rcbtn = document.createElement("button"); rcbtn.className = "rcbtn"; rcbtn.id = "rc-" + u.id;
+    rcbtn.textContent = "CONFIRMAR RECHAZO";
+    rcbtn.dataset.uid = u.id;
+    rcbtn.addEventListener("click", function() { rejectKyc(this.dataset.uid); });
+    cf.appendChild(rtxt); cf.appendChild(rcbtn);
+  }
+  card.appendChild(cf);
+  return card;
+}
+
+async function loadPhotos(u, card) {
+  var ph = card.querySelector(".photos");
+  if (!ph) return;
+  var docUrl = "", selfUrl = "";
+  if (u.doc_url) {
+    var dp = u.doc_url.startsWith("http") ? extractPath(u.doc_url) : u.doc_url;
+    if (dp) { var d = await sb.storage.from("documents").createSignedUrl(dp, 3600); docUrl = d.data && d.data.signedUrl ? d.data.signedUrl : ""; }
+  }
+  if (u.selfie_url) {
+    var sp2 = u.selfie_url.startsWith("http") ? extractPath(u.selfie_url) : u.selfie_url;
+    if (sp2) { var s = await sb.storage.from("documents").createSignedUrl(sp2, 3600); selfUrl = s.data && s.data.signedUrl ? s.data.signedUrl : ""; }
+  }
+  ph.innerHTML = "";
+  var pb1 = document.createElement("div"); pb1.className = "pbox";
+  if (docUrl) { var img1 = document.createElement("img"); img1.src = docUrl; img1.alt = "Doc"; img1.addEventListener("click", function() { openLb(docUrl); }); pb1.appendChild(img1); }
+  else { var np1 = document.createElement("div"); np1.className = "nophoto"; np1.textContent = "Sin foto"; pb1.appendChild(np1); }
+  var pl1 = document.createElement("div"); pl1.className = "plabel"; pl1.textContent = "Documento";
+  pb1.appendChild(pl1);
+  var pb2 = document.createElement("div"); pb2.className = "pbox";
+  if (selfUrl) { var img2 = document.createElement("img"); img2.src = selfUrl; img2.alt = "Selfie"; img2.addEventListener("click", function() { openLb(selfUrl); }); pb2.appendChild(img2); }
+  else { var np2 = document.createElement("div"); np2.className = "nophoto"; np2.textContent = "Sin foto"; pb2.appendChild(np2); }
+  var pl2 = document.createElement("div"); pl2.className = "plabel"; pl2.textContent = "Selfie";
+  pb2.appendChild(pl2);
+  ph.appendChild(pb1); ph.appendChild(pb2);
+}
+
+function extractPath(url) {
+  var m = url.match(/\/documents\/(.+?)(?:\?|$)/);
+  return m ? m[1] : null;
+}
+
+function showReject(uid) {
+  var rt = document.getElementById("rt-" + uid);
+  var rc = document.getElementById("rc-" + uid);
+  if (rt) rt.style.display = rt.style.display === "block" ? "none" : "block";
+  if (rc) rc.style.display = rc.style.display === "block" ? "none" : "block";
+}
+
+async function approveKyc(uid) {
+  var r = await sb.from("profiles").update({ verification_status: "verified", verification_rejection_reason: null }).eq("id", uid);
+  if (r.error) { showToast("Error: " + r.error.message, true); return; }
+  var card = document.getElementById("card-" + uid);
+  if (card) { card.style.opacity = "0"; card.style.transition = "opacity .3s"; setTimeout(function() { card.remove(); }, 300); }
+  showToast("Usuario verificado"); loadStats();
+}
+
+async function rejectKyc(uid) {
+  var rt = document.getElementById("rt-" + uid);
+  var reason = rt ? rt.value.trim() : "";
+  if (!reason) reason = "No cumple los requisitos";
+  var r = await sb.from("profiles").update({ verification_status: "rejected", verification_rejection_reason: reason }).eq("id", uid);
+  if (r.error) { showToast("Error: " + r.error.message, true); return; }
+  var card = document.getElementById("card-" + uid);
+  if (card) { card.style.opacity = "0"; card.style.transition = "opacity .3s"; setTimeout(function() { card.remove(); }, 300); }
+  showToast("Solicitud rechazada"); loadStats();
+}
+
+function openLb(url) { document.getElementById("lbimg").src = url; document.getElementById("lb").classList.add("open"); }
+
+function showToast(msg, isErr) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.borderColor = isErr ? "#ff2255" : "#00ff88";
+  t.style.color = isErr ? "#ff2255" : "#00ff88";
+  t.style.display = "block";
+  setTimeout(function() { t.style.display = "none"; }, 3000);
+}
+
+sb.auth.getSession().then(function(s) {
+  if (!s.data.session) return;
+  sb.from("profiles").select("username,is_admin").eq("id", s.data.session.user.id).single().then(function(p) {
+    if (p.data && p.data.is_admin) showDash(p.data.username || "admin");
+  });
+});
+
+// =============================================
+// SOLICITUDES DE CREADORES
+// =============================================
+async function loadCreatorApps(){
+  var grid = document.getElementById("appsGrid");
+  var count = document.getElementById("appCount");
+  if(!grid) return;
+  grid.innerHTML = "<div class=\"loader\">Cargando solicitudes...</div>";
+  var r = await sb.from("creator_applications").select("*").order("created_at",{ascending:false}).limit(30);
+  if(r.error){ grid.innerHTML="<div class=\"empty\">Error: "+r.error.message+"</div>"; return; }
+  var apps = (r.data||[]);
+  var pending = apps.filter(function(a){return a.status==="pending";});
+  if(count) count.textContent = pending.length + " pendientes";
+  if(apps.length===0){ grid.innerHTML="<div class=\"empty\">No hay solicitudes</div>"; return; }
+  grid.innerHTML="";
+  apps.forEach(function(app){ grid.appendChild(buildAppCard(app)); });
+}
+
+function buildAppCard(app){
+  var card = document.createElement("div"); card.className="app-card"; card.id="app-"+app.id;
+  var statusClass={pending:"b-p",approved:"b-v",rejected:"b-r"}[app.status]||"b-p";
+  var statusText={pending:"Pendiente",approved:"Aprobado",rejected:"Rechazado"}[app.status]||"Pendiente";
+  var dt = app.created_at ? new Date(app.created_at).toLocaleDateString("es-ES") : "N/A";
+  var typeLabels={photos:"Fotos/Galer\u00EDa",video:"Video/Reels",live:"Lives/Streams",mixed:"Contenido Mixto",adult:"Contenido +18"};
+
+  // Header
+  var header=document.createElement("div");header.className="app-header";
+  var userDiv=document.createElement("div");
+  var nameEl=document.createElement("div");nameEl.className="app-user";nameEl.textContent="@"+(app.username||"usuario");
+  var dateEl=document.createElement("div");dateEl.className="app-date";dateEl.textContent="Enviado: "+dt;
+  userDiv.appendChild(nameEl);userDiv.appendChild(dateEl);
+  var badge=document.createElement("span");badge.className="badge "+statusClass;badge.textContent=statusText;
+  header.appendChild(userDiv);header.appendChild(badge);card.appendChild(header);
+
+  // Body
+  var body=document.createElement("div");body.className="app-body";
+  if(app.content_type){
+    var f1=document.createElement("div");f1.className="app-field";
+    var l1=document.createElement("div");l1.className="app-field-label";l1.textContent="Tipo de Contenido";
+    var v1=document.createElement("div");v1.className="app-type";v1.textContent=typeLabels[app.content_type]||app.content_type;
+    f1.appendChild(l1);f1.appendChild(v1);body.appendChild(f1);
+  }
+  if(app.motivation){
+    var f2=document.createElement("div");f2.className="app-field";
+    var l2=document.createElement("div");l2.className="app-field-label";l2.textContent="Motivaci\u00F3n";
+    var v2=document.createElement("div");v2.className="app-field-value";v2.textContent=app.motivation;
+    f2.appendChild(l2);f2.appendChild(v2);body.appendChild(f2);
+  }
+  if(app.social_links){
+    var f3=document.createElement("div");f3.className="app-field";
+    var l3=document.createElement("div");l3.className="app-field-label";l3.textContent="Redes Sociales";
+    var v3=document.createElement("div");v3.className="app-field-value";v3.textContent=app.social_links;
+    f3.appendChild(l3);f3.appendChild(v3);body.appendChild(f3);
+  }
+  if(app.review_note){
+    var f4=document.createElement("div");f4.style.cssText="margin-top:8px;padding:8px;background:rgba(255,34,85,.08);border-radius:6px";
+    var l4=document.createElement("div");l4.style.cssText="font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px";l4.textContent="Nota admin";
+    var v4=document.createElement("div");v4.style.cssText="font-size:12px;color:#c8d8e8";v4.textContent=app.review_note;
+    f4.appendChild(l4);f4.appendChild(v4);body.appendChild(f4);
+  }
+  card.appendChild(body);
+
+  // Actions (only for pending)
+  if(app.status==="pending"){
+    var footer=document.createElement("div");footer.className="app-footer";
+    var arow=document.createElement("div");arow.className="arow";
+    var abtn=document.createElement("button");abtn.className="abtn";abtn.textContent="\u2713 Aprobar";
+    abtn.dataset.appId=app.id;abtn.dataset.userId=app.user_id;
+    abtn.addEventListener("click",function(){ approveCreatorApp(this.dataset.appId,this.dataset.userId); });
+    var rbtn=document.createElement("button");rbtn.className="rbtn";rbtn.textContent="\u2716 Rechazar";
+    rbtn.dataset.appId=app.id;
+    rbtn.addEventListener("click",function(){ showAppReject(this.dataset.appId); });
+    arow.appendChild(abtn);arow.appendChild(rbtn);footer.appendChild(arow);
+    var noteInp=document.createElement("textarea");noteInp.className="note-inp";noteInp.id="note-"+app.id;noteInp.placeholder="Motivo del rechazo...";
+    var rcbtn=document.createElement("button");rcbtn.className="reject-confirm2";rcbtn.id="rc2-"+app.id;rcbtn.textContent="CONFIRMAR RECHAZO";
+    rcbtn.dataset.appId=app.id;rcbtn.dataset.userId=app.user_id;
+    rcbtn.addEventListener("click",function(){ rejectCreatorApp(this.dataset.appId,this.dataset.userId); });
+    footer.appendChild(noteInp);footer.appendChild(rcbtn);card.appendChild(footer);
+  }
+  return card;
+}
+
+function showAppReject(appId){
+  var n=document.getElementById("note-"+appId);
+  var r=document.getElementById("rc2-"+appId);
+  if(n)n.classList.toggle("show");
+  if(r)r.classList.toggle("show");
+}
+
+async function approveCreatorApp(appId, userId){
+  var r = await sb.from("creator_applications").update({
+    status:"approved", reviewed_by: (await sb.auth.getUser()).data.user?.id, reviewed_at:new Date().toISOString()
+  }).eq("id",appId);
+  if(r.error){ showToast("Error: "+r.error.message,true); return; }
+  var card=document.getElementById("app-"+appId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("\u2713 Creador aprobado"); loadStats(); loadCreatorApps();
+}
+
+async function rejectCreatorApp(appId, userId){
+  var note=(document.getElementById("note-"+appId)||{}).value||"No cumple los requisitos";
+  var r = await sb.from("creator_applications").update({
+    status:"rejected",review_note:note,
+    reviewed_by:(await sb.auth.getUser()).data.user?.id,reviewed_at:new Date().toISOString()
+  }).eq("id",appId);
+  if(r.error){ showToast("Error: "+r.error.message,true); return; }
+  var card=document.getElementById("app-"+appId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("Solicitud rechazada"); loadCreatorApps();
+}
+
+// =============================================
+// SOLICITUDES DE RETIRO
+// =============================================
+async function loadWithdrawals(){
+  var grid = document.getElementById("withdrawalsGrid");
+  var count = document.getElementById("wdCount");
+  if(!grid) return;
+  var r = await sb.from("withdrawals").select("*,profiles(username)").order("created_at",{ascending:false}).limit(30);
+  if(r.error){ grid.innerHTML="<div class=\"empty\">Error: "+r.error.message+"</div>"; return; }
+  var items = r.data||[];
+  var pending = items.filter(function(w){return w.status==="pending";});
+  if(count) count.textContent = pending.length + " pendientes";
+  if(items.length===0){ grid.innerHTML="<div class=\"empty\">Sin solicitudes de retiro</div>"; return; }
+  grid.innerHTML="";
+  items.forEach(function(w){ grid.appendChild(buildWdCard(w)); });
+}
+
+function buildWdCard(w){
+  var card = document.createElement("div");
+  card.id = "wd-"+w.id;
+  card.style.cssText = "background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:14px 16px;margin-bottom:10px";
+  var bc = w.status==="pending"?"b-p":w.status==="processed"?"b-v":"b-r";
+  var bt = w.status==="pending"?"Pendiente":w.status==="processed"?"Procesado":"Rechazado";
+  var header = document.createElement("div");
+  header.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:10px";
+  var userInfo = document.createElement("div");
+  var name = document.createElement("div");
+  name.style.cssText = "font-weight:700;font-size:14px;color:#e8f4ff";
+  name.textContent = "@"+(w.profiles?.username||"usuario")+" \u2014 $"+parseFloat(w.amount).toFixed(2);
+  var meta = document.createElement("div");
+  meta.style.cssText = "font-size:11px;color:#5a8aaa;margin-top:3px";
+  meta.textContent = w.method.toUpperCase()+" \u2022 "+w.account_info+" \u2022 "+new Date(w.created_at).toLocaleDateString("es-ES");
+  userInfo.appendChild(name); userInfo.appendChild(meta);
+  var badge = document.createElement("span"); badge.className="badge "+bc; badge.textContent=bt;
+  header.appendChild(userInfo); header.appendChild(badge);
+  card.appendChild(header);
+  if(w.status==="pending"){
+    var btns = document.createElement("div"); btns.style.cssText="display:flex;gap:8px";
+    var ab = document.createElement("button"); ab.className="abtn";
+    ab.style.cssText="flex:1;padding:9px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase";
+    ab.textContent = "\u2713 Marcar Procesado"; ab.dataset.wdId=w.id; ab.dataset.userId=w.user_id; ab.dataset.amount=w.amount;
+    ab.addEventListener("click",function(){ processWithdrawal(this.dataset.wdId,this.dataset.userId,parseFloat(this.dataset.amount)); });
+    var rb = document.createElement("button"); rb.className="rbtn";
+    rb.style.cssText="flex:1;padding:9px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase";
+    rb.textContent = "\u2716 Rechazar"; rb.dataset.wdId=w.id; rb.dataset.userId=w.user_id; rb.dataset.amount=w.amount;
+    rb.addEventListener("click",function(){ rejectWithdrawal(this.dataset.wdId,this.dataset.userId,parseFloat(this.dataset.amount)); });
+    btns.appendChild(ab); btns.appendChild(rb); card.appendChild(btns);
+  }
+  return card;
+}
+
+async function processWithdrawal(wdId, userId, amount){
+  var admin = (await sb.auth.getUser()).data.user;
+  var r = await sb.from("withdrawals").update({status:"processed",reviewed_by:admin?.id,processed_at:new Date().toISOString()}).eq("id",wdId);
+  if(r.error){showToast("Error: "+r.error.message,true);return;}
+  await sb.from("notifications").insert({user_id:userId,from_user_id:admin?.id,type:"withdrawal_processed",message:"Tu retiro de $"+parseFloat(amount).toFixed(2)+" ha sido procesado. Recibir\u00E1s el pago en 3-5 d\u00EDas."});
+  var card=document.getElementById("wd-"+wdId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("\u2713 Retiro procesado"); loadWithdrawals();
+}
+
+async function rejectWithdrawal(wdId, userId, amount){
+  var admin = (await sb.auth.getUser()).data.user;
+  // Restore earnings to user
+  var prof = await sb.from("profiles").select("total_withdrawn").eq("id",userId).single();
+  if(prof.data){
+    var newWithdrawn = Math.max(0, parseFloat(prof.data.total_withdrawn||0) - amount);
+    await sb.from("profiles").update({total_withdrawn:newWithdrawn}).eq("id",userId);
+  }
+  await sb.from("withdrawals").update({status:"rejected",reviewed_by:admin?.id}).eq("id",wdId);
+  await sb.from("notifications").insert({user_id:userId,from_user_id:admin?.id,type:"withdrawal_rejected",message:"Tu solicitud de retiro de $"+parseFloat(amount).toFixed(2)+" fue rechazada. Los fondos han sido restaurados."});
+  var card=document.getElementById("wd-"+wdId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("Retiro rechazado"); loadWithdrawals();
+}
+
+// =============================================
+// REPORTES DE CONTENIDO
+// =============================================
+var REASON_LABELS={spam:"Spam",nudity:"Desnudez",harassment:"Acoso",fake:"Cuenta falsa",violence:"Violencia",minors:"Menores",other:"Otro"};
+
+async function loadReports(){
+  var grid=document.getElementById("reportsGrid");
+  var count=document.getElementById("rptCount");
+  if(!grid)return;
+  var r=await sb.from("reports").select("*,profiles!reporter_id(username),posts(content)").eq("status","pending").order("created_at",{ascending:false}).limit(20);
+  if(r.error){grid.innerHTML="<div class=\"empty\">Error: "+r.error.message+"</div>";return;}
+  var items=r.data||[];
+  if(count)count.textContent=items.length+" pendientes";
+  if(items.length===0){grid.innerHTML="<div class=\"empty\">Sin reportes pendientes \u2705</div>";return;}
+  grid.innerHTML="";
+  items.forEach(function(rpt){grid.appendChild(buildRptCard(rpt));});
+}
+
+function buildRptCard(rpt){
+  var card=document.createElement("div");card.className="rpt-card";card.id="rpt-"+rpt.id;
+  var header=document.createElement("div");header.className="rpt-header";
+  var left=document.createElement("div");
+  var reason=document.createElement("div");reason.className="rpt-reason";
+  reason.textContent="\u26A0\uFE0F "+(REASON_LABELS[rpt.reason]||rpt.reason);
+  var meta=document.createElement("div");meta.className="rpt-meta";
+  meta.textContent="Reportado por @"+(rpt.profiles?.username||"usuario")+" \u2022 "+new Date(rpt.created_at).toLocaleDateString("es-ES");
+  if(rpt.posts?.content){
+    var content=document.createElement("div");content.style.cssText="font-size:12px;color:#5a8aaa;margin-top:2px";
+    content.textContent="Post: \""+rpt.posts.content.slice(0,50)+(rpt.posts.content.length>50?"...":"")+"\"";
+    left.appendChild(reason);left.appendChild(meta);left.appendChild(content);
+  } else {left.appendChild(reason);left.appendChild(meta);}
+  var badge=document.createElement("span");badge.className="badge b-p";badge.textContent="Pendiente";
+  header.appendChild(left);header.appendChild(badge);card.appendChild(header);
+  if(rpt.details){
+    var det=document.createElement("div");det.className="rpt-detail";det.style.display="block";
+    det.textContent="Detalles: "+rpt.details;card.appendChild(det);
+  }
+  var actions=document.createElement("div");actions.className="rpt-actions";
+  var dismiss=document.createElement("button");dismiss.className="rpt-dismiss";dismiss.textContent="\u2713 Desestimar";
+  dismiss.dataset.id=rpt.id;dismiss.addEventListener("click",function(){dismissReport(this.dataset.id);});
+  var ban=document.createElement("button");ban.className="rpt-ban";ban.textContent="\uD83D\uDEAB Suspender usuario";
+  ban.dataset.id=rpt.id;ban.dataset.userId=rpt.reported_user_id;
+  ban.addEventListener("click",function(){banUser(this.dataset.id,this.dataset.userId);});
+  actions.appendChild(dismiss);
+  if(rpt.reported_user_id)actions.appendChild(ban);
+  card.appendChild(actions);
+  return card;
+}
+
+async function dismissReport(id){
+  var admin=(await sb.auth.getUser()).data.user;
+  await sb.from("reports").update({status:"dismissed",reviewed_by:admin?.id,reviewed_at:new Date().toISOString()}).eq("id",id);
+  var card=document.getElementById("rpt-"+id);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("\u2713 Reporte desestimado"); loadReports();
+}
+
+async function banUser(reportId,userId){
+  if(!userId)return;
+  var reason=prompt("Motivo de la suspensi\u00F3n:","Violaci\u00F3n de t\u00E9rminos de servicio");
+  if(!reason)return;
+  var admin=(await sb.auth.getUser()).data.user;
+  await sb.from("profiles").update({is_banned:true,ban_reason:reason}).eq("id",userId);
+  await sb.from("reports").update({status:"actioned",reviewed_by:admin?.id,reviewed_at:new Date().toISOString()}).eq("id",reportId);
+  var card=document.getElementById("rpt-"+reportId);
+  if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
+  showToast("\uD83D\uDEAB Usuario suspendido"); loadReports();
+}
+
+// =============================================
+// STRIPE / PLATFORM SETTINGS
+// =============================================
+async function loadPlatformSettings(){
+  var r=await sb.from("platform_settings").select("*");
+  if(r.error||!r.data)return;
+  r.data.forEach(function(s){
+    var el=document.getElementById(s.key+"Inp")||document.getElementById(s.key.replace("_","")+"Inp");
+    if(el)el.value=s.value;
+    if(s.key==="commission_rate"&&document.getElementById("commissionRateInp"))document.getElementById("commissionRateInp").value=s.value;
+    if(s.key==="min_withdrawal"&&document.getElementById("minWithdrawalInp"))document.getElementById("minWithdrawalInp").value=s.value;
+    if(s.key==="currency"&&document.getElementById("currencyInp"))document.getElementById("currencyInp").value=s.value;
+    if(s.key==="stripe_enabled"&&document.getElementById("stripeEnabledInp"))document.getElementById("stripeEnabledInp").value=s.value;
+    if(s.key==="stripe_public_key"&&document.getElementById("stripeKeyInp"))document.getElementById("stripeKeyInp").value=s.value;
+  });
+  loadPlatformStats();
+}
+
+async function savePlatformSettings(){
+  var settings=[
+    {key:"commission_rate",value:document.getElementById("commissionRateInp")?.value||"10"},
+    {key:"min_withdrawal",value:document.getElementById("minWithdrawalInp")?.value||"10"},
+    {key:"currency",value:document.getElementById("currencyInp")?.value||"USD"},
+    {key:"stripe_enabled",value:document.getElementById("stripeEnabledInp")?.value||"false"},
+    {key:"stripe_public_key",value:document.getElementById("stripeKeyInp")?.value||""}
+  ];
+  for(var i=0;i<settings.length;i++){
+    await sb.from("platform_settings").upsert({key:settings[i].key,value:settings[i].value,updated_at:new Date().toISOString()},{onConflict:"key"});
+  }
+  showAdminToast("\u2713 Configuracion guardada!");
+}
+
+async function loadPlatformStats(){
+  var stats=document.getElementById("platformStats");
+  if(!stats)return;
+  // Total withdrawals processed
+  var wd=await sb.from("withdrawals").select("amount,commission_amount,net_amount").eq("status","approved");
+  var totalGross=0,totalComm=0,totalNet=0;
+  (wd.data||[]).forEach(function(w){totalGross+=parseFloat(w.amount||0);totalComm+=parseFloat(w.commission_amount||0);totalNet+=parseFloat(w.net_amount||0);});
+  // Total users
+  var users=await sb.from("profiles").select("*",{count:"exact",head:true});
+  var creators=await sb.from("profiles").select("*",{count:"exact",head:true}).eq("is_creator",true);
+  stats.innerHTML="<div style='background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#5a8aaa;margin-bottom:4px'>INGRESOS PLATAFORMA</div><div style='font-family:Orbitron,sans-serif;font-size:20px;color:#ffaa00'>$"+totalComm.toFixed(2)+"</div></div>"
+    +"<div style='background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.15);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#5a8aaa;margin-bottom:4px'>USUARIOS TOTALES</div><div style='font-family:Orbitron,sans-serif;font-size:20px;color:#00e5ff'>"+(users.count||0)+"</div></div>"
+    +"<div style='background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:8px;padding:12px;text-align:center'><div style='font-size:11px;color:#5a8aaa;margin-bottom:4px'>CREADORES</div><div style='font-family:Orbitron,sans-serif;font-size:20px;color:#00ff88'>"+(creators.count||0)+"</div></div>";
+}
+</script>
+
+  <!-- Platform Settings Panel -->
+  <div id="tab-platform" class="tab-panel" style="display:none;padding:16px">
+    <h2 style="font-family:Orbitron,sans-serif;font-size:14px;color:#00e5ff;margin-bottom:16px">&#9881; CONFIGURACION DE LA PLATAFORMA</h2>
+    <div class="platform-settings-section" style="background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px;margin-bottom:16px">
+      <div style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em;margin-bottom:14px">COMISIONES Y PAGOS</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+        <div><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Comision SHADOWNET (%)</label><input class="setting-inp" id="commissionRateInp" type="number" min="0" max="50" value="10" style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"></div>
+        <div><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Retiro minimo ($)</label><input id="minWithdrawalInp" type="number" value="10" style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"></div>
+        <div><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Moneda</label><input id="currencyInp" value="USD" style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"></div>
+        <div><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Stripe</label><select id="stripeEnabledInp" style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"><option value="false">No (PayPal)</option><option value="true">Si (Stripe)</option></select></div>
+      </div>
+      <div style="margin-top:10px"><label style="font-size:11px;color:#5a8aaa;display:block;margin-bottom:5px">Stripe Public Key</label><input id="stripeKeyInp" placeholder="pk_live_..." style="width:100%;padding:8px 12px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none"></div>
+      <button onclick="savePlatformSettings()" style="margin-top:12px;padding:10px 20px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:13px;cursor:pointer;text-transform:uppercase">&#10003; Guardar</button>
+    </div>
+    <div style="background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:10px;padding:16px">
+      <div style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em;margin-bottom:14px">RESUMEN FINANCIERO</div>
+      <div id="platformStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"></div>
+    </div>
+  </div>
+</body>
+</html>

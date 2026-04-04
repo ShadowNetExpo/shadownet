@@ -9,10 +9,19 @@
 <meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=192&bold=true">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>SHADOWNET</title>
+<title>SHADOWNET — Sin límites, sin cadenas</title>
+  <meta name="description" content="SHADOWNET — La plataforma para creadores adultos sin límites. Lives, mensajes privados, regalos animados y el 90% de tus ingresos.">
+  <meta property="og:title" content="SHADOWNET — Sin límites, sin cadenas">
+  <meta property="og:description" content="La plataforma adulta para creadores que quieren el control total. 90% de comisión.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shadownet-xi.vercel.app">
+  <meta property="og:image" content="https://shadownet-xi.vercel.app/icon-512.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SHADOWNET — Sin límites, sin cadenas">
+  <meta name="twitter:description" content="La plataforma adulta para creadores. 90% de comisión.">
+  <link rel="canonical" href="https://shadownet-xi.vercel.app">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://js.stripe.com/v3/"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--c:#00e5ff;--b:#0088ff;--r:#ff2255;--o:#ff6600;--g:#00ff88;--bg:#01020c;--cd:#070f1e;--br:#0d2744;--t1:#e8f4ff;--t2:#5a8aaa;--t3:#1e3a55;--gl:#ffd200}
@@ -482,7 +491,6 @@ body.has-nav .dashPage{padding-bottom:70px}
 <button id="verifyAccountBtn" onclick="openKyc()" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff;font-size:11px;padding:8px 14px">&#128274; Verificar cuenta</button>
       </div>
     </div>
-    <p style="font-size:13px;color:var(--t2);line-height:1.8">Tu cuenta esta en la base de datos real.</p>
       <!-- Fan Rank Bar -->
       <div class="fan-rank-bar" id="fanRankBar">
         <div class="fan-rank-row">
@@ -1555,63 +1563,6 @@ function filterNotifications(type){
 
 
 <!-- LIVE MODAL -->
-<div class="live-bg" id="liveModal">
-  <div class="live-header">
-    <div style="display:flex;align-items:center;gap:12px">
-      <span class="live-title">SHADOWNET LIVE</span>
-      <span class="live-badge" id="liveBadge" style="display:none">EN VIVO</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span id="viewerCount" style="font-size:12px;color:var(--t2)">0 espectadores</span>
-      <button onclick="closeLive()" style="background:rgba(255,34,85,.2);border:1px solid var(--r);color:var(--r);padding:6px 14px;border-radius:4px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer">Terminar</button>
-    </div>
-  </div>
-  <div class="live-video">
-    <div id="localVideo"></div>
-    <div id="remoteVideos"></div>
-    <div class="live-overlay">
-      <div class="viewers-badge">&#128065; <span id="liveViewers">0</span></div>
-    </div>
-    <div class="live-setup" id="liveSetup">
-      <div class="portal-wrap">
-        <div class="portal-outer">
-          <div class="portal-mid">
-            <div class="portal-inner">
-              <div class="portal-core"></div>
-            </div>
-          </div>
-        </div>
-        <div class="fire-container">
-          <div class="flame f1"></div>
-          <div class="flame f2"></div>
-          <div class="flame f3"></div>
-          <div class="flame f4"></div>
-          <div class="flame f5"></div>
-          <div class="flame f6"></div>
-          <div class="flame f7"></div>
-        </div>
-      </div>
-      <p style="font-family:Orbitron,sans-serif;font-size:20px;color:var(--r);margin-bottom:8px;letter-spacing:.1em;text-shadow:0 0 20px #ff440088">IR EN VIVO</p>
-      <p style="font-size:14px;color:var(--t2);margin-bottom:28px;line-height:1.8;max-width:340px">Transmite en tiempo real a todos tus seguidores.<br>Gratis hasta 10,000 minutos al mes.</p>
-      <button onclick="startLive()" style="background:linear-gradient(135deg,#ff1100,#ff6600);color:#fff;border:none;border-radius:8px;padding:16px 48px;font-size:16px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;margin-bottom:14px;box-shadow:0 0 30px #ff440066">&#128308; INICIAR TRANSMISION</button>
-      <p id="liveStatus" style="font-size:12px;color:var(--g)">&#10003; Listo para transmitir</p>
-    </div>
-  </div>
-  <div class="live-controls" id="liveControls" style="display:none">
-    <button id="micBtn" onclick="toggleMic()" style="background:rgba(0,229,255,.1);border:1px solid var(--c);color:var(--c);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#127908; Mic ON</button>
-    <button id="camBtn" onclick="toggleCam()" style="background:rgba(0,229,255,.1);border:1px solid var(--c);color:var(--c);padding:10px 18px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128247; Cam ON</button>
-    <div style="flex:1"></div>
-    <button class="lbtn" onclick="openGiftModal(null,_liveStreamId)">&#127873; Enviar regalo</button>
-<div class="live-chat" id="liveChat" style="display:none">
-  <div class="chat-msgs" id="chatMsgs"></div>
-  <div class="chat-input-row">
-    <input class="chat-inp" id="chatInp" placeholder="Escribe un mensaje..." maxlength="120">
-    <button class="chat-send" onclick="sendChatMsg()">&#9658;</button>
-  </div>
-</div>
-  </div>
-</div>
-
 <div class="live-bg" id="liveModal">
   <div class="live-hdr">
     <div style="display:flex;align-items:center;gap:10px">

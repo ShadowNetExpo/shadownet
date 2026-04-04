@@ -513,7 +513,7 @@ function switchProfileTab(tab, el) {
   if(!content) return;
 
   if(tab==="posts"){
-    content.innerHTML="<div class='posts-grid' id='postsGrid'><div class='empty-posts'>Cargando...</div></div>";
+    content.innerHTML="<div class='posts-grid'><div class='empty-posts'>Cargando...</div></div>";
     if(targetProfile) loadPosts(targetProfile.id);
 
   } else if(tab==="reels"){

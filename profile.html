@@ -92,6 +92,41 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 /* Saved & Tagged grids */
 .saved-grid,.tagged-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
 .empty-tab{text-align:center;padding:40px;color:#5a8aaa;grid-column:1/-1;font-size:13px}
+
+/* New Post Modal */
+.new-post-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px}
+.new-post-modal.open{display:flex}
+.new-post-box{background:#070f1e;border:1px solid #0d2744;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.new-post-hdr{padding:16px 20px;border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between}
+.new-post-title{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;letter-spacing:.08em}
+.post-media-zone{margin:16px;border:2px dashed #0d2744;border-radius:10px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;position:relative;overflow:hidden;background:rgba(1,2,12,.4)}
+.post-media-zone:hover{border-color:#00e5ff}
+.post-media-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.post-media-preview{width:100%;max-height:360px;object-fit:contain;border-radius:8px;display:none}
+.post-media-video{width:100%;max-height:360px;border-radius:8px;display:none}
+.post-type-tabs{display:flex;gap:8px;padding:0 16px;margin-bottom:12px}
+.post-type-btn{flex:1;padding:8px;border-radius:8px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;transition:all .2s}
+.post-type-btn.active{background:rgba(0,229,255,.15);border-color:#00e5ff;color:#00e5ff}
+.post-caption-wrap{padding:0 16px 16px}
+.post-caption{width:100%;background:rgba(1,2,12,.6);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;padding:12px;font-family:Rajdhani,sans-serif;font-size:14px;resize:none;min-height:80px;outline:none;line-height:1.6}
+.post-caption:focus{border-color:#00e5ff}
+.post-options{padding:0 16px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.post-option-label{font-size:12px;color:#5a8aaa;display:flex;align-items:center;gap:6px;cursor:pointer}
+.post-option-label input{cursor:pointer;accent-color:#ff2255}
+.post-submit-btn{width:calc(100% - 32px);margin:0 16px 16px;padding:13px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:opacity .2s}
+.post-submit-btn:disabled{opacity:.4;cursor:not-allowed}
+.post-progress{width:calc(100% - 32px);margin:0 16px 8px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;display:none}
+.post-progress-fill{height:100%;background:linear-gradient(90deg,#ff2255,#00e5ff);border-radius:2px;width:0;transition:width .3s}
+.post-msg{text-align:center;font-size:12px;padding:0 16px 12px;display:none}
+/* New post floating btn */
+.new-post-fab{position:fixed;bottom:80px;right:20px;z-index:200;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(255,34,85,.5);display:none;align-items:center;justify-content:center;transition:transform .2s}
+.new-post-fab:hover{transform:scale(1.1)}
+.new-post-fab.visible{display:flex}
+/* Posts grid own profile */
+.posts-grid-own .post-card{cursor:pointer}
+.profile-post-plus{display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,15,30,.5);border:2px dashed #0d2744;border-radius:8px;min-height:180px;cursor:pointer;gap:8px;color:#5a8aaa;transition:all .2s;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.profile-post-plus:hover{border-color:#ff2255;color:#ff2255}
+.profile-post-plus-icon{font-size:32px}
 </style>
 </head>
 <body>
@@ -142,7 +177,11 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
     <div class="profile-tab" data-tab="saved" onclick="switchTab('saved')" id="savedTab" style="display:none"><span class="profile-tab-icon">🔖</span>Guardados</div>
     <div class="profile-tab" data-tab="tagged" onclick="switchTab('tagged')"><span class="profile-tab-icon">🏷</span>Etiquetados</div>
   </div>
-  <div class="posts-grid" id="postsGrid"><div class="empty-posts">Cargando...</div></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px" id="postsGridHeader">
+  <span style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em">PUBLICACIONES</span>
+  <button id="openNewPostBtn" onclick="openNewPost()" style="display:none;padding:8px 16px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">&#43; Nueva publicaci&#243;n</button>
+</div>
+<div class="posts-grid" id="postsGrid"><div class="empty-posts">Cargando...</div></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
@@ -173,6 +212,7 @@ async function loadByUsername(username){
   if(r.error||!r.data){showToast("Usuario no encontrado",true);return;}
   renderProfile(r.data); loadPosts(r.data.id);
   loadProfileHighlights(r.data.id, !!(currentUser&&r.data.id===currentUser.id));
+  checkOwnProfile(r.data.id);
 }
 
 async function loadById(id){
@@ -687,6 +727,162 @@ function showSubscribeSuccess(){
 function followUser(uid){ toggleFollow(uid); }
 function subscribeCreator(cid){ openSubscribeModal(cid); }
 
+
+
+// ============================================================
+// NEW POST FUNCTIONALITY
+// ============================================================
+var _postType = 'image';
+var _postFile = null;
+
+function openNewPost(){
+  _postFile = null;
+  _postType = 'image';
+  document.getElementById('postCaption').value = '';
+  document.getElementById('captionCount').textContent = '0';
+  document.getElementById('postFileInput').value = '';
+  document.getElementById('postImgPreview').style.display = 'none';
+  document.getElementById('postVidPreview').style.display = 'none';
+  document.getElementById('postMediaPlaceholder').style.display = 'block';
+  document.getElementById('postProgress').style.display = 'none';
+  document.getElementById('postProgressFill').style.width = '0';
+  document.getElementById('postMsg').style.display = 'none';
+  document.getElementById('postSubmitBtn').disabled = false;
+  document.getElementById('postSubmitBtn').textContent = '\uD83D\uDE80 Publicar';
+  document.getElementById('postFileInput').accept = 'image/*,video/*';
+  selectPostType('image');
+  document.getElementById('newPostModal').classList.add('open');
+}
+
+function closeNewPost(){
+  document.getElementById('newPostModal').classList.remove('open');
+  _postFile = null;
+}
+
+function selectPostType(type){
+  _postType = type;
+  ['image','video','text'].forEach(function(t){
+    var btn = document.getElementById('pt'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(btn) btn.classList.toggle('active', t===type);
+  });
+  var zone = document.getElementById('postMediaZone');
+  var inp = document.getElementById('postFileInput');
+  if(type==='text'){
+    zone.style.display = 'none';
+  } else {
+    zone.style.display = 'flex';
+    inp.accept = type==='image' ? 'image/*' : 'video/*,image/*';
+    var ph = document.getElementById('postMediaPlaceholder');
+    ph.querySelector('div').textContent = type==='image' ? '\uD83D\uDCF7' : '\uD83C\uDFA5';
+    ph.querySelectorAll('div')[1].textContent = type==='image' ? 'Toca para seleccionar foto' : 'Toca para seleccionar video';
+  }
+}
+
+function postFileSelected(){
+  var inp = document.getElementById('postFileInput');
+  var file = inp.files && inp.files[0];
+  if(!file) return;
+  _postFile = file;
+  var isVideo = file.type.startsWith('video/');
+  var img = document.getElementById('postImgPreview');
+  var vid = document.getElementById('postVidPreview');
+  document.getElementById('postMediaPlaceholder').style.display = 'none';
+  if(isVideo){
+    _postType = 'video';
+    selectPostType('video');
+    var url = URL.createObjectURL(file);
+    vid.src = url;
+    vid.style.display = 'block';
+    img.style.display = 'none';
+  } else {
+    _postType = 'image';
+    selectPostType('image');
+    var reader = new FileReader();
+    reader.onload = function(e){ img.src = e.target.result; img.style.display = 'block'; vid.style.display = 'none'; };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Caption counter
+document.addEventListener('DOMContentLoaded', function(){
+  var cap = document.getElementById('postCaption');
+  if(cap) cap.addEventListener('input', function(){ document.getElementById('captionCount').textContent = this.value.length; });
+});
+
+async function submitPost(){
+  if(!window.sb || !window.currentUser){ showToast('Inicia sesi\u00F3n primero', true); return; }
+  var caption = (document.getElementById('postCaption').value||'').trim();
+  var isPaywall = document.getElementById('postPaywall').checked;
+  if(_postType !== 'text' && !_postFile && !caption){ showToast('A\u00F1ade una foto, video o texto', true); return; }
+  
+  var btn = document.getElementById('postSubmitBtn');
+  var progress = document.getElementById('postProgress');
+  var fill = document.getElementById('postProgressFill');
+  var msg = document.getElementById('postMsg');
+  btn.disabled = true; btn.textContent = 'Subiendo...';
+  progress.style.display = 'block';
+  msg.style.display = 'none';
+
+  try {
+    var mediaUrl = null;
+    var mediaType = _postType;
+
+    // Upload file if present
+    if(_postFile){
+      fill.style.width = '30%';
+      var ext = _postFile.name.split('.').pop().toLowerCase() || 'jpg';
+      var path = 'posts/' + window.currentUser.id + '/' + Date.now() + '.' + ext;
+      var upResult = await window.sb.storage.from('media').upload(path, _postFile, {upsert:true, contentType:_postFile.type});
+      if(upResult.error) throw new Error('Upload: ' + upResult.error.message);
+      fill.style.width = '70%';
+      var pubUrl = window.sb.storage.from('media').getPublicUrl(path);
+      mediaUrl = pubUrl.data?.publicUrl;
+      mediaType = _postFile.type.startsWith('video/') ? 'video' : 'image';
+    }
+
+    fill.style.width = '85%';
+
+    // Insert post
+    var postData = {
+      user_id: window.currentUser.id,
+      content: caption || null,
+      media_url: mediaUrl,
+      media_type: mediaType,
+      is_subscriber_only: isPaywall,
+      likes_count: 0,
+      comments_count: 0,
+    };
+    var ins = await window.sb.from('posts').insert(postData).select().single();
+    if(ins.error) throw new Error('Post: ' + ins.error.message);
+
+    fill.style.width = '100%';
+
+    // Update posts_count
+    await window.sb.from('profiles').update({posts_count: (profileData?.posts_count||0)+1}).eq('id',window.currentUser.id);
+
+    setTimeout(function(){
+      closeNewPost();
+      loadPosts(window.currentUser.id);
+      showToast('\u2713 Publicaci\u00F3n creada!');
+    }, 400);
+
+  } catch(e){
+    btn.disabled = false; btn.textContent = '\uD83D\uDE80 Publicar';
+    msg.textContent = 'Error: ' + e.message; msg.style.color='#ff2255'; msg.style.display='block';
+    fill.style.width = '0';
+  }
+}
+
+// Show new post button only on own profile
+function checkOwnProfile(profileUserId){
+  if(!window.currentUser) return;
+  if(window.currentUser.id === profileUserId){
+    var btn = document.getElementById('openNewPostBtn');
+    var fab = document.getElementById('newPostFab');
+    if(btn) btn.style.display = 'flex';
+    if(fab) fab.classList.add('visible');
+  }
+}
 </script>
 
 <!-- Tier Subscribe Modal -->
@@ -702,5 +898,47 @@ function subscribeCreator(cid){ openSubscribeModal(cid); }
     <p id="tierMsg" style="font-size:12px;margin-top:8px;text-align:center;display:none"></p>
   </div>
 </div>
+
+<!-- New Post Modal -->
+<div class="new-post-modal" id="newPostModal">
+  <div class="new-post-box">
+    <div class="new-post-hdr">
+      <span class="new-post-title">&#10133; NUEVA PUBLICACI&#211;N</span>
+      <button onclick="closeNewPost()" style="background:none;border:none;color:#5a8aaa;font-size:22px;cursor:pointer">&times;</button>
+    </div>
+    <div class="post-type-tabs">
+      <button class="post-type-btn active" id="ptImage" onclick="selectPostType('image')">&#128247; Foto</button>
+      <button class="post-type-btn" id="ptVideo" onclick="selectPostType('video')">&#127916; Video</button>
+      <button class="post-type-btn" id="ptText" onclick="selectPostType('text')">&#128172; Texto</button>
+    </div>
+    <div class="post-media-zone" id="postMediaZone">
+      <input type="file" id="postFileInput" accept="image/*,video/*" onchange="postFileSelected()">
+      <div id="postMediaPlaceholder" style="text-align:center;pointer-events:none">
+        <div style="font-size:40px;margin-bottom:8px">&#128247;</div>
+        <div style="font-size:13px;color:#5a8aaa">Toca para seleccionar foto o video</div>
+        <div style="font-size:11px;color:#3a5a7a;margin-top:4px">JPG, PNG, GIF, MP4 &middot; M&aacute;x 50MB</div>
+      </div>
+      <img class="post-media-preview" id="postImgPreview" alt="">
+      <video class="post-media-video" id="postVidPreview" controls></video>
+    </div>
+    <div class="post-caption-wrap">
+      <textarea class="post-caption" id="postCaption" placeholder="Escribe algo para tu publicaci&#243;n...&#10;#hashtags @menciones" maxlength="2000"></textarea>
+      <div style="text-align:right;font-size:11px;color:#3a5a7a;margin-top:4px"><span id="captionCount">0</span>/2000</div>
+    </div>
+    <div class="post-options">
+      <label class="post-option-label">
+        <input type="checkbox" id="postPaywall"> Solo suscriptores
+      </label>
+      <label class="post-option-label" style="margin-left:auto">
+        <input type="checkbox" id="postComments" checked> Comentarios
+      </label>
+    </div>
+    <div class="post-progress" id="postProgress"><div class="post-progress-fill" id="postProgressFill"></div></div>
+    <p class="post-msg" id="postMsg"></p>
+    <button class="post-submit-btn" id="postSubmitBtn" onclick="submitPost()">&#128640; Publicar</button>
+  </div>
+</div>
+<!-- FAB new post button -->
+<button class="new-post-fab" id="newPostFab" onclick="openNewPost()">&#43;</button>
 </body>
 </html>

@@ -757,7 +757,7 @@ async function registerFaceId(){
       showToast('\u{1F512} Face ID activado correctamente');
     }
   }catch(e){
-    if(e.name!=='NotAllowedError')
+    if(e.name!=='NotAllowedError'){}
   }
 }
 
@@ -804,7 +804,7 @@ function loginWithFaceId(){
     if(btn){ btn.disabled=false; btn.innerHTML='\u{1F512} Acceder con Face ID / Huella'; }
   }).catch(function(e){
     if(btn){ btn.disabled=false; btn.innerHTML='\u{1F512} Acceder con Face ID / Huella'; }
-    if(e.name!=='NotAllowedError')
+    if(e.name!=='NotAllowedError'){}
   });
 }
 
@@ -1425,6 +1425,7 @@ async function updateNavBadges(){
     dot=document.getElementById('notifDot')||document.createElement("span");if(!dot.id){dot.id="notifDot2";dot.className="notif-dot";}if(!dot.parentNode){
     var bell=document.getElementById("notifBtn");
     if(bell){bell.style.position="relative";bell.appendChild(dot);}
+  }
   }
   if(dot) dot.className="notif-dot"+(unreadNotifs>0?" show":"");
   var nb=document.getElementById("notifBadge");

@@ -314,6 +314,43 @@ body.has-nav .dashPage{padding-bottom:70px}
 .notif-item{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(13,39,68,.3);cursor:pointer;transition:background .15s}
 .notif-item:hover{background:rgba(0,229,255,.04)}
 .notif-item.unread{background:rgba(255,34,85,.04)}
+
+.home-feed{display:none;padding-top:70px;padding-bottom:80px;max-width:680px;margin:0 auto}
+.home-feed.active{display:block}
+.stories-bar{padding:10px 16px;overflow-x:auto;display:flex;gap:14px;border-bottom:1px solid #0d2744;scrollbar-width:none;background:rgba(1,2,12,.97);position:sticky;top:58px;z-index:50}
+.stories-bar::-webkit-scrollbar{display:none}
+.story-bubble{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;cursor:pointer}
+.story-ring{width:58px;height:58px;border-radius:50%;padding:2.5px;background:linear-gradient(135deg,#ff2255,#ff6600,#ffaa00)}
+.story-av{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px;border:2.5px solid #01020c;overflow:hidden}
+.story-av img{width:100%;height:100%;object-fit:cover}
+.story-name{font-size:10px;color:#c8d8e8;text-align:center;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.story-add-ring{background:linear-gradient(135deg,#0d2744,#1e3a55)}
+.story-add-av{font-size:22px;color:#00e5ff;background:rgba(7,15,30,.8);border:2px dashed rgba(0,229,255,.4)}
+.feed-tabs{display:flex;border-bottom:1px solid #0d2744;background:rgba(1,2,12,.97);position:sticky;top:58px;z-index:49}
+.feed-tab{flex:1;padding:13px;text-align:center;font-family:Orbitron,sans-serif;font-size:11px;letter-spacing:.08em;color:#5a8aaa;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.feed-tab.active{color:#e8f4ff;border-bottom-color:#ff2255}
+.feed-post{background:transparent;border-bottom:1px solid #0d2744}
+.feed-post-header{padding:12px 16px;display:flex;align-items:center;gap:10px}
+.feed-post-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;overflow:hidden;flex-shrink:0;cursor:pointer}
+.feed-post-av img{width:100%;height:100%;object-fit:cover}
+.feed-post-info{flex:1;cursor:pointer}
+.feed-post-username{font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:#e8f4ff;display:flex;align-items:center;gap:5px}
+.feed-post-time{font-size:11px;color:#5a8aaa;margin-top:1px}
+.feed-post-follow{font-size:11px;font-weight:700;color:#00e5ff;cursor:pointer;padding:4px 10px;border:1px solid rgba(0,229,255,.3);border-radius:12px;flex-shrink:0;background:rgba(0,229,255,.06);font-family:Rajdhani,sans-serif}
+.feed-post-media{width:100%;background:#000;overflow:hidden;position:relative}
+.feed-post-media img,.feed-post-media video{width:100%;max-height:680px;object-fit:contain;display:block}
+.ppv-lock{position:absolute;inset:0;backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(0,0,0,.3)}
+.ppv-btn{padding:10px 28px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase}
+.feed-post-actions{padding:10px 16px;display:flex;align-items:center;gap:14px}
+.feed-action-btn{background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px;transition:color .15s;font-family:Rajdhani,sans-serif;font-weight:700}
+.feed-action-btn:hover,.feed-action-btn.liked{color:#ff2255}
+.feed-action-btn.saved{color:#ffaa00}
+.feed-action-count{font-size:13px}
+.feed-post-caption{padding:0 16px 12px;font-size:14px;color:#c8d8e8;line-height:1.6}
+.feed-hashtag{color:#00e5ff}
+.feed-loading,.feed-empty{text-align:center;padding:40px;color:#5a8aaa}
+.feed-empty-icon{font-size:40px;margin-bottom:12px}
+.feed-empty-text{font-size:14px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -498,6 +535,7 @@ body.has-nav .dashPage{padding-bottom:70px}
   <ul class="flinks"><li><a href="/terms.html">Términos</a></li><li><a href="/privacy.html">Privacidad</a></li><li><a href="/legal18.html">+18 Legal</a></li><li><a href="/soporte.html">Soporte</a></li></ul>
   <p style="font-size:10px;color:var(--t3)">2026 SHADOWNET Inc.</p>
 </footer>
+<div class="home-feed" id="homeFeed"><div class="stories-bar" id="homeStoriesBar"><div class="story-bubble" onclick="window.location.href='/stories.html'"><div class="story-ring story-add-ring"><div class="story-av story-add-av">+</div></div><div class="story-name">Tu historia</div></div></div><div class="feed-tabs"><div class="feed-tab active" id="tabParaTi" onclick="switchFeedTab('foryou')">Para Ti</div><div class="feed-tab" id="tabSiguiendo" onclick="switchFeedTab('following')">Siguiendo</div></div><div id="homePostsFeed"><div class="feed-loading">&#128247; Cargando feed...</div></div></div>
 <script>
 var SUPABASE_URL='https://cdokplvoqivducsqrejt.supabase.co';
 var SUPABASE_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
@@ -541,9 +579,15 @@ function loadCount(){
   },500);
 }
 function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
+    document.getElementById('dashPage').style.display='none';
+    document.getElementById('homeFeed').classList.add('active');
+    loadHomeFeed();
+    loadHomeStories();
     offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex'; document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
     loadKycStatus();closeAuth();loadFanRank();loadDashStories();loadReferralCode();processReferralAfterRegister(currentUser.id);updateNavBadges();subscribeNotifBadge(); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
-function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none'; document.getElementById('bottomNav').classList.remove('visible'); document.body.classList.remove('has-nav');}
+function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');
+    document.getElementById('homeFeed').classList.remove('active');
+    document.getElementById('dashPage').style.display='';document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none'; document.getElementById('bottomNav').classList.remove('visible'); document.body.classList.remove('has-nav');}
 function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
 function openAuth(t){document.getElementById('authModal').classList.add('open');switchTab(t==='login'?'l':'r');document.getElementById('authOk').style.display='none';}
 function closeAuth(){document.getElementById('authModal').classList.remove('open');clearErrs();}
@@ -1542,6 +1586,214 @@ function filterNotifications(type){
   document.querySelector('.notif-filter-btn[data-type="'+type+'"]')?.classList.add("active");
   document.querySelectorAll(".notif-item").forEach(function(item){
     item.style.display=(type==="all"||item.dataset.type===type)?"flex":"none";
+  });
+}
+
+// =============================================
+// HOME FEED
+// =============================================
+var _feedMode='foryou',_feedPage=0,_feedLoading=false;
+
+function switchFeedTab(mode){
+  _feedMode=mode; _feedPage=0;
+  document.getElementById('tabParaTi').classList.toggle('active',mode==='foryou');
+  document.getElementById('tabSiguiendo').classList.toggle('active',mode==='following');
+  var feed=document.getElementById('homePostsFeed');
+  feed.innerHTML='<div class="feed-loading">Cargando...</div>';
+  loadHomeFeed();
+}
+
+async function loadHomeFeed(append){
+  if(_feedLoading)return; _feedLoading=true;
+  var sb=window.sb;
+  var from=_feedPage*12, to=from+11;
+  var query=sb.from('posts').select('*, profiles(id,username,avatar_url,verification_status)')
+    .order('created_at',{ascending:false}).range(from,to);
+  if(_feedMode==='following'&&currentUser){
+    var fol=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id).limit(200);
+    var ids=(fol.data||[]).map(function(f){return f.following_id;});
+    if(ids.length) query=query.in('user_id',ids);
+    else {
+      document.getElementById('homePostsFeed').innerHTML=
+        '<div class="feed-empty"><div class="feed-empty-icon">&#128065;</div>'+
+        '<div class="feed-empty-text">Sigue creadores para ver su contenido</div></div>';
+      _feedLoading=false; return;
+    }
+  }
+  var r=await query; _feedLoading=false;
+  if(r.error)return;
+  var posts=r.data||[];
+  _feedPage=append?_feedPage+1:1;
+  var feed=document.getElementById('homePostsFeed');
+  if(!append) feed.innerHTML='';
+  if(!posts.length&&!append){
+    feed.innerHTML='<div class="feed-empty"><div class="feed-empty-icon">&#128247;</div>'+
+      '<div class="feed-empty-text">No hay publicaciones todavia.<br>'+
+      '<a href="/explore.html" style="color:#00e5ff">Explorar creadores</a></div></div>';
+    return;
+  }
+  posts.forEach(function(post){ feed.appendChild(buildFeedCard(post)); });
+  if(posts.length===12){
+    var btn=document.createElement('button');
+    btn.textContent='Ver mas';
+    btn.style.cssText='display:block;margin:16px auto;padding:10px 32px;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer';
+    btn.onclick=function(){this.remove();loadHomeFeed(true);};
+    feed.appendChild(btn);
+  }
+}
+
+function buildFeedCard(post){
+  var prof=post.profiles||{};
+  var isOwn=currentUser&&post.user_id===currentUser.id;
+  var isVideo=post.media_type==='video';
+  var card=document.createElement('div');
+  card.className='feed-post';
+
+  // Header
+  var hdr=document.createElement('div'); hdr.className='feed-post-header';
+  var av=document.createElement('div'); av.className='feed-post-av';
+  if(prof.avatar_url){var ai=document.createElement('img');ai.src=prof.avatar_url;av.appendChild(ai);}
+  else av.textContent=(prof.username||'?')[0].toUpperCase();
+  av.onclick=function(){window.location.href='/profile.html?u='+prof.username;};
+  var info=document.createElement('div'); info.className='feed-post-info';
+  info.onclick=function(){window.location.href='/profile.html?u='+prof.username;};
+  var uname=document.createElement('div'); uname.className='feed-post-username';
+  uname.textContent='@'+(prof.username||'usuario');
+  if(prof.verification_status==='verified'){var vb=document.createElement('span');vb.style.color='#00e5ff';vb.textContent='\u2713';uname.appendChild(vb);}
+  var time=document.createElement('div'); time.className='feed-post-time';
+  time.textContent=getTimeAgo(post.created_at);
+  info.appendChild(uname); info.appendChild(time);
+  hdr.appendChild(av); hdr.appendChild(info);
+  if(!isOwn&&currentUser){
+    var fb=document.createElement('button'); fb.className='feed-post-follow';
+    fb.textContent='Seguir'; fb.dataset.uid=post.user_id;
+    fb.onclick=function(){quickFollow(this,post.user_id,prof.username);};
+    sb.from('follows').select('id').eq('follower_id',currentUser.id).eq('following_id',post.user_id).single()
+      .then(function(r){if(r.data){fb.textContent='Siguiendo';fb.style.color='#00ff88';}});
+    hdr.appendChild(fb);
+  }
+  card.appendChild(hdr);
+
+  // Media
+  if(post.media_url){
+    var mw=document.createElement('div'); mw.className='feed-post-media';
+    if(post.is_subscriber_only&&!isOwn){
+      var me=document.createElement('img'); me.src=post.media_url;
+      me.style.cssText='width:100%;filter:blur(20px);transform:scale(1.1);pointer-events:none';
+      mw.appendChild(me);
+      var lk=document.createElement('div'); lk.className='ppv-lock';
+      lk.innerHTML='<div style="font-size:32px">&#128274;</div>'+
+        '<div style="color:#fff;font-weight:700;font-size:14px">Contenido exclusivo</div>';
+      var ub=document.createElement('button'); ub.className='ppv-btn'; ub.textContent='Suscribirse';
+      ub.onclick=function(){window.location.href='/profile.html?u='+prof.username;};
+      lk.appendChild(ub); mw.appendChild(lk);
+    } else if(isVideo){
+      var vid=document.createElement('video'); vid.src=post.media_url;
+      vid.controls=true; vid.preload='metadata';
+      vid.setAttribute('playsinline','');
+      vid.style.cssText='width:100%;max-height:80vh;object-fit:contain;display:block;background:#000';
+      mw.appendChild(vid);
+    } else {
+      var img=document.createElement('img'); img.src=post.media_url; img.loading='lazy';
+      img.style.cssText='width:100%;max-height:680px;object-fit:contain;display:block';
+      mw.appendChild(img);
+    }
+    card.appendChild(mw);
+  }
+
+  // Actions
+  var acts=document.createElement('div'); acts.className='feed-post-actions';
+  var lbtn=document.createElement('button'); lbtn.className='feed-action-btn';
+  lbtn.innerHTML='&#10084; <span class="feed-action-count" id="lc-'+post.id+'">'+(post.likes_count||0)+'</span>';
+  lbtn.onclick=function(){doLike(post.id,this);};
+  var cbtn=document.createElement('button'); cbtn.className='feed-action-btn';
+  cbtn.innerHTML='&#128172; <span class="feed-action-count">'+(post.comments_count||0)+'</span>';
+  cbtn.onclick=function(){window.location.href='/feed.html?post='+post.id;};
+  var sbtn=document.createElement('button'); sbtn.className='feed-action-btn';
+  sbtn.textContent='&#128228;'; sbtn.onclick=function(){doSharePost(post.id);};
+  var savebtn=document.createElement('button'); savebtn.className='feed-action-btn';
+  savebtn.style.marginLeft='auto'; savebtn.textContent='&#128278;';
+  savebtn.onclick=function(){doSavePost(post.id,this);};
+  acts.appendChild(lbtn); acts.appendChild(cbtn); acts.appendChild(sbtn); acts.appendChild(savebtn);
+  card.appendChild(acts);
+
+  // Caption
+  if(post.content){
+    var cap=document.createElement('div'); cap.className='feed-post-caption';
+    var ct=post.content.replace(/#(\w+)/g,'<span class="feed-hashtag">#$1</span>');
+    cap.innerHTML='<strong>@'+(prof.username||'')+'</strong> '+ct;
+    card.appendChild(cap);
+  }
+  return card;
+}
+
+async function doLike(postId,btn){
+  if(!currentUser){showToast('Inicia sesion para dar like');return;}
+  var liked=btn.classList.contains('liked');
+  btn.classList.toggle('liked',!liked);
+  var ce=document.getElementById('lc-'+postId);
+  var n=parseInt(ce&&ce.textContent||0);
+  if(ce) ce.textContent=liked?Math.max(0,n-1):n+1;
+  if(liked){
+    await window.sb.from('post_likes').delete().eq('post_id',postId).eq('user_id',currentUser.id);
+    await window.sb.from('posts').update({likes_count:Math.max(0,n-1)}).eq('id',postId);
+  } else {
+    await window.sb.from('post_likes').upsert({post_id:postId,user_id:currentUser.id}).then(function(){});
+    await window.sb.from('posts').update({likes_count:n+1}).eq('id',postId);
+  }
+}
+
+async function doSavePost(postId,btn){
+  if(!currentUser){showToast('Inicia sesion para guardar');return;}
+  var saved=btn.classList.contains('saved');
+  btn.classList.toggle('saved',!saved);
+  if(saved){await window.sb.from('bookmarks').delete().eq('post_id',postId).eq('user_id',currentUser.id);}
+  else{await window.sb.from('bookmarks').upsert({post_id:postId,user_id:currentUser.id}).then(function(){});}
+  showToast(saved?'Eliminado de guardados':'\u2714 Guardado');
+}
+
+function doSharePost(postId){
+  var url=location.origin+'/feed.html?post='+postId;
+  if(navigator.share){navigator.share({url:url});}
+  else{navigator.clipboard.writeText(url).then(function(){showToast('\u2714 Link copiado');});}
+}
+
+async function quickFollow(btn,uid,username){
+  if(!currentUser){window.location.href='/';return;}
+  var isF=btn.textContent==='Siguiendo';
+  if(isF){
+    await window.sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',uid);
+    btn.textContent='Seguir'; btn.style.color=''; btn.style.borderColor='';
+  } else {
+    await window.sb.from('follows').insert({follower_id:currentUser.id,following_id:uid});
+    btn.textContent='Siguiendo'; btn.style.color='#00ff88';
+    showToast('\u2714 Siguiendo a @'+username);
+  }
+}
+
+async function loadHomeStories(){
+  var bar=document.getElementById('homeStoriesBar');
+  if(!bar||!window.sb)return;
+  var r=await window.sb.from('stories')
+    .select('*, profiles(id,username,avatar_url)')
+    .gt('expires_at',new Date().toISOString())
+    .order('created_at',{ascending:false}).limit(15);
+  if(r.error||!r.data||!r.data.length)return;
+  var seen={};
+  r.data.forEach(function(s){
+    if(seen[s.user_id])return; seen[s.user_id]=true;
+    var prof=s.profiles||{};
+    var bub=document.createElement('div'); bub.className='story-bubble';
+    var ring=document.createElement('div'); ring.className='story-ring';
+    var av=document.createElement('div'); av.className='story-av';
+    if(prof.avatar_url){var img=document.createElement('img');img.src=prof.avatar_url;av.appendChild(img);}
+    else av.textContent=(prof.username||'?')[0].toUpperCase();
+    ring.appendChild(av);
+    var nm=document.createElement('div'); nm.className='story-name';
+    nm.textContent='@'+prof.username;
+    bub.appendChild(ring); bub.appendChild(nm);
+    bub.onclick=function(){window.location.href='/stories.html';};
+    bar.appendChild(bub);
   });
 }
 </script>

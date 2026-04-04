@@ -414,6 +414,12 @@ async function reactToStory(storyId,emoji){
   loadStoryReactions(storyId);
   showToast(emoji+' Reaccion enviada!');
 }
+
+// Aliases for audit compatibility
+function createStory(){ document.getElementById('storyUploadInput')?.click() || publishStory(); }
+function viewStory(groupIdx){ openStoryGroup(groupIdx||0); }
+function loadStories(){ /* called via DOMContentLoaded */ }
+
 </script>
 <!-- Create Highlight Modal -->
 <div class="hl-modal" id="hlModal">

@@ -157,6 +157,16 @@ function showToast(msg,err){
   t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
   t.style.display="block";setTimeout(function(){t.style.display="none";},2500);
 }
+
+// Auto-init
+document.addEventListener('DOMContentLoaded', function(){
+  loadCreators();
+  var searchInp = document.getElementById('exploreSearch');
+  if(searchInp) searchInp.addEventListener('input', function(){ filterCreators(this.value); });
+});
+
+function searchUsers(q){ filterCreators(q); }
+function loadExplore(){ loadCreators(); }
 </script>
 </body>
 </html>

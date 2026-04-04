@@ -364,7 +364,7 @@ body.has-nav .dashPage{padding-bottom:70px}
     <button onclick="window.location.href='/stories.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00">&#9203; Stories</button>
   </div>
 </div>
-<!-- SECTION: TODOS (fans + creadores) -->
+<!-- SECTION: Botones para fans y creadores -->
 <div id="fanSection" style="display:none">
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
     <button onclick="window.location.href='/explore.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
@@ -383,30 +383,7 @@ body.has-nav .dashPage{padding-bottom:70px}
     &#128274; VERIFICACIÓN DE CUENTA
     <span class="kyc-status kyc-unverified" id="kycBadge">SIN VERIFICAR</span>
   </div>
-  <div id="kycContent">
-    <p style="font-size:12px;color:#5a8aaa;margin-bottom:14px;line-height:1.6">
-      Verifica tu identidad para obtener la insignia &#10003; verificado y acceso total de creador.
-      Sube foto de tu DNI/Pasaporte y una selfie sosteniéndolo.
-    </p>
-    <div class="kyc-upload-row">
-      <div class="kyc-upload-box">
-        <input type="file" id="docFile" accept="image/*" onchange="kycFileSelected('doc')">
-        <div class="kyc-upload-icon">&#128196;</div>
-        <div class="kyc-upload-label">DNI / Pasaporte</div>
-        <div class="kyc-upload-done" id="docDone" style="display:none">&#10003; Listo</div>
-      </div>
-      <div class="kyc-upload-box">
-        <input type="file" id="selfieFile" accept="image/*" onchange="kycFileSelected('selfie')">
-        <div class="kyc-upload-icon">&#129315;</div>
-        <div class="kyc-upload-label">Selfie con documento</div>
-        <div class="kyc-upload-done" id="selfieDone" style="display:none">&#10003; Listo</div>
-      </div>
-    </div>
-    <button class="kyc-submit-btn" id="kycSubmitBtn" onclick="submitKyc()" disabled>
-      &#128228; ENVIAR PARA VERIFICACIÓN
-    </button>
-    <p id="kycMsg" style="font-size:11px;color:#00ff88;margin-top:8px;display:none"></p>
-  </div>
+  <div id="kycContent"><p style="font-size:12px;color:#5a8aaa;text-align:center;padding:16px">Cargando...</p></div>
 </div>
 <div class="sbg" id="shopModal">
   <div class="sbox">
@@ -780,7 +757,7 @@ async function registerFaceId(){
       showToast('\u{1F512} Face ID activado correctamente');
     }
   }catch(e){
-    if(e.name!=='NotAllowedError') console.log('WebAuthn register error:',e.message);
+    if(e.name!=='NotAllowedError')
   }
 }
 
@@ -827,7 +804,7 @@ function loginWithFaceId(){
     if(btn){ btn.disabled=false; btn.innerHTML='\u{1F512} Acceder con Face ID / Huella'; }
   }).catch(function(e){
     if(btn){ btn.disabled=false; btn.innerHTML='\u{1F512} Acceder con Face ID / Huella'; }
-    if(e.name!=='NotAllowedError') console.log('WebAuthn login error:',e.message);
+    if(e.name!=='NotAllowedError')
   });
 }
 
@@ -1371,7 +1348,7 @@ async function processReferralAfterRegister(userId){
   localStorage.removeItem("sn_ref_code");
   try{
     await window.sb.rpc("process_referral", {p_new_user_id: userId, p_referral_code: ref});
-  }catch(e){ console.log("referral error:", e.message); }
+  }catch(e){ /* referral silent fail */ }
 }
 
 async function loadReferralCode(){
@@ -1404,9 +1381,7 @@ function copyMyRef(){
 if("serviceWorker" in navigator){
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("/sw.js").then(function(reg){
-      console.log("SW registered:", reg.scope);
     }).catch(function(err){
-      console.log("SW error:", err);
     });
   });
 }
@@ -1447,7 +1422,7 @@ async function updateNavBadges(){
   var unreadNotifs=nr.count||0;
   var dot=document.getElementById("notifDot");
   if(!dot){
-    dot=document.createElement("span");dot.id="notifDot";dot.className="notif-dot";
+    dot=document.getElementById('notifDot')||document.createElement("span");if(!dot.id){dot.id="notifDot2";dot.className="notif-dot";}if(!dot.parentNode){
     var bell=document.getElementById("notifBtn");
     if(bell){bell.style.position="relative";bell.appendChild(dot);}
   }

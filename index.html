@@ -417,7 +417,7 @@ body.has-nav .dashPage{padding-bottom:70px}
     </div>
     <div class="stats">
       <div style="text-align:center"><div class="snum" id="statUsers">0</div><div class="slbl">Usuarios</div></div>
-      <div style="text-align:center"><div class="snum">60%</div><div class="slbl">Comision</div></div>
+      <div style="text-align:center"><div class="snum">90%</div><div class="slbl">Comisión</div></div>
       <div style="text-align:center"><div class="snum">28</div><div class="slbl">Regalos</div></div>
       <div style="text-align:center"><div class="snum">100</div><div class="slbl">Rangos</div></div>
     </div>
@@ -512,10 +512,10 @@ window.addEventListener('DOMContentLoaded',function(){
 sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)setUser(session.user);if(evt==='SIGNED_OUT')clearUser();});
 function loadCount(){
   Promise.all([
-    sb.from("profiles").select("*",{count:"exact",head:true}),
-    sb.from("posts").select("*",{count:"exact",head:true}),
-    sb.from("follows").select("*",{count:"exact",head:true}),
-    sb.from("creator_applications").select("*",{count:"exact",head:true}).eq("status","approved")
+    sb.from("profiles").select("id",{count:"exact",head:true}),
+    sb.from("posts").select("id",{count:"exact",head:true}),
+    sb.from("follows").select("id",{count:"exact",head:true}),
+    sb.from("creator_applications").select("id",{count:"exact",head:true}).eq("status","approved")
   ]).then(function(results){
     var users = results[0].count||0;
     var posts = results[1].count||0;

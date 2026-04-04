@@ -109,7 +109,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
   <div class="modal-box">
     <div class="modal-title">&#128176; SOLICITAR RETIRO</div>
     <div id="withdrawAmount" style="font-family:Orbitron,sans-serif;font-size:24px;color:#00ff88;text-align:center;margin-bottom:16px">$0.00</div>
-    <p style="font-size:12px;color:#5a8aaa;margin-bottom:14px;line-height:1.5">El pago se procesar\xE1 en 3-5 d\xEDas h\xE1biles. Comisi\xF3n de plataforma: 40%.</p>
+    <p style="font-size:12px;color:#5a8aaa;margin-bottom:14px;line-height:1.5">El pago se procesar\xE1 en 3-5 d\xEDas h\xE1biles. Comisi\xF3n de plataforma: 10%.</p>
     <label style="font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">M\xE9todo de pago</label>
     <select class="select" id="withdrawMethod">
       <option value="paypal">PayPal</option>
@@ -188,7 +188,7 @@ async function loadTopPosts(){
 }
 
 async function loadTransactions(){
-  var r=await sb.from("transactions").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(20);
+  var r=await sb.from("transactions").select("*").eq("creator_id",currentUser.id).order("created_at",{ascending:false}).limit(20);
   var el=document.getElementById("txList");
   if(!r.data||r.data.length===0){el.innerHTML="<div style=\"padding:16px;color:#5a8aaa;font-size:13px\">Sin transacciones</div>";return;}
   el.innerHTML="";
@@ -239,6 +239,8 @@ function showToast(msg,err){
   t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
   t.style.display="block";setTimeout(function(){t.style.display="none";},3000);
 }
+
+function loadEarnings(){ loadStats(); }
 </script>
 </body>
 </html>

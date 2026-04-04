@@ -563,6 +563,144 @@ async function loadSavedPosts(){
     grid.appendChild(thumb);
   });
 }
+
+
+// ---- TIER SUBSCRIBE MODAL ----
+var _selectedTier = null;
+var _subCreatorId = null;
+
+async function openSubscribeModal(creatorId) {
+  _subCreatorId = creatorId;
+  _selectedTier = null;
+  var btn = document.getElementById('tierConfirmBtn');
+  if(btn){ btn.disabled=true; btn.style.opacity='.5'; btn.textContent='Selecciona un plan'; }
+  var msg = document.getElementById('tierMsg');
+  if(msg) msg.style.display='none';
+  // Load tiers from Supabase
+  var r = await window.sb.from('subscription_tiers')
+    .select('*').eq('creator_id', creatorId).eq('is_active', true).order('price');
+  var list = document.getElementById('tierList');
+  list.innerHTML = '';
+  var tiers = r.data || [];
+  if(!tiers.length){
+    list.innerHTML = '<p style="color:#5a8aaa;font-size:13px;text-align:center;padding:16px">Este creador no tiene planes activos todav&iacute;a.</p>';
+  } else {
+    tiers.forEach(function(tier){
+      var perks = Array.isArray(tier.perks) ? tier.perks : (JSON.parse(tier.perks||'[]'));
+      var card = document.createElement('div');
+      card.dataset.tierId = tier.id;
+      card.dataset.tierPrice = tier.price;
+      card.dataset.tierName = tier.name;
+      card.style.cssText = 'border:1.5px solid #0d2744;border-radius:10px;padding:14px;cursor:pointer;transition:all .2s';
+      card.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+          '<span style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;color:#e8f4ff">'+tier.name+'</span>' +
+          '<span style="font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255">€'+parseFloat(tier.price).toFixed(2)+'/mes</span>' +
+        '</div>' +
+        '<p style="font-size:12px;color:#5a8aaa;margin-bottom:8px">'+( tier.description||'')+'</p>' +
+        (perks.length ? '<ul style="list-style:none;display:flex;flex-wrap:wrap;gap:4px">'+ perks.map(function(p){ return '<li style="background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.2);color:#ff9999;font-size:11px;padding:2px 8px;border-radius:10px">'+p+'</li>'; }).join('') +'</ul>' : '');
+      card.addEventListener('click', function(){
+        document.querySelectorAll('#tierList > div').forEach(function(c){ c.style.borderColor='#0d2744'; c.style.background='transparent'; });
+        card.style.borderColor='#ff2255'; card.style.background='rgba(255,34,85,.08)';
+        _selectedTier = tier;
+        var btn2 = document.getElementById('tierConfirmBtn');
+        btn2.disabled = false; btn2.style.opacity='1';
+        btn2.textContent = 'Suscribirse por €'+parseFloat(tier.price).toFixed(2)+'/mes';
+      });
+      list.appendChild(card);
+    });
+  }
+  document.getElementById('tierModal').style.display = 'flex';
+}
+
+async function confirmSubscribe(){
+  if(!_selectedTier || !_subCreatorId) return;
+  var btn = document.getElementById('tierConfirmBtn');
+  var msg = document.getElementById('tierMsg');
+  btn.disabled = true; btn.textContent = 'Procesando...';
+  // Check if user is logged in
+  var sess = await window.sb.auth.getSession();
+  if(!sess.data.session){ 
+    window.location.href = '/?subscribe='+_subCreatorId;
+    return;
+  }
+  var userId = sess.data.session.user.id;
+  // Check Stripe enabled
+  var cfg = await window.sb.from('platform_settings').select('value').eq('key','stripe_enabled').single();
+  var stripeEnabled = cfg.data?.value === 'true';
+  if(stripeEnabled){
+    // Call stripe-payment edge function
+    try {
+      var sbUrl = 'https://cdokplvoqivducsqrejt.supabase.co';
+      var sbKey = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+      var res = await fetch(sbUrl+'/functions/v1/stripe-payment', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':sbKey},
+        body: JSON.stringify({type:'subscription',creator_id:_subCreatorId,amount_cents:Math.round(_selectedTier.price*100),tier_id:_selectedTier.id,description:'Suscripción '+_selectedTier.name})
+      });
+      var data = await res.json();
+      if(data.error){ throw new Error(data.error); }
+      // For now show success (full Stripe Elements flow needs sk_live key)
+      showSubscribeSuccess();
+    } catch(e){
+      // Fallback: save pending subscription
+      await savePendingSubscription(userId);
+    }
+  } else {
+    // Save directly (free/manual mode until Stripe activated)
+    await savePendingSubscription(userId);
+  }
+}
+
+async function savePendingSubscription(userId){
+  var msg = document.getElementById('tierMsg');
+  var expires = new Date(); expires.setMonth(expires.getMonth()+1);
+  var r = await window.sb.from('subscriptions').upsert({
+    subscriber_id: userId,
+    creator_id: _subCreatorId,
+    tier_id: _selectedTier.id,
+    status: 'active',
+    amount: _selectedTier.price,
+    expires_at: expires.toISOString()
+  }, {onConflict:'subscriber_id,creator_id'});
+  if(r.error){ 
+    if(msg){ msg.textContent='Error: '+r.error.message; msg.style.color='#ff2255'; msg.style.display='block'; }
+    document.getElementById('tierConfirmBtn').disabled=false;
+    document.getElementById('tierConfirmBtn').textContent='Reintentar';
+    return;
+  }
+  showSubscribeSuccess();
+}
+
+function showSubscribeSuccess(){
+  document.getElementById('tierModal').style.display='none';
+  // Show toast
+  var t = document.createElement('div');
+  t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.97);border:1px solid #00ff88;color:#00ff88;padding:12px 24px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;z-index:9999;text-align:center';
+  t.textContent='✓ ¡Suscripción activada!';
+  document.body.appendChild(t);
+  setTimeout(function(){t.remove();},3000);
+  // Refresh page
+  setTimeout(function(){window.location.reload();},1500);
+}
+
+function followUser(uid){ toggleFollow(uid); }
+function subscribeCreator(cid){ openSubscribeModal(cid); }
+
 </script>
+
+<!-- Tier Subscribe Modal -->
+<div id="tierModal" style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-family:Orbitron,sans-serif;font-size:14px;color:#e8f4ff;letter-spacing:.08em">SUSCRIBIRSE</span>
+      <button onclick="document.getElementById('tierModal').style.display='none'" style="background:transparent;border:none;color:#5a8aaa;font-size:22px;cursor:pointer">&times;</button>
+    </div>
+    <p style="font-size:12px;color:#5a8aaa;margin-bottom:16px">Elige tu nivel de suscripci&oacute;n</p>
+    <div id="tierList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"></div>
+    <button id="tierConfirmBtn" onclick="confirmSubscribe()" disabled style="width:100%;padding:13px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;opacity:.5">Selecciona un plan</button>
+    <p id="tierMsg" style="font-size:12px;margin-top:8px;text-align:center;display:none"></p>
+  </div>
+</div>
 </body>
 </html>

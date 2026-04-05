@@ -70,182 +70,6 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .cover-upload.repositioning .cover-save-pos-btn{display:block}
 .cover-upload.repositioning .cover-drag-hint{opacity:1}
 
-/* ===== SN Bottom Nav ===== */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active{color:#00e5ff!important;}
-.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:20px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:0!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-body{padding-bottom:70px!important;}
-</style>
-</head>
-<body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
-  <span class="page-title">CONFIGURACIÓN</span>
-</header>
-<div class="wrap">
-  <!-- Profile Section -->
-  <div class="section">
-    <div class="section-head"><span class="section-icon">&#128100;</span><span class="section-title">PERFIL PÚBLICO</span></div>
-    <div class="section-body">
-      <!-- Avatar -->
-      <div class="avatar-upload">
-        <div class="av-preview" id="avPreview" onclick="document.getElementById('avatarInp').click()"></div>
-        <div class="av-info">
-          <p>Foto de perfil<br><span style="color:#3a5060">JPG, PNG · Máx 5MB</span></p>
-          <input type="file" id="avatarInp" class="upload-inp" accept="image/*">
-        </div>
-      </div>
-      <!-- Cover -->
-      <span class="field-label">Foto de portada</span>
-      <div class="cover-upload" id="coverPreview" onclick="handleCoverClick(event)">
-        <span class="cover-upload-label" id="coverLabel">&#128247; Subir portada</span>
-        <button class="cover-reposition-btn" id="repositionBtn" onclick="startReposition(event)">&#8645; Ajustar</button>
-        <button class="cover-save-pos-btn" id="savePosBtn" onclick="savePosition(event)">&#10003; Listo</button>
-        <div class="cover-drag-hint" id="coverDragHint">Arrastra para ajustar la posicion</div>
-        <input type="file" id="coverInp" class="upload-inp" accept="image/*">
-      </div>
-      <div class="field">
-        <label class="field-label">Nombre de usuario</label>
-        <input class="field-input" id="usernameInp" placeholder="tu_usuario" maxlength="30">
-        <div class="field-hint">Solo letras, números y guiones bajos</div>
-      </div>
-      <div class="field">
-        <label class="field-label">Biografía</label>
-        <textarea class="field-input field-textarea" id="bioInp" placeholder="Cuéntanos sobre ti..." maxlength="160"></textarea>
-        <div class="field-hint" id="bioCount">0/160 caracteres</div>
-      </div>
-      <button class="save-btn" onclick="saveProfile()">&#10003; Guardar Perfil</button>
-    </div>
-  </div>
-  <!-- Creator Settings -->
-  <div class="section" id="creatorSettings" style="display:none">
-    <div class="section-head"><span class="section-icon">&#127775;</span><span class="section-title">CONFIGURACIÓN DE CREADOR</span></div>
-    <div class="section-body">
-      <div class="field price-symbol">
-        <label class="field-label">Precio de suscripción mensual (USD)</label>
-        <input class="field-input" id="priceInp" type="number" min="0" max="999" step="0.01" placeholder="9.99">
-        <div class="field-hint">Pon 0 para contenido gratuito. Mínimo $1.00 para cobrar.</div>
-      </div>
-      <div class="field">
-        <label class="field-label">URL de PayPal para pagos</label>
-        <input class="field-input" id="paypalInp" placeholder="tu@paypal.com">
-        <div class="field-hint">Los suscriptores serán redirigidos aquí para pagar</div>
-      </div>
-      <button class="save-btn" style="background:linear-gradient(135deg,rgba(0,255,136,.3),rgba(0,150,80,.2));border:1px solid rgba(0,255,136,.4);color:#00ff88" onclick="saveCreatorSettings()">&#10003; Guardar Configuración</button>
-    </div>
-  </div>
-  <!-- Notifications -->
-  <div class="section">
-    <div class="section-head"><span class="section-icon">&#128276;</span><span class="section-title">NOTIFICACIONES</span></div>
-    <div class="section-body">
-      <div class="toggle-row">
-        <div><div class="toggle-label">Likes en mis posts</div></div>
-        <div class="toggle on" id="togLikes" onclick="togglePref('likes',this)"></div>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Comentarios</div></div>
-        <div class="toggle on" id="togComments" onclick="togglePref('comments',this)"></div>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Nuevos seguidores</div></div>
-        <div class="toggle on" id="togFollows" onclick="togglePref('follows',this)"></div>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Mensajes directos</div></div>
-        <div class="toggle on" id="togDMs" onclick="togglePref('dms',this)"></div>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Nuevas suscripciones</div></div>
-        <div class="toggle on" id="togSubs" onclick="togglePref('subs',this)"></div>
-      </div>
-    </div>
-  </div>
-  <!-- Privacy -->
-  <div class="section">
-    <div class="section-head"><span class="section-icon">&#128274;</span><span class="section-title">PRIVACIDAD</span></div>
-    <div class="section-body">
-      <div class="toggle-row">
-        <div><div class="toggle-label">Perfil público</div><div class="toggle-sub">Cualquiera puede ver tu perfil</div></div>
-        <div class="toggle on" id="togPublic" onclick="togglePref('public',this)"></div>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Mostrar en búsqueda</div></div>
-        <div class="toggle on" id="togSearch" onclick="togglePref('search',this)"></div>
-      </div>
-    </div>
-  </div>
-  <!-- Account -->
-  <div class="section">
-    <div class="section-head"><span class="section-icon">&#128272;</span><span class="section-title">CUENTA</span></div>
-    <div class="section-body">
-      <div class="field">
-        <label class="field-label">Email</label>
-        <input class="field-input" id="emailDisp" disabled>
-        <div class="field-hint">El email no puede cambiarse desde aquí</div>
-      </div>
-      <div class="field">
-        <label class="field-label">Nueva contraseña</label>
-        <input class="field-input" id="pwInp" type="password" placeholder="••••••••">
-      </div>
-      <div class="field">
-        <label class="field-label">Confirmar nueva contraseña</label>
-        <input class="field-input" id="pw2Inp" type="password" placeholder="••••••••">
-      </div>
-      <button class="save-btn" onclick="changePassword()">&#128272; Cambiar Contraseña</button>
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,34,85,.15)">
-        <button class="danger-btn" onclick="confirmLogout()">&#128682; Cerrar Sesión</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb=supabase.createClient(SB_URL,SB_KEY);
-var currentUser=null;
-var currentProfile=null;
-var pendingAvatarFile=null;
-var pendingCoverFile=null;
-
-sb.auth.getSession().then(function(r){
-  if(!r.data.session){window.location.href="/";return;}
-  currentUser=r.data.session.user;
-  document.getElementById("emailDisp").value=currentUser.email||"";
-  loadProfile();
-});
-
-async function loadProfile(){
-  var r=await sb.from("profiles").select("*").eq("id",currentUser.id).single();
-  if(r.error)return;
-  currentProfile=r.data;
-  var p=r.data;
-  // Avatar preview
-  var av=document.getElementById("avPreview");
-  if(p.avatar_url){var img=document.createElement("img");img.src=p.avatar_url;av.appendChild(img);}
-  else av.textContent=(p.username||"?")[0].toUpperCase();
-  // Cover preview
-  if(p.cover_url){
-    var cp=document.getElementById("coverPreview");
-    var ci=document.createElement("img");ci.src=p.cover_url;cp.appendChild(ci);
-    cp.querySelector(".cover-upload-label").style.display="none";
-  }
-  document.getElementById("usernameInp").value=p.username||"";
-  document.getElementById("bioInp").value=p.bio||"";
-  updateBioCount();
-  if(p.role==="creator"){
-    document.getElementById("creatorSettings").style.display="block";
-    document.getElementById("priceInp").value=p.subscription_price||9.99;
-    document.getElementById("paypalInp").value=p.paypal_email||"";
-  }
-}
 
 async function saveProfile(){
   var btn=document.querySelector(".save-btn");btn.disabled=true;btn.textContent="Guardando...";
@@ -486,8 +310,10 @@ async function connectStripe(){
 
 </script>
 
+
+
 <!-- SN Bottom Nav -->
-<nav class="sn-bottom-nav" id="snBottomNav">
+<nav class="sn-bottom-nav" id="snBottomNav" style="display:none">
   <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
@@ -495,29 +321,27 @@ async function connectStripe(){
   <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
 <script>
-// Update nav avatar from session
 (function(){
   var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
   var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function loadNavUser(){
+  function initNav(){
     var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
-    if(!sb)return;
+    if(!sb){setTimeout(initNav,400);return;}
     sb.auth.getSession().then(function(r){
       if(!r.data||!r.data.session)return;
+      var nav=document.getElementById('snBottomNav');
+      if(nav)nav.style.display='flex';
       sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
         if(!p.data)return;
         var av=document.getElementById('snNavAv');
         if(!av)return;
-        if(p.data.avatar_url){
-          av.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        } else if(p.data.username){
-          av.textContent=p.data.username[0].toUpperCase();
-        }
+        if(p.data.avatar_url)av.innerHTML='<img src="'+p.data.avatar_url+'">';
+        else if(p.data.username)av.textContent=p.data.username[0].toUpperCase();
       });
     });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadNavUser);
-  else loadNavUser();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNav);
+  else initNav();
 })();
 </script>
 </body>

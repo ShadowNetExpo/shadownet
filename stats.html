@@ -57,6 +57,19 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .tx-date{font-size:11px;color:#5a8aaa;margin-top:2px}
 .not-creator{text-align:center;padding:60px;color:#5a8aaa}
 .not-creator .icon{font-size:48px;margin-bottom:16px}
+
+/* ===== SN Bottom Nav ===== */
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
+.sn-bn-item:hover,.sn-bn-active{color:#00e5ff!important;}
+.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
+.sn-bn-icon{font-size:20px;line-height:1;}
+.sn-bn-lbl{font-size:9px;}
+.sn-bn-plus{padding:0!important;}
+.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
+.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
+@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
+body{padding-bottom:70px!important;}
 </style>
 </head>
 <body>
@@ -241,6 +254,41 @@ function showToast(msg,err){
 }
 
 function loadEarnings(){ loadStats(); }
+</script>
+
+<!-- SN Bottom Nav -->
+<nav class="sn-bottom-nav" id="snBottomNav">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+</nav>
+<script>
+// Update nav avatar from session
+(function(){
+  var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  function loadNavUser(){
+    var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
+    if(!sb)return;
+    sb.auth.getSession().then(function(r){
+      if(!r.data||!r.data.session)return;
+      sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
+        if(!p.data)return;
+        var av=document.getElementById('snNavAv');
+        if(!av)return;
+        if(p.data.avatar_url){
+          av.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+        } else if(p.data.username){
+          av.textContent=p.data.username[0].toUpperCase();
+        }
+      });
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadNavUser);
+  else loadNavUser();
+})();
 </script>
 </body>
 </html>

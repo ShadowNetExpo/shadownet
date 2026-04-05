@@ -358,43 +358,34 @@ async function lpay() {
 }
 
 // ---- CREATORS ----
-async function lcre() {
-  // Solicitudes pendientes de creador
-  var apps = await dbGet('creator_applications','id,user_id,username,content_type,motivation,status,created_at','order=created_at.desc');
-  var r1 = await dbGet('profiles', 'id,username,verified,role,created_at', 'order=created_at.desc');
-  var r2 = await dbGet('posts', 'user_id');
-  var cm = {};
-  r2.forEach(function(p) { cm[p.user_id] = (cm[p.user_id] || 0) + 1; });
-
-  // Tabla solicitudes
-  var pending = apps.filter(function(a){return a.status==='pending';});
-  var appHtml = pending.length ? pending.map(function(a){
+async function lcre(){
+  var apps=await dbGet('creator_applications','id,user_id,username,content_type,motivation,status,created_at','order=created_at.desc');
+  var r1=await dbGet('profiles','id,username,verified,role,created_at','order=created_at.desc');
+  var r2=await dbGet('posts','user_id');
+  var cm={}; r2.forEach(function(p){cm[p.user_id]=(cm[p.user_id]||0)+1;});
+  var pending=apps.filter(function(a){return a.status==='pending';});
+  g('abt').innerHTML=pending.length?pending.map(function(a){
     return '<tr>'+
       '<td><strong>@'+(a.username||'-')+'</strong></td>'+
       '<td><span class="bx go">'+(a.content_type||'-')+'</span></td>'+
-      '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx3);font-size:12px">'+(a.motivation||'').slice(0,60)+'...</td>'+
+      '<td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx3);font-size:11px">'+(a.motivation||'').slice(0,50)+'...</td>'+
       '<td style="color:var(--tx3)">'+(a.created_at?a.created_at.slice(0,10):'-')+'</td>'+
       '<td style="display:flex;gap:6px">'+
         '<button class="btn p apr-btn" data-uid="'+a.user_id+'" data-uname="'+(a.username||'')+'" data-aid="'+a.id+'">✓ Aprobar</button>'+
         '<button class="btn rej-btn" data-uid="'+a.user_id+'" data-uname="'+(a.username||'')+'" data-aid="'+a.id+'" style="color:#ff2255;border-color:#ff2255">✗ Rechazar</button>'+
       '</td>'+
     '</tr>';
-  }).join('') : '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--tx3)">Sin solicitudes pendientes</td></tr>';
-
-  g('cbt').innerHTML = '<tr style="border-bottom:2px solid var(--red)"><td colspan="5" style="padding:10px 16px;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--red)">SOLICITUDES DE CREADOR</td></tr>'+
-    '<tr><th>Usuario</th><th>Tipo</th><th>Motivacion</th><th>Fecha</th><th>Accion</th></tr>'+
-    appHtml+
-    '<tr style="border-top:2px solid var(--br)"><td colspan="5" style="padding:10px 16px;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--tx3)">TODOS LOS USUARIOS</td></tr>'+
-    r1.map(function(p){
-      return '<tr>'+
-        '<td>@'+(p.username||'-')+'</td>'+
-        '<td><span class="bx '+(p.role==='creator'?'gr':p.role==='pending_creator'?'go':'gy')+'">'+(p.role||'fan')+'</span></td>'+
-        '<td class="mo">'+(cm[p.id]||0)+'</td>'+
-        '<td style="color:var(--tx3)">'+(p.created_at?p.created_at.slice(0,10):'-')+'</td>'+
-        '<td>'+(p.role==='creator'?'<span class="bx gr">✓ Creador</span>':'<button class="btn p ver-btn" data-pid="'+p.id+'" data-pname="'+(p.username||'')+'" style="font-size:11px">Hacer Creador</button>')+'</td>'+
-      '</tr>';
-    }).join('');
-
+  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--tx3)">Sin solicitudes pendientes</td></tr>';
+  g('cbt').innerHTML=r1.map(function(p){
+    var isCreator=p.role==='creator';
+    return '<tr>'+
+      '<td>@'+(p.username||'-')+'</td>'+
+      '<td><span class="bx '+(isCreator?'gr':p.role==='pending_creator'?'go':'gy')+'">'+(p.role||'fan')+'</span></td>'+
+      '<td class="mo">'+(cm[p.id]||0)+'</td>'+
+      '<td style="color:var(--tx3)">'+(p.created_at?p.created_at.slice(0,10):'-')+'</td>'+
+      '<td>'+(isCreator?'<span class="bx gr">✓ Creador</span>':'<button class="btn p ver-btn" data-pid="'+p.id+'" data-pname="'+(p.username||'')+'" style="font-size:11px">Hacer Creador</button>')+'</td>'+
+    '</tr>';
+  }).join('');
   document.querySelectorAll('.apr-btn').forEach(function(b){
     b.addEventListener('click',function(){approveCreator(this.dataset.uid,this.dataset.uname,this.dataset.aid);});
   });
@@ -406,29 +397,28 @@ async function lcre() {
   });
 }
 async function approveCreator(uid,uname,appId){
-  if(!confirm('Aprobar creador: @'+uname+'?'))return;
+  if(!confirm('✓ Aprobar creador: @'+uname+'?'))return;
   var r1=await api('PATCH','/rest/v1/profiles?id=eq.'+uid,{verified:true,role:'creator'});
   if(appId){await api('PATCH','/rest/v1/creator_applications?id=eq.'+appId,{status:'approved'});}
-  if(!r1.ok){alert('Error al aprobar');return;}
-  toast('✓ @'+uname+' aprobado como Creador');
+  if(!r1.ok){toast('Error al aprobar');return;}
+  toast('✓ @'+uname+' es ahora Creador');
   lcre();
 }
 async function rejectCreator(uid,uname,appId){
-  if(!confirm('Rechazar solicitud de @'+uname+'?'))return;
+  if(!confirm('✗ Rechazar solicitud de @'+uname+'?'))return;
   if(appId){await api('PATCH','/rest/v1/creator_applications?id=eq.'+appId,{status:'rejected'});}
   await api('PATCH','/rest/v1/profiles?id=eq.'+uid,{role:'fan'});
-  toast('Rechazado: @'+uname);
+  toast('✗ Rechazado: @'+uname);
   lcre();
 }
 async function vuser(id,u){
   if(!confirm('Hacer creador a @'+u+'?'))return;
   var r=await api('PATCH','/rest/v1/profiles?id=eq.'+id,{verified:true,role:'creator'});
-  if(!r.ok){alert('Error');return;}
+  if(!r.ok){toast('Error');return;}
   toast('✓ @'+u+' es ahora Creador');
   lcre();
 }
 
-// ---- SETTINGS ----
 async function lset() {
   var r = await dbGet('platform_settings', '*');
   var s = {};

@@ -278,7 +278,7 @@ async function ldb() {
     '<div class="sc go"><div class="sl">Almas</div><div class="sv">' + coins + '</div></div>' +
     '<div class="sc gr"><div class="sl">Ingresos</div><div class="sv">$' + rev.toFixed(2) + '</div></div>';
   g('tbt').innerHTML = tx.length ? tx.map(function(x) {
-    retrn '<tr><td class="mo">' + x.user_id.slice(0, 8) + '...</td>' +
+    return '<tr><td class="mo">' + x.user_id.slice(0, 8) + '...</td>' +
       '<td><span class="bx ' + (x.type === 'purchase' ? 'gr' : 'bl') + '">' + x.type + '</span></td>' +
       '<td>' + (x.amount || 0) + '</td>' +
       '<td>$' + (x.gross_amount || 0).toFixed(2) + '</td>' +

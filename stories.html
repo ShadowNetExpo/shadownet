@@ -1,25 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>
-(function(){
-  // Clear all service worker caches immediately
-  if('caches' in window){
-    caches.keys().then(function(k){k.forEach(function(n){caches.delete(n);});});
-  }
-  // Unregister any old service worker
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistrations().then(function(regs){
-      regs.forEach(function(r){
-        if(r.active&&r.active.scriptURL&&r.active.scriptURL.indexOf('sw.js')>-1){
-          // Only unregister if it's an old version (not v5)
-          r.active.postMessage({type:'GET_VERSION'});
-        }
-      });
-    });
-  }
-})();
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET — Stories</title>
@@ -120,7 +101,138 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .btn-back{background:transparent;border:1px solid #0d2744;color:#e8f4ff;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:.04em;}
 .btn-back:hover{border-color:#00e5ff;color:#00e5ff;}
 header{justify-content:space-between!important;}
+</style>
+<style>
+/* SN-NAV */
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s;}
+.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
+.sn-bn-icon{font-size:22px;line-height:1;}
+.sn-bn-lbl{font-size:9px;}
+.sn-bn-plus{padding:4px 8px!important;}
+.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
+.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
+.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
+</style>
+</head>
+<body>
+<header>
+  <button class="btn-back" onclick="history.length>1?history.back():window.location.href='/'">&#8592; Volver</button>
+  <span class="page-title">STORIES</span>
+  <span style="width:80px"></span>
+</header>
+<div class="wrap">
+  <!-- Highlights Section -->
+  <div class="highlights-section" id="highlightsSection" style="display:none">
+    <div class="highlights-title">DESTACADOS</div>
+    <div class="highlights-row" id="highlightsRow">
+      <div class="highlight-bubble" onclick="openCreateHighlight()">
+        <div class="add-highlight-btn">+</div>
+        <div class="highlight-name">Nuevo</div>
+      </div>
+    </div>
+  </div>
+  <div class="stories-row" id="storiesRow">
+    <div style="color:#5a8aaa;font-size:13px;padding:20px">Cargando...</div>
+  </div>
+  <div id="uploadSection" style="display:none">
+    <div class="section-title">CREAR STORY</div>
+    <div class="upload-box" id="uploadBox">
+      <input type="file" id="storyFile" accept="image/*,video/*">
+      <div class="upload-icon">📸</div>
+      <div class="upload-label">Toca para subir foto o video</div>
+      <div class="upload-sub">La story desaparece en 24 horas</div>
+    </div>
+    <div class="preview-box" id="previewBox"></div>
+    <input class="caption-inp" id="captionInp" placeholder="Escribe un caption... (opcional)">
+    <button class="publish-btn" id="publishBtn" onclick="publishStory()" disabled>
+      ⏰ PUBLICAR STORY (24H)
+    </button>
+  </div>
+</div>
+<!-- Story Viewer -->
+<div class="story-viewer" id="storyViewer">
+  <div class="sv-header">
+    <div class="sv-progress"><div class="sv-progress-fill" id="svProgressFill"></div></div>
+    <div class="sv-user">
+      <div class="sv-av" id="svAv"></div>
+      <div>
+        <div class="sv-username" id="svUsername"></div>
+        <div class="sv-time" id="svTime"></div>
+      </div>
+    </div>
+    <button class="sv-close" onclick="closeStoryViewer()">✕</button>
+  </div>
+  <div class="sv-media" id="svMedia"></div>
+  <div class="sv-caption" id="svCaption"></div>
+  <div class="sv-nav">
+    <div class="sv-prev" onclick="prevStory()"></div>
+    <div class="sv-next" onclick="nextStory()"></div>
+  </div>
+  <div class="story-reactions-bar" id="storyReactionsBar" style="display:none">
+    </div>
+  <div class="sv-footer">
+    <input class="sv-reply" id="svReply" placeholder="Responder a la story...">
+    <div class="sv-views" id="svViews">👁 0</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
+var currentProfile=null;
+var allStories=[];
+var storyGroups=[];
+var activeGroupIdx=0;
+var activeStoryIdx=0;
+var storyTimer=null;
+var storyDuration=5000;
+var storyFile=null;
 
+sb.auth.getSession().then(function(r){
+  if(!r.data.session){window.location.href="/";return;}
+  currentUser=r.data.session.user;
+  sb.from("profiles").select("username,avatar_url,role").eq("id",currentUser.id).single().then(function(p){
+    currentProfile=p.data;
+    if(p.data&&p.data.role==="creator") document.getElementById("uploadSection").style.display="block";
+    loadStories(); loadHighlights();
+  });
+});
+
+async function loadStories(){
+  var row=document.getElementById("storiesRow");
+  var r=await sb.from("stories").select("*,profiles(id,username,avatar_url)").gt("expires_at",new Date().toISOString()).order("created_at",{ascending:false}).limit(50);
+  if(r.error||!r.data||r.data.length===0){row.innerHTML="<div style=\"color:#5a8aaa;font-size:13px;padding:16px 0\">No hay stories activos</div>";return;}
+  // Group by user
+  var groups={};
+  r.data.forEach(function(s){
+    var uid=s.user_id;
+    if(!groups[uid]) groups[uid]={user:s.profiles,stories:[]};
+    groups[uid].stories.push(s);
+  });
+  storyGroups=Object.values(groups);
+  row.innerHTML="";
+  // My story bubble (add)
+  if(currentProfile?.role==="creator"){
+    var addBubble=document.createElement("div");addBubble.className="story-bubble";
+    addBubble.innerHTML="<div class=\"story-ring add\" style=\"position:relative\">"
+      +"<div class=\"story-av\">"+(currentProfile?.avatar_url?"<img src=\""+currentProfile.avatar_url+"\">":(currentProfile?.username||"?")[0].toUpperCase())+"</div>"
+      +"<div class=\"story-add-icon\">+</div></div><div class=\"story-name\">Tu story</div>";
+    addBubble.addEventListener("click",function(){document.getElementById("uploadSection").scrollIntoView({behavior:"smooth"});});
+    row.appendChild(addBubble);
+  }
+  storyGroups.forEach(function(g,idx){
+    var bubble=document.createElement("div");bubble.className="story-bubble";
+    var uname=g.user?.username||"usuario";
+    var avHTML=g.user?.avatar_url?"<img src=\""+g.user.avatar_url+"\">":(uname[0]||"?").toUpperCase();
+    bubble.innerHTML="<div class=\"story-ring\"><div class=\"story-av\">"+avHTML+"</div></div><div class=\"story-name\">@"+uname+"</div>";
+    bubble.addEventListener("click",function(){openStoryGroup(idx);});
+    row.appendChild(bubble);
+  });
+}
 
 function openStoryGroup(idx){
   activeGroupIdx=idx;
@@ -342,32 +454,3 @@ function loadStories(){ /* called via DOMContentLoaded */ }
 function createStory(){ document.getElementById('storyUploadInput')?.click() || publishStory(); }
 function viewStory(groupIdx){ openStoryGroup(groupIdx||0); }
 function loadStories(){ /* called via DOMContentLoaded */ }
-
-<nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item sn-bn-active" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
-</nav>
-<script>
-(function(){
-var U='https://cdokplvoqivducsqrejt.supabase.co',K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-function go(){
-  var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);
-  if(!sb){setTimeout(go,400);return;}
-  sb.auth.getSession().then(function(r){
-    if(!r.data||!r.data.session)return;
-    var n=document.getElementById('snBottomNav');if(n)n.style.display='flex';
-    sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
-      if(!p.data)return;
-      var a=document.getElementById('snNavAv');if(!a)return;
-      if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';
-      else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
-    });
-  });
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);
-else go();
-})();
-</script>

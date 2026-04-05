@@ -600,6 +600,12 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
 /* Old hero elements - hide them */
 .hero .orb,.hero .btns,.hero .stats,.hero .tag,.hero .desc{display:none;}
 
+
+.hero-nav-logout{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);color:var(--red,#ff2255);border-radius:20px;padding:7px 18px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:none;}
+.hero-nav-logout.show{display:inline-block;}
+.hero-nav-user{font-size:13px;color:#8a8a9a;display:none;}
+.hero-nav-user.show{display:inline-block;}
+
 </style>
 </head>
 <body>
@@ -696,6 +702,8 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
   <div class="hero-nav">
     <div class="hero-nav-logo">SHADOWNET</div>
     <div class="hero-nav-btns">
+      <span class="hero-nav-user" id="heroNavUser"></span>
+      <button class="hero-nav-logout" id="heroNavLogout" onclick="doLandingLogout()">Cerrar sesion</button>
       <button class="hero-nav-login" onclick="openAuth('login')">Entrar</button>
       <button class="hero-nav-signup" onclick="openAuth('register')">Registrarse</button>
     </div>
@@ -905,8 +913,29 @@ function setUser(u){
     });
     loadHomeFeed();
     loadHomeStories();
-    offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';// logoutBtn removed from header - only in profile document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
+    offerFaceIdRegistration();
+    // Update hero nav for logged-in state
+    var hnu=document.getElementById('heroNavUser');
+    var hnl=document.getElementById('heroNavLogout');
+    var hnb=document.querySelectorAll('.hero-nav-login,.hero-nav-signup');
+    if(hnu){hnu.textContent='@'+(d.username||'');hnu.classList.add('show');}
+    if(hnl)hnl.classList.add('show');
+    hnb.forEach(function(b){b.style.display='none';});
+document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';// logoutBtn removed from header - only in profile document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
     loadKycStatus();closeAuth();loadFanRank();loadDashStories();loadReferralCode();processReferralAfterRegister(currentUser.id);updateNavBadges();subscribeNotifBadge(); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
+function doLandingLogout(){
+  if(!window.sb)return;
+  sb.auth.signOut().then(function(){
+    clearUser();
+    // Restore hero nav
+    var hnu=document.getElementById('heroNavUser');
+    var hnl=document.getElementById('heroNavLogout');
+    var hnb=document.querySelectorAll('.hero-nav-login,.hero-nav-signup');
+    if(hnu)hnu.classList.remove('show');
+    if(hnl)hnl.classList.remove('show');
+    hnb.forEach(function(b){b.style.display='';});
+  });
+}
 function clearUser(){_userInited=false;currentUser=null;
   ['creatorSection','fanSection','kycSection','applyCreatorBtn'].forEach(function(id){
     var el=document.getElementById(id); if(el) el.style.display='none';

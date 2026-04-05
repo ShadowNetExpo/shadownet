@@ -577,7 +577,7 @@ body.has-nav .dashPage{padding-bottom:70px}
     <span class="hf-logo">SHADOWNET</span>
     <div class="hf-actions">
       <button class="hf-icon-btn" onclick="toggleNotifPanel()" style="position:relative">
-        &#128276;<span class="notif-dot" id="notifDot2"></span>
+        &#128276;<span class="notif-dot" id="notifDotHF"></span>
       </button>
       <button class="hf-icon-btn" onclick="window.location.href='/search.html'">&#128269;</button>
     </div>
@@ -1304,6 +1304,8 @@ function escNotif(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function updateNotifBadge(){
   var dot = document.getElementById('notifDot');
   if(dot) dot.classList.toggle('show', _unreadCount > 0);
+  var dotHF = document.getElementById('notifDotHF');
+  if(dotHF) dotHF.classList.toggle('show', _unreadCount > 0);
 }
 
 function toggleNotifPanel(){
@@ -1546,12 +1548,14 @@ async function updateNavBadges(){
   var unreadNotifs=nr.count||0;
   var dot=document.getElementById("notifDot");
   if(!dot){
-    dot=document.getElementById('notifDot')||document.createElement("span");if(!dot.id){dot.id="notifDot2";dot.className="notif-dot";}if(!dot.parentNode){
+    dot=document.getElementById('notifDot')||document.createElement("span");if(!dot.id){dot.id="notifDot2_dyn";dot.className="notif-dot";}if(!dot.parentNode){
     var bell=document.getElementById("notifBtn");
     if(bell){bell.style.position="relative";bell.appendChild(dot);}
   }
   }
   if(dot) dot.className="notif-dot"+(unreadNotifs>0?" show":"");
+  var dotHF2=document.getElementById("notifDotHF");
+  if(dotHF2) dotHF2.className="notif-dot"+(unreadNotifs>0?" show":"");
   var nb=document.getElementById("notifBadge");
   if(nb) nb.textContent=unreadNotifs>0?"("+unreadNotifs+")":"";
 

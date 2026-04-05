@@ -435,63 +435,19 @@ function initCoverReposition(img) {
 
 // ---- NOTIF PREFS ----
 async function saveNotifPrefs(){
-  if(!window.sb||!window.currentUser)return;
+  if(!window.sb||!currentUser)return;
+  // Toggle divs use class "on" — not checkboxes
+  function isOn(id){ var el=document.getElementById(id); return el ? el.classList.contains('on') : true; }
   var prefs={
-    notif_likes: document.getElementById('notifLikes')?.checked??true,
-    notif_comments: document.getElementById('notifComments')?.checked??true,
-    notif_follows: document.getElementById('notifFollows')?.checked??true,
-    notif_tips: document.getElementById('notifTips')?.checked??true,
-    notif_subs: document.getElementById('notifSubs')?.checked??true,
-    notif_messages: document.getElementById('notifMessages')?.checked??true
+    notif_likes: isOn('togLikes'),
+    notif_comments: isOn('togComments'),
+    notif_follows: isOn('togFollows'),
+    notif_messages: isOn('togDMs'),
+    notif_subs: isOn('togSubs'),
+    notif_tips: true
   };
-  var r=await window.sb.from('profiles').update(prefs).eq('id',window.currentUser.id);
-  showToast(r.error?'Error: '+r.error.message:'✓ Preferencias guardadas');
-}
-
-// ---- COVER REPOSITION ----
-var _coverDragging=false,_coverStartY=0,_coverStartPos=50;
-function startCoverReposition(){
-  var preview=document.getElementById('coverPreview')||document.querySelector('.cover-preview,.profile-cover,img[id*=cover]');
-  if(!preview){showToast('Primero sube una foto de portada',true);return;}
-  preview.style.cursor='ns-resize';
-  _coverDragging=false;
-  _coverStartPos=parseInt(preview.style.objectPosition?.split(' ')[1]||'50');
-  preview.addEventListener('mousedown',_coverDragStart);
-  preview.addEventListener('touchstart',_coverDragStart,{passive:false});
-  showToast('Arrastra la imagen para reposicionarla');
-}
-function _coverDragStart(e){
-  _coverDragging=true;
-  _coverStartY=e.touches?e.touches[0].clientY:e.clientY;
-  document.addEventListener('mousemove',_coverDragMove);
-  document.addEventListener('touchmove',_coverDragMove,{passive:false});
-  document.addEventListener('mouseup',_coverDragEnd);
-  document.addEventListener('touchend',_coverDragEnd);
-  e.preventDefault();
-}
-function _coverDragMove(e){
-  if(!_coverDragging)return;
-  var y=e.touches?e.touches[0].clientY:e.clientY;
-  var delta=(y-_coverStartY)*0.3;
-  var newPos=Math.max(0,Math.min(100,_coverStartPos-delta));
-  var el=document.getElementById('coverPreview')||document.querySelector('.cover-preview,.profile-cover,img[id*=cover]');
-  if(el)el.style.objectPosition='center '+Math.round(newPos)+'%';
-  e.preventDefault();
-}
-function _coverDragEnd(){
-  _coverDragging=false;
-  document.removeEventListener('mousemove',_coverDragMove);
-  document.removeEventListener('touchmove',_coverDragMove);
-  document.removeEventListener('mouseup',_coverDragEnd);
-  document.removeEventListener('touchend',_coverDragEnd);
-}
-function saveCoverPosition(){
-  if(!window.sb||!window.currentUser)return;
-  var el=document.getElementById('coverPreview')||document.querySelector('.cover-preview,.profile-cover,img[id*=cover]');
-  if(!el){showToast('Sin portada que guardar',true);return;}
-  var pos=el.style.objectPosition?.split(' ')[1]||'50%';
-  window.sb.from('profiles').update({cover_position:pos}).eq('id',window.currentUser.id)
-    .then(r=>showToast(r.error?'Error: '+r.error.message:'✓ Posición guardada'));
+  var r=await window.sb.from('profiles').update(prefs).eq('id',currentUser.id);
+  showToast(r.error?'Error: '+r.error.message:'\u2713 Preferencias guardadas');
 }
 
 // ---- STRIPE CONNECT ----

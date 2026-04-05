@@ -2166,7 +2166,7 @@ async function startPay(){
   try{
     // 1. Create PaymentIntent on server
     info.textContent = 'Iniciando...';
-    var res = await fetch('/api/pay',{
+    var res = await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/stripe-payment/payment-intent',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({packId:_chosenPackId, userId:currentUser&&currentUser.id})

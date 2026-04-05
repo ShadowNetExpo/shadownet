@@ -315,7 +315,7 @@ body.has-nav .dashPage{padding-bottom:70px}
 .notif-item:hover{background:rgba(0,229,255,.04)}
 .notif-item.unread{background:rgba(255,34,85,.04)}
 
-.home-feed{display:none;padding-top:70px;padding-bottom:80px;max-width:680px;margin:0 auto}
+.home-feed{display:none;padding-top:0;padding-bottom:80px;max-width:680px;margin:0 auto}
 .home-feed.active{display:block}
 .stories-bar{padding:10px 16px;overflow-x:auto;display:flex;gap:14px;border-bottom:1px solid #0d2744;scrollbar-width:none;background:rgba(1,2,12,.97);position:sticky;top:58px;z-index:50}
 .stories-bar::-webkit-scrollbar{display:none}
@@ -351,6 +351,42 @@ body.has-nav .dashPage{padding-bottom:70px}
 .feed-loading,.feed-empty{text-align:center;padding:40px;color:#5a8aaa}
 .feed-empty-icon{font-size:40px;margin-bottom:12px}
 .feed-empty-text{font-size:14px;line-height:1.7}
+
+/* ===== NEW BOTTOM NAV REDESIGN ===== */
+.bn-lbl{font-size:9px;margin-top:1px;letter-spacing:.04em}
+.bn-active .bn-icon,.bn-active .bn-lbl{color:#ff2255!important}
+.bn-plus{padding:0!important;flex-shrink:0}
+.bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:300;line-height:1}
+.bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;border:2px solid #0d2744}
+.bn-item:hover .bn-icon,.bn-item:hover .bn-lbl{color:#e8f4ff}
+
+/* ===== QUICK POST SHEET ===== */
+.quick-post-sheet{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800;display:none;align-items:flex-end;justify-content:center}
+.quick-post-sheet.open{display:flex;animation:fadeIn .2s ease}
+.qp-box{background:#070f1e;border:1px solid #0d2744;border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:20px 20px max(20px,env(safe-area-inset-bottom))}
+.qp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.qp-options{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.qp-opt{background:rgba(1,2,12,.5);border:1px solid #0d2744;border-radius:14px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;color:#c8d8e8;transition:all .2s}
+.qp-opt:hover{border-color:#ff2255;background:rgba(255,34,85,.1);color:#ff6680}
+
+/* ===== HOME FEED HEADER ===== */
+.hf-topbar{position:sticky;top:0;z-index:99;background:rgba(1,2,12,.97);backdrop-filter:blur(16px);border-bottom:1px solid #0d2744;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.hf-logo{font-family:Orbitron,sans-serif;font-size:16px;color:#ff2255;letter-spacing:.15em;text-shadow:0 0 10px rgba(255,34,85,.4)}
+.hf-actions{display:flex;gap:8px;align-items:center}
+.hf-icon-btn{width:36px;height:36px;background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:50%;position:relative;transition:color .2s}
+.hf-icon-btn:hover{color:#e8f4ff;background:rgba(255,255,255,.06)}
+
+/* ===== HOME FEED CREATE ROW ===== */
+.hf-create-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #0d2744;background:rgba(7,15,30,.6)}
+.hf-create-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px}
+.hf-create-av img{width:100%;height:100%;object-fit:cover}
+.hf-create-input{flex:1;background:rgba(1,2,12,.5);border:1px solid #0d2744;border-radius:20px;padding:9px 16px;font-family:Rajdhani,sans-serif;font-size:14px;color:#5a8aaa;cursor:pointer;transition:border-color .2s}
+.hf-create-input:hover{border-color:rgba(0,229,255,.3);color:#8aaabb}
+.hf-create-icons{display:flex;gap:12px}
+.hf-create-icon{font-size:20px;cursor:pointer;color:#5a8aaa;transition:color .2s}
+.hf-create-icon:hover{color:#ff2255}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
@@ -359,7 +395,7 @@ body.has-nav .dashPage{padding-bottom:70px}
   <div class="nav-btns">
     <button class="btn bg" id="loginBtn" onclick="openAuth('login')">Iniciar sesion</button>
     <button class="btn bp" id="registerBtn" onclick="openAuth('register')">Registrarse</button>
-    <button class="btn bg" id="notifBell" onclick="toggleNotifPanel()" style="display:none"><span class="notif-bell">&#128276;<span class="notif-dot" id="notifDot"></span></span></button> <button id="settingsHeaderBtn" onclick="window.location.href='/settings.html'" style="display:none;background:rgba(255,255,255,.06);border:1px solid #0d2744;color:#5a8aaa;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase">&#9881;</button> <button id="searchHeaderBtn" onclick="window.location.href='/search.html'" style="display:none;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#00e5ff;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase">&#128269;</button> <button id="logoutBtn" style="display:none" onclick="doLogout()">Salir</button>
+    <button class="btn bg" id="notifBell" onclick="toggleNotifPanel()" style="display:none"><span class="notif-bell">&#128276;<span class="notif-dot" id="notifDot"></span></span></button> <button id="searchHeaderBtn" onclick="window.location.href='/search.html'" style="display:none;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#00e5ff;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase">&#128269;</button>
   </div>
 </nav>
 <div class="mbg" id="authModal">
@@ -535,7 +571,39 @@ body.has-nav .dashPage{padding-bottom:70px}
   <ul class="flinks"><li><a href="/terms.html">Términos</a></li><li><a href="/privacy.html">Privacidad</a></li><li><a href="/legal18.html">+18 Legal</a></li><li><a href="/soporte.html">Soporte</a></li></ul>
   <p style="font-size:10px;color:var(--t3)">2026 SHADOWNET Inc.</p>
 </footer>
-<div class="home-feed" id="homeFeed"><div class="stories-bar" id="homeStoriesBar"><div class="story-bubble" onclick="window.location.href='/stories.html'"><div class="story-ring story-add-ring"><div class="story-av story-add-av">+</div></div><div class="story-name">Tu historia</div></div></div><div class="feed-tabs"><div class="feed-tab active" id="tabParaTi" onclick="switchFeedTab('foryou')">Para Ti</div><div class="feed-tab" id="tabSiguiendo" onclick="switchFeedTab('following')">Siguiendo</div></div><div id="homePostsFeed"><div class="feed-loading">&#128247; Cargando feed...</div></div></div>
+<div class="home-feed" id="homeFeed">
+  <!-- Top bar: SHADOWNET logo + icons -->
+  <div class="hf-topbar">
+    <span class="hf-logo">SHADOWNET</span>
+    <div class="hf-actions">
+      <button class="hf-icon-btn" onclick="toggleNotifPanel()" style="position:relative">
+        &#128276;<span class="notif-dot" id="notifDot2"></span>
+      </button>
+      <button class="hf-icon-btn" onclick="window.location.href='/search.html'">&#128269;</button>
+    </div>
+  </div>
+  <!-- Stories bar -->
+  <div class="stories-bar" id="homeStoriesBar">
+    <div class="story-bubble" onclick="window.location.href='/stories.html'">
+      <div class="story-ring story-add-ring"><div class="story-av story-add-av">+</div></div>
+      <div class="story-name">Tu historia</div>
+    </div>
+  </div>
+  <!-- Create post row -->
+  <div class="hf-create-row" id="hfCreateRow">
+    <div class="hf-create-av" id="hfCreateAv">&#128100;</div>
+    <div class="hf-create-input" onclick="openQuickPost()">&#191;Qué compartes hoy?</div>
+    <span class="hf-create-icon" onclick="window.location.href='/feed.html'">&#128248;</span>
+    <span class="hf-create-icon" onclick="window.location.href='/live.html'">&#128308;</span>
+  </div>
+  <!-- Feed tabs -->
+  <div class="feed-tabs" style="position:sticky;top:58px;z-index:49">
+    <div class="feed-tab active" id="tabParaTi" onclick="switchFeedTab('foryou')">Para Ti</div>
+    <div class="feed-tab" id="tabSiguiendo" onclick="switchFeedTab('following')">Siguiendo</div>
+  </div>
+  <!-- Feed posts -->
+  <div id="homePostsFeed"><div class="feed-loading">&#128247; Cargando...</div></div>
+</div>
 <script>
 var SUPABASE_URL='https://cdokplvoqivducsqrejt.supabase.co';
 var SUPABASE_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
@@ -583,7 +651,7 @@ function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_bal
     document.getElementById('homeFeed').classList.add('active');
     loadHomeFeed();
     loadHomeStories();
-    offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('logoutBtn').style.display='inline-flex'; document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
+    offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';// logoutBtn removed from header - only in profile document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
     loadKycStatus();closeAuth();loadFanRank();loadDashStories();loadReferralCode();processReferralAfterRegister(currentUser.id);updateNavBadges();subscribeNotifBadge(); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
 function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');
     document.getElementById('homeFeed').classList.remove('active');
@@ -1758,6 +1826,17 @@ function doSharePost(postId){
   else{navigator.clipboard.writeText(url).then(function(){showToast('\u2714 Link copiado');});}
 }
 
+function openQuickPost(){
+  var s=document.getElementById('quickPostSheet');
+  if(s)s.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeQuickPost(){
+  var s=document.getElementById('quickPostSheet');
+  if(s)s.classList.remove('open');
+  document.body.style.overflow='';
+}
+
 async function quickFollow(btn,uid,username){
   if(!currentUser){window.location.href='/';return;}
   var isF=btn.textContent==='Siguiendo';
@@ -1828,30 +1907,48 @@ async function loadHomeStories(){
   </div>
 </div>
 
-<!-- Bottom Navigation -->
+<!-- Bottom Navigation — 5 items -->
 <nav class="bottom-nav" id="bottomNav">
-  <button class="bn-item" onclick="window.location.href='/'">
-    <span class="bn-icon">&#127968;</span>Inicio
+  <button class="bn-item bn-active" id="bnInicio" onclick="window.location.href='/'">
+    <span class="bn-icon">&#127968;</span><span class="bn-lbl">Inicio</span>
   </button>
-  <button class="bn-item" onclick="window.location.href='/feed.html'">
-    <span class="bn-icon">&#128248;</span>Feed
+  <button class="bn-item" onclick="window.location.href='/explore.html'">
+    <span class="bn-icon">&#128269;</span><span class="bn-lbl">Explorar</span>
   </button>
-  <button class="bn-item" onclick="window.location.href='/stories.html'">
-    <span class="bn-icon">&#9203;</span>Stories
+  <button class="bn-item bn-plus" onclick="openQuickPost()">
+    <span class="bn-plus-inner">&#43;</span>
   </button>
-  <button class="bn-item" onclick="window.location.href='/leaderboard.html'">
-    <span class="bn-icon">&#127942;</span>Ranking
-  </button>
-  <button class="bn-item" onclick="window.location.href='/live.html'">
-    <span class="bn-icon">&#128250;</span>Lives
+  <button class="bn-item" onclick="window.location.href='/messages.html'" style="position:relative">
+    <span class="bn-icon">&#128172;</span><span class="bn-lbl">Mensajes</span>
+    <span class="nav-badge" id="msgBadge"></span>
   </button>
   <button class="bn-item" onclick="window.location.href='/profile.html'">
-    <span class="bn-icon">&#128100;</span>Perfil
-  </button>
-  <button class="bn-item" onclick="window.location.href='/settings.html'">
-    <span class="bn-icon">&#9881;&#65039;</span>Config
+    <div class="bn-avatar" id="bnAvatar">&#128100;</div><span class="bn-lbl">Perfil</span>
   </button>
 </nav>
+<!-- Quick Post Sheet -->
+<div class="quick-post-sheet" id="quickPostSheet" onclick="if(event.target===this)closeQuickPost()">
+  <div class="qp-box">
+    <div class="qp-header">
+      <span style="font-family:Orbitron,sans-serif;font-size:12px;color:#00e5ff;letter-spacing:.1em">NUEVA PUBLICACIÓN</span>
+      <button onclick="closeQuickPost()" style="background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer">&#215;</button>
+    </div>
+    <div class="qp-options">
+      <button class="qp-opt" onclick="closeQuickPost();window.location.href='/feed.html'">
+        <span style="font-size:28px">&#128247;</span>
+        <span>Foto / Video</span>
+      </button>
+      <button class="qp-opt" onclick="closeQuickPost();window.location.href='/stories.html'">
+        <span style="font-size:28px">&#9203;</span>
+        <span>Historia</span>
+      </button>
+      <button class="qp-opt" onclick="closeQuickPost();window.location.href='/live.html'">
+        <span style="font-size:28px">&#128308;</span>
+        <span>Live</span>
+      </button>
+    </div>
+  </div>
+</div>
 <!-- Gift Modal -->
 <div class="gift-modal" id="giftModal">
   <div class="gift-panel">

@@ -188,7 +188,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
   <span class="logo" onclick="window.location.href='/'">SN</span>
   <button class="back-btn" onclick="history.back()">&larr; Volver</button>
 </header>
-<div class="profile-cover" id="profileCover"><div class="cover-drag-hint" id="coverDragHint">&#8677; Arrastra para reposicionar</div><div class="cover-save-badge" id="coverSaveBadge" onclick="saveCoverPosition()">&#10003; Guardar posiciÃ³n</div></div>
+<div class="profile-cover" id="profileCover"><div class="cover-drag-hint" id="coverDragHint">&#8677; Arrastra para reposicionar</div><div class="cover-save-badge" id="coverSaveBadge" onclick="saveCoverPosition()">&#10003; Guardar posición</div></div>
 <div class="profile-wrap">
   <div class="profile-header">
     <div style="position:relative;display:inline-block"><div class="profile-avatar" id="profileAvatar"></div><button class="avatar-repos-btn" id="avatarReposBtn" style="display:none" onclick="triggerAvatarChange()">ð·</button></div>
@@ -289,7 +289,7 @@ function renderProfile(p){
   var coverEl=document.getElementById("profileCover");
   coverEl.innerHTML="";
   if(p.cover_url){
-    var ci=document.createElement("img");ci.src=p.cover_url;
+    var ci=document.createElement("img");ci.src=p.cover_url+"?v="+Date.now();ci.onerror=function(){coverEl.style.background="linear-gradient(135deg,#1a0020,#000814)";};
     var pos=parseFloat(p.cover_position||50);
     ci.style.cssText="width:100%;height:100%;object-fit:cover;object-position:center "+pos+"%;display:block";
     coverEl.appendChild(ci);
@@ -303,7 +303,7 @@ function renderProfile(p){
 
   var av=document.getElementById("profileAvatar");
   av.innerHTML="";
-  if(p.avatar_url){var ai=document.createElement("img");ai.src=p.avatar_url;av.appendChild(ai);}
+  if(p.avatar_url){var ai=document.createElement("img");ai.src=p.avatar_url+"?v="+Date.now();ai.onerror=function(){av.innerHTML="";av.textContent=(p.username||"?")[0].toUpperCase();};av.appendChild(ai);}
   else av.textContent=(p.username||"?")[0].toUpperCase();
 
   var nameEl=document.getElementById("profileUsername");

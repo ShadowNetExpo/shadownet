@@ -397,279 +397,6 @@ body.has-nav .dashPage{padding-bottom:70px}
   .home-feed{padding-bottom:90px;}
 }
 
-/* ===== SN Bottom Nav ===== */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:22px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:4px 8px!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-</style>
-</head>
-<body>
-<nav>
-  <span class="logo" onclick="goHome()">SHADOWNET</span>
-  <div class="nav-btns">
-    <button class="btn bg" id="loginBtn" onclick="openAuth('login')">Iniciar sesion</button>
-    <button class="btn bp" id="registerBtn" onclick="openAuth('register')">Registrarse</button>
-    <button class="btn bg" id="notifBell" onclick="toggleNotifPanel()" style="display:none"><span class="notif-bell">&#128276;<span class="notif-dot" id="notifDot"></span></span></button> <button id="searchHeaderBtn" onclick="window.location.href='/search.html'" style="display:none;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#00e5ff;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase">&#128269;</button>
-  </div>
-</nav>
-<div class="mbg" id="authModal">
-  <div class="mbox">
-    <button class="mclose" onclick="closeAuth()">&#x2715;</button>
-    <p class="mtit">SHADOWNET</p>
-    <p class="msub">Sin limites &middot; Sin cadenas &middot; +18</p>
-    <div class="tabs">
-      <button class="tab on" id="tabR" onclick="switchTab('r')">Registrarse</button>
-      <button class="tab" id="tabL" onclick="switchTab('l')">Iniciar sesion</button>
-    </div>
-    <div id="authOk" class="fok"></div>
-    <div id="formR">
-      <div class="fg"><label class="fl">Usuario</label><input class="fi" id="rUser" type="text" placeholder="@tu_usuario" maxlength="30"><p class="ferr" id="rUserErr"></p></div>
-      <div class="fg"><label class="fl">Correo</label><input class="fi" id="rEmail" type="email" placeholder="tu@correo.com"><p class="ferr" id="rEmailErr"></p></div>
-      <div class="fg"><label class="fl">Contrasena</label><input class="fi" id="rPass" type="password" placeholder="Minimo 8 caracteres"><p class="ferr" id="rPassErr"></p></div>
-      <button class="btn bp" id="rBtn" onclick="doRegister()" style="width:100%;padding:14px;font-size:14px;border-radius:8px">Crear cuenta gratis</button>
-    </div>
-    <div id="formL" style="display:none">
-      <div class="fg"><label class="fl">Correo</label><input class="fi" id="lEmail" type="email" placeholder="tu@correo.com"></div>
-      <div class="fg"><label class="fl">Contrasena</label><input class="fi" id="lPass" type="password" placeholder="Tu contrasena"><p class="ferr" id="lErr"></p></div>
-      <button class="btn bp" id="lBtn" onclick="doLogin()" style="width:100%;padding:14px;font-size:14px;border-radius:8px">Iniciar sesion</button>
-<button class="biometric-btn" id="faceIdLoginBtn" onclick="loginWithFaceId()" style="display:none">&#128274; Acceder con Face ID / Huella</button>
-    </div>
-    <p style="text-align:center;font-size:10px;color:var(--t3);margin-top:14px">Al registrarte confirmas que tienes +18 anos.</p>
-  </div>
-</div>
-<!-- KYC Verification Section -->
-
-<!-- SECTION: CREADORES ONLY -->
-<div class="creator-section" id="creatorSection" style="display:none">
-  <div class="creator-section-title">&#127775; HERRAMIENTAS DE CREADOR</div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
-    <button onclick="window.location.href='/live.html'" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128308; Ir en vivo</button>
-    <button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff">&#128248; Mi Feed</button>
-    <button onclick="window.location.href='/profile.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,34,85,.15),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680">&#128100; Mi Perfil</button>
-    <button onclick="window.location.href='/stats.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(0,150,80,.1));border:1px solid rgba(0,255,136,.4);color:#00ff88">&#128202; Mis Stats</button>
-    <button onclick="window.location.href='/messages.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,200,.1));border:1px solid rgba(0,229,255,.3);color:#00e5ff">&#128172; DMs</button>
-    <button onclick="window.location.href='/stories.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00">&#9203; Stories</button>
-  </div>
-</div>
-<!-- SECTION: Botones para fans y creadores -->
-<div id="fanSection" style="display:none">
-  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
-    <button onclick="window.location.href='/explore.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
-    <button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,200,.1));border:1px solid rgba(0,229,255,.3);color:#00e5ff">&#128248; Feed</button>
-    <button onclick="window.location.href='/messages.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(0,80,150,.08));border:1px solid rgba(0,229,255,.25);color:#00e5ff">&#128172; Mensajes</button>
-    <button onclick="window.location.href='/stories.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00">&#9203; Stories</button>
-    <button onclick="window.location.href='/leaderboard.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(200,150,0,.08));border:1px solid rgba(255,215,0,.3);color:#ffd700">&#127942; Ranking</button>
-  </div>
-</div>
-<!-- Install App button -->
-<button id="installAppBtn" onclick="installApp()" class="btn" style="display:none;width:100%;margin-top:8px;background:linear-gradient(135deg,rgba(0,255,136,.15),rgba(0,150,80,.08));border:1px solid rgba(0,255,136,.3);color:#00ff88">&#128640; Instalar SHADOWNET como App</button>
-<!-- Apply creator button for fans -->
-<button id="applyCreatorBtn" onclick="openApplyModal()" class="btn" style="display:none;margin-top:10px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680;width:100%">&#127775; Solicitar ser Creador</button>
-<div class="kyc-section" id="kycSection" style="display:none">
-  <div class="kyc-title">
-    &#128274; VERIFICACIÓN DE CUENTA
-    <span class="kyc-status kyc-unverified" id="kycBadge">SIN VERIFICAR</span>
-  </div>
-  <div id="kycContent"><p style="font-size:12px;color:#5a8aaa;text-align:center;padding:16px">Cargando...</p></div>
-</div>
-<div class="sbg" id="shopModal">
-  <div class="sbox">
-    <button class="sclose" onclick="closeShop()">&#x2715;</button>
-    <p class="stitlesh">&#128128; COMPRAR ALMAS</p>
-    <p style="font-size:12px;color:var(--t2);margin-bottom:4px">Envia regalos en los lives de tus creadores favoritos</p>
-    <div class="pgrid" id="packGrid"></div>
-    <div style="margin-bottom:8px">
-      <div id="card-num" style="background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:12px;margin-bottom:6px;display:none"></div>
-      <div style="display:flex;gap:6px">
-        <div id="card-exp" style="flex:1;background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:12px;display:none"></div>
-        <div id="card-cvc" style="flex:1;background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:12px;display:none"></div>
-      </div>
-    </div>
-    <p id="card-error"></p>
-    <div class="payinfo" id="payInfo"></div>
-    <button class="btn bp" id="payBtn" onclick="startPay()" disabled style="width:100%;padding:13px;font-size:13px;border-radius:8px;opacity:.5">Selecciona un paquete</button>
-    <p style="text-align:center;font-size:10px;color:var(--t3);margin-top:8px">&#128274; Pago seguro con Stripe &middot; SSL</p>
-  </div>
-</div>
-<div class="land" id="landPage">
-  <section class="hero">
-    <div class="orb"></div>
-    <p style="font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--c);margin-bottom:18px">La plataforma para creadores adultos</p>
-    <h1>SHADOW<br>NET</h1>
-    <p class="tag">SIN LIMITES &middot; SIN CADENAS</p>
-    <p class="desc">La red social para creadores adultos con lives, regalos animados, club de fans y monetizacion real.</p>
-    <div class="btns">
-      <button class="btn bp" onclick="openAuth('register')">Crear cuenta gratis</button>
-      <a href="#features" class="btn bg">Ver caracteristicas</a>
-    </div>
-    <div class="stats">
-      <div style="text-align:center"><div class="snum" id="statUsers">0</div><div class="slbl">Usuarios</div></div>
-      <div style="text-align:center"><div class="snum">90%</div><div class="slbl">Comisión</div></div>
-      <div style="text-align:center"><div class="snum">28</div><div class="slbl">Regalos</div></div>
-      <div style="text-align:center"><div class="snum">100</div><div class="slbl">Rangos</div></div>
-    </div>
-  </section>
-  <section id="features" class="dsec">
-    <div class="inner">
-      <p class="stag">Caracteristicas</p>
-      <h2 class="stitle">Todo lo que necesitas para <span>crear sin limites</span></h2>
-      <div class="grid">
-        <div class="card"><div class="cbadge">EN VIVO</div><div class="cico">&#128250;</div><h3 class="ctit">Transmisiones en vivo</h3><p class="cdesc">Streaming HD con misiones y regalos en tiempo real.</p></div>
-        <div class="card"><div class="cico" style="animation-delay:.3s">&#128065;</div><h3 class="ctit">Club de Fans</h3><p class="cdesc">100 rangos con puntos. Regalos exclusivos.</p></div>
-        <div class="card"><div class="cico" style="animation-delay:.6s">&#127873;</div><h3 class="ctit">28 Regalos</h3><p class="cdesc">Normales, Fan Club y Dinamicos. Animaciones unicas.</p></div>
-        <div class="card"><div class="cbadge">+18</div><div class="cico" style="animation-delay:.9s">&#128274;</div><h3 class="ctit">Verificacion KYC</h3><p class="cdesc">Documento + reconocimiento facial IA.</p></div>
-        <div class="card"><div class="cico" style="animation-delay:1.1s">&#128176;</div><h3 class="ctit">90% comisión</h3><p class="cdesc">La mayor tasa del mercado. Retiros semanales.</p></div>
-        <div class="card"><div class="cico" style="animation-delay:1.3s">&#128241;</div><h3 class="ctit">Feed + Reels</h3><p class="cdesc">Feed inteligente, momentos, historias y exclusivo.</p></div>
-      </div>
-    </div>
-  </section>
-  <div style="text-align:center;padding:72px 20px">
-    <h2 style="font-family:Orbitron,sans-serif;font-size:clamp(28px,5vw,52px);color:var(--t1);margin-bottom:12px">Empieza hoy.<br><span style="color:var(--c)">Gratis.</span></h2>
-    <p style="color:var(--t2);font-size:14px;line-height:1.8;max-width:480px;margin:12px auto 32px;font-style:italic">Sin tarjeta. Sin contrato.</p>
-    <button class="btn bp" onclick="openAuth('register')" style="font-size:15px;padding:16px 48px;border-radius:8px">Crear mi cuenta</button>
-  </div>
-</div>
-<div class="dash" id="dashPage">
-  <div class="dh">
-    <div>
-      <p class="dwelcome">Bienvenido, <span id="dashUser" style="color:var(--c)">@usuario</span><span id="roleTag" class="role-badge role-fan" style="margin-left:8px">&#128065; FAN</span>! &#128293;</p>
-      <p class="dsub">Tu cuenta esta activa &middot; &#128128; 100 Almas de bienvenida</p>
-    </div>
-    <span style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--g);font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;padding:6px 14px;border-radius:4px">&#10003; CUENTA ACTIVA</span>
-  </div>
-  <div class="dgrid">
-    <div class="dcard"><p class="dclbl">&#128128; Almas</p><p class="dcval" style="color:var(--c)" id="dashCoins" style="cursor:pointer" onclick="window.location.href='/feed.html'">100</p></div>
-    <div class="dcard"><p class="dclbl">&#128101; Seguidores</p><p class="dcval" style="color:var(--b)">0</p></div>
-    <div class="dcard"><p class="dclbl">&#128176; Ganancias</p><p class="dcval" style="color:var(--g)">$0.00</p></div>
-    <div class="dcard"><p class="dclbl">&#127942; Rango</p><p class="dcval" style="color:var(--o);font-size:16px;padding-top:6px">Lv.1 Sombra</p></div>
-  </div>
-  <div class="dinfo">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-      <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:var(--c)">&#128640; Tu estudio</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
-<button onclick="window.location.href='/explore.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
-        <button onclick="window.location.href='/live.html'" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128308; Ir en vivo</button>
-<button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff">&#128248; Feed</button>
-<button onclick="window.location.href='/profile.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,34,85,.15),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680">&#128100; Mi Perfil</button>
-<button id="verifyAccountBtn" onclick="openKyc()" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff;font-size:11px;padding:8px 14px">&#128274; Verificar cuenta</button>
-      </div>
-    </div>
-      <!-- Fan Rank Bar -->
-      <div class="fan-rank-bar" id="fanRankBar">
-        <div class="fan-rank-row">
-          <span class="fan-rank-badge" id="fanRankName">&#127775; Sombra</span>
-          <span style="font-size:12px;color:#e8f4ff;font-family:Orbitron,sans-serif" id="fanRankNum">Lv.1</span>
-          <span class="fan-rank-pts" id="fanPts">0 pts</span>
-        </div>
-        <div class="fan-rank-progress"><div class="fan-rank-fill" id="fanRankFill" style="width:0%"></div></div>
-        <p style="font-size:11px;color:#5a8aaa;margin-top:6px">Gana puntos dando likes, comentando y suscribi&#233;ndote a creadores</p>
-      <div id="refCodeBar" style="display:none;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:#5a8aaa">Tu c&#243;digo:</span><span id="myRefCode" style="font-family:Orbitron,sans-serif;font-size:13px;color:#00ff88;letter-spacing:.08em">-</span><button onclick="copyMyRef()" style="padding:4px 10px;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.3);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer">Copiar</button><span style="font-size:11px;color:#ffaa00;margin-left:auto"><span id="myRefCount">0</span> referidos</span></div>
-      </div>
-      <!-- Stories Bar -->
-      <div class="dash-stories" id="dashStoriesSection" style="display:none!important">
-        <div class="dash-stories-title">STORIES</div>
-        <div class="dash-stories-row" id="dashStoriesRow">
-          <div class="ds-bubble" onclick="window.location.href='/stories.html'">
-            <div class="ds-ring ds-add-ring"><div class="ds-av ds-add-av">+</div></div>
-            <div class="ds-name">Stories</div>
-          </div>
-        </div>
-      </div>
-      <p style="display:none"><br>Proximamente: Regalos &middot; Feed &middot; KYC</p>
-  </div>
-</div>
-<footer>
-  <p class="flogo">SHADOWNET</p>
-  <p style="font-size:9px;color:var(--t3);letter-spacing:.2em;text-transform:uppercase">Sin limites &middot; Sin cadenas</p>
-  <ul class="flinks"><li><a href="/terms.html">Términos</a></li><li><a href="/privacy.html">Privacidad</a></li><li><a href="/legal18.html">+18 Legal</a></li><li><a href="/soporte.html">Soporte</a></li></ul>
-  <p style="font-size:10px;color:var(--t3)">2026 SHADOWNET Inc.</p>
-</footer>
-<div class="home-feed" id="homeFeed">
-  <!-- Top bar: SHADOWNET logo + icons -->
-  <div class="hf-topbar">
-    <span class="hf-logo">SHADOWNET</span>
-    <div class="hf-actions">
-      <button class="hf-icon-btn" onclick="toggleNotifPanel()" style="position:relative">
-        &#128276;<span class="notif-dot" id="notifDotHF"></span>
-      </button>
-      <button class="hf-icon-btn" onclick="window.location.href='/search.html'">&#128269;</button>
-      <button class="hf-icon-btn" onclick="window.location.href='/profile.html'" id="hfProfileBtn" title="Mi perfil">
-        <div class="hf-avatar" id="hfAvatarBtn">&#128100;</div>
-      </button>
-    </div>
-  </div>
-  <!-- Stories bar -->
-  <div class="stories-bar" id="homeStoriesBar">
-    <div class="story-bubble" onclick="window.location.href='/stories.html'">
-      <div class="story-ring story-add-ring"><div class="story-av story-add-av">+</div></div>
-      <div class="story-name">Tu historia</div>
-    </div>
-  </div>
-  <!-- Create post row -->
-  <div class="hf-create-row" id="hfCreateRow">
-    <div class="hf-create-av" id="hfCreateAv">&#128100;</div>
-    <div class="hf-create-input" onclick="openQuickPost()">&#191;Qué compartes hoy?</div>
-    <span class="hf-create-icon" onclick="window.location.href='/feed.html'">&#128248;</span>
-    <span class="hf-create-icon" onclick="window.location.href='/live.html'">&#128308;</span>
-  </div>
-  <!-- Feed tabs -->
-  <div class="feed-tabs" style="position:sticky;top:58px;z-index:49">
-    <div class="feed-tab active" id="tabParaTi" onclick="switchFeedTab('foryou')">Para Ti</div>
-    <div class="feed-tab" id="tabSiguiendo" onclick="switchFeedTab('following')">Siguiendo</div>
-  </div>
-  <!-- Feed posts -->
-  <div id="homePostsFeed"><div class="feed-loading">&#128247; Cargando...</div></div>
-</div>
-<script>
-var SUPABASE_URL='https://cdokplvoqivducsqrejt.supabase.co';
-var SUPABASE_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-var STRIPE_PK='pk_live_51TFkgnQyXILkKK9a1UbYHbqNiwSXb1CJP1pAqDIItHnN3zpKFT7aW5AZNnE7eSCUfmbsjl8rLBISVbcpyMQ6fCis004FOpN49X';
-var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-var currentUser=null,stripe=null,cardEl=null,chosenPack=null;
-var PACKS=[{skulls:100,bonus:0,price:0.99,label:'Iniciado'},{skulls:500,bonus:50,price:4.99,label:'Devoto'},{skulls:1200,bonus:200,price:9.99,label:'Acolito',hot:true},{skulls:2600,bonus:600,price:19.99,label:'Elegido'}];
-window.addEventListener('DOMContentLoaded',function(){
-  // Asegurar que modales est\u00E1n cerrados al cargar
-  var lm=document.getElementById('liveModal');
-  if(lm) lm.classList.remove('open');sb.auth.getSession().then(function(r){if(r.data.session)setUser(r.data.session.user);});loadCount();});
-sb.auth.onAuthStateChange(function(evt,session){if(evt==='SIGNED_IN'&&session)setUser(session.user);if(evt==='SIGNED_OUT')clearUser();});
-function loadCount(){
-  var KEY=SUPABASE_KEY;
-  var BASE=SUPABASE_URL+'/rest/v1/';
-  var H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'count=exact'};
-  function getCount(path){
-    return fetch(BASE+path,{method:'GET',headers:H})
-      .then(function(r){
-        var cr=r.headers.get('content-range')||'0/0';
-        return parseInt(cr.split('/')[1]||'0',10)||0;
-      }).catch(function(){return 0;});
-  }
-  setTimeout(function(){
-    Promise.all([
-      getCount('profiles?select=id&limit=0'),
-      getCount('posts?select=id&limit=0'),
-      getCount('follows?select=id&limit=0'),
-      getCount('creator_applications?select=id&limit=0&status=eq.approved')
-    ]).then(function(r){
-      var users=r[0],posts=r[1],follows=r[2],creators=r[3];
-      var el=document.getElementById("statUsers");
-      if(el)el.textContent=users>=1000?(users/1000).toFixed(1)+"K":users;
-      var el2=document.getElementById("statPosts");
-      if(el2)el2.textContent=posts>=1000?(posts/1000).toFixed(1)+"K":posts;
-      var el3=document.getElementById("statCreators");
-      if(el3)el3.textContent=creators>=1000?(creators/1000).toFixed(1)+"K":creators;
-      var el4=document.getElementById("statFollows");
-      if(el4)el4.textContent=follows>=1000?(follows/1000).toFixed(1)+"K":follows;
-    });
-  },500);
-}
 function setUser(u){
   if(_userInited&&currentUser&&currentUser.id===u.id) return; // prevent double init
   _userInited=true;
@@ -2174,6 +1901,32 @@ async function loadHomeStories(){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initSnNav);
   else initSnNav();
+})();
+</script>
+
+<!-- SHADOWNET NAV -->
+<nav class="sn-bottom-nav" id="snBottomNav"><a class="sn-bn-item sn-bn-active" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a><a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a><a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a><a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a><a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a></nav>
+<script>
+(function(){
+var U='https://cdokplvoqivducsqrejt.supabase.co';
+var K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+function run(){
+  var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);
+  if(!sb){setTimeout(run,400);return;}
+  sb.auth.getSession().then(function(r){
+    if(!r.data||!r.data.session)return;
+    var n=document.getElementById('snBottomNav');
+    if(n)n.style.display='flex';
+    sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
+      if(!p.data)return;
+      var a=document.getElementById('snNavAv');if(!a)return;
+      if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';
+      else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
+    });
+  });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);
+else run();
 })();
 </script>
 </body>

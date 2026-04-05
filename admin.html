@@ -15,9 +15,9 @@ body{background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;min-
 .ls{color:var(--tx3);font-size:13px;text-align:center;margin-bottom:24px}
 .li{width:100%;background:var(--bg3);border:1px solid var(--br);border-radius:8px;padding:12px 14px;color:var(--tx);font-family:'Rajdhani',sans-serif;font-size:15px;margin-bottom:12px;outline:none;display:block}
 .li:focus{border-color:var(--red)}
-.lb{width:100%;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border:none;border-radius:8px;padding:13px;font-family:'Rajdhani',sans-serif;font-weight:800;font-size:15px;cursor:pointer}
+.lb{width:100%;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border:none;border-radius:8px;padding:13px;font-family:'Rajdhani',sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-top:4px}
 .lb:disabled{opacity:.5;cursor:not-allowed}
-.le{color:var(--red);font-size:13px;margin-top:8px;text-align:center;min-height:18px}
+.le{color:var(--red);font-size:13px;margin-top:10px;text-align:center;min-height:18px}
 .li2{color:var(--tx3);font-size:12px;text-align:center;margin-top:8px}
 #app{display:none}
 .topbar{position:sticky;top:0;z-index:100;background:rgba(1,2,12,.97);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px}
@@ -64,8 +64,8 @@ tbody tr:hover td{background:rgba(255,34,85,.03)}
 .fl{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:6px}
 .fi{width:100%;background:var(--bg3);border:1px solid var(--br);border-radius:8px;padding:10px 12px;color:var(--tx);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none}
 .fi:focus{border-color:var(--red)}
-.fs{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:'Rajdhani',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:8px}
 .sg2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.fs{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:'Rajdhani',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:8px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0a1828;border:1px solid var(--gr);color:var(--gr);padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.on{opacity:1}
 @media(max-width:700px){.side{display:none}.sg{grid-template-columns:1fr 1fr}.sg2{grid-template-columns:1fr}}
@@ -76,11 +76,11 @@ tbody tr:hover td{background:rgba(255,34,85,.03)}
   <div class="lbox">
     <div class="ll">SHADOWNET</div>
     <div class="ls">Panel de Administracion</div>
-    <input class="li" type="email" id="em" placeholder="mikymiky2201l@gmail.com">
-    <input class="li" type="password" id="pw" placeholder="Tu contrasena">
+    <input class="li" type="email" id="em" placeholder="mikymiky2201l@gmail.com" autocomplete="email">
+    <input class="li" type="password" id="pw" placeholder="Tu contrasena" autocomplete="current-password">
     <button class="lb" id="btn" onclick="doLogin()">ENTRAR AL PANEL</button>
     <div class="le" id="err"></div>
-    <div class="li2" id="inf">Iniciando...</div>
+    <div class="li2" id="inf">Listo</div>
   </div>
 </div>
 <div id="app">
@@ -102,44 +102,35 @@ tbody tr:hover td{background:rgba(255,34,85,.03)}
       <div class="ni" onclick="location.href='/'">&#x1F310; Ver sitio</div>
     </div>
     <div class="main">
-      <div class="pg on" id="pg-db"><div class="pt">Dashboard</div><div class="ps">Resumen de la plataforma</div><div class="sg" id="sg">Cargando...</div><div class="card"><div class="ch"><span class="ct">Ultimas transacciones</span></div><table><thead><tr><th>Usuario</th><th>Tipo</th><th>Almas</th><th>USD</th><th>Estado</th><th>Fecha</th></tr></thead><tbody id="tbt"></tbody></table></div></div>
-      <div class="pg" id="pg-us"><div class="pt">Usuarios</div><div class="ps">Gestionar cuentas</div><input class="si" type="text" id="usq" placeholder="Buscar..." oninput="fusr()"><div class="card"><div class="ch"><span class="ct">Todos los usuarios</span><button class="btn" onclick="lusr()">Actualizar</button></div><table><thead><tr><th>Usuario</th><th>Almas</th><th>Posts</th><th>Verificado</th><th>Desde</th><th></th></tr></thead><tbody id="ubt"></tbody></table></div></div>
-      <div class="pg" id="pg-po"><div class="pt">Posts</div><div class="ps">Gestionar publicaciones</div><div class="card"><div class="ch"><span class="ct">Publicaciones</span><button class="btn" onclick="lpos()">Actualizar</button></div><table><thead><tr><th>Usuario</th><th>Texto</th><th>Media</th><th>Premium</th><th>Likes</th><th>Fecha</th><th></th></tr></thead><tbody id="pbt"></tbody></table></div></div>
-      <div class="pg" id="pg-px"><div class="pt">Pagos</div><div class="ps">Historial Stripe</div><div class="sg" id="psg">Cargando...</div><div class="card"><div class="ch"><span class="ct">Transacciones</span><button class="btn" onclick="lpay()">Actualizar</button></div><table><thead><tr><th>Usuario</th><th>Pack</th><th>Almas</th><th>USD</th><th>Stripe PI</th><th>Estado</th><th>Fecha</th></tr></thead><tbody id="xbt"></tbody></table></div></div>
-      <div class="pg" id="pg-cr"><div class="pt">Creadores</div><div class="ps">Verificacion KYC</div><div class="card"><div class="ch"><span class="ct">Perfiles</span><button class="btn" onclick="lcre()">Actualizar</button></div><table><thead><tr><th>Usuario</th><th>Estado</th><th>Posts</th><th>Desde</th><th></th></tr></thead><tbody id="cbt"></tbody></table></div></div>
+      <div class="pg on" id="pg-db"><div class="pt">Dashboard</div><div class="ps">Resumen de la plataforma</div><div class="sg" id="sg">Cargando...</div><div class="card"><div class="ch"><span class="ct">Ultimas transacciones</span></div><table><thead><tr><th>Usuario</th><th>Tipo</th><th>Almas</th><th>USD</th><th>Estado</th><th>Fecha</th></tr></thead><tbody id="tbt"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">-</td></tr></tbody></table></div></div>
+      <div class="pg" id="pg-us"><div class="pt">Usuarios</div><div class="ps">Gestionar cuentas</div><input class="si" type="text" id="usq" placeholder="Buscar..." oninput="fusr()"><div class="card"><div class="ch"><span class="ct">Todos los usuarios</span><button class="btn" onclick="lusr()">Actualizar</button></div><table><thead><tr><th>Usuario</th><th>Almas</th><th>Posts</th><th>Verificado</th><th>Desde</th><th></th></tr></thead><tbody id="ubt"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">-</td></tr></tbody></table></div></div>
+      <div class="pg" id="pg-po"><div class="pt">Posts</div><div class="ps">Gestionar publicaciones</div><div class="card"><div class="ch"><span class="ct">Publicaciones</span><button class="btn" onclick="lpos()">Actualizar</button></div><table><thead><tr><th>Usuario</th><th>Texto</th><th>Media</th><th>Premium</th><th>Likes</th><th>Fecha</th><th></th></tr></thead><tbody id="pbt"><tr><td colspan="7" style="text-align:center;padding:20px;color:var(--tx3)">-</td></tr></tbody></table></div></div>
+      <div class="pg" id="pg-px"><div class="pt">Pagos</div><div class="ps">Historial Stripe</div><div class="sg" id="psg">Cargando...</div><div class="card"><div class="ch"><span class="ct">Transacciones</span><button class="btn" onclick="lpay()">Actualizar</button></div><table><thead><tr><th>Usuario</th><th>Pack</th><th>Almas</th><th>USD</th><th>Estado</th><th>Fecha</th></tr></thead><tbody id="xbt"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">-</td></tr></tbody></table></div></div>
+      <div class="pg" id="pg-cr"><div class="pt">Creadores</div><div class="ps">Verificacion KYC</div><div class="card"><div class="ch"><span class="ct">Perfiles</span><button class="btn" onclick="lcre()">Actualizar</button></div><table><thead><tr><th>Usuario</th><th>Estado</th><th>Posts</th><th>Desde</th><th></th></tr></thead><tbody id="cbt"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--tx3)">-</td></tr></tbody></table></div></div>
       <div class="pg" id="pg-st"><div class="pt">Configuracion</div><div class="ps">Ajustes globales</div><div class="card" style="padding:24px"><div class="sg2"><div><div class="fg"><label class="fl">Comision (%)</label><input class="fi" type="number" id="cc" value="10" min="0" max="50"></div><div class="fg"><label class="fl">Moneda</label><input class="fi" type="text" id="cu" value="USD"></div><button class="fs" onclick="sset()">Guardar cambios</button></div><div><div class="fg"><label class="fl">Stripe</label><select class="fi" id="cs"><option value="true">Habilitado</option><option value="false">Deshabilitado</option></select></div></div></div></div></div>
     </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var sb,AU=[];
+// =====================================================
+// SHADOWNET ADMIN — No CDN, pure fetch() REST API
+// =====================================================
 var SU='https://cdokplvoqivducsqrejt.supabase.co';
 var SK='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
 var AID='f8befa4f-08f8-4256-aa4e-1053d36a12c0';
+var TOKEN=null;
+var AU=[];
 
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},3000);}
 
-// Direct init - CDN already loaded above
-try {
-  sb = supabase.createClient(SU, SK);
-  document.getElementById('inf').textContent = 'Listo - ingresa tus credenciales';
-  document.getElementById('btn').disabled = false;
-  sb.auth.getSession().then(function(r) {
-    if (r.data && r.data.session && r.data.session.user.id === AID) {
-      showApp(r.data.session.user.email);
-    }
-  });
-} catch(e) {
-  document.getElementById('inf').textContent = 'Error al cargar SDK: ' + e.message;
-}
-
-function showApp(email){
-  document.getElementById('login').style.display='none';
-  document.getElementById('app').style.display='block';
-  document.getElementById('tusr').textContent=email;
-  ldb();
+// Generic Supabase REST fetch
+async function q(path,opts){
+  var h={'apikey':SK,'Content-Type':'application/json','Prefer':'return=representation'};
+  if(TOKEN)h['Authorization']='Bearer '+TOKEN;
+  var r=await fetch(SU+path,Object.assign({headers:h},opts));
+  if(r.status===204)return[];
+  return r.json();
 }
 
 async function doLogin(){
@@ -151,14 +142,39 @@ async function doLogin(){
   if(!em||!pw){err.textContent='Completa email y contrasena';return;}
   btn.disabled=true;btn.textContent='Verificando...';
   try{
-    var r=await sb.auth.signInWithPassword({email:em,password:pw});
-    if(r.error){err.textContent='Error Supabase: '+r.error.message;btn.disabled=false;btn.textContent='ENTRAR AL PANEL';return;}
-    if(r.data.user.id!==AID){await sb.auth.signOut();err.textContent='Acceso denegado';btn.disabled=false;btn.textContent='ENTRAR AL PANEL';return;}
-    showApp(r.data.user.email);
-  }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='ENTRAR AL PANEL';}
+    // Use Supabase Auth REST API directly - no SDK needed
+    var r=await fetch(SU+'/auth/v1/token?grant_type=password',{
+      method:'POST',
+      headers:{'apikey':SK,'Content-Type':'application/json'},
+      body:JSON.stringify({email:em,password:pw})
+    });
+    var d=await r.json();
+    if(!r.ok||d.error){
+      err.textContent='Error: '+(d.error_description||d.error||d.message||'Credenciales incorrectas');
+      btn.disabled=false;btn.textContent='ENTRAR AL PANEL';
+      return;
+    }
+    if(d.user.id!==AID){
+      err.textContent='Acceso denegado';
+      btn.disabled=false;btn.textContent='ENTRAR AL PANEL';
+      return;
+    }
+    TOKEN=d.access_token;
+    showApp(d.user.email);
+  }catch(e){
+    err.textContent='Error de red: '+e.message;
+    btn.disabled=false;btn.textContent='ENTRAR AL PANEL';
+  }
 }
 
-async function doLogout(){await sb.auth.signOut();location.reload();}
+function showApp(email){
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('tusr').textContent=email;
+  ldb();
+}
+
+function doLogout(){TOKEN=null;location.reload();}
 
 function sp(n){
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
@@ -170,79 +186,134 @@ function sp(n){
 }
 
 async function ldb(){
-  var r1=await sb.from('profiles').select('coins_balance');
-  var r2=await sb.from('posts').select('id',{count:'exact',head:true});
-  var r3=await sb.from('transactions').select('amount,gross_amount,type,status,created_at,user_id').order('created_at',{ascending:false}).limit(10);
-  var p=r1.data||[],t=r3.data||[];
-  var coins=p.reduce(function(a,x){return a+(x.coins_balance||0);},0);
-  var rev=t.filter(function(x){return x.status==='completed';}).reduce(function(a,x){return a+(x.gross_amount||0);},0);
+  var p=await q('/rest/v1/profiles?select=coins_balance');
+  var po=await q('/rest/v1/posts?select=id',{headers:{'apikey':SK,'Authorization':'Bearer '+(TOKEN||SK),'Prefer':'count=exact','Range':'0-0'}});
+  var tx=await q('/rest/v1/transactions?select=amount,gross_amount,type,status,created_at,user_id&order=created_at.desc&limit=10');
+  if(!Array.isArray(p))p=[];
+  if(!Array.isArray(tx))tx=[];
+  var coins=(p||[]).reduce(function(a,x){return a+(x.coins_balance||0);},0);
+  var rev=(tx||[]).filter(function(x){return x.status==='completed';}).reduce(function(a,x){return a+(x.gross_amount||0);},0);
   document.getElementById('sg').innerHTML=
-    '<div class="sc"><div class="sl">Usuarios</div><div class="sv">'+p.length+'</div></div>'+
-    '<div class="sc bl"><div class="sl">Posts</div><div class="sv">'+(r2.count||0)+'</div></div>'+
+    '<div class="sc"><div class="sl">Usuarios</div><div class="sv">'+(p.length||0)+'</div></div>'+
+    '<div class="sc bl"><div class="sl">Posts</div><div class="sv">-</div></div>'+
     '<div class="sc go"><div class="sl">Almas</div><div class="sv">'+coins+'</div></div>'+
     '<div class="sc gr"><div class="sl">Ingresos</div><div class="sv">$'+rev.toFixed(2)+'</div></div>';
-  document.getElementById('tbt').innerHTML=t.length?t.map(function(x){
+  document.getElementById('tbt').innerHTML=(tx.length>0)?tx.map(function(x){
     return '<tr><td class="mo">'+(x.user_id?x.user_id.slice(0,8)+'...':'-')+'</td><td><span class="bx '+(x.type==='purchase'?'gr':'bl')+'">'+x.type+'</span></td><td>'+(x.amount||0)+'</td><td>$'+(x.gross_amount||0).toFixed(2)+'</td><td><span class="bx '+(x.status==='completed'?'gr':'go')+'">'+(x.status||'?')+'</span></td><td style="color:var(--tx3)">'+(x.created_at?x.created_at.slice(0,10):'-')+'</td></tr>';
-  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">Sin transacciones</td></tr>';
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">Sin transacciones aun</td></tr>';
 }
 
 async function lusr(){
-  var r1=await sb.from('profiles').select('id,username,avatar_url,coins_balance,verified,created_at').order('created_at',{ascending:false});
-  var r2=await sb.from('posts').select('user_id');
-  var cm={};(r2.data||[]).forEach(function(p){cm[p.user_id]=(cm[p.user_id]||0)+1;});
-  AU=r1.data||[];rusr(AU,cm);
+  var r1=await q('/rest/v1/profiles?select=id,username,avatar_url,coins_balance,verified,created_at&order=created_at.desc');
+  var r2=await q('/rest/v1/posts?select=user_id');
+  var cm={};(Array.isArray(r2)?r2:[]).forEach(function(p){cm[p.user_id]=(cm[p.user_id]||0)+1;});
+  AU=Array.isArray(r1)?r1:[];
+  rusr(AU,cm);
 }
 function rusr(list,cm){
   document.getElementById('ubt').innerHTML=list.length?list.map(function(u){
     var av=u.avatar_url?'<img src="'+u.avatar_url+'">':(u.username||'?')[0].toUpperCase();
-    return '<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="av">'+av+'</div><div><div style="font-weight:700;color:var(--tx)">'+(u.username||'-')+'</div><div class="mo" style="font-size:10px;color:var(--tx3)">'+u.id.slice(0,10)+'...</div></div></div></td><td class="mo">'+(u.coins_balance||0)+'</td><td class="mo">'+(cm&&cm[u.id]||0)+'</td><td>'+(u.verified?'<span class="bx gr">Si</span>':'<span class="bx gy">No</span>')+'</td><td style="color:var(--tx3)">'+(u.created_at?u.created_at.slice(0,10):'-')+'</td><td><button class="btn" onclick="giveCoins(''+u.id+'',''+(u.username||'')+'')">+Almas</button></td></tr>';
+    return '<tr>'+
+      '<td><div style="display:flex;align-items:center;gap:8px"><div class="av">'+av+'</div><div><div style="font-weight:700;color:var(--tx)">'+(u.username||'-')+'</div><div class="mo" style="font-size:10px;color:var(--tx3)">'+u.id.slice(0,10)+'...</div></div></div></td>'+
+      '<td class="mo">'+(u.coins_balance||0)+'</td>'+
+      '<td class="mo">'+(cm&&cm[u.id]||0)+'</td>'+
+      '<td>'+(u.verified?'<span class="bx gr">Si</span>':'<span class="bx gy">No</span>')+'</td>'+
+      '<td style="color:var(--tx3)">'+(u.created_at?u.created_at.slice(0,10):'-')+'</td>'+
+      '<td><button class="btn" onclick="giveCoins(this,''+(u.id)+'',''+encodeURIComponent(u.username||'')+'')">+Almas</button></td>'+
+    '</tr>';
   }).join(''):'<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">Sin usuarios</td></tr>';
 }
 function fusr(){var q=document.getElementById('usq').value.toLowerCase();rusr(AU.filter(function(u){return(u.username||'').toLowerCase().includes(q);}),{});}
-async function giveCoins(uid,uname){
-  var n=prompt('Cuantas Almas dar a '+uname+'?');
+async function giveCoins(btn,uid,uname){
+  var n=prompt('Cuantas Almas dar a '+decodeURIComponent(uname)+'?');
   if(!n||isNaN(Number(n)))return;
-  var r=await sb.rpc('add_coins',{user_id:uid,amount:parseInt(n)});
-  if(r.error){alert('Error: '+r.error.message);return;}
-  toast('OK - '+n+' Almas a '+uname);lusr();
+  // Call RPC via REST
+  var r=await fetch(SU+'/rest/v1/rpc/add_coins',{
+    method:'POST',
+    headers:{'apikey':SK,'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
+    body:JSON.stringify({user_id:uid,amount:parseInt(n)})
+  });
+  if(!r.ok){var e=await r.text();alert('Error: '+e);return;}
+  toast('OK - '+n+' Almas a '+decodeURIComponent(uname));
+  lusr();
 }
 async function lpos(){
-  var r1=await sb.from('posts').select('id,user_id,content,media_url,is_premium,likes_count,created_at').order('created_at',{ascending:false});
-  var r2=await sb.from('profiles').select('id,username');
-  var pm={};(r2.data||[]).forEach(function(p){pm[p.id]=p.username;});
-  var posts=r1.data||[];
+  var r1=await q('/rest/v1/posts?select=id,user_id,content,media_url,is_premium,likes_count,created_at&order=created_at.desc');
+  var r2=await q('/rest/v1/profiles?select=id,username');
+  var pm={};(Array.isArray(r2)?r2:[]).forEach(function(p){pm[p.id]=p.username;});
+  var posts=Array.isArray(r1)?r1:[];
   document.getElementById('pbt').innerHTML=posts.length?posts.map(function(p){
     var ml=p.media_url?'<a href="'+p.media_url+'" target="_blank" style="color:var(--bl)">Ver</a>':'-';
-    return '<tr><td>'+(pm[p.user_id]||p.user_id.slice(0,8))+'</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx3)">'+(p.content||'-')+'</td><td>'+ml+'</td><td>'+(p.is_premium?'<span class="bx go">Premium</span>':'<span class="bx gy">Free</span>')+'</td><td class="mo">'+(p.likes_count||0)+'</td><td style="color:var(--tx3)">'+(p.created_at?p.created_at.slice(0,10):'-')+'</td><td><button class="btn" style="color:var(--red);border-color:var(--red)" onclick="dpost(''+p.id+'')">X</button></td></tr>';
+    return '<tr>'+
+      '<td>'+(pm[p.user_id]||p.user_id.slice(0,8))+'</td>'+
+      '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx3)">'+(p.content||'-')+'</td>'+
+      '<td>'+ml+'</td>'+
+      '<td>'+(p.is_premium?'<span class="bx go">Premium</span>':'<span class="bx gy">Free</span>')+'</td>'+
+      '<td class="mo">'+(p.likes_count||0)+'</td>'+
+      '<td style="color:var(--tx3)">'+(p.created_at?p.created_at.slice(0,10):'-')+'</td>'+
+      '<td><button class="btn" style="color:var(--red);border-color:var(--red)" onclick="dpost(''+p.id+'')" >X</button></td>'+
+    '</tr>';
   }).join(''):'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--tx3)">Sin posts</td></tr>';
 }
-async function dpost(id){if(!confirm('Borrar este post?'))return;var r=await sb.from('posts').delete().eq('id',id);if(r.error){alert('Error: '+r.error.message);return;}toast('Post eliminado');lpos();}
+async function dpost(id){
+  if(!confirm('Borrar este post?'))return;
+  var r=await fetch(SU+'/rest/v1/posts?id=eq.'+id,{method:'DELETE',headers:{'apikey':SK,'Authorization':'Bearer '+TOKEN}});
+  if(!r.ok){alert('Error al borrar');return;}
+  toast('Post eliminado');lpos();
+}
 async function lpay(){
-  var r1=await sb.from('transactions').select('*').eq('type','purchase').order('created_at',{ascending:false});
-  var r2=await sb.from('profiles').select('id,username');
-  var pm={};(r2.data||[]).forEach(function(p){pm[p.id]=p.username;});
-  var t=r1.data||[],tot=t.filter(function(x){return x.status==='completed';}).reduce(function(a,x){return a+(x.gross_amount||0);},0);
-  document.getElementById('psg').innerHTML='<div class="sc gr"><div class="sl">Ingresos</div><div class="sv">$'+tot.toFixed(2)+'</div></div><div class="sc go"><div class="sl">Comision 10%</div><div class="sv">$'+(tot*.1).toFixed(2)+'</div></div><div class="sc bl"><div class="sl">Transacciones</div><div class="sv">'+t.length+'</div></div>';
+  var r1=await q('/rest/v1/transactions?select=*&type=eq.purchase&order=created_at.desc');
+  var r2=await q('/rest/v1/profiles?select=id,username');
+  var pm={};(Array.isArray(r2)?r2:[]).forEach(function(p){pm[p.id]=p.username;});
+  var t=Array.isArray(r1)?r1:[];
+  var tot=t.filter(function(x){return x.status==='completed';}).reduce(function(a,x){return a+(x.gross_amount||0);},0);
+  document.getElementById('psg').innerHTML=
+    '<div class="sc gr"><div class="sl">Ingresos</div><div class="sv">$'+tot.toFixed(2)+'</div></div>'+
+    '<div class="sc go"><div class="sl">Comision 10%</div><div class="sv">$'+(tot*.1).toFixed(2)+'</div></div>'+
+    '<div class="sc bl"><div class="sl">Transacciones</div><div class="sv">'+t.length+'</div></div>';
   document.getElementById('xbt').innerHTML=t.length?t.map(function(x){
-    return '<tr><td>'+(pm[x.user_id]||x.user_id.slice(0,8))+'</td><td>'+(x.reference_id||'-')+'</td><td class="mo">'+(x.amount||0)+'</td><td class="mo">$'+(x.gross_amount||0).toFixed(2)+'</td><td class="mo" style="font-size:11px">'+(x.stripe_payment_intent_id?x.stripe_payment_intent_id.slice(0,16)+'...':'-')+'</td><td><span class="bx '+(x.status==='completed'?'gr':'go')+'">'+(x.status||'?')+'</span></td><td style="color:var(--tx3)">'+(x.created_at?x.created_at.slice(0,10):'-')+'</td></tr>';
-  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--tx3)">Sin pagos</td></tr>';
+    return '<tr>'+
+      '<td>'+(pm[x.user_id]||x.user_id.slice(0,8))+'</td>'+
+      '<td>'+(x.reference_id||'-')+'</td>'+
+      '<td class="mo">'+(x.amount||0)+'</td>'+
+      '<td class="mo">$'+(x.gross_amount||0).toFixed(2)+'</td>'+
+      '<td><span class="bx '+(x.status==='completed'?'gr':'go')+'">'+(x.status||'?')+'</span></td>'+
+      '<td style="color:var(--tx3)">'+(x.created_at?x.created_at.slice(0,10):'-')+'</td>'+
+    '</tr>';
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">Sin pagos</td></tr>';
 }
 async function lcre(){
-  var r1=await sb.from('profiles').select('id,username,verified,created_at').order('created_at',{ascending:false});
-  var r2=await sb.from('posts').select('user_id');
-  var cm={};(r2.data||[]).forEach(function(p){cm[p.user_id]=(cm[p.user_id]||0)+1;});
-  document.getElementById('cbt').innerHTML=(r1.data||[]).map(function(p){
-    var vb=!p.verified?'<button class="btn p" onclick="vuser(''+p.id+'',''+(p.username||'')+'')">Verificar</button>':'';
-    return '<tr><td>'+p.username+'</td><td>'+(p.verified?'<span class="bx gr">Verificado</span>':'<span class="bx gy">Pendiente</span>')+'</td><td class="mo">'+(cm[p.id]||0)+'</td><td style="color:var(--tx3)">'+(p.created_at?p.created_at.slice(0,10):'-')+'</td><td>'+vb+'</td></tr>';
+  var r1=await q('/rest/v1/profiles?select=id,username,verified,created_at&order=created_at.desc');
+  var r2=await q('/rest/v1/posts?select=user_id');
+  var cm={};(Array.isArray(r2)?r2:[]).forEach(function(p){cm[p.user_id]=(cm[p.user_id]||0)+1;});
+  document.getElementById('cbt').innerHTML=(Array.isArray(r1)?r1:[]).map(function(p){
+    var vb=!p.verified?'<button class="btn p" onclick="vuser(''+p.id+'',''+encodeURIComponent(p.username||'')+'')">Verificar</button>':'';
+    return '<tr>'+
+      '<td>'+(p.username||'-')+'</td>'+
+      '<td>'+(p.verified?'<span class="bx gr">Verificado</span>':'<span class="bx gy">Pendiente</span>')+'</td>'+
+      '<td class="mo">'+(cm[p.id]||0)+'</td>'+
+      '<td style="color:var(--tx3)">'+(p.created_at?p.created_at.slice(0,10):'-')+'</td>'+
+      '<td>'+vb+'</td>'+
+    '</tr>';
   }).join('');
 }
-async function vuser(id,u){if(!confirm('Verificar a '+u+'?'))return;await sb.from('profiles').update({verified:true}).eq('id',id);toast('Verificado: '+u);lcre();}
+async function vuser(id,uname){
+  if(!confirm('Verificar a '+decodeURIComponent(uname)+'?'))return;
+  var r=await fetch(SU+'/rest/v1/profiles?id=eq.'+id,{
+    method:'PATCH',
+    headers:{'apikey':SK,'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({verified:true})
+  });
+  if(!r.ok){alert('Error');return;}
+  toast('Verificado: '+decodeURIComponent(uname));lcre();
+}
 async function lset(){
-  var r=await sb.from('platform_settings').select('*');
-  if(r.data){var s={};r.data.forEach(function(x){s[x.key]=x.value;});if(s.commission_pct)document.getElementById('cc').value=s.commission_pct;if(s.currency)document.getElementById('cu').value=s.currency;if(s.stripe_enabled)document.getElementById('cs').value=s.stripe_enabled;}
+  var r=await q('/rest/v1/platform_settings?select=*');
+  if(Array.isArray(r)){var s={};r.forEach(function(x){s[x.key]=x.value;});if(s.commission_pct)document.getElementById('cc').value=s.commission_pct;if(s.currency)document.getElementById('cu').value=s.currency;if(s.stripe_enabled)document.getElementById('cs').value=s.stripe_enabled;}
 }
 async function sset(){
-  await Promise.all([sb.from('platform_settings').upsert({key:'commission_pct',value:document.getElementById('cc').value}),sb.from('platform_settings').upsert({key:'currency',value:document.getElementById('cu').value}),sb.from('platform_settings').upsert({key:'stripe_enabled',value:document.getElementById('cs').value})]);
+  var upsert=function(key,val){return fetch(SU+'/rest/v1/platform_settings',{method:'POST',headers:{'apikey':SK,'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({key:key,value:val})});}
+  await Promise.all([upsert('commission_pct',document.getElementById('cc').value),upsert('currency',document.getElementById('cu').value),upsert('stripe_enabled',document.getElementById('cs').value)]);
   toast('Configuracion guardada');
 }
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('login').style.display!=='none')doLogin();});

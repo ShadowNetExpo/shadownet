@@ -887,9 +887,10 @@ async function submitReport(){
   var r=await sb.from("reports").insert({
     reporter_id:currentUser.id,
     reported_user_id:_reportUserId||null,
-    post_id:_reportPostId||null,
+    content_type:"post",
+    content_id:_reportPostId||null,
     reason:_reportReason,
-    details:details||null
+    description:details||null
   });
   closeReport();
   if(r.error){showToast("Error al enviar reporte",true);}

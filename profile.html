@@ -35,7 +35,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .hs-item{aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;position:relative}
 .hs-item img,.hs-item video{width:100%;height:100%;object-fit:cover}
 .hs-item.selected{border-color:#00e5ff}
-.hs-item.selected::after{content:"✓";position:absolute;top:4px;right:4px;background:#00e5ff;color:#000;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+.hs-item.selected::after{content:"â";position:absolute;top:4px;right:4px;background:#00e5ff;color:#000;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
 .highlight-save-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:14px;cursor:pointer;text-transform:uppercase}
 .highlight-cancel-btn{width:100%;margin-top:8px;padding:8px;background:transparent;border:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer}
 
@@ -177,10 +177,10 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
   <span class="logo" onclick="window.location.href='/'">SN</span>
   <button class="back-btn" onclick="history.back()">&larr; Volver</button>
 </header>
-<div class="profile-cover" id="profileCover"><div class="cover-drag-hint" id="coverDragHint">&#8677; Arrastra para reposicionar</div><div class="cover-save-badge" id="coverSaveBadge" onclick="saveCoverPosition()">&#10003; Guardar posición</div></div>
+<div class="profile-cover" id="profileCover"><div class="cover-drag-hint" id="coverDragHint">&#8677; Arrastra para reposicionar</div><div class="cover-save-badge" id="coverSaveBadge" onclick="saveCoverPosition()">&#10003; Guardar posiciÃ³n</div></div>
 <div class="profile-wrap">
   <div class="profile-header">
-    <div style="position:relative;display:inline-block"><div class="profile-avatar" id="profileAvatar"></div><button class="avatar-repos-btn" id="avatarReposBtn" style="display:none" onclick="triggerAvatarChange()">📷</button></div>
+    <div style="position:relative;display:inline-block"><div class="profile-avatar" id="profileAvatar"></div><button class="avatar-repos-btn" id="avatarReposBtn" style="display:none" onclick="triggerAvatarChange()">ð·</button></div>
   </div>
   <div class="profile-info">
     <div class="profile-username" id="profileUsername"></div>
@@ -218,10 +218,10 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
   <div class="highlights-row" id="highlightsRow" style="display:none"></div>
 
   <div class="profile-tabs" id="profileTabs">
-    <div class="profile-tab active" data-tab="posts" onclick="switchTab('posts')"><span class="profile-tab-icon">⋮⋮⋮⋮</span>Posts</div>
-    <div class="profile-tab" data-tab="reels" onclick="switchTab('reels')"><span class="profile-tab-icon">▶</span>Reels</div>
-    <div class="profile-tab" data-tab="saved" onclick="switchTab('saved')" id="savedTab" style="display:none"><span class="profile-tab-icon">🔖</span>Guardados</div>
-    <div class="profile-tab" data-tab="tagged" onclick="switchTab('tagged')"><span class="profile-tab-icon">🏷</span>Etiquetados</div>
+    <div class="profile-tab active" data-tab="posts" onclick="switchTab('posts')"><span class="profile-tab-icon">â®â®â®â®</span>Posts</div>
+    <div class="profile-tab" data-tab="reels" onclick="switchTab('reels')"><span class="profile-tab-icon">â¶</span>Reels</div>
+    <div class="profile-tab" data-tab="saved" onclick="switchTab('saved')" id="savedTab" style="display:none"><span class="profile-tab-icon">ð</span>Guardados</div>
+    <div class="profile-tab" data-tab="tagged" onclick="switchTab('tagged')"><span class="profile-tab-icon">ð·</span>Etiquetados</div>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px" id="postsGridHeader">
   <span style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em">PUBLICACIONES</span>
@@ -541,9 +541,8 @@ async function loadTabContent(tab, userId) {
   grid.innerHTML = '<div class="empty-posts">Cargando...</div>';
 
   if(tab === 'posts'){
-    var r = await sb.from('posts').select('*').eq('user_id', userId).is('media_type', null).order('created_at',{ascending:false}).limit(30);
-    var r2 = await sb.from('posts').select('*').eq('user_id', userId).neq('media_type','video').order('created_at',{ascending:false}).limit(30);
-    renderPostsGrid(r2.data||r.data||[]);
+    var r = await sb.from('posts').select('*').eq('user_id', userId).order('created_at',{ascending:false}).limit(30);
+    renderPostsGrid(r.data||[]);
 
   } else if(tab === 'reels'){
     var rr = await sb.from('posts').select('*').eq('user_id', userId).eq('media_type','video').order('created_at',{ascending:false}).limit(30);
@@ -686,7 +685,7 @@ async function openSubscribeModal(creatorId) {
       card.innerHTML =
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
           '<span style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;color:#e8f4ff">'+tier.name+'</span>' +
-          '<span style="font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255">€'+parseFloat(tier.price).toFixed(2)+'/mes</span>' +
+          '<span style="font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255">â¬'+parseFloat(tier.price).toFixed(2)+'/mes</span>' +
         '</div>' +
         '<p style="font-size:12px;color:#5a8aaa;margin-bottom:8px">'+( tier.description||'')+'</p>' +
         (perks.length ? '<ul style="list-style:none;display:flex;flex-wrap:wrap;gap:4px">'+ perks.map(function(p){ return '<li style="background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.2);color:#ff9999;font-size:11px;padding:2px 8px;border-radius:10px">'+p+'</li>'; }).join('') +'</ul>' : '');
@@ -696,7 +695,7 @@ async function openSubscribeModal(creatorId) {
         _selectedTier = tier;
         var btn2 = document.getElementById('tierConfirmBtn');
         btn2.disabled = false; btn2.style.opacity='1';
-        btn2.textContent = 'Suscribirse por €'+parseFloat(tier.price).toFixed(2)+'/mes';
+        btn2.textContent = 'Suscribirse por â¬'+parseFloat(tier.price).toFixed(2)+'/mes';
       });
       list.appendChild(card);
     });
@@ -727,7 +726,7 @@ async function confirmSubscribe(){
       var res = await fetch(sbUrl+'/functions/v1/stripe-payment', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':sbKey},
-        body: JSON.stringify({type:'subscription',creator_id:_subCreatorId,amount_cents:Math.round(_selectedTier.price*100),tier_id:_selectedTier.id,description:'Suscripción '+_selectedTier.name})
+        body: JSON.stringify({type:'subscription',creator_id:_subCreatorId,amount_cents:Math.round(_selectedTier.price*100),tier_id:_selectedTier.id,description:'SuscripciÃ³n '+_selectedTier.name})
       });
       var data = await res.json();
       if(data.error){ throw new Error(data.error); }
@@ -768,7 +767,7 @@ function showSubscribeSuccess(){
   // Show toast
   var t = document.createElement('div');
   t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.97);border:1px solid #00ff88;color:#00ff88;padding:12px 24px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;z-index:9999;text-align:center';
-  t.textContent='✓ ¡Suscripción activada!';
+  t.textContent='â Â¡SuscripciÃ³n activada!';
   document.body.appendChild(t);
   setTimeout(function(){t.remove();},3000);
   // Refresh page
@@ -1062,7 +1061,7 @@ async function loadHighlights(profileUserId, isOwn){
     if(hl.cover_url){
       var img=document.createElement('img');img.src=hl.cover_url;ring.appendChild(img);
     } else {
-      ring.textContent='🔖';ring.style.cssText='display:flex;align-items:center;justify-content:center;font-size:22px';
+      ring.textContent='ð';ring.style.cssText='display:flex;align-items:center;justify-content:center;font-size:22px';
     }
     var name=document.createElement('div');name.className='highlight-name';name.textContent=hl.title;
     bub.appendChild(ring);bub.appendChild(name);
@@ -1092,7 +1091,7 @@ async function openCreateHighlight(){
   var grid=document.getElementById('hlStoriesGrid');
   grid.innerHTML='';
   if(stories.length===0){
-    grid.innerHTML='<p style="color:#5a8aaa;font-size:13px;grid-column:1/-1;text-align:center;padding:20px">No tienes historias.📌
+    grid.innerHTML='<p style="color:#5a8aaa;font-size:13px;grid-column:1/-1;text-align:center;padding:20px">No tienes historias.ð
 Sube una historia primero.</p>';
   } else {
     stories.forEach(function(s){
@@ -1136,7 +1135,7 @@ async function saveHighlight(){
 
   document.getElementById('highlightModal').classList.remove('open');
   btn.textContent='Guardar';btn.disabled=false;
-  showToast('✓ Destacada creada');
+  showToast('â Destacada creada');
   // Reload highlights
   if(window._profileUserId) loadHighlights(window._profileUserId,true);
 }
@@ -1145,21 +1144,21 @@ function viewHighlight(hl){
   // Simple viewer - show items in a full-screen slide
   window.sb.from('highlight_items').select('*').eq('highlight_id',hl.id).order('created_at',{ascending:true}).then(function(r){
     var items=r.data||[];
-    if(!items.length){showToast('Esta destacada está vacía',true);return;}
+    if(!items.length){showToast('Esta destacada estÃ¡ vacÃ­a',true);return;}
     var idx=0;
     var overlay=document.createElement('div');
     overlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column';
     function render(){
       overlay.innerHTML='';
       var item=items[idx];
-      var close=document.createElement('button');close.style.cssText='position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:24px;cursor:pointer;width:40px;height:40px;border-radius:50%;z-index:10';close.textContent='×';close.onclick=function(){overlay.remove();};
+      var close=document.createElement('button');close.style.cssText='position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:24px;cursor:pointer;width:40px;height:40px;border-radius:50%;z-index:10';close.textContent='Ã';close.onclick=function(){overlay.remove();};
       var title=document.createElement('div');title.style.cssText='position:absolute;top:16px;left:16px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:16px;z-index:10';title.textContent=hl.title;
       var counter=document.createElement('div');counter.style.cssText='position:absolute;top:16px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;z-index:10';counter.textContent=(idx+1)+'/'+items.length;
       if(item.media_type==='video'){var v=document.createElement('video');v.src=item.media_url;v.controls=true;v.autoplay=true;v.setAttribute('playsinline','');v.style.cssText='max-width:100%;max-height:90vh;object-fit:contain';overlay.appendChild(v);}
       else{var img=document.createElement('img');img.src=item.media_url;img.style.cssText='max-width:100%;max-height:90vh;object-fit:contain';overlay.appendChild(img);}
       overlay.appendChild(close);overlay.appendChild(title);overlay.appendChild(counter);
-      if(idx<items.length-1){var nxt=document.createElement('button');nxt.style.cssText='position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:24px;cursor:pointer;width:44px;height:44px;border-radius:50%;z-index:10';nxt.textContent='›';nxt.onclick=function(){idx++;render();};overlay.appendChild(nxt);}
-      if(idx>0){var prv=document.createElement('button');prv.style.cssText='position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:24px;cursor:pointer;width:44px;height:44px;border-radius:50%;z-index:10';prv.textContent='‹';prv.onclick=function(){idx--;render();};overlay.appendChild(prv);}
+      if(idx<items.length-1){var nxt=document.createElement('button');nxt.style.cssText='position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:24px;cursor:pointer;width:44px;height:44px;border-radius:50%;z-index:10';nxt.textContent='âº';nxt.onclick=function(){idx++;render();};overlay.appendChild(nxt);}
+      if(idx>0){var prv=document.createElement('button');prv.style.cssText='position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:24px;cursor:pointer;width:44px;height:44px;border-radius:50%;z-index:10';prv.textContent='â¹';prv.onclick=function(){idx--;render();};overlay.appendChild(prv);}
     }
     render();
     document.body.appendChild(overlay);
@@ -1243,16 +1242,16 @@ function doLogout(){
 
 <!-- Tier Subscribe Modal -->
 <!-- Logout button - visible on own profile -->
-<button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:90px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)">🚪 Cerrar sesión</button>
+<button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:90px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)">ðª Cerrar sesiÃ³n</button>
 
 <!-- Highlight Create Modal -->
 <div class="highlight-modal" id="highlightModal">
   <div class="highlight-box">
-    <div class="highlight-box-title">★ NUEVA DESTACADA</div>
+    <div class="highlight-box-title">â NUEVA DESTACADA</div>
     <input class="highlight-inp" id="hlTitle" placeholder="Nombre de la destacada (ej: Viajes, Fotos, Mis lives...)">
     <div style="font-size:11px;color:#5a8aaa;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Selecciona historias para incluir</div>
     <div class="highlight-stories-grid" id="hlStoriesGrid"></div>
-    <button class="highlight-save-btn" id="hlSaveBtn" onclick="saveHighlight()">✓ Crear Destacada</button>
+    <button class="highlight-save-btn" id="hlSaveBtn" onclick="saveHighlight()">â Crear Destacada</button>
     <button class="highlight-cancel-btn" onclick="document.getElementById('highlightModal').classList.remove('open')">Cancelar</button>
   </div>
 </div>

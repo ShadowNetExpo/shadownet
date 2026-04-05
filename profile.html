@@ -750,7 +750,7 @@ async function confirmSubscribe(){
       var res = await fetch(sbUrl+'/functions/v1/stripe-payment', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':sbKey},
-        body: JSON.stringify({type:'subscription',creator_id:_subCreatorId,amount_cents:Math.round(_selectedTier.price*100),tier_id:_selectedTier.id,description:'SuscripciÃ³n '+_selectedTier.name})
+        body: JSON.stringify({type:'subscription',creator_id:_subCreatorId,amount_cents:Math.round(_selectedTier.price*100),tier_id:_selectedTier.id,description:'Suscripción '+_selectedTier.name})
       });
       var data = await res.json();
       if(data.error){ throw new Error(data.error); }
@@ -791,7 +791,7 @@ function showSubscribeSuccess(){
   // Show toast
   var t = document.createElement('div');
   t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.97);border:1px solid #00ff88;color:#00ff88;padding:12px 24px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;z-index:9999;text-align:center';
-  t.textContent='â Â¡SuscripciÃ³n activada!';
+  t.textContent='â Â¡Suscripción activada!';
   document.body.appendChild(t);
   setTimeout(function(){t.remove();},3000);
   // Refresh page
@@ -1168,14 +1168,14 @@ function viewHighlight(hl){
   // Simple viewer - show items in a full-screen slide
   window.sb.from('highlight_items').select('*').eq('highlight_id',hl.id).order('created_at',{ascending:true}).then(function(r){
     var items=r.data||[];
-    if(!items.length){showToast('Esta destacada estÃ¡ vacÃ­a',true);return;}
+    if(!items.length){showToast('Esta destacada está vacía',true);return;}
     var idx=0;
     var overlay=document.createElement('div');
     overlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column';
     function render(){
       overlay.innerHTML='';
       var item=items[idx];
-      var close=document.createElement('button');close.style.cssText='position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:24px;cursor:pointer;width:40px;height:40px;border-radius:50%;z-index:10';close.textContent='Ã';close.onclick=function(){overlay.remove();};
+      var close=document.createElement('button');close.style.cssText='position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:24px;cursor:pointer;width:40px;height:40px;border-radius:50%;z-index:10';close.textContent='×';close.onclick=function(){overlay.remove();};
       var title=document.createElement('div');title.style.cssText='position:absolute;top:16px;left:16px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:16px;z-index:10';title.textContent=hl.title;
       var counter=document.createElement('div');counter.style.cssText='position:absolute;top:16px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;z-index:10';counter.textContent=(idx+1)+'/'+items.length;
       if(item.media_type==='video'){var v=document.createElement('video');v.src=item.media_url;v.controls=true;v.autoplay=true;v.setAttribute('playsinline','');v.style.cssText='max-width:100%;max-height:90vh;object-fit:contain';overlay.appendChild(v);}
@@ -1266,7 +1266,7 @@ function doLogout(){
 
 <!-- Tier Subscribe Modal -->
 <!-- Logout button - visible on own profile -->
-<button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:90px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)">ðª Cerrar sesiÃ³n</button>
+<button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:90px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)">ðª Cerrar sesión</button>
 
 <!-- Highlight Create Modal -->
 <div class="highlight-modal" id="highlightModal">

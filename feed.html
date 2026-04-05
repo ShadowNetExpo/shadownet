@@ -281,89 +281,6 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .edit-post-cancel{flex:1;padding:11px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
 
 
-/* ===== SN Bottom Nav ===== */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active{color:#00e5ff!important;}
-.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:20px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:0!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-body{padding-bottom:70px!important;}
-</style>
-</head>
-<body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SHADOWNET</span>
-  <div class="nav-btns">
-    <button class="nbtn active" onclick="window.location.href='/feed.html'">Feed</button>
-    <button class="nbtn" onclick="window.location.href='/'">Inicio</button>
-    <button class="nbtn" onclick="window.location.href='/search.html'">&#128269;</button>
-    <button class="nbtn" id="logoutNavBtn" style="display:none" onclick="doLogout()">Salir</button>
-  </div>
-</header>
-<div class="wrap">
-  <div id="postBox" class="post-box" style="display:none">
-    <div class="post-box-header">
-      <div class="avatar-sm" id="myAvatar">?</div>
-      <span class="post-username" id="myUsername">@usuario</span>
-    </div>
-    <textarea class="textarea" id="postText" placeholder="Comparte algo con tus seguidores..."></textarea>
-    <div class="media-preview" id="mediaPreview"></div>
-    <div class="post-actions">
-      <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
-      <button class="toggle-location-btn" id="locationToggleBtn" onclick="toggleLocationInput()">&#128205; Ubicacion</button>
-    <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, España">
-    <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label><button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
-    </div>
-  </div>
-  <div class="tabs">
-    <button class="tab active" id="tabAll" onclick="loadFeed('all')">Global</button>
-    <button class="tab" id="tabFollowing" onclick="loadFeed('following')">Siguiendo</button>
-    <button class="tab" id="tabTrending" onclick="loadFeed('trending')">&#128293; Trending</button>
-    <button class="tab" id="tabSaved" onclick="loadFeed('saved')">&#128278; Guardados</button>
-  </div>
-  <div id="feedContainer" class="feed"><div class="loader">Cargando feed...</div></div>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-var SB_URL = "https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY = "sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb = supabase.createClient(SB_URL, SB_KEY);
-var currentUser = null;
-var currentProfile = null;
-var mediaFile = null;
-var curTab = "all";
-
-sb.auth.getSession().then(function(r) {
-  if (r.data.session) initUser(r.data.session.user);
-  else loadFeed("all");
-});
-sb.auth.onAuthStateChange(function(e, s) {
-  if (e === "SIGNED_IN" && s) initUser(s.user);
-  if (e === "SIGNED_OUT") { currentUser = null; document.getElementById("postBox").style.display = "none"; document.getElementById("logoutNavBtn").style.display = "none"; }
-});
-
-async function initUser(u) {
-  currentUser = u;
-  var r = await sb.from("profiles").select("username,avatar_url,verification_status").eq("id", u.id).single();
-  currentProfile = r.data;
-  var box = document.getElementById("postBox");
-  if (box) box.style.display = "block";
-  var logBtn = document.getElementById("logoutNavBtn");
-  if (logBtn) logBtn.style.display = "inline-flex";
-  var av = document.getElementById("myAvatar");
-  if (av) {
-    if (r.data && r.data.avatar_url) av.innerHTML = '<img src="' + r.data.avatar_url + '">'; 
-    else av.textContent = r.data ? (r.data.username || "?")[0].toUpperCase() : "?";
-  }
-  var un = document.getElementById("myUsername");
-  if (un && r.data) un.textContent = "@" + r.data.username;
-  loadFeed(curTab); checkAndShowPremiumToggle(); var ub=document.getElementById("headerUploadBtn");if(ub)ub.style.display="inline-block";
-}
 
 async function loadFeed(tab) {
   curTab = tab;
@@ -1697,38 +1614,38 @@ async function sendTip(){
   else initNav();
 })();
 </script>
+
+
 <!-- SN Bottom Nav -->
-<nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item sn-bn-active" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+<nav class="sn-bottom-nav" id="snBottomNav" style="display:none">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
 <script>
-// Update nav avatar from session
 (function(){
   var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
   var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function loadNavUser(){
+  function initNav(){
     var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
-    if(!sb)return;
+    if(!sb){setTimeout(initNav,400);return;}
     sb.auth.getSession().then(function(r){
       if(!r.data||!r.data.session)return;
+      var nav=document.getElementById('snBottomNav');
+      if(nav)nav.style.display='flex';
       sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
         if(!p.data)return;
         var av=document.getElementById('snNavAv');
         if(!av)return;
-        if(p.data.avatar_url){
-          av.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        } else if(p.data.username){
-          av.textContent=p.data.username[0].toUpperCase();
-        }
+        if(p.data.avatar_url)av.innerHTML='<img src="'+p.data.avatar_url+'">';
+        else if(p.data.username)av.textContent=p.data.username[0].toUpperCase();
       });
     });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadNavUser);
-  else loadNavUser();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNav);
+  else initNav();
 })();
 </script>
 </body>

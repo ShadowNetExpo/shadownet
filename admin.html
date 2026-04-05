@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SHADOWNET Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#01020c;--bg2:#050d1a;--bg3:#0a1828;--br:#0d2744;--red:#ff2255;--red2:#cc0030;--tx:#e8f4ff;--tx2:#8ab4cc;--tx3:#3a6080;--gold:#f5a623;--gr:#22ff88;--bl:#2288ff}
@@ -113,6 +112,7 @@ tbody tr:hover td{background:rgba(255,34,85,.03)}
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 var sb,AU=[];
 var SU='https://cdokplvoqivducsqrejt.supabase.co';
@@ -121,13 +121,19 @@ var AID='f8befa4f-08f8-4256-aa4e-1053d36a12c0';
 
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},3000);}
 
-window.addEventListener('load',function(){
-  document.getElementById('inf').textContent='Listo - ingresa tus credenciales';
-  sb=supabase.createClient(SU,SK);
-  sb.auth.getSession().then(function(r){
-    if(r.data&&r.data.session&&r.data.session.user.id===AID){showApp(r.data.session.user.email);}
+// Direct init - CDN already loaded above
+try {
+  sb = supabase.createClient(SU, SK);
+  document.getElementById('inf').textContent = 'Listo - ingresa tus credenciales';
+  document.getElementById('btn').disabled = false;
+  sb.auth.getSession().then(function(r) {
+    if (r.data && r.data.session && r.data.session.user.id === AID) {
+      showApp(r.data.session.user.email);
+    }
   });
-});
+} catch(e) {
+  document.getElementById('inf').textContent = 'Error al cargar SDK: ' + e.message;
+}
 
 function showApp(email){
   document.getElementById('login').style.display='none';

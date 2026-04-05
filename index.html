@@ -553,7 +553,7 @@ body.has-nav .dashPage{padding-bottom:70px}
       <div id="refCodeBar" style="display:none;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:#5a8aaa">Tu c&#243;digo:</span><span id="myRefCode" style="font-family:Orbitron,sans-serif;font-size:13px;color:#00ff88;letter-spacing:.08em">-</span><button onclick="copyMyRef()" style="padding:4px 10px;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.3);color:#00ff88;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer">Copiar</button><span style="font-size:11px;color:#ffaa00;margin-left:auto"><span id="myRefCount">0</span> referidos</span></div>
       </div>
       <!-- Stories Bar -->
-      <div class="dash-stories" id="dashStoriesSection" style="display:none">
+      <div class="dash-stories" id="dashStoriesSection" style="display:none!important">
         <div class="dash-stories-title">STORIES</div>
         <div class="dash-stories-row" id="dashStoriesRow">
           <div class="ds-bubble" onclick="window.location.href='/stories.html'">
@@ -646,14 +646,17 @@ function loadCount(){
     });
   },500);
 }
-function setUser(u){currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
+function setUser(u){
+  if(_userInited&&currentUser&&currentUser.id===u.id) return; // prevent double init
+  _userInited=true;
+  currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
     document.getElementById('dashPage').style.display='none';
     document.getElementById('homeFeed').classList.add('active');
     loadHomeFeed();
     loadHomeStories();
     offerFaceIdRegistration();document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';// logoutBtn removed from header - only in profile document.getElementById('bottomNav').classList.add('visible'); document.body.classList.add('has-nav');
     loadKycStatus();closeAuth();loadFanRank();loadDashStories();loadReferralCode();processReferralAfterRegister(currentUser.id);updateNavBadges();subscribeNotifBadge(); setTimeout(function(){ sb.from("profiles").select("role").eq("id",currentUser.id).single().then(function(rr){ applyRoleDashboard(rr.data&&rr.data.role||"fan"); }); },100);document.getElementById("notifBell").style.display="inline-flex";loadNotifications();subscribeNotifications();});}
-function clearUser(){currentUser=null;document.getElementById('landPage').classList.remove('off');
+function clearUser(){_userInited=false;currentUser=null;document.getElementById('landPage').classList.remove('off');
     document.getElementById('homeFeed').classList.remove('active');
     document.getElementById('dashPage').style.display='';document.getElementById('dashPage').classList.remove('on');document.getElementById('loginBtn').style.display='inline-flex';document.getElementById('registerBtn').style.display='inline-flex';document.getElementById('logoutBtn').style.display='none'; document.getElementById('bottomNav').classList.remove('visible'); document.body.classList.remove('has-nav');}
 function goHome(){if(!currentUser)window.scrollTo({top:0,behavior:'smooth'});}
@@ -1661,6 +1664,7 @@ function filterNotifications(type){
 // HOME FEED
 // =============================================
 var _feedMode='foryou',_feedPage=0,_feedLoading=false;
+var _userInited=false; // guard against double setUser
 
 function switchFeedTab(mode){
   _feedMode=mode; _feedPage=0;
@@ -1778,9 +1782,9 @@ function buildFeedCard(post){
   cbtn.innerHTML='&#128172; <span class="feed-action-count">'+(post.comments_count||0)+'</span>';
   cbtn.onclick=function(){window.location.href='/feed.html?post='+post.id;};
   var sbtn=document.createElement('button'); sbtn.className='feed-action-btn';
-  sbtn.textContent='&#128228;'; sbtn.onclick=function(){doSharePost(post.id);};
+  sbtn.innerHTML='&#128228;'; sbtn.onclick=function(){doSharePost(post.id);};
   var savebtn=document.createElement('button'); savebtn.className='feed-action-btn';
-  savebtn.style.marginLeft='auto'; savebtn.textContent='&#128278;';
+  savebtn.style.marginLeft='auto'; savebtn.innerHTML='&#128278;';
   savebtn.onclick=function(){doSavePost(post.id,this);};
   acts.appendChild(lbtn); acts.appendChild(cbtn); acts.appendChild(sbtn); acts.appendChild(savebtn);
   card.appendChild(acts);
@@ -1853,6 +1857,10 @@ async function quickFollow(btn,uid,username){
 async function loadHomeStories(){
   var bar=document.getElementById('homeStoriesBar');
   if(!bar||!window.sb)return;
+  // Keep only the + "Tu historia" bubble, clear the rest
+  var firstBubble=bar.querySelector('.story-bubble');
+  bar.innerHTML='';
+  if(firstBubble)bar.appendChild(firstBubble);
   var r=await window.sb.from('stories')
     .select('*, profiles(id,username,avatar_url)')
     .gt('expires_at',new Date().toISOString())

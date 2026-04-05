@@ -569,7 +569,7 @@ async function loadReports(){
   var grid=document.getElementById("reportsGrid");
   var count=document.getElementById("rptCount");
   if(!grid)return;
-  var r=await sb.from("reports").select("*,profiles!reporter_id(username),posts(content)").eq("status","pending").order("created_at",{ascending:false}).limit(20);
+  var r=await sb.from("reports").select("*,profiles!reporter_id(username)").eq("status","pending").order("created_at",{ascending:false}).limit(20);
   if(r.error){grid.innerHTML="<div class=\"empty\">Error: "+r.error.message+"</div>";return;}
   var items=r.data||[];
   if(count)count.textContent=items.length+" pendientes";
@@ -593,9 +593,9 @@ function buildRptCard(rpt){
   } else {left.appendChild(reason);left.appendChild(meta);}
   var badge=document.createElement("span");badge.className="badge b-p";badge.textContent="Pendiente";
   header.appendChild(left);header.appendChild(badge);card.appendChild(header);
-  if(rpt.details){
+  if(rpt.description){
     var det=document.createElement("div");det.className="rpt-detail";det.style.display="block";
-    det.textContent="Detalles: "+rpt.details;card.appendChild(det);
+    det.textContent="Detalles: "+rpt.description;card.appendChild(det);
   }
   var actions=document.createElement("div");actions.className="rpt-actions";
   var dismiss=document.createElement("button");dismiss.className="rpt-dismiss";dismiss.textContent="\u2713 Desestimar";
@@ -665,7 +665,7 @@ async function loadPlatformStats(){
   var stats=document.getElementById("platformStats");
   if(!stats)return;
   // Total withdrawals processed
-  var wd=await sb.from("withdrawals").select("amount,commission_amount,net_amount").eq("status","approved");
+  var wd=await sb.from("withdrawals").select("amount,commission_amount,net_amount").eq("status","processed");
   var totalGross=0,totalComm=0,totalNet=0;
   (wd.data||[]).forEach(function(w){totalGross+=parseFloat(w.amount||0);totalComm+=parseFloat(w.commission_amount||0);totalNet+=parseFloat(w.net_amount||0);});
   // Total users

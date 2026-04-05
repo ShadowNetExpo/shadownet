@@ -115,181 +115,6 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;height:100vh;ove
 .end-stat-label{font-size:13px;color:#5a8aaa;margin-top:4px}
 .end-share-btn{padding:12px 28px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase}
 
-/* ===== SN Bottom Nav ===== */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active{color:#00e5ff!important;}
-.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:20px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:0!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-body{padding-bottom:70px!important;}
-</style>
-</head>
-<body>
-<div class="live-container" id="liveContainer">
-  <div class="live-video-wrap">
-    <video id="liveVideo" autoplay muted playsinline></video>
-    <canvas id="liveCanvas" class="live-canvas-overlay"></canvas>
-  </div>
-  <div class="live-topbar">
-    <button class="live-back-btn" onclick="confirmEndLive()">&#8592;</button>
-    <div class="live-title-wrap">
-      <div class="live-title" id="liveTitle">SHADOWNET LIVE</div>
-      <div class="live-subtitle" id="liveSubtitle">Preparando camara...</div>
-    </div>
-    <div class="live-viewers-badge"><div class="live-red-dot"></div><span id="viewerCount">0</span></div>
-  </div>
-  <div class="live-goal" id="liveGoal">
-    <div class="live-goal-label"><span id="goalLabel">Meta de regalos</span><span id="goalProgress">0 / 0 Almas</span></div>
-    <div class="live-goal-bar"><div class="live-goal-fill" id="goalFill" style="width:0%"></div></div>
-  </div>
-  <div class="live-chat-overlay" id="chatOverlay"></div>
-  <div class="live-right-controls" id="rightControls">
-    <button class="live-ctrl-btn" onclick="flipCamera()" title="Voltear camara"><span style="font-size:18px">&#128247;</span><span class="live-ctrl-label">Voltear</span></button>
-    <button class="live-ctrl-btn" id="mirrorBtn" onclick="toggleMirror()"><span style="font-size:16px">&#8644;</span><span class="live-ctrl-label">Espejo</span></button>
-    <button class="live-ctrl-btn" onclick="openPanel('effectsPanel')"><span style="font-size:16px">&#10024;</span><span class="live-ctrl-label">Efectos</span></button>
-    <button class="live-ctrl-btn" onclick="openPanel('stickersPanel')"><span style="font-size:18px">&#128161;</span><span class="live-ctrl-label">Stickers</span></button>
-    <button class="live-ctrl-btn" onclick="openPanel('qaPanel')"><span style="font-size:16px">&#10067;</span><span class="live-ctrl-label">Q&amp;A</span></button>
-    <button class="live-ctrl-btn" onclick="openPanel('pollPanel')"><span style="font-size:16px">&#128202;</span><span class="live-ctrl-label">Poll</span></button>
-    <button class="live-ctrl-btn" onclick="openPanel('goalPanel')"><span style="font-size:16px">&#127919;</span><span class="live-ctrl-label">Meta</span></button>
-  </div>
-  <div class="live-bottombar">
-    <div class="live-chat-row">
-      <input class="live-chat-inp" id="chatInp" placeholder="Di algo al chat...">
-      <button class="live-send-btn" onclick="sendChatMsg()">&#9658;</button>
-    </div>
-    <div class="live-action-bar" id="actionBar"></div>
-  </div>
-  <div class="live-toast" id="liveToast"></div>
-  <div class="live-panel" id="effectsPanel">
-    <div class="live-panel-header"><span>&#10024; EFECTOS</span><button class="live-panel-close" onclick="closePanel('effectsPanel')">&#215;</button></div>
-    <div class="live-panel-body">
-      <div class="effects-section-title">&#128144; Belleza</div>
-      <div class="beauty-grid">
-        <button class="beauty-btn" onclick="toggleBeauty('smooth',this)">&#10024; Suavizar</button>
-        <button class="beauty-btn" onclick="toggleBeauty('bright',this)">&#9728; Iluminar</button>
-        <button class="beauty-btn" onclick="toggleBeauty('slim',this)">&#128081; Slim</button>
-        <button class="beauty-btn" onclick="toggleBeauty('blur',this)">&#127787; Fondo Blur</button>
-      </div>
-      <div class="beauty-slider-wrap" style="margin-top:14px">
-        <div class="beauty-slider-label"><span>Suavidad de piel</span><span id="smoothVal">50%</span></div>
-        <input type="range" class="beauty-slider" id="smoothSlider" min="0" max="100" value="50" oninput="updateBeautySlider('smooth',this.value)">
-      </div>
-      <div class="beauty-slider-wrap">
-        <div class="beauty-slider-label"><span>Brillo</span><span id="brightVal">50%</span></div>
-        <input type="range" class="beauty-slider" id="brightSlider" min="0" max="100" value="50" oninput="updateBeautySlider('bright',this.value)">
-      </div>
-      <div class="effects-section-title">&#127908; Efectos de Voz</div>
-      <div class="voice-grid">
-        <button class="voice-btn" onclick="setVoiceEffect('normal',this)"><span class="voice-btn-icon">&#128483;</span>Normal</button>
-        <button class="voice-btn" onclick="setVoiceEffect('robot',this)"><span class="voice-btn-icon">&#129302;</span>Robot</button>
-        <button class="voice-btn" onclick="setVoiceEffect('chipmunk',this)"><span class="voice-btn-icon">&#128063;</span>Chipmunk</button>
-        <button class="voice-btn" onclick="setVoiceEffect('deep',this)"><span class="voice-btn-icon">&#127998;</span>Grave</button>
-        <button class="voice-btn" onclick="setVoiceEffect('echo',this)"><span class="voice-btn-icon">&#127763;</span>Eco</button>
-        <button class="voice-btn" onclick="setVoiceEffect('megaphone',this)"><span class="voice-btn-icon">&#128226;</span>Megafono</button>
-      </div>
-      <div class="effects-section-title">&#127925; Efectos de Sonido</div>
-      <div class="sfx-grid">
-        <button class="sfx-btn" onclick="playSFX('applause')"><span class="sfx-icon">&#128079;</span>Aplausos</button>
-        <button class="sfx-btn" onclick="playSFX('laugh')"><span class="sfx-icon">&#128514;</span>Risas</button>
-        <button class="sfx-btn" onclick="playSFX('horn')"><span class="sfx-icon">&#128239;</span>Bocina</button>
-        <button class="sfx-btn" onclick="playSFX('alarm')"><span class="sfx-icon">&#128680;</span>Alarma</button>
-        <button class="sfx-btn" onclick="playSFX('drum')"><span class="sfx-icon">&#129345;</span>Drum Roll</button>
-        <button class="sfx-btn" onclick="playSFX('confetti')"><span class="sfx-icon">&#127881;</span>Confeti</button>
-      </div>
-    </div>
-  </div>
-  <div class="live-panel" id="stickersPanel">
-    <div class="live-panel-header"><span>&#128161; STICKERS</span><button class="live-panel-close" onclick="closePanel('stickersPanel')">&#215;</button></div>
-    <div class="live-panel-body"><div class="sticker-grid" id="stickerGrid"></div><div style="margin-top:14px;text-align:center"><button onclick="clearStickers()" style="padding:8px 18px;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">Limpiar stickers</button></div></div>
-  </div>
-  <div class="live-panel" id="giftsPanel">
-    <div class="live-panel-header"><span>&#127873; REGALOS</span><button class="live-panel-close" onclick="closePanel('giftsPanel')">&#215;</button></div>
-    <div class="live-panel-body"><div style="font-size:12px;color:#5a8aaa;margin-bottom:12px">Tus Almas: <span id="panelCoinsBalance" style="color:#ff9999;font-weight:800">0</span></div><div class="gifts-grid" id="giftsGrid"></div></div>
-  </div>
-  <div class="live-panel" id="qaPanel">
-    <div class="live-panel-header"><span>&#10067; PREGUNTAS</span><button class="live-panel-close" onclick="closePanel('qaPanel')">&#215;</button></div>
-    <div class="live-panel-body"><div style="font-size:12px;color:#5a8aaa;margin-bottom:12px">Los fans escriben '?' para hacer preguntas</div><div class="qa-list" id="qaList"><div class="qa-empty">Sin preguntas aun.</div></div></div>
-  </div>
-  <div class="live-panel" id="pollPanel">
-    <div class="live-panel-header"><span>&#128202; ENCUESTA</span><button class="live-panel-close" onclick="closePanel('pollPanel')">&#215;</button></div>
-    <div class="live-panel-body"><div id="pollCreate"><input style="width:100%;padding:9px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none;margin-bottom:10px" id="pollQuestion" placeholder="Pregunta..."><div class="poll-option-row"><input class="poll-option-inp" id="pollOpt1" placeholder="Opcion 1"></div><div class="poll-option-row"><input class="poll-option-inp" id="pollOpt2" placeholder="Opcion 2"></div><div class="poll-option-row"><input class="poll-option-inp" id="pollOpt3" placeholder="Opcion 3"></div><button class="poll-start-btn" onclick="startPoll()">&#9654; Lanzar</button></div><div class="poll-results" id="pollResults"></div></div>
-  </div>
-  <div class="live-panel" id="goalPanel">
-    <div class="live-panel-header"><span>&#127919; META</span><button class="live-panel-close" onclick="closePanel('goalPanel')">&#215;</button></div>
-    <div class="live-panel-body"><div class="goal-box"><input class="goal-inp" id="goalTarget" type="number" placeholder="Meta en Almas"><input class="goal-inp" id="goalDescription" placeholder="Descripcion de la meta"><button class="goal-set-btn" onclick="setLiveGoal()">&#127919; Activar meta</button></div></div>
-  </div>
-  <div class="end-live-screen" id="endScreen">
-    <div style="font-family:Orbitron,sans-serif;font-size:16px;color:#ff2255;margin-bottom:8px">LIVE TERMINADO</div>
-    <div class="end-stats"><div class="end-stat-num" id="endViewers">0</div><div class="end-stat-label">Espectadores maximos</div></div>
-    <div class="end-stats" style="margin-top:12px"><div class="end-stat-num" id="endDuration">0:00</div><div class="end-stat-label">Duracion</div></div>
-    <div class="end-stats" style="margin-top:12px"><div class="end-stat-num" id="endGifts">0</div><div class="end-stat-label">Almas recibidas</div></div>
-    <button style="padding:12px 28px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase" onclick="window.location.href='/'">Volver al inicio</button>
-  </div>
-</div>
-<script>
-var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb=supabase.createClient(SB_URL,SB_KEY);
-var currentUser=null,currentProfile=null;
-var liveStream=null,liveStartTime=null,liveTimer=null;
-var isMirrored=false,isCreator=false,isViewer=false;
-var currentFacingMode="user";
-var totalViewers=0,maxViewers=0,totalGiftsReceived=0;
-var goalTarget=0,goalCurrent=0;
-var pollData=null,pollVotes={};
-var _liveChannel=null;
-var _micOn=true,_camOn=true;
-var beautyActive={smooth:false,bright:false,slim:false,blur:false};
-
-// ── AGORA ──
-var AGORA_APP_ID="";
-var agoraClient=null,localVideoTrack=null,localAudioTrack=null,AGORA_CHANNEL=null;
-
-var GIFTS=[
-  {emoji:"💀",name:"Calavera",cost:5},{emoji:"🔥",name:"Fuego",cost:10},
-  {emoji:"⚡",name:"Rayo",cost:15},{emoji:"👑",name:"Corona",cost:50},
-  {emoji:"🌙",name:"Luna",cost:25},{emoji:"🗡️",name:"Espada",cost:20},
-  {emoji:"💎",name:"Diamante",cost:100},{emoji:"🌹",name:"Rosa",cost:30}
-];
-var STICKERS=["🔥","❤️","😍","😂","👏","🎉","⚡","👑","💫","🌟","💎","🌹","🤩","💀","🌙","🦄","💋","😈","🦸","🎮"];
-
-// ── DETECT MODE ──
-var _urlParams=new URLSearchParams(location.search);
-var _creatorParam=_urlParams.get("creator");
-isViewer=!!_creatorParam;
-
-// ── INIT ──
-sb.auth.getSession().then(async function(r){
-  if(r.data.session){
-    currentUser=r.data.session.user;
-    var p=await sb.from("profiles").select("*").eq("id",currentUser.id).single();
-    if(p.data){currentProfile=p.data;document.getElementById("panelCoinsBalance").textContent=p.data.coins_balance||0;}
-  } else if(!isViewer){window.location.href="/";return;}
-  var cfg=await sb.from("platform_settings").select("value").eq("key","agora_app_id").single();
-  AGORA_APP_ID=cfg.data?.value||"";
-  if(isViewer){await initViewer();}
-  else{
-    if(!currentProfile||currentProfile.role!=="creator"){showToastMsg("Solo creadores pueden hacer lives",true);setTimeout(function(){window.location.href="/";},2000);return;}
-    isCreator=true;
-    document.getElementById("liveTitle").textContent=currentProfile.username.toUpperCase()+" EN VIVO";
-    await initAgoraHost();buildActionBar();buildGiftsGrid();buildStickerGrid();startLiveTimer();subscribeLiveChannel();
-  }
-});
-
-// ── AGORA SDK LOADER ──
-function loadAgoraSDK(){
-  if(window.AgoraRTC)return Promise.resolve();
-  return new Promise(function(resolve,reject){
-    var s=document.createElement("script");
-    s.src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4/AgoraRTC_N.js";
-    s.onload=resolve;s.onerror=reject;document.head.appendChild(s);
-  });
-}
 
 // ── HOST MODE ──
 async function initAgoraHost(){
@@ -469,38 +294,38 @@ document.addEventListener("DOMContentLoaded",function(){
 });
 </script>
 
+
+
 <!-- SN Bottom Nav -->
-<nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item sn-bn-active" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+<nav class="sn-bottom-nav" id="snBottomNav" style="display:none">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
 <script>
-// Update nav avatar from session
 (function(){
   var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
   var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function loadNavUser(){
+  function initNav(){
     var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
-    if(!sb)return;
+    if(!sb){setTimeout(initNav,400);return;}
     sb.auth.getSession().then(function(r){
       if(!r.data||!r.data.session)return;
+      var nav=document.getElementById('snBottomNav');
+      if(nav)nav.style.display='flex';
       sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
         if(!p.data)return;
         var av=document.getElementById('snNavAv');
         if(!av)return;
-        if(p.data.avatar_url){
-          av.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        } else if(p.data.username){
-          av.textContent=p.data.username[0].toUpperCase();
-        }
+        if(p.data.avatar_url)av.innerHTML='<img src="'+p.data.avatar_url+'">';
+        else if(p.data.username)av.textContent=p.data.username[0].toUpperCase();
       });
     });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadNavUser);
-  else loadNavUser();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNav);
+  else initNav();
 })();
 </script>
 </body>

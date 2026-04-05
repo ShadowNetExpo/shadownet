@@ -225,7 +225,6 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px" id="postsGridHeader">
   <span style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em">PUBLICACIONES</span>
-  <button class="profile-logout-btn" id="profileLogoutBtn" onclick="doProfileLogout()">&#128682; Cerrar sesión</button>
   <button id="openNewPostBtn" onclick="openNewPost()" style="display:none;padding:8px 16px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">&#43; Nueva publicaci&#243;n</button>
 </div>
 <div class="posts-grid" id="postsGrid"><div class="empty-posts">Cargando...</div></div>
@@ -935,7 +934,7 @@ function checkOwnProfile(profileUserId, savedCoverPos){
     if(fab) fab.classList.add('visible');
     // Show logout button
     var logoutBtn = document.getElementById('profileLogoutBtn');
-    if(logoutBtn) logoutBtn.classList.add('visible');
+    if(logoutBtn) logoutBtn.style.display='block';
     // Init cover drag
     initCoverDrag(true, savedCoverPos);
   }

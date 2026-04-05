@@ -15,6 +15,30 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .back-btn:hover{border-color:#00e5ff;color:#00e5ff}
 .profile-cover{width:100%;height:160px;background:linear-gradient(135deg,#1a0020 0%,#000814 50%,#0a0020 100%);position:relative;overflow:hidden}
 .profile-cover img{width:100%;height:100%;object-fit:cover;transition:object-position .08s linear;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.profile-cover img.dragging{cursor:grabbing;transition:none}
+.highlights-row{padding:12px 16px 8px;border-bottom:1px solid #0d2744;background:rgba(7,15,30,.4);display:flex;gap:16px;overflow-x:auto;scrollbar-width:none}
+.highlights-row::-webkit-scrollbar{display:none}
+.highlight-bubble{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;min-width:64px}
+.highlight-ring{width:60px;height:60px;border-radius:50%;padding:2px;background:linear-gradient(135deg,#0d2744,#1e3a55);border:2px solid #0d2744;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.highlight-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.highlight-ring-add{background:rgba(1,2,12,.6);border:2px dashed rgba(0,229,255,.3)}
+.highlight-ring-add-icon{font-size:24px;color:rgba(0,229,255,.6)}
+.highlight-name{font-size:10px;color:#c8d8e8;text-align:center;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.02em}
+.highlight-add-name{color:rgba(0,229,255,.7)}
+/* Highlight modal */
+.highlight-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:none;align-items:center;justify-content:center}
+.highlight-modal.open{display:flex}
+.highlight-box{background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:24px;width:100%;max-width:420px;margin:0 16px;max-height:85vh;overflow-y:auto}
+.highlight-box-title{font-family:Orbitron,sans-serif;font-size:12px;color:#00e5ff;letter-spacing:.1em;margin-bottom:16px}
+.highlight-inp{width:100%;padding:10px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;margin-bottom:12px}
+.highlight-inp:focus{border-color:#00e5ff}
+.highlight-stories-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;max-height:240px;overflow-y:auto}
+.hs-item{aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;position:relative}
+.hs-item img,.hs-item video{width:100%;height:100%;object-fit:cover}
+.hs-item.selected{border-color:#00e5ff}
+.hs-item.selected::after{content:"✓";position:absolute;top:4px;right:4px;background:#00e5ff;color:#000;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+.highlight-save-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:14px;cursor:pointer;text-transform:uppercase}
+.highlight-cancel-btn{width:100%;margin-top:8px;padding:8px;background:transparent;border:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer}
+
 .cover-drag-hint{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;justify-content:center;padding-top:8px;pointer-events:none}.cover-drag-pill{background:rgba(0,0,0,.72);backdrop-filter:blur(8px);color:#fff;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;pointer-events:auto;border:1px solid rgba(255,255,255,.15);letter-spacing:.04em}.avatar-repos-btn{position:absolute;bottom:0;right:0;width:26px;height:26px;background:#ff2255;border:2px solid #01020c;border-radius:50%;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;padding:0}
 .cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(1,2,12,.9))}
 .profile-wrap{max-width:700px;margin:0 auto;padding:0 16px 80px}
@@ -190,6 +214,9 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
   <div class="profile-highlights" id="profileHighlights" style="display:none">
     <div class="highlights-scroll" id="highlightsScroll"></div>
   </div>
+  <!-- HISTORIAS DESTACADAS ROW -->
+  <div class="highlights-row" id="highlightsRow" style="display:none"></div>
+
   <div class="profile-tabs" id="profileTabs">
     <div class="profile-tab active" data-tab="posts" onclick="switchTab('posts')"><span class="profile-tab-icon">⋮⋮⋮⋮</span>Posts</div>
     <div class="profile-tab" data-tab="reels" onclick="switchTab('reels')"><span class="profile-tab-icon">▶</span>Reels</div>
@@ -259,6 +286,10 @@ function renderProfile(p){
   }
   var ov=document.createElement("div");ov.className="cover-overlay";coverEl.appendChild(ov);
   window._profileCoverOffset=pos;
+  // Store user_id for highlights
+  window._profileUserId=p.id;
+  // Load highlights (non-own first)
+  loadHighlights(p.id, !!(window.currentUser&&window.currentUser.id===p.id));
 
   var av=document.getElementById("profileAvatar");
   av.innerHTML="";
@@ -1000,6 +1031,143 @@ function doProfileLogout() {
 
 
 // =============================================
+// HISTORIAS DESTACADAS (HIGHLIGHTS)
+// =============================================
+var _highlightSelectedStories=[];
+
+async function loadHighlights(profileUserId, isOwn){
+  var sb=window.sb;
+  var row=document.getElementById('highlightsRow');
+  if(!row||!sb)return;
+  row.innerHTML='';
+
+  // Load highlights for this profile
+  var r=await sb.from('story_highlights').select('*').eq('user_id',profileUserId).order('created_at',{ascending:true});
+  var highlights=r.data||[];
+
+  // If owner, show + Add button
+  if(isOwn){
+    var addBub=document.createElement('div');addBub.className='highlight-bubble';
+    var addRing=document.createElement('div');addRing.className='highlight-ring highlight-ring-add';
+    var addIcon=document.createElement('div');addIcon.className='highlight-ring-add-icon';addIcon.textContent='+';
+    addRing.appendChild(addIcon);
+    var addName=document.createElement('div');addName.className='highlight-name highlight-add-name';addName.textContent='Nuevo';
+    addBub.appendChild(addRing);addBub.appendChild(addName);
+    addBub.onclick=function(){openCreateHighlight();};
+    row.appendChild(addBub);
+  }
+
+  highlights.forEach(function(hl){
+    var bub=document.createElement('div');bub.className='highlight-bubble';
+    var ring=document.createElement('div');ring.className='highlight-ring';
+    if(hl.cover_url){
+      var img=document.createElement('img');img.src=hl.cover_url;ring.appendChild(img);
+    } else {
+      ring.textContent='🔖';ring.style.cssText='display:flex;align-items:center;justify-content:center;font-size:22px';
+    }
+    var name=document.createElement('div');name.className='highlight-name';name.textContent=hl.title;
+    bub.appendChild(ring);bub.appendChild(name);
+    bub.onclick=function(){viewHighlight(hl);};
+    if(isOwn){
+      // Long press / right click to delete
+      bub.addEventListener('contextmenu',function(e){
+        e.preventDefault();
+        if(confirm('\u00BFEliminar destacada "'+hl.title+'"?')){
+          sb.from('story_highlights').delete().eq('id',hl.id).then(function(){bub.remove();});
+        }
+      });
+    }
+    row.appendChild(bub);
+  });
+
+  if(highlights.length>0||isOwn) row.style.display='flex';
+}
+
+async function openCreateHighlight(){
+  if(!window.currentUser||!window.sb)return;
+  _highlightSelectedStories=[];
+  document.getElementById('hlTitle').value='';
+  // Load user's stories
+  var r=await window.sb.from('stories').select('*').eq('user_id',window.currentUser.id).order('created_at',{ascending:false});
+  var stories=r.data||[];
+  var grid=document.getElementById('hlStoriesGrid');
+  grid.innerHTML='';
+  if(stories.length===0){
+    grid.innerHTML='<p style="color:#5a8aaa;font-size:13px;grid-column:1/-1;text-align:center;padding:20px">No tienes historias.📌
+Sube una historia primero.</p>';
+  } else {
+    stories.forEach(function(s){
+      var item=document.createElement('div');item.className='hs-item';item.dataset.id=s.id;item.dataset.url=s.media_url;item.dataset.type=s.media_type;
+      if(s.media_type==='video'){var v=document.createElement('video');v.src=s.media_url;v.muted=true;v.preload='metadata';item.appendChild(v);}
+      else{var img=document.createElement('img');img.src=s.media_url;img.loading='lazy';item.appendChild(img);}
+      item.onclick=function(){
+        var idx=_highlightSelectedStories.indexOf(s.id);
+        if(idx>-1){_highlightSelectedStories.splice(idx,1);item.classList.remove('selected');}
+        else{_highlightSelectedStories.push(s.id);item.dataset.url=s.media_url;item.classList.add('selected');}
+      };
+      grid.appendChild(item);
+    });
+  }
+  document.getElementById('highlightModal').classList.add('open');
+}
+
+async function saveHighlight(){
+  var title=document.getElementById('hlTitle').value.trim();
+  if(!title){showToast('Escribe un nombre para la destacada',true);return;}
+  if(!window.currentUser||!window.sb)return;
+  var btn=document.getElementById('hlSaveBtn');btn.textContent='Guardando...';btn.disabled=true;
+
+  // Get cover URL from first selected story
+  var coverUrl=null;
+  var sel=document.querySelector('.hs-item.selected');
+  if(sel)coverUrl=sel.dataset.url||null;
+
+  // Create highlight
+  var r=await window.sb.from('story_highlights').insert({user_id:window.currentUser.id,title:title,cover_url:coverUrl}).select().single();
+  if(r.error){btn.textContent='Guardar';btn.disabled=false;showToast('Error: '+r.error.message,true);return;}
+  var hlId=r.data.id;
+
+  // Save media items
+  for(var _i=0;_i<_highlightSelectedStories.length;_i++){var id=_highlightSelectedStories[_i];
+    var story=await window.sb.from('stories').select('media_url,media_type').eq('id',id).single();
+    if(story.data){
+      await window.sb.from('highlight_items').insert({highlight_id:hlId,media_url:story.data.media_url,media_type:story.data.media_type});
+    }
+  }
+
+  document.getElementById('highlightModal').classList.remove('open');
+  btn.textContent='Guardar';btn.disabled=false;
+  showToast('✓ Destacada creada');
+  // Reload highlights
+  if(window._profileUserId) loadHighlights(window._profileUserId,true);
+}
+
+function viewHighlight(hl){
+  // Simple viewer - show items in a full-screen slide
+  window.sb.from('highlight_items').select('*').eq('highlight_id',hl.id).order('created_at',{ascending:true}).then(function(r){
+    var items=r.data||[];
+    if(!items.length){showToast('Esta destacada está vacía',true);return;}
+    var idx=0;
+    var overlay=document.createElement('div');
+    overlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column';
+    function render(){
+      overlay.innerHTML='';
+      var item=items[idx];
+      var close=document.createElement('button');close.style.cssText='position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:24px;cursor:pointer;width:40px;height:40px;border-radius:50%;z-index:10';close.textContent='×';close.onclick=function(){overlay.remove();};
+      var title=document.createElement('div');title.style.cssText='position:absolute;top:16px;left:16px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:16px;z-index:10';title.textContent=hl.title;
+      var counter=document.createElement('div');counter.style.cssText='position:absolute;top:16px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;z-index:10';counter.textContent=(idx+1)+'/'+items.length;
+      if(item.media_type==='video'){var v=document.createElement('video');v.src=item.media_url;v.controls=true;v.autoplay=true;v.setAttribute('playsinline','');v.style.cssText='max-width:100%;max-height:90vh;object-fit:contain';overlay.appendChild(v);}
+      else{var img=document.createElement('img');img.src=item.media_url;img.style.cssText='max-width:100%;max-height:90vh;object-fit:contain';overlay.appendChild(img);}
+      overlay.appendChild(close);overlay.appendChild(title);overlay.appendChild(counter);
+      if(idx<items.length-1){var nxt=document.createElement('button');nxt.style.cssText='position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:24px;cursor:pointer;width:44px;height:44px;border-radius:50%;z-index:10';nxt.textContent='›';nxt.onclick=function(){idx++;render();};overlay.appendChild(nxt);}
+      if(idx>0){var prv=document.createElement('button');prv.style.cssText='position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:24px;cursor:pointer;width:44px;height:44px;border-radius:50%;z-index:10';prv.textContent='‹';prv.onclick=function(){idx--;render();};overlay.appendChild(prv);}
+    }
+    render();
+    document.body.appendChild(overlay);
+  });
+}
+
+// =============================================
 // COVER PHOTO DRAG TO REPOSITION
 // =============================================
 var _coverDragging=false,_coverLastY=0,_coverOffsetY=50;
@@ -1077,6 +1245,18 @@ function doLogout(){
 <!-- Tier Subscribe Modal -->
 <!-- Logout button - visible on own profile -->
 <button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:90px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)">🚪 Cerrar sesión</button>
+
+<!-- Highlight Create Modal -->
+<div class="highlight-modal" id="highlightModal">
+  <div class="highlight-box">
+    <div class="highlight-box-title">★ NUEVA DESTACADA</div>
+    <input class="highlight-inp" id="hlTitle" placeholder="Nombre de la destacada (ej: Viajes, Fotos, Mis lives...)">
+    <div style="font-size:11px;color:#5a8aaa;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Selecciona historias para incluir</div>
+    <div class="highlight-stories-grid" id="hlStoriesGrid"></div>
+    <button class="highlight-save-btn" id="hlSaveBtn" onclick="saveHighlight()">✓ Crear Destacada</button>
+    <button class="highlight-cancel-btn" onclick="document.getElementById('highlightModal').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
 
 <div id="tierModal" style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px">
   <div style="background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto">

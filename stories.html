@@ -97,12 +97,17 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .hl-btns{display:flex;gap:10px}
 .hl-cancel{flex:1;padding:10px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
 .hl-save{flex:2;padding:10px;background:linear-gradient(135deg,#833ab4,#fd1d1d);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
+
+.btn-back{background:transparent;border:1px solid #0d2744;color:#e8f4ff;padding:7px 14px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:.04em;}
+.btn-back:hover{border-color:#00e5ff;color:#00e5ff;}
+header{justify-content:space-between!important;}
 </style>
 </head>
 <body>
 <header>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <button class="btn-back" onclick="history.length>1?history.back():window.location.href='/'">&#8592; Volver</button>
   <span class="page-title">STORIES</span>
+  <span style="width:80px"></span>
 </header>
 <div class="wrap">
   <!-- Highlights Section -->

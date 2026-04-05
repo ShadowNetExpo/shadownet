@@ -69,90 +69,6 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .empty{text-align:center;padding:32px;color:#5a8aaa}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
 
-/* ===== SN Bottom Nav ===== */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active{color:#00e5ff!important;}
-.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:20px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:0!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-body{padding-bottom:70px!important;}
-</style>
-</head>
-<body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
-  <span class="page-title">RANKING GLOBAL</span>
-</header>
-<div class="wrap">
-  <!-- Podium top 3 -->
-  <div class="podium" id="podium"></div>
-  <!-- My rank -->
-  <div class="my-rank-box" id="myRankBox">
-    <div class="my-rank-title">TU POSICION</div>
-    <div class="my-rank-row">
-      <div class="my-rank-pos" id="myPos">#-</div>
-      <div class="my-rank-info">
-        <div class="my-rank-name" id="myRankName">⭐ Sombra Lv.1</div>
-        <div class="my-rank-pts" id="myRankPts">0 puntos</div>
-      </div>
-    </div>
-    <div class="my-rank-bar"><div class="my-rank-fill" id="myRankFill" style="width:0%"></div></div>
-    <div class="my-rank-next" id="myRankNext"></div>
-  </div>
-  <!-- Referral box -->
-  <div class="referral-box" id="referralBox">
-    <div class="ref-title">🎁 PROGRAMA DE REFERIDOS</div>
-    <p class="ref-desc">Comparte tu código y gana <strong style="color:#00ff88">100 Almas</strong> + <strong style="color:#ffaa00">50 puntos</strong> por cada amigo que se registre. ¡Ellos también reciben 50 Almas!</p>
-    <div class="ref-code-row">
-      <div class="ref-code" id="refCode">CARGANDO</div>
-      <button class="copy-btn" onclick="copyRefCode()">Copiar</button>
-    </div>
-    <div class="ref-stats">
-      <div class="ref-stat"><div class="ref-stat-num" id="refCount">0</div><div class="ref-stat-lbl">Referidos</div></div>
-      <div class="ref-stat"><div class="ref-stat-num" id="refEarnings">0</div><div class="ref-stat-lbl">Almas ganadas</div></div>
-    </div>
-  </div>
-  <!-- Full leaderboard -->
-  <div style="font-family:Orbitron,sans-serif;font-size:12px;color:#5a8aaa;letter-spacing:.1em;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #0d2744">TOP FANS</div>
-  <div class="lb-list" id="lbList"><div class="empty">Cargando...</div></div>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb=supabase.createClient(SB_URL,SB_KEY);
-var currentUser=null;
-var currentProfile=null;
-
-sb.auth.getSession().then(function(r){
-  if(r.data.session){
-    currentUser=r.data.session.user;
-    sb.from("profiles").select("username,avatar_url,fan_points,fan_rank,fan_rank_name,referral_code,referral_count,coins_balance").eq("id",currentUser.id).single().then(function(p){
-      currentProfile=p.data;
-      loadReferralBox(p.data);
-    });
-  }
-  loadLeaderboard();
-});
-
-async function loadLeaderboard(){
-  var r=await sb.from("profiles").select("id,username,avatar_url,fan_points,fan_rank,fan_rank_name,verification_status").gt("fan_points",0).order("fan_points",{ascending:false}).limit(50);
-  if(r.error||!r.data||r.data.length===0){document.getElementById("lbList").innerHTML="<div class=\"empty\">Aún no hay fans en el ranking. ¡Sé el primero!</div>";return;}
-  var top3=r.data.slice(0,3);
-  var rest=r.data.slice(3);
-  buildPodium(top3);
-  buildList(r.data);
-  // Find my position
-  if(currentUser){
-    var myIdx=r.data.findIndex(function(u){return u.id===currentUser.id;});
-    if(myIdx>-1) showMyRank(r.data[myIdx],myIdx+1);
-  }
-}
 
 function buildPodium(top){
   var podium=document.getElementById("podium");
@@ -233,38 +149,38 @@ function showToast(msg,err){
 }
 </script>
 
+
+
 <!-- SN Bottom Nav -->
-<nav class="sn-bottom-nav" id="snBottomNav">
+<nav class="sn-bottom-nav" id="snBottomNav" style="display:none">
   <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
 <script>
-// Update nav avatar from session
 (function(){
   var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
   var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function loadNavUser(){
+  function initNav(){
     var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
-    if(!sb)return;
+    if(!sb){setTimeout(initNav,400);return;}
     sb.auth.getSession().then(function(r){
       if(!r.data||!r.data.session)return;
+      var nav=document.getElementById('snBottomNav');
+      if(nav)nav.style.display='flex';
       sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
         if(!p.data)return;
         var av=document.getElementById('snNavAv');
         if(!av)return;
-        if(p.data.avatar_url){
-          av.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        } else if(p.data.username){
-          av.textContent=p.data.username[0].toUpperCase();
-        }
+        if(p.data.avatar_url)av.innerHTML='<img src="'+p.data.avatar_url+'">';
+        else if(p.data.username)av.textContent=p.data.username[0].toUpperCase();
       });
     });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadNavUser);
-  else loadNavUser();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNav);
+  else initNav();
 })();
 </script>
 </body>

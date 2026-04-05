@@ -535,8 +535,7 @@ function buildPostCard(post, profile, liked, saved) {
   saveBtn.addEventListener("click",function(e){
     e.stopPropagation();
     // If already saved, unsave; otherwise open collections
-    if(this.dataset.saved==="1"){toggleSave(this);}
-    else{openCollections(post.id);}
+    toggleSave(this);
   });
   saveBtn.style.marginLeft="auto";
   footer.appendChild(saveBtn);
@@ -785,7 +784,7 @@ async function toggleSave(btn){
     btn.innerHTML="\u2606";btn.title="Guardar";btn.dataset.saved="0";btn.classList.remove("liked");
     showToast("Eliminado de guardados");
   } else {
-    await sb.from("bookmarks").insert({user_id:currentUser.id,post_id:postId});
+    await sb.from("bookmarks").upsert({user_id:currentUser.id,post_id:postId},{onConflict:'user_id,post_id'});
     btn.innerHTML="&#128278;";btn.title="Guardado";btn.dataset.saved="1";btn.classList.add("liked");
     showToast("\u2713 Post guardado");
   }
@@ -1376,7 +1375,7 @@ async function sendTip(){
 </script>
 
 <!-- Report Modal -->
-<div class="new-chat-modal" id="reportModalDup" style="align-items:center;justify-content:center">
+<div class="new-chat-modal" id="reportModalDup" style="display:none;align-items:center;justify-content:center">
   <div class="modal-box" style="max-width:400px">
     <div style="font-family:Orbitron,sans-serif;font-size:13px;color:#ff2255;margin-bottom:16px;letter-spacing:.1em">&#9888; REPORTAR CONTENIDO</div>
     <input type="hidden" id="reportContentId">

@@ -1080,7 +1080,7 @@ function renderVFActions(post, profile) {
   saveBtn.appendChild(saveIcon); saveBtn.appendChild(saveCnt);
   saveBtn.addEventListener("click", function() {
     if (currentUser) {
-      sb.from("bookmarks").insert({user_id:currentUser.id,post_id:post.id}).then(function() { showToast("\u2713 Guardado"); });
+      sb.from("bookmarks").upsert({user_id:currentUser.id,post_id:post.id},{onConflict:"user_id,post_id"}).then(function() { showToast("\u2713 Guardado"); });
     }
   });
   actions.appendChild(saveBtn);

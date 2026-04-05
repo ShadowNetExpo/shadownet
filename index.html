@@ -1863,7 +1863,6 @@ async function quickFollow(btn,uid,username){
   }
 }
 
-async 
 // =============================================
 // VERIFICACION DE REDES SOCIALES
 // =============================================
@@ -1940,7 +1939,7 @@ function removeSocial(idx){
   resetSocialVerify();
 }
 
-function loadHomeStories(){
+async function loadHomeStories(){
   var bar=document.getElementById('homeStoriesBar');
   if(!bar||!window.sb)return;
   // Keep only the + "Tu historia" bubble, clear the rest

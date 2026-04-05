@@ -1357,24 +1357,28 @@ function applyRoleDashboard(role){
   var fanSection = document.getElementById("fanSection");
   var applyCreatorBtn = document.getElementById("applyCreatorBtn");
   var roleTag = document.getElementById("roleTag");
+  // If homeFeed is active, these sections should stay hidden (replaced by homeFeed)
+  var homeFeedActive = document.getElementById("homeFeed")?.classList.contains("active");
   if(roleTag){
     roleTag.className = "role-badge role-" + (role==="creator"?"creator":role==="pending_creator"?"pending":"fan");
     roleTag.textContent = role==="creator"?"&#127775; CREADOR":role==="pending_creator"?"&#9203; SOLICITUD PENDIENTE":"&#128065; FAN";
     roleTag.innerHTML = roleTag.textContent;
   }
   if(role==="creator"){
-    if(creatorSection) creatorSection.style.display="block";
-    if(fanSection) fanSection.style.display="block";
+    if(!homeFeedActive){
+      if(creatorSection) creatorSection.style.display="block";
+      if(fanSection) fanSection.style.display="block";
+    }
     if(applyCreatorBtn) applyCreatorBtn.style.display="none";
   } else if(role==="pending_creator"){
     if(creatorSection) creatorSection.style.display="none";
-    if(fanSection) fanSection.style.display="block";
+    if(!homeFeedActive && fanSection) fanSection.style.display="block";
     if(applyCreatorBtn) applyCreatorBtn.style.display="none";
     showToast("\uD83D\uDC40 Tu solicitud de creador est\xE1 siendo revisada");
   } else {
     if(creatorSection) creatorSection.style.display="none";
-    if(fanSection) fanSection.style.display="block";
-    if(applyCreatorBtn) applyCreatorBtn.style.display="block";
+    if(!homeFeedActive && fanSection) fanSection.style.display="block";
+    if(!homeFeedActive && applyCreatorBtn) applyCreatorBtn.style.display="block";
   }
 }
 

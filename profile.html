@@ -127,6 +127,24 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .profile-post-plus{display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,15,30,.5);border:2px dashed #0d2744;border-radius:8px;min-height:180px;cursor:pointer;gap:8px;color:#5a8aaa;transition:all .2s;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 .profile-post-plus:hover{border-color:#ff2255;color:#ff2255}
 .profile-post-plus-icon{font-size:32px}
+
+/* ===== COVER DRAG ===== */
+.profile-cover{cursor:default;user-select:none}
+.profile-cover.own-cover{cursor:grab}
+.profile-cover.own-cover:active{cursor:grabbing}
+.cover-drag-hint{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.65);color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;padding:4px 12px;border-radius:20px;pointer-events:none;opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:5px;white-space:nowrap;z-index:10}
+.profile-cover.own-cover:hover .cover-drag-hint{opacity:1}
+.cover-save-badge{position:absolute;top:8px;right:8px;background:rgba(255,34,85,.9);color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;padding:5px 12px;border-radius:20px;cursor:pointer;display:none;z-index:10;transition:all .2s}
+.cover-save-badge:hover{background:#ff2255}
+
+/* ===== AVATAR REPOSITION ===== */
+.avatar-edit-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;cursor:pointer;z-index:5;font-size:18px;color:#fff}
+.profile-avatar:hover .avatar-edit-overlay{display:flex}
+
+/* ===== LOGOUT BUTTON IN PROFILE ===== */
+.profile-logout-btn{display:none;align-items:center;gap:6px;padding:8px 18px;border:1px solid rgba(255,34,85,.3);background:rgba(255,34,85,.08);color:#ff6680;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;transition:all .2s;margin-top:8px}
+.profile-logout-btn:hover{background:rgba(255,34,85,.2);border-color:#ff2255}
+.profile-logout-btn.visible{display:inline-flex}
 </style>
 </head>
 <body>
@@ -134,7 +152,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
   <span class="logo" onclick="window.location.href='/'">SN</span>
   <button class="back-btn" onclick="history.back()">&larr; Volver</button>
 </header>
-<div class="profile-cover" id="profileCover"></div>
+<div class="profile-cover" id="profileCover"><div class="cover-drag-hint" id="coverDragHint">&#8677; Arrastra para reposicionar</div><div class="cover-save-badge" id="coverSaveBadge" onclick="saveCoverPosition()">&#10003; Guardar posición</div></div>
 <div class="profile-wrap">
   <div class="profile-header">
     <div class="profile-avatar" id="profileAvatar"></div>
@@ -179,6 +197,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px" id="postsGridHeader">
   <span style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em">PUBLICACIONES</span>
+  <button class="profile-logout-btn" id="profileLogoutBtn" onclick="doProfileLogout()">&#128682; Cerrar sesión</button>
   <button id="openNewPostBtn" onclick="openNewPost()" style="display:none;padding:8px 16px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">&#43; Nueva publicaci&#243;n</button>
 </div>
 <div class="posts-grid" id="postsGrid"><div class="empty-posts">Cargando...</div></div>
@@ -874,15 +893,109 @@ async function submitPost(){
 }
 
 // Show new post button only on own profile
-function checkOwnProfile(profileUserId){
+function checkOwnProfile(profileUserId, savedCoverPos){
   if(!window.currentUser) return;
   if(window.currentUser.id === profileUserId){
     var btn = document.getElementById('openNewPostBtn');
     var fab = document.getElementById('newPostFab');
     if(btn) btn.style.display = 'flex';
     if(fab) fab.classList.add('visible');
+    // Show logout button
+    var logoutBtn = document.getElementById('profileLogoutBtn');
+    if(logoutBtn) logoutBtn.classList.add('visible');
+    // Init cover drag
+    initCoverDrag(true, savedCoverPos);
   }
 }
+
+
+// ===================================================
+// COVER PHOTO DRAG TO REPOSITION
+// ===================================================
+var _coverDragging = false;
+var _coverStartY = 0;
+var _coverPos = 50; // 0=top, 100=bottom
+var _coverChanged = false;
+var _isOwnProfile = false;
+
+function initCoverDrag(isOwn, savedPos) {
+  _isOwnProfile = isOwn;
+  _coverPos = typeof savedPos === 'number' ? savedPos : 50;
+  var cover = document.getElementById('profileCover');
+  if(!cover) return;
+  
+  // Apply saved position to existing img
+  updateCoverPosition(_coverPos);
+  
+  if(!isOwn) return;
+  
+  cover.classList.add('own-cover');
+  
+  cover.addEventListener('mousedown', _startCoverDrag);
+  cover.addEventListener('touchstart', _startCoverDrag, {passive:false});
+  document.addEventListener('mousemove', _doCoverDrag, {passive:false});
+  document.addEventListener('touchmove', _doCoverDrag, {passive:false});
+  document.addEventListener('mouseup', _endCoverDrag);
+  document.addEventListener('touchend', _endCoverDrag);
+}
+
+function _startCoverDrag(e) {
+  if(!_isOwnProfile) return;
+  e.preventDefault();
+  _coverDragging = true;
+  _coverStartY = e.touches ? e.touches[0].clientY : e.clientY;
+}
+
+function _doCoverDrag(e) {
+  if(!_coverDragging) return;
+  if(e.cancelable) e.preventDefault();
+  var y = e.touches ? e.touches[0].clientY : e.clientY;
+  var delta = y - _coverStartY;
+  _coverStartY = y;
+  _coverPos = Math.max(0, Math.min(100, _coverPos - delta * 0.3));
+  updateCoverPosition(_coverPos);
+  _coverChanged = true;
+  var badge = document.getElementById('coverSaveBadge');
+  if(badge) badge.style.display = 'block';
+}
+
+function _endCoverDrag() {
+  _coverDragging = false;
+}
+
+function updateCoverPosition(pos) {
+  var img = document.querySelector('#profileCover img');
+  if(img) img.style.objectPosition = 'center ' + pos + '%';
+}
+
+async function saveCoverPosition() {
+  if(!window.currentUser || !window.sb) return;
+  var badge = document.getElementById('coverSaveBadge');
+  if(badge) { badge.textContent = 'Guardando...'; badge.style.opacity = '0.7'; }
+  var r = await window.sb.from('profiles')
+    .update({cover_position: Math.round(_coverPos), cover_offset_y: Math.round(_coverPos)})
+    .eq('id', window.currentUser.id);
+  if(badge) {
+    if(r.error) {
+      badge.textContent = 'Error';
+      badge.style.background = 'rgba(255,34,85,.9)';
+    } else {
+      badge.textContent = '\u2713 Guardado';
+      badge.style.opacity = '1';
+      setTimeout(function(){ badge.style.display = 'none'; badge.textContent = '\u2713 Guardar posici\u00f3n'; badge.style.opacity = '1'; }, 2000);
+    }
+  }
+}
+
+// ===================================================
+// LOGOUT FROM PROFILE
+// ===================================================
+function doProfileLogout() {
+  if(confirm('\u00bfCerrar sesi\u00f3n?')) {
+    if(window.sb) window.sb.auth.signOut().then(function(){ window.location.href = '/'; });
+  }
+}
+
 </script>
 
 <!-- Tier Subscribe Modal -->

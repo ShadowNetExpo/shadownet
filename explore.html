@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>
+(function(){
+  // Clear all service worker caches immediately
+  if('caches' in window){
+    caches.keys().then(function(k){k.forEach(function(n){caches.delete(n);});});
+  }
+  // Unregister any old service worker
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){
+        if(r.active&&r.active.scriptURL&&r.active.scriptURL.indexOf('sw.js')>-1){
+          // Only unregister if it's an old version (not v5)
+          r.active.postMessage({type:'GET_VERSION'});
+        }
+      });
+    });
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET — Explorar</title>

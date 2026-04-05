@@ -463,13 +463,26 @@ function showAppReject(appId){
 }
 
 async function approveCreatorApp(appId, userId){
+  var adminUser = (await sb.auth.getUser()).data.user;
+  // 1. Mark application as approved
   var r = await sb.from("creator_applications").update({
-    status:"approved", reviewed_by: (await sb.auth.getUser()).data.user?.id, reviewed_at:new Date().toISOString()
+    status:"approved", reviewed_by: adminUser?.id, reviewed_at:new Date().toISOString()
   }).eq("id",appId);
   if(r.error){ showToast("Error: "+r.error.message,true); return; }
+  // 2. CRITICAL: Update user's role to creator in profiles
+  var r2 = await sb.from("profiles").update({
+    role:"creator", is_creator:true
+  }).eq("id",userId);
+  if(r2.error){ showToast("Error actualizando rol: "+r2.error.message,true); return; }
+  // 3. Send notification to user
+  await sb.from("notifications").insert({
+    user_id:userId, from_user_id:adminUser?.id,
+    type:"creator_approved",
+    message:"\u2713 \u00A1Tu solicitud de creador ha sido aprobada! Ya puedes publicar contenido y monetizar."
+  }).catch(function(){});
   var card=document.getElementById("app-"+appId);
   if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
-  showToast("\u2713 Creador aprobado"); loadStats(); loadCreatorApps();
+  showToast("\u2713 Creador aprobado y rol actualizado"); loadStats(); loadCreatorApps();
 }
 
 async function rejectCreatorApp(appId, userId){
@@ -479,6 +492,13 @@ async function rejectCreatorApp(appId, userId){
     reviewed_by:(await sb.auth.getUser()).data.user?.id,reviewed_at:new Date().toISOString()
   }).eq("id",appId);
   if(r.error){ showToast("Error: "+r.error.message,true); return; }
+  // Send rejection notification
+  var adminUser2 = (await sb.auth.getUser()).data.user;
+  await sb.from("notifications").insert({
+    user_id:userId, from_user_id:adminUser2?.id,
+    type:"creator_rejected",
+    message:"Tu solicitud de creador no fue aprobada: "+note
+  }).catch(function(){});
   var card=document.getElementById("app-"+appId);
   if(card){card.style.opacity="0";card.style.transition="opacity .3s";setTimeout(function(){card.remove();},300);}
   showToast("Solicitud rechazada"); loadCreatorApps();

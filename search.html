@@ -55,92 +55,6 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .section-title{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(13,39,68,.4)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
 
-/* ===== SN Bottom Nav ===== */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active{color:#00e5ff!important;}
-.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:20px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:0!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-body{padding-bottom:70px!important;}
-</style>
-</head>
-<body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
-  <div class="search-wrap">
-    <span class="search-icon">&#128269;</span>
-    <input class="search-inp" id="searchInp" placeholder="Buscar usuarios, posts..." autocomplete="off" autofocus>
-  </div>
-  <button class="back-btn" onclick="history.back()">&#8592; Volver</button>
-</header>
-<div class="wrap">
-  <div class="tabs" id="tabs" style="display:none">
-    <button class="tab active" id="tabAll" onclick="switchTab('all')">Todo</button>
-    <button class="tab" id="tabUsers" onclick="switchTab('users')">Personas</button>
-    <button class="tab" id="tabPosts" onclick="switchTab('posts')">Posts</button>
-  </div>
-  <div id="results">
-    <div class="empty-msg"><div class="empty-icon">&#128269;</div>Busca usuarios, posts o temas</div>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb=supabase.createClient(SB_URL,SB_KEY);
-var currentUser=null;
-var followingSet={};
-var searchTimer=null;
-var curTab="all";
-var lastQuery="";
-var lastUsers=[];
-var lastPosts=[];
-
-sb.auth.getSession().then(function(r){
-  if(r.data.session){
-    currentUser=r.data.session.user;
-    sb.from("follows").select("following_id").eq("follower_id",currentUser.id).then(function(f){
-      (f.data||[]).forEach(function(x){followingSet[x.following_id]=true;});
-    });
-  }
-  // Check for ?q= param
-  var q=new URLSearchParams(location.search).get("q");
-  if(q){document.getElementById("searchInp").value=q;doSearch(q);}
-});
-
-document.getElementById("searchInp").addEventListener("input",function(){
-  var q=this.value.trim();
-  clearTimeout(searchTimer);
-  if(!q){document.getElementById("results").innerHTML="<div class=\"empty-msg\"><div class=\"empty-icon\">\uD83D\uDD0D</div>Busca usuarios, posts o temas</div>";document.getElementById("tabs").style.display="none";return;}
-  searchTimer=setTimeout(function(){doSearch(q);},350);
-});
-
-document.getElementById("searchInp").addEventListener("keydown",function(e){
-  if(e.key==="Enter"){clearTimeout(searchTimer);doSearch(this.value.trim());}
-});
-
-async function doSearch(q){
-  if(!q||q===lastQuery&&lastUsers.length+lastPosts.length>0) return;
-  lastQuery=q;
-  document.getElementById("results").innerHTML="<div class=\"loader\">Buscando...</div>";
-  document.getElementById("tabs").style.display="flex";
-  var [users,posts]=await Promise.all([
-    sb.from("profiles").select("id,username,avatar_url,bio,role,verification_status,followers_count").ilike("username","%"+q+"%").limit(10),
-    sb.from("posts").select("id,user_id,content,media_url,media_type,likes_count,comments_count,created_at").ilike("content","%"+q+"%").order("created_at",{ascending:false}).limit(10)
-  ]);
-  lastUsers=users.data||[];
-  lastPosts=posts.data||[];
-  if(lastUsers.length===0&&lastPosts.length===0){
-    document.getElementById("results").innerHTML="<div class=\"empty-msg\"><div class=\"empty-icon\">\uD83D\uDD0D</div>Sin resultados para \""+escHtml(q)+"\"</div>";
-    return;
-  }
-  renderResults(curTab);
-}
 
 function switchTab(tab){
   curTab=tab;
@@ -231,38 +145,38 @@ function escHtml(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").re
 function showToast(msg,err){var t=document.getElementById("toast");t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";t.style.display="block";setTimeout(function(){t.style.display="none";},2500);}
 </script>
 
+
+
 <!-- SN Bottom Nav -->
-<nav class="sn-bottom-nav" id="snBottomNav">
+<nav class="sn-bottom-nav" id="snBottomNav" style="display:none">
   <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
 <script>
-// Update nav avatar from session
 (function(){
   var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
   var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function loadNavUser(){
+  function initNav(){
     var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
-    if(!sb)return;
+    if(!sb){setTimeout(initNav,400);return;}
     sb.auth.getSession().then(function(r){
       if(!r.data||!r.data.session)return;
+      var nav=document.getElementById('snBottomNav');
+      if(nav)nav.style.display='flex';
       sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
         if(!p.data)return;
         var av=document.getElementById('snNavAv');
         if(!av)return;
-        if(p.data.avatar_url){
-          av.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        } else if(p.data.username){
-          av.textContent=p.data.username[0].toUpperCase();
-        }
+        if(p.data.avatar_url)av.innerHTML='<img src="'+p.data.avatar_url+'">';
+        else if(p.data.username)av.textContent=p.data.username[0].toUpperCase();
       });
     });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadNavUser);
-  else loadNavUser();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNav);
+  else initNav();
 })();
 </script>
 </body>

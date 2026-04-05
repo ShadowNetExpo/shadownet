@@ -390,7 +390,8 @@ body.has-nav .dashPage{padding-bottom:70px}
 .qp-opt:hover{border-color:#ff2255;background:rgba(255,34,85,.1);color:#ff6680}
 
 /* ===== HOME FEED HEADER ===== */
-#homeFeed{background:#01020c;min-height:100vh;padding-bottom:80px;max-width:680px;margin:0 auto;}/* ===== HOME FEED REDESIGN ===== */
+#homeFeed{display:none;background:#01020c;min-height:100vh;padding-bottom:80px;max-width:680px;margin:0 auto;}
+#homeFeed.active{display:block!important;}/* ===== HOME FEED REDESIGN ===== */
 #homeFeed{background:#01020c;min-height:100vh;padding-bottom:80px;max-width:680px;margin:0 auto;}
 .hf-topbar{position:sticky;top:0;z-index:50;background:rgba(1,2,12,.97);backdrop-filter:blur(12px);border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;height:52px;}
 .hf-logo{font-family:Rajdhani,sans-serif;font-weight:900;font-size:22px;letter-spacing:.1em;color:#ff2255;text-shadow:0 0 20px rgba(255,34,85,.4);}
@@ -660,7 +661,7 @@ body.has-nav .dashPage{padding-bottom:70px}
   <ul class="flinks"><li><a href="/terms.html">Términos</a></li><li><a href="/privacy.html">Privacidad</a></li><li><a href="/legal18.html">+18 Legal</a></li><li><a href="/soporte.html">Soporte</a></li></ul>
   <p style="font-size:10px;color:var(--t3)">2026 SHADOWNET Inc.</p>
 </footer>
-<div class="home-feed" id="homeFeed">
+<div class="home-feed" id="homeFeed" style="display:none">
   <!-- Top bar: SHADOWNET logo + icons -->
   <div class="hf-topbar">
     <span class="hf-logo">SHADOWNET</span>
@@ -742,8 +743,7 @@ function loadCount(){
 function setUser(u){
   if(_userInited&&currentUser&&currentUser.id===u.id) return; // prevent double init
   _userInited=true;
-  currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');document.getElementById('dashPage').classList.add('on');
-    document.getElementById('dashPage').style.display='none';
+  currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');// dashPage replaced by homeFeed
     document.getElementById('homeFeed').classList.add('active');var mn=document.querySelector('nav:not(.bottom-nav)');if(mn)mn.style.display='none';
     // Hide old dashboard sections (replaced by homeFeed)
     ['creatorSection','fanSection','kycSection','applyCreatorBtn','installAppBtn'].forEach(function(id){

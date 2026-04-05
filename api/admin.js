@@ -54,7 +54,7 @@ module.exports = async function handler(req, res) {
   }
 
   if (cookies[COOKIE] === GATE) {
-    const r = await fetch(RAW);
+    const r = await fetch(RAW+'?t='+Date.now(),{headers:{'Cache-Control':'no-cache'}});
     const html = await r.text();
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');

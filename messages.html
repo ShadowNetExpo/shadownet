@@ -500,9 +500,9 @@ async function loadMessageRequests(){
   var followedIds=(follows.data||[]).map(function(f){return f.following_id;});
   followedIds.push(currentUser.id);
 
-  var r=await sb.from("conversations").select("*,profiles!conversations_participant1_id_fkey(id,username,avatar_url)").or("participant2_id.eq."+currentUser.id+",participant1_id.eq."+currentUser.id).limit(50);
+  var r=await sb.from("conversations").select("*").or("user2_id.eq."+currentUser.id+",user1_id.eq."+currentUser.id).limit(50);
   var requests=(r.data||[]).filter(function(conv){
-    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     return !followedIds.includes(otherId);
   });
 
@@ -528,9 +528,9 @@ async function renderRequests(){
   var followedIds=(follows.data||[]).map(function(f){return f.following_id;});
   followedIds.push(currentUser.id);
 
-  var r=await sb.from("conversations").select("*").or("participant2_id.eq."+currentUser.id+",participant1_id.eq."+currentUser.id).limit(50);
+  var r=await sb.from("conversations").select("*").or("user2_id.eq."+currentUser.id+",user1_id.eq."+currentUser.id).limit(50);
   var requests=(r.data||[]).filter(function(conv){
-    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     return !followedIds.includes(otherId);
   });
 
@@ -539,7 +539,7 @@ async function renderRequests(){
 
   for(var i=0;i<requests.length;i++){
     var conv=requests[i];
-    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     var prof=await sb.from("profiles").select("id,username,avatar_url").eq("id",otherId).single();
     if(!prof.data)continue;
     var p=prof.data;
@@ -618,14 +618,14 @@ async function sendMassMessage(){
   for(var i=0;i<Math.min(subs.length,50);i++){
     var subId=subs[i].subscriber_id;
     // Get or create conversation
-    var conv=await sb.from("conversations").select("id").or("participant1_id.eq."+currentUser.id+",participant2_id.eq."+currentUser.id).single();
+    var conv=await sb.from("conversations").select("id").or("user1_id.eq."+currentUser.id+",user2_id.eq."+currentUser.id).limit(1).single();
     var convId=conv.data?.id;
     if(!convId){
-      var nc=await sb.from("conversations").insert({participant1_id:currentUser.id,participant2_id:subId}).select().single();
+      var nc=await sb.from("conversations").insert({user1_id:currentUser.id<subId?currentUser.id:subId,user2_id:currentUser.id<subId?subId:currentUser.id}).select().single();
       convId=nc.data?.id;
     }
     if(convId){
-      await sb.from("direct_messages").insert({conversation_id:convId,sender_id:currentUser.id,content:content,is_ppv:isPPV,ppv_price:ppvPrice,ppv_unlocked:!isPPV});
+      await sb.from("direct_messages").insert({sender_id:currentUser.id,receiver_id:subId,message:content,is_ppv:isPPV,ppv_price:ppvPrice,ppv_unlocked:!isPPV});
       sent++;
     }
   }
@@ -651,7 +651,7 @@ function renderPPVMessage(msg, isMine){
       }
       bubble.appendChild(mediaWrap);
     }
-    if(msg.content){var txt=document.createElement("div");txt.style.cssText="font-size:13px;color:#e8f4ff;margin-top:6px";txt.textContent=msg.content;bubble.appendChild(txt);}
+    if(msg.message){var txt=document.createElement("div");txt.style.cssText="font-size:13px;color:#e8f4ff;margin-top:6px";txt.textContent=msg.message;bubble.appendChild(txt);}
   } else {
     // Locked PPV
     var locked=document.createElement("div");locked.className="ppv-locked";

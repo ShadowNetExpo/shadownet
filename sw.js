@@ -1,4 +1,4 @@
-const CACHE = 'shadownet-v3';
+const CACHE = 'shadownet-v4';
 const OFFLINE_URLS = ['/', '/feed.html', '/profile.html', '/explore.html', '/messages.html', '/stories.html', '/leaderboard.html', '/live.html', '/stats.html'];
 
 self.addEventListener('install', e => {

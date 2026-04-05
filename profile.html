@@ -13,8 +13,8 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .logo{font-family:Orbitron,sans-serif;font-size:14px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
 .back-btn{padding:6px 12px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;margin-left:auto}
 .back-btn:hover{border-color:#00e5ff;color:#00e5ff}
-.profile-cover{width:100%;height:240px;background:linear-gradient(135deg,#1a0020 0%,#000814 50%,#0a0020 100%);position:relative;overflow:hidden}
-.profile-cover img{width:100%;height:100%;object-fit:cover;object-position:center center;position:absolute;top:0;left:0;transition:object-position .08s linear;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.profile-cover img.dragging{cursor:grabbing;transition:none}
+.profile-cover{width:100%;height:220px;background:linear-gradient(135deg,#1a0020 0%,#000814 50%,#0a0020 100%);position:relative;overflow:hidden}
+.profile-cover img{width:100%;height:100%;object-fit:cover;object-position:center center;transition:object-position .08s linear;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.profile-cover img.dragging{cursor:grabbing;transition:none}
 .highlights-row{padding:12px 16px 8px;border-bottom:1px solid #0d2744;background:rgba(7,15,30,.4);display:flex;gap:16px;overflow-x:auto;scrollbar-width:none}
 .highlights-row::-webkit-scrollbar{display:none}
 .highlight-bubble{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;min-width:64px}
@@ -43,7 +43,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(1,2,12,.9))}
 .profile-wrap{max-width:700px;margin:0 auto;padding:0 16px 80px}
 .profile-header{position:relative;margin-bottom:16px}
-.profile-avatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:800;color:#fff;border:4px solid #01020c;overflow:hidden;margin-top:-55px;position:relative;z-index:2}
+.profile-avatar{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:800;color:#fff;border:4px solid #01020c;overflow:hidden;margin-top:-55px;position:relative;z-index:2}
 .profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .profile-info{margin-top:12px}
 .profile-username{font-family:Orbitron,sans-serif;font-size:16px;color:#e8f4ff;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -172,108 +172,6 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .profile-logout-btn.visible{display:inline-flex}
 
 
-/* ===== SN Bottom Nav ===== */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active{color:#00e5ff!important;}
-.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:20px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:0!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-body{padding-bottom:70px!important;}
-</style>
-</head>
-<body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
-  <button class="back-btn" onclick="history.back()">&larr; Volver</button>
-</header>
-<div class="profile-cover" id="profileCover"><div class="cover-drag-hint" id="coverDragHint">&#8677; Arrastra para reposicionar</div><div class="cover-save-badge" id="coverSaveBadge" onclick="saveCoverPosition()">&#10003; Guardar posición</div></div>
-<div class="profile-wrap">
-  <div class="profile-header">
-    <div style="position:relative;display:inline-block"><div class="profile-avatar" id="profileAvatar"></div><button class="avatar-repos-btn" id="avatarReposBtn" style="display:none" onclick="triggerAvatarChange()">ð·</button></div>
-  </div>
-  <div class="profile-info">
-    <div class="profile-username" id="profileUsername"></div>
-    <div class="profile-bio" id="profileBio"></div>
-    <div id="profileRankBadge"></div>
-    <div class="profile-actions" id="profileActions"></div>
-    <div id="profileSubSection"></div>
-  </div>
-  <div class="profile-stats">
-    <div class="stat" onclick="window.location.href='/leaderboard.html'">
-      <div class="stat-num" id="statFollowers">0</div>
-      <div class="stat-lbl">Seguidores</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" id="statFollowing">0</div>
-      <div class="stat-lbl">Siguiendo</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" id="statSubs">0</div>
-      <div class="stat-lbl">Suscriptores</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" id="statPosts">0</div>
-      <div class="stat-lbl">Posts</div>
-    </div>
-    <div class="stat" onclick="window.location.href='/leaderboard.html'">
-      <div class="stat-num" id="statRank" style="color:#ffaa00;font-size:14px">-</div>
-      <div class="stat-lbl">Rango</div>
-    </div>
-  </div>
-  <div class="profile-highlights" id="profileHighlights" style="display:none">
-    <div class="highlights-scroll" id="highlightsScroll"></div>
-  </div>
-  <!-- HISTORIAS DESTACADAS ROW -->
-  <div class="highlights-row" id="highlightsRow" style="display:none"></div>
-
-  <div class="profile-tabs" id="profileTabs">
-    <div class="profile-tab active" data-tab="posts" onclick="switchTab('posts')"><span class="profile-tab-icon">â®â®â®â®</span>Posts</div>
-    <div class="profile-tab" data-tab="reels" onclick="switchTab('reels')"><span class="profile-tab-icon">â¶</span>Reels</div>
-    <div class="profile-tab" data-tab="saved" onclick="switchTab('saved')" id="savedTab" style="display:none"><span class="profile-tab-icon">ð</span>Guardados</div>
-    <div class="profile-tab" data-tab="tagged" onclick="switchTab('tagged')"><span class="profile-tab-icon">ð·</span>Etiquetados</div>
-  </div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px" id="postsGridHeader">
-  <span style="font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em">PUBLICACIONES</span>
-  <button id="openNewPostBtn" onclick="openNewPost()" style="display:none;padding:8px 16px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">&#43; Nueva publicaci&#243;n</button>
-</div>
-<div class="posts-grid" id="postsGrid"><div class="empty-posts">Cargando...</div></div>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb=supabase.createClient(SB_URL,SB_KEY);
-var currentUser=null;
-var currentProfile=null;
-var targetProfile=null;
-
-sb.auth.getSession().then(function(r){
-  if(r.data.session){
-    currentUser=r.data.session.user;
-    sb.from("profiles").select("*").eq("id",currentUser.id).single().then(function(p){
-      currentProfile=p.data;
-    });
-  }
-  var params=new URLSearchParams(location.search);
-  var u=params.get("u"),id=params.get("id");
-  if(u) loadByUsername(u);
-  else if(id) loadById(id);
-  else if(currentUser) loadById(currentUser.id);
-  else window.location.href="/";
-});
-
-async function loadByUsername(username){
-  var r=await sb.from("profiles").select("*").eq("username",username).single();
-  if(r.error||!r.data){showToast("Usuario no encontrado",true);return;}
-  renderProfile(r.data); loadPosts(r.data.id);
-  loadProfileHighlights(r.data.id, !!(currentUser&&r.data.id===currentUser.id));
-  checkOwnProfile(r.data.id);
-}
 
 async function loadById(id){
   var r=await sb.from("profiles").select("*").eq("id",id).single();
@@ -1353,40 +1251,7 @@ function doLogout(){
   else initNav();
 })();
 </script>
-<!-- SN Bottom Nav -->
-<nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
-</nav>
-<script>
-// Update nav avatar from session
-(function(){
-  var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
-  var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function loadNavUser(){
-    var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
-    if(!sb)return;
-    sb.auth.getSession().then(function(r){
-      if(!r.data||!r.data.session)return;
-      sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
-        if(!p.data)return;
-        var av=document.getElementById('snNavAv');
-        if(!av)return;
-        if(p.data.avatar_url){
-          av.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        } else if(p.data.username){
-          av.textContent=p.data.username[0].toUpperCase();
-        }
-      });
-    });
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadNavUser);
-  else loadNavUser();
-})();
-</script>
+
 <script>
 // Fix profile avatar and cover display
 window.snFixAvatar=true;
@@ -1417,6 +1282,39 @@ window.snFixAvatar=true;
       },300);
     };
   }
+})();
+</script>
+
+<!-- SN Bottom Nav -->
+<nav class="sn-bottom-nav" id="snBottomNav" style="display:none">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+</nav>
+<script>
+(function(){
+  var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  function initNav(){
+    var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
+    if(!sb){setTimeout(initNav,400);return;}
+    sb.auth.getSession().then(function(r){
+      if(!r.data||!r.data.session)return;
+      var nav=document.getElementById('snBottomNav');
+      if(nav)nav.style.display='flex';
+      sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
+        if(!p.data)return;
+        var av=document.getElementById('snNavAv');
+        if(!av)return;
+        if(p.data.avatar_url)av.innerHTML='<img src="'+p.data.avatar_url+'">';
+        else if(p.data.username)av.textContent=p.data.username[0].toUpperCase();
+      });
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNav);
+  else initNav();
 })();
 </script>
 </body>

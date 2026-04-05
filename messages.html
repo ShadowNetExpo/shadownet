@@ -139,137 +139,6 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .mass-cancel{width:100%;margin-top:8px;padding:8px;background:transparent;border:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer}
 
 
-/* ===== SN Bottom Nav ===== */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active{color:#00e5ff!important;}
-.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:20px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:0!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-body{padding-bottom:70px!important;}
-</style>
-<script src="https://js.stripe.com/v3/"></script>
-</head>
-<body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
-  <span class="page-title">MENSAJES</span>
-</header>
-<div id="loginWall" class="layout" style="display:none"><div class="login-wall"><p>Inicia sesión para ver tus mensajes</p><a href="/">Ir al inicio</a></div></div>
-<div class="layout" id="mainLayout" style="display:none">
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <span class="sidebar-title">CONVERSACIONES</span>
-      <button class="new-chat-btn" onclick="openNewChat()">+ Nuevo</button>
-    </div>
-    <div id="massMessageBtnWrap" style="padding:10px 16px;border-bottom:1px solid rgba(13,39,68,.4);display:none">
-    <button class="mass-msg-btn" onclick="openMassMessage()">&#128228; Mensaje masivo a suscriptores</button>
-  </div>
-  <div class="note-bar" id="noteBar">
-    <div class="note-bar-title">NOTAS</div>
-    <div class="note-bubbles-row" id="noteBubblesRow">
-      <div class="note-bubble my-note-bubble" onclick="openNoteModal()">
-        <div class="note-av-wrap">
-          <div class="note-av" id="myNoteAv" style="border-color:#00e5ff;font-size:20px">+</div>
-          <div class="note-text-bubble" id="myNoteBubble" style="display:none"></div>
-        </div>
-        <div class="note-username">Tu nota</div>
-      </div>
-    </div>
-  </div>
-  <div class="dm-requests-btn" id="dmRequestsBtn" onclick="openRequestsPanel()" style="display:none">
-    <div class="dm-requests-label">
-      <span>&#128172;</span> Solicitudes de mensajes
-      <span class="dm-requests-count" id="requestsCount">0</span>
-    </div>
-    <span class="dm-requests-arrow">&#8250;</span>
-  </div>
-  <div class="conv-list" id="convList"><div style="padding:20px;color:#5a8aaa;font-size:13px">Sin conversaciones</div></div>
-  </div>
-  <div class="chat-area" id="chatArea">
-    <div class="empty-chat" id="emptyChat"><div class="empty-chat-icon">&#128172;</div><p>Selecciona una conversación</p></div>
-    <div id="activeChatHeader" style="display:none" class="chat-header">
-      <div class="conv-avatar" id="chatAvatar"></div>
-      <div class="chat-user-name" id="chatUserName" onclick="goToProfile()"></div>
-    </div>
-    <div class="chat-msgs" id="chatMsgsArea" style="display:none"></div>
-    <div class="chat-input" id="chatInputArea" style="display:none">
-      <textarea class="msg-inp" id="msgInp" placeholder="Escribe un mensaje..." rows="1"></textarea>
-      <button class="send-btn" onclick="sendDM()">&#9658;</button>
-    </div>
-  </div>
-</div>
-<div class="new-chat-modal" id="newChatModal">
-  <div class="modal-box">
-    <div class="modal-title">NUEVO MENSAJE</div>
-    <input class="search-inp-modal" id="searchUserInp" placeholder="Buscar usuario...">
-    <div class="search-results" id="searchResults"></div>
-    <button onclick="document.getElementById('newChatModal').classList.remove('open')" style="margin-top:10px;padding:8px 16px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:700;width:100%">Cancelar</button>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
-var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb=supabase.createClient(SB_URL,SB_KEY);
-var currentUser=null;
-var currentProfile=null;
-var activeConvId=null;
-var activePeerId=null;
-var activePeerProfile=null;
-var _dmSub=null;
-var _convSub=null;
-var searchTimer=null;
-
-sb.auth.getSession().then(function(r){
-  if(!r.data.session){document.getElementById("loginWall").style.display="flex";return;}
-  currentUser=r.data.session.user;
-  sb.from("profiles").select("id,username,avatar_url").eq("id",currentUser.id).single().then(function(p){
-    currentProfile=p.data;
-    document.getElementById("mainLayout").style.display="flex";
-    loadConversations();
-    subscribeToNewMessages();
-    loadNotes();
-    loadMessageRequests();
-    checkCreatorForMassMsg();
-    var target=new URLSearchParams(location.search).get("with");
-    if(target) openChatWith(target);
-  });
-});
-
-async function loadConversations(){
-  var list=document.getElementById("convList");
-  var r=await sb.from("conversations").select("*").or("user1_id.eq."+currentUser.id+",user2_id.eq."+currentUser.id).order("last_message_at",{ascending:false}).limit(30);
-  if(!r.data||r.data.length===0){list.innerHTML="<div style=\"padding:20px;color:#5a8aaa;font-size:13px\">Sin conversaciones a\xFAn</div>";return;}
-  // Get peer profiles
-  var peerIds=[...new Set(r.data.map(function(c){return c.user1_id===currentUser.id?c.user2_id:c.user1_id;}))]
-  var profiles=await sb.from("profiles").select("id,username,avatar_url").in("id",peerIds);
-  var pm={}; (profiles.data||[]).forEach(function(p){pm[p.id]=p;});
-  list.innerHTML="";
-  r.data.forEach(function(conv){
-    var peerId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
-    var peer=pm[peerId]||{username:"usuario"};
-    var unread=conv.user1_id===currentUser.id?conv.unread_count_1:conv.unread_count_2;
-    var item=document.createElement("div");item.className="conv-item";item.dataset.convId=conv.id;item.dataset.peerId=peerId;
-    var av=document.createElement("div");av.className="conv-avatar";
-    if(peer.avatar_url){var img=document.createElement("img");img.src=peer.avatar_url;av.appendChild(img);}else av.textContent=(peer.username||"?")[0].toUpperCase();
-    var info=document.createElement("div");info.className="conv-info";
-    var nameRow=document.createElement("div");nameRow.className="conv-name";
-    var nm=document.createElement("span");nm.textContent="@"+(peer.username||"usuario");
-    var tm=document.createElement("span");tm.className="conv-time";tm.textContent=getTimeAgo(conv.last_message_at);
-    nameRow.appendChild(nm);nameRow.appendChild(tm);
-    var last=document.createElement("div");last.className="conv-last";last.textContent=conv.last_message||"...";
-    info.appendChild(nameRow);info.appendChild(last);
-    item.appendChild(av);item.appendChild(info);
-    if(unread>0){var badge=document.createElement("span");badge.className="conv-unread";badge.textContent=unread;item.appendChild(badge);}
-    item.addEventListener("click",function(){openConversation(conv.id,peerId,peer);});
-    list.appendChild(item);
-  });
-}
 
 async function openConversation(convId,peerId,peer){
   activeConvId=convId;activePeerId=peerId;activePeerProfile=peer;
@@ -765,38 +634,38 @@ async function unlockPPVMessage(msgId, price, creatorId){
   else initNav();
 })();
 </script>
+
+
 <!-- SN Bottom Nav -->
-<nav class="sn-bottom-nav" id="snBottomNav">
+<nav class="sn-bottom-nav" id="snBottomNav" style="display:none">
   <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
 <script>
-// Update nav avatar from session
 (function(){
   var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
   var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function loadNavUser(){
+  function initNav(){
     var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
-    if(!sb)return;
+    if(!sb){setTimeout(initNav,400);return;}
     sb.auth.getSession().then(function(r){
       if(!r.data||!r.data.session)return;
+      var nav=document.getElementById('snBottomNav');
+      if(nav)nav.style.display='flex';
       sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
         if(!p.data)return;
         var av=document.getElementById('snNavAv');
         if(!av)return;
-        if(p.data.avatar_url){
-          av.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        } else if(p.data.username){
-          av.textContent=p.data.username[0].toUpperCase();
-        }
+        if(p.data.avatar_url)av.innerHTML='<img src="'+p.data.avatar_url+'">';
+        else if(p.data.username)av.textContent=p.data.username[0].toUpperCase();
       });
     });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadNavUser);
-  else loadNavUser();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initNav);
+  else initNav();
 })();
 </script>
 </body>

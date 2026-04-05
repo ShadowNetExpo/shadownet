@@ -255,6 +255,30 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .discount-pct{font-family:Orbitron,sans-serif;font-size:20px;color:#ff2255;font-weight:900}
 .discount-info{font-size:12px;color:#c8d8e8;margin-left:10px}
 .discount-timer{font-size:11px;color:#ff6680;font-weight:700}
+
+/* === EDIT COMMENT 55s === */
+.cmt-edit-btn{background:none;border:none;color:#5a8aaa;font-size:11px;cursor:pointer;padding:2px 6px;border-radius:4px;font-family:Rajdhani,sans-serif;font-weight:700;display:inline-flex;align-items:center;gap:3px;transition:color .15s;text-transform:uppercase;letter-spacing:.04em}
+.cmt-edit-btn:hover{color:#00e5ff}
+.cmt-timer{font-size:10px;color:#5a8aaa;margin-left:4px}
+.cmt-edit-form{display:none;margin-top:6px;gap:6px;flex-direction:column}
+.cmt-edit-form.open{display:flex}
+.cmt-edit-inp{background:rgba(1,2,12,.8);border:1px solid #00e5ff;color:#e8f4ff;border-radius:8px;padding:7px 12px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none;resize:none;min-height:40px}
+.cmt-edit-actions{display:flex;gap:6px}
+.cmt-edit-save{padding:5px 14px;background:#00e5ff;color:#000;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
+.cmt-edit-cancel{padding:5px 14px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+.cmt-delete-btn{background:none;border:none;color:#5a8aaa;font-size:11px;cursor:pointer;padding:2px 6px;font-family:Rajdhani,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.cmt-delete-btn:hover{color:#ff2255}
+
+/* === EDIT POST MODAL === */
+.edit-post-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center}
+.edit-post-modal.open{display:flex}
+.edit-post-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:24px;width:100%;max-width:520px;margin:0 16px}
+.edit-post-title{font-family:Orbitron,sans-serif;font-size:13px;color:#00e5ff;letter-spacing:.1em;margin-bottom:14px}
+.edit-post-textarea{width:100%;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;padding:12px;font-family:Rajdhani,sans-serif;font-size:14px;resize:none;min-height:100px;outline:none;margin-bottom:14px}
+.edit-post-textarea:focus{border-color:#00e5ff}
+.edit-post-actions{display:flex;gap:10px}
+.edit-post-save{flex:2;padding:11px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:14px;cursor:pointer;text-transform:uppercase}
+.edit-post-cancel{flex:1;padding:11px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -707,6 +731,103 @@ function buildComment(c){
   var text = document.createElement("div"); text.className="comment-text"; text.textContent=c.content;
   var time = document.createElement("div"); time.className="comment-time"; time.textContent=getTimeAgo(c.created_at);
   body.appendChild(name); body.appendChild(text); body.appendChild(time);
+
+  // Edit (55s window) + Delete for own comments
+  if(currentUser && c.user_id === currentUser.id){
+    var secsAgo = (Date.now() - new Date(c.created_at).getTime()) / 1000;
+    var secsLeft = Math.floor(55 - secsAgo);
+    var actRow = document.createElement('div');
+    actRow.style.cssText = 'display:flex;align-items:center;gap:4px;margin-top:4px;flex-wrap:wrap';
+
+    if(secsLeft > 0){
+      var editBtn = document.createElement('button');
+      editBtn.className = 'cmt-edit-btn';
+      editBtn.innerHTML = '\u270F\uFE0F Editar';
+      var timerEl = document.createElement('span');
+      timerEl.className = 'cmt-timer';
+      timerEl.textContent = secsLeft + 's';
+      actRow.appendChild(editBtn);
+      actRow.appendChild(timerEl);
+
+      // Edit form (hidden initially)
+      var editForm = document.createElement('div');
+      editForm.className = 'cmt-edit-form';
+      var editInp = document.createElement('textarea');
+      editInp.className = 'cmt-edit-inp';
+      editInp.value = c.content;
+      var editActions = document.createElement('div');
+      editActions.className = 'cmt-edit-actions';
+      var saveBtn = document.createElement('button');
+      saveBtn.className = 'cmt-edit-save';
+      saveBtn.textContent = '\u2713 Guardar';
+      var cancelBtn = document.createElement('button');
+      cancelBtn.className = 'cmt-edit-cancel';
+      cancelBtn.textContent = 'Cancelar';
+      editActions.appendChild(saveBtn);
+      editActions.appendChild(cancelBtn);
+      editForm.appendChild(editInp);
+      editForm.appendChild(editActions);
+      body.appendChild(editForm);
+
+      editBtn.addEventListener('click', function(){
+        editForm.classList.add('open');
+        text.style.display = 'none';
+        editBtn.style.display = 'none';
+        timerEl.style.display = 'none';
+        editInp.focus();
+      });
+      cancelBtn.addEventListener('click', function(){
+        editForm.classList.remove('open');
+        text.style.display = '';
+        editBtn.style.display = '';
+        timerEl.style.display = '';
+        editInp.value = c.content;
+      });
+      saveBtn.addEventListener('click', async function(){
+        var newText = editInp.value.trim();
+        if(!newText) return;
+        var r = await sb.from('comments').update({content:newText}).eq('id',c.id);
+        if(!r.error){
+          c.content = newText;
+          text.textContent = newText;
+          editForm.classList.remove('open');
+          text.style.display = '';
+          showToast('\u2713 Comentario editado');
+        }
+      });
+
+      // Countdown timer
+      var countdown = setInterval(function(){
+        secsLeft--;
+        if(timerEl) timerEl.textContent = secsLeft + 's';
+        if(secsLeft <= 0){
+          clearInterval(countdown);
+          if(editBtn) editBtn.remove();
+          if(timerEl) timerEl.remove();
+          if(!editForm.classList.contains('open')) editForm.remove();
+        }
+      }, 1000);
+    }
+
+    // Delete own comment
+    var delCmtBtn = document.createElement('button');
+    delCmtBtn.className = 'cmt-delete-btn';
+    delCmtBtn.textContent = '\uD83D\uDDD1';
+    delCmtBtn.title = 'Eliminar comentario';
+    delCmtBtn.addEventListener('click', async function(){
+      if(!confirm('\u00BFEliminar este comentario?')) return;
+      var r = await sb.from('comments').delete().eq('id', c.id);
+      if(!r.error){
+        item.style.opacity = '0';
+        item.style.transition = 'opacity .3s';
+        setTimeout(function(){ item.remove(); }, 300);
+        showToast('Comentario eliminado');
+      }
+    });
+    actRow.appendChild(delCmtBtn);
+    body.appendChild(actRow);
+  }
+
   item.appendChild(av); item.appendChild(body);
   return item;
 }
@@ -805,6 +926,47 @@ async function sharePost(postId, username){
 // =============================================
 // SISTEMA DE REPORTES
 // =============================================
+// =============================================
+// EDITAR PUBLICACIÓN
+// =============================================
+var _editPostId = null;
+
+function openEditPost(postId){
+  _editPostId = postId;
+  // Get current content
+  var card = document.getElementById('post-' + postId);
+  var currentText = card ? (card.querySelector('.card-text')?.textContent || '') : '';
+  var inp = document.getElementById('editPostInp');
+  if(inp) inp.value = currentText;
+  document.getElementById('editPostModal').classList.add('open');
+  if(inp) setTimeout(function(){ inp.focus(); }, 100);
+}
+
+async function saveEditPost(){
+  if(!_editPostId || !currentUser) return;
+  var newText = document.getElementById('editPostInp').value.trim();
+  if(!newText){ showToast('El texto no puede estar vacío', true); return; }
+  var btn = document.getElementById('editPostSaveBtn');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  var r = await sb.from('posts').update({content:newText}).eq('id',_editPostId);
+  btn.disabled = false; btn.textContent = '\u2713 Guardar';
+  if(r.error){ showToast('Error: '+r.error.message, true); return; }
+  // Update UI
+  var card = document.getElementById('post-' + _editPostId);
+  if(card){
+    var txtEl = card.querySelector('.card-text');
+    if(txtEl) txtEl.textContent = newText;
+  }
+  document.getElementById('editPostModal').classList.remove('open');
+  _editPostId = null;
+  showToast('\u2713 Publicación editada');
+}
+
+function closeEditPost(){
+  document.getElementById('editPostModal').classList.remove('open');
+  _editPostId = null;
+}
+
 function openReport(contentId, contentType, reportedUserId){
   if(!currentUser){ showToast("Inicia sesion para reportar", true); return; }
   document.getElementById("reportContentId").value = contentId;
@@ -921,6 +1083,10 @@ function openPostMenu(btn){
   shareItem.addEventListener("click",function(){menu.remove();sharePost(postId,"usuario");});
   menu.appendChild(shareItem);
   if(isOwn){
+    var editItem=document.createElement("div");editItem.className="post-menu-item";
+    editItem.innerHTML="\u270F\uFE0F Editar post";
+    editItem.addEventListener("click",function(){menu.remove();openEditPost(postId);});
+    menu.appendChild(editItem);
     var delItem=document.createElement("div");delItem.className="post-menu-item";
     delItem.style.color="#ff2255";
     delItem.innerHTML="\uD83D\uDDD1 Eliminar post";
@@ -1457,6 +1623,18 @@ async function sendTip(){
     <button class="coll-new-btn" id="collNewBtn" onclick="toggleNewCollection()">+ Nueva coleccion</button>
   </div>
 </div>
+<!-- Edit Post Modal -->
+<div class="edit-post-modal" id="editPostModal">
+  <div class="edit-post-box">
+    <div class="edit-post-title">&#9999;&#65039; EDITAR PUBLICACI&#211;N</div>
+    <textarea class="edit-post-textarea" id="editPostInp" placeholder="&#191;Qu&#233; quieres compartir?"></textarea>
+    <div class="edit-post-actions">
+      <button class="edit-post-cancel" onclick="closeEditPost()">Cancelar</button>
+      <button class="edit-post-save" id="editPostSaveBtn" onclick="saveEditPost()">&#10003; Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Tips Modal -->
 <div class="tip-modal" id="tipModal">
   <div class="tip-box">

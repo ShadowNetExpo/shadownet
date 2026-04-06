@@ -28,16 +28,16 @@
 <meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=192&bold=true">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Sin límites, sin cadenas</title>
-  <meta name="description" content="SHADOWNET — La plataforma para creadores adultos sin límites. Lives, mensajes privados, regalos animados y el 90% de tus ingresos.">
-  <meta property="og:title" content="SHADOWNET — Sin límites, sin cadenas">
-  <meta property="og:description" content="La plataforma adulta para creadores que quieren el control total. 90% de comisión.">
+<title>SHADOWNET â Sin lÃ­mites, sin cadenas</title>
+  <meta name="description" content="SHADOWNET â La plataforma para creadores adultos sin lÃ­mites. Lives, mensajes privados, regalos animados y el 90% de tus ingresos.">
+  <meta property="og:title" content="SHADOWNET â Sin lÃ­mites, sin cadenas">
+  <meta property="og:description" content="La plataforma adulta para creadores que quieren el control total. 90% de comisiÃ³n.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://shadownet-xi.vercel.app">
   <meta property="og:image" content="https://shadownet-xi.vercel.app/icon-512.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="SHADOWNET — Sin límites, sin cadenas">
-  <meta name="twitter:description" content="La plataforma adulta para creadores. 90% de comisión.">
+  <meta name="twitter:title" content="SHADOWNET â Sin lÃ­mites, sin cadenas">
+  <meta name="twitter:description" content="La plataforma adulta para creadores. 90% de comisiÃ³n.">
   <link rel="canonical" href="https://shadownet-xi.vercel.app">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -656,6 +656,23 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
 .feed-empty-icon{font-size:48px;margin-bottom:12px;}
 .feed-empty-text{font-size:15px;font-weight:700;color:#5a8aaa;line-height:1.6;}
 .feed-loading{text-align:center;padding:40px 20px;color:#3a6080;}
+
+/* === AGE GATE === */
+.age-gate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px)}
+.age-gate-overlay.hidden{display:none}
+.age-gate-box{background:#070f1e;border:1px solid #0d2744;border-radius:20px;padding:36px 28px;max-width:440px;width:100%;margin:16px;text-align:center;animation:ageGateIn .4s ease}
+@keyframes ageGateIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.age-gate-logo{font-family:Orbitron,sans-serif;font-size:24px;color:#ff2255;letter-spacing:.15em;margin-bottom:6px}
+.age-gate-skull{font-size:56px;margin:12px 0}
+.age-gate-title{font-family:Orbitron,sans-serif;font-size:16px;color:#e8f4ff;letter-spacing:.08em;margin-bottom:8px}
+.age-gate-sub{font-size:13px;color:#5a8aaa;line-height:1.6;margin-bottom:24px}
+.age-gate-sub strong{color:#ff9999}
+.age-gate-btns{display:flex;flex-direction:column;gap:10px}
+.age-gate-yes{padding:14px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em}
+.age-gate-yes:hover{opacity:.9}
+.age-gate-no{padding:12px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+.age-gate-no:hover{border-color:#ff2255;color:#ff6680}
+.age-gate-note{font-size:11px;color:#3a5060;margin-top:14px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -722,7 +739,7 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
 <button id="applyCreatorBtn" onclick="openApplyModal()" class="btn" style="display:none;margin-top:10px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680;width:100%">&#127775; Solicitar ser Creador</button>
 <div class="kyc-section" id="kycSection" style="display:none">
   <div class="kyc-title">
-    &#128274; VERIFICACIÓN DE CUENTA
+    &#128274; VERIFICACIÃN DE CUENTA
     <span class="kyc-status kyc-unverified" id="kycBadge">SIN VERIFICAR</span>
   </div>
   <div id="kycContent"><p style="font-size:12px;color:#5a8aaa;text-align:center;padding:16px">Cargando...</p></div>
@@ -806,7 +823,7 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
         <div class="card"><div class="cico" style="animation-delay:.3s">&#128065;</div><h3 class="ctit">Club de Fans</h3><p class="cdesc">100 rangos con puntos. Regalos exclusivos.</p></div>
         <div class="card"><div class="cico" style="animation-delay:.6s">&#127873;</div><h3 class="ctit">28 Regalos</h3><p class="cdesc">Normales, Fan Club y Dinamicos. Animaciones unicas.</p></div>
         <div class="card"><div class="cbadge">+18</div><div class="cico" style="animation-delay:.9s">&#128274;</div><h3 class="ctit">Verificacion KYC</h3><p class="cdesc">Documento + reconocimiento facial IA.</p></div>
-        <div class="card"><div class="cico" style="animation-delay:1.1s">&#128176;</div><h3 class="ctit">90% comisión</h3><p class="cdesc">La mayor tasa del mercado. Retiros semanales.</p></div>
+        <div class="card"><div class="cico" style="animation-delay:1.1s">&#128176;</div><h3 class="ctit">90% comisiÃ³n</h3><p class="cdesc">La mayor tasa del mercado. Retiros semanales.</p></div>
         <div class="card"><div class="cico" style="animation-delay:1.3s">&#128241;</div><h3 class="ctit">Feed + Reels</h3><p class="cdesc">Feed inteligente, momentos, historias y exclusivo.</p></div>
       </div>
     </div>
@@ -870,7 +887,7 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
 <footer>
   <p class="flogo">SHADOWNET</p>
   <p style="font-size:9px;color:var(--t3);letter-spacing:.2em;text-transform:uppercase">Sin limites &middot; Sin cadenas</p>
-  <ul class="flinks"><li><a href="/terms.html">Términos</a></li><li><a href="/privacy.html">Privacidad</a></li><li><a href="/legal18.html">+18 Legal</a></li><li><a href="/soporte.html">Soporte</a></li></ul>
+  <ul class="flinks"><li><a href="/terms.html">TÃ©rminos</a></li><li><a href="/privacy.html">Privacidad</a></li><li><a href="/legal18.html">+18 Legal</a></li><li><a href="/soporte.html">Soporte</a></li></ul>
   <p style="font-size:10px;color:var(--t3)">2026 SHADOWNET Inc.</p>
 </footer>
 <div class="home-feed" id="homeFeed" style="display:none">
@@ -894,7 +911,7 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
   <!-- Create post row -->
   <div class="hf-create-row" id="hfCreateRow">
     <div class="hf-create-av" id="hfCreateAv">&#128100;</div>
-    <div class="hf-create-input" onclick="openQuickPost()">&#191;Qué compartes hoy?</div>
+    <div class="hf-create-input" onclick="openQuickPost()">&#191;QuÃ© compartes hoy?</div>
     <span class="hf-create-icon" title="Foto/Video" onclick="closeQuickPost();window.location.href='/feed.html'">&#128247;</span>
     <span class="hf-create-icon" title="Live" onclick="closeQuickPost();window.location.href='/live.html'" style="color:#ff4466">&#128308;</span>
   </div>
@@ -2167,9 +2184,9 @@ async function verifySocial(){
     var data = await r.json();
     if(data.ok){
       res.style.background='rgba(0,255,136,.1)'; res.style.color='#00ff88'; res.style.border='1px solid rgba(0,255,136,.3)';
-      res.textContent='✓ '+data.reason;
+      res.textContent='â '+data.reason;
       res.style.display='block';
-      btn.textContent='✓ Verificado';
+      btn.textContent='â Verificado';
       // Add to verified list if not already there
       var key=platform+':'+username;
       if(!_verifiedSocials.find(function(s){return s.key===key;})){
@@ -2178,7 +2195,7 @@ async function verifySocial(){
       }
     } else {
       res.style.background='rgba(255,34,85,.1)'; res.style.color='#ff6680'; res.style.border='1px solid rgba(255,34,85,.3)';
-      res.textContent='✖ '+(data.reason||data.error||'Cuenta no encontrada');
+      res.textContent='â '+(data.reason||data.error||'Cuenta no encontrada');
       res.style.display='block';
       btn.textContent='Verificar'; btn.disabled=false; btn.style.opacity='1';
     }
@@ -2194,11 +2211,11 @@ function renderVerifiedList(){
   var list = document.getElementById('socialVerifiedList');
   if(!list) return;
   list.innerHTML = '';
-  var icons = {instagram:'��',tiktok:'��',twitter:'��',onlyfans:'��',youtube:'��',twitch:'��'};
+  var icons = {instagram:'ï¿½ï¿½',tiktok:'ï¿½ï¿½',twitter:'ï¿½ï¿½',onlyfans:'ï¿½ï¿½',youtube:'ï¿½ï¿½',twitch:'ï¿½ï¿½'};
   _verifiedSocials.forEach(function(s, i){
     var tag = document.createElement('div');
     tag.style.cssText='display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);border-radius:20px;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;color:#00ff88';
-    tag.innerHTML=(icons[s.platform]||'��')+' @'+s.username+' <span style="cursor:pointer;color:#5a8aaa;margin-left:4px" onclick="removeSocial('+i+')">�</span>';
+    tag.innerHTML=(icons[s.platform]||'ï¿½ï¿½')+' @'+s.username+' <span style="cursor:pointer;color:#5a8aaa;margin-left:4px" onclick="removeSocial('+i+')">ï¿½</span>';
     list.appendChild(tag);
   });
   // Update hidden input for submission
@@ -2266,7 +2283,7 @@ async function loadHomeStories(){
       <p style="font-family:Orbitron,sans-serif;font-size:18px;color:var(--c);margin-bottom:8px;letter-spacing:.1em">IR EN VIVO</p>
       <p style="font-size:13px;color:var(--t2);margin-bottom:24px;line-height:1.8;max-width:360px">Transmite en tiempo real a todos tus seguidores.<br>Gratis hasta 10,000 minutos al mes.</p>
       <button onclick="startLive()" class="btn bp" style="border-radius:8px;padding:14px 48px;font-size:15px;margin-bottom:12px">&#128250; Iniciar transmision</button>
-      <p id="liveStatus" style="font-size:12px;color:var(--g)">&#10003; Agora configurado — Listo</p>
+      <p id="liveStatus" style="font-size:12px;color:var(--g)">&#10003; Agora configurado â Listo</p>
     </div>
   </div>
   <div class="live-ctrls" id="liveCtrls" style="display:none">
@@ -2278,7 +2295,7 @@ async function loadHomeStories(){
   </div>
 </div>
 
-<!-- Bottom Navigation — 5 items -->
+<!-- Bottom Navigation â 5 items -->
 <nav class="bottom-nav" id="bottomNav">
   <button class="bn-item bn-active" id="bnInicio" onclick="window.location.href='/'">
     <span class="bn-icon">&#127968;</span><span class="bn-lbl">Inicio</span>
@@ -2301,7 +2318,7 @@ async function loadHomeStories(){
 <div class="quick-post-sheet" id="quickPostSheet" onclick="if(event.target===this)closeQuickPost()">
   <div class="qp-box">
     <div class="qp-header">
-      <span style="font-family:Orbitron,sans-serif;font-size:12px;color:#00e5ff;letter-spacing:.1em">NUEVA PUBLICACIÓN</span>
+      <span style="font-family:Orbitron,sans-serif;font-size:12px;color:#00e5ff;letter-spacing:.1em">NUEVA PUBLICACIÃN</span>
       <button onclick="closeQuickPost()" style="background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer">&#215;</button>
     </div>
     <div class="qp-options">
@@ -2328,7 +2345,7 @@ async function loadHomeStories(){
       <span id="giftBalance" style="color:#00e5ff;font-size:12px">&#128128; 0 Almas</span>
       <button onclick="closeGiftModal()" style="background:none;border:none;color:#5a8aaa;font-size:18px;cursor:pointer">&#x2715;</button>
     </div>
-    <div class="gifts-grid"><div class="gift-item" id="gi-rose" onclick="selectGift(0)" data-idx="0"><div class="gift-emoji">🌹</div><div class="gift-name">Rosa</div><div class="gift-cost">10 💀</div></div><div class="gift-item" id="gi-heart" onclick="selectGift(1)" data-idx="1"><div class="gift-emoji">💗</div><div class="gift-name">Corazón</div><div class="gift-cost">25 💀</div></div><div class="gift-item" id="gi-fire" onclick="selectGift(2)" data-idx="2"><div class="gift-emoji">🔥</div><div class="gift-name">Fuego</div><div class="gift-cost">50 💀</div></div><div class="gift-item" id="gi-skull" onclick="selectGift(3)" data-idx="3"><div class="gift-emoji">💀</div><div class="gift-name">Alma</div><div class="gift-cost">100 💀</div></div><div class="gift-item" id="gi-crown" onclick="selectGift(4)" data-idx="4"><div class="gift-emoji">👑</div><div class="gift-name">Corona</div><div class="gift-cost">200 💀</div></div><div class="gift-item" id="gi-gem" onclick="selectGift(5)" data-idx="5"><div class="gift-emoji">💎</div><div class="gift-name">Diamante</div><div class="gift-cost">500 💀</div></div><div class="gift-item" id="gi-rocket" onclick="selectGift(6)" data-idx="6"><div class="gift-emoji">🚀</div><div class="gift-name">Cohete</div><div class="gift-cost">150 💀</div></div><div class="gift-item" id="gi-star" onclick="selectGift(7)" data-idx="7"><div class="gift-emoji">⭐</div><div class="gift-name">Estrella</div><div class="gift-cost">75 💀</div></div></div>
+    <div class="gifts-grid"><div class="gift-item" id="gi-rose" onclick="selectGift(0)" data-idx="0"><div class="gift-emoji">ð¹</div><div class="gift-name">Rosa</div><div class="gift-cost">10 ð</div></div><div class="gift-item" id="gi-heart" onclick="selectGift(1)" data-idx="1"><div class="gift-emoji">ð</div><div class="gift-name">CorazÃ³n</div><div class="gift-cost">25 ð</div></div><div class="gift-item" id="gi-fire" onclick="selectGift(2)" data-idx="2"><div class="gift-emoji">ð¥</div><div class="gift-name">Fuego</div><div class="gift-cost">50 ð</div></div><div class="gift-item" id="gi-skull" onclick="selectGift(3)" data-idx="3"><div class="gift-emoji">ð</div><div class="gift-name">Alma</div><div class="gift-cost">100 ð</div></div><div class="gift-item" id="gi-crown" onclick="selectGift(4)" data-idx="4"><div class="gift-emoji">ð</div><div class="gift-name">Corona</div><div class="gift-cost">200 ð</div></div><div class="gift-item" id="gi-gem" onclick="selectGift(5)" data-idx="5"><div class="gift-emoji">ð</div><div class="gift-name">Diamante</div><div class="gift-cost">500 ð</div></div><div class="gift-item" id="gi-rocket" onclick="selectGift(6)" data-idx="6"><div class="gift-emoji">ð</div><div class="gift-name">Cohete</div><div class="gift-cost">150 ð</div></div><div class="gift-item" id="gi-star" onclick="selectGift(7)" data-idx="7"><div class="gift-emoji">â­</div><div class="gift-name">Estrella</div><div class="gift-cost">75 ð</div></div></div>
     <button class="gift-send-btn" id="giftSendBtn" onclick="sendGift()" disabled>Selecciona un regalo</button>
   </div>
 </div>
@@ -2342,28 +2359,28 @@ async function loadHomeStories(){
 <div class="modal" id="applyCreatorModal" style="align-items:center;justify-content:center">
   <div class="apply-box">
     <div class="apply-title">&#127775; QUIERO SER CREADOR</div>
-    <div class="apply-subtitle">Cuéntanos sobre ti y qué tipo de contenido crearías. Revisamos cada solicitud en 24-48h.</div>
+    <div class="apply-subtitle">CuÃ©ntanos sobre ti y quÃ© tipo de contenido crearÃ­as. Revisamos cada solicitud en 24-48h.</div>
     <label class="apply-label">Tipo de contenido</label>
     <select class="apply-select" id="applyContentType">
       <option value="">Selecciona...</option>
-      <option value="photos">&#128247; Fotos / Galería</option>
+      <option value="photos">&#128247; Fotos / GalerÃ­a</option>
       <option value="video">&#127916; Video / Reels</option>
       <option value="live">&#128250; Lives / Streams</option>
       <option value="mixed">&#127775; Contenido mixto</option>
       <option value="adult">&#128274; Contenido +18 exclusivo</option>
     </select>
-    <label class="apply-label">¿Por qué quieres ser creador? (min. 50 caracteres)</label>
-    <textarea class="inp" id="applyMotivation" style="height:90px;resize:none;margin-bottom:12px" placeholder="Cuéntanos qué tipo de contenido crearías y por qué..."></textarea>
+    <label class="apply-label">Â¿Por quÃ© quieres ser creador? (min. 50 caracteres)</label>
+    <textarea class="inp" id="applyMotivation" style="height:90px;resize:none;margin-bottom:12px" placeholder="CuÃ©ntanos quÃ© tipo de contenido crearÃ­as y por quÃ©..."></textarea>
     <label class="apply-label">Redes sociales <span style="color:#5a8aaa;font-size:10px">(verifica al menos una)</span></label>
     <div id="socialVerifyWrap" style="margin-bottom:16px">
       <div style="display:flex;gap:8px;margin-bottom:8px">
         <select id="socialPlatform" style="padding:9px 10px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none;flex-shrink:0">
-          <option value="instagram">�� Instagram</option>
-          <option value="tiktok">�� TikTok</option>
-          <option value="twitter">�� X / Twitter</option>
-          <option value="onlyfans">�� OnlyFans</option>
-          <option value="youtube">�� YouTube</option>
-          <option value="twitch">�� Twitch</option>
+          <option value="instagram">ï¿½ï¿½ Instagram</option>
+          <option value="tiktok">ï¿½ï¿½ TikTok</option>
+          <option value="twitter">ï¿½ï¿½ X / Twitter</option>
+          <option value="onlyfans">ï¿½ï¿½ OnlyFans</option>
+          <option value="youtube">ï¿½ï¿½ YouTube</option>
+          <option value="twitch">ï¿½ï¿½ Twitch</option>
         </select>
         <div style="display:flex;flex:1;gap:6px">
           <input class="inp" id="socialUsername" placeholder="tu_usuario" style="flex:1;margin:0" oninput="resetSocialVerify()">
@@ -2489,7 +2506,7 @@ async function startPay(){
     } else if(result.paymentIntent.status==='succeeded'){
       // Payment success!
       closeShop();
-      showToast('💀 ¡Almas acreditadas!');
+      showToast('ð Â¡Almas acreditadas!');
       // Refresh balance after webhook processes (wait 3s)
       setTimeout(async function(){
         if(window.sb && window.currentUser){
@@ -2600,5 +2617,42 @@ function timeAgo(d){
 .feed-empty-icon{font-size:48px;margin-bottom:12px;}
 .feed-empty-text{font-size:15px;font-weight:700;color:#8ab4cc;line-height:1.6;}
 </style>
+
+<!-- AGE GATE MODAL -->
+<div class="age-gate-overlay" id="ageGate">
+  <div class="age-gate-box">
+    <div class="age-gate-logo">SHADOWNET</div>
+    <div class="age-gate-skull">&#128128;</div>
+    <div class="age-gate-title">CONTENIDO PARA ADULTOS</div>
+    <div class="age-gate-sub">Esta plataforma contiene contenido de naturaleza <strong>sexual y erótica</strong> exclusivamente para personas mayores de 18 años.</div>
+    <div class="age-gate-btns">
+      <button class="age-gate-yes" onclick="ageGateAccept()">&#10003; Tengo 18 años o más — Entrar</button>
+      <button class="age-gate-no" onclick="ageGateDecline()">Soy menor de 18 — Salir</button>
+    </div>
+    <div class="age-gate-note">Al entrar confirmas que eres mayor de edad y aceptas nuestros <a href="/terms.html" style="color:#5a8aaa">Términos de Servicio</a> y <a href="/legal18.html" style="color:#5a8aaa">Declaración +18</a>.</div>
+  </div>
+</div>
+<script>
+(function(){
+  function checkAge(){
+    var confirmed=localStorage.getItem('sn_age_confirmed');
+    var ts=parseInt(localStorage.getItem('sn_age_ts')||'0');
+    var thirtyDays=30*24*60*60*1000;
+    if(confirmed==='1'&&(Date.now()-ts)<thirtyDays){
+      document.getElementById('ageGate').classList.add('hidden');
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',checkAge);
+  else checkAge();
+})();
+function ageGateAccept(){
+  localStorage.setItem('sn_age_confirmed','1');
+  localStorage.setItem('sn_age_ts',String(Date.now()));
+  document.getElementById('ageGate').classList.add('hidden');
+}
+function ageGateDecline(){
+  window.location.href='https://www.google.com';
+}
+</script>
 </body>
 </html>

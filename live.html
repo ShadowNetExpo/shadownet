@@ -133,8 +133,8 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;height:100vh;ove
 .end-stat-num{font-family:Orbitron,sans-serif;font-size:36px;color:#ff2255}
 .end-stat-label{font-size:13px;color:#5a8aaa;margin-top:4px}
 .end-share-btn{padding:12px 28px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase}
-
-
+</style>
+<script>
 // ── HOST MODE ──
 function loadAgoraSDK(){
   return new Promise(function(resolve,reject){
@@ -323,8 +323,7 @@ document.addEventListener("DOMContentLoaded",function(){
   document.addEventListener("click",function(e){if(!e.target.closest(".live-panel")&&!e.target.closest(".live-ctrl-btn")&&!e.target.closest(".live-action-btn")){document.querySelectorAll(".live-panel").forEach(function(p){p.classList.remove("open");});}});
 });
 </script>
-
-
+</script>
 
 <!-- SN Bottom Nav -->
 

@@ -1,33 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>
-(function(){
-  // Clear all service worker caches immediately
-  if('caches' in window){
-    caches.keys().then(function(k){k.forEach(function(n){caches.delete(n);});});
-  }
-  // Unregister any old service worker
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistrations().then(function(regs){
-      regs.forEach(function(r){
-        if(r.active&&r.active.scriptURL&&r.active.scriptURL.indexOf('sw.js')>-1){
-          // Only unregister if it's an old version (not v5)
-          r.active.postMessage({type:'GET_VERSION'});
-        }
-      });
-    });
-  }
-})();
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET — Buscar</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+*{box-sizing:border-box;margin:0;padding:0}body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh;padding-bottom:80px}
 header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:10px}
 .logo{font-family:Orbitron,sans-serif;font-size:14px;color:#ff2255;letter-spacing:.12em;cursor:pointer;flex-shrink:0}
 .search-wrap{flex:1;display:flex;align-items:center;background:rgba(7,15,30,.8);border:1px solid #0d2744;border-radius:24px;padding:0 14px;gap:8px}
@@ -35,160 +15,248 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .search-icon{color:#5a8aaa;font-size:16px;flex-shrink:0}
 .search-inp{flex:1;background:none;border:none;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:15px;padding:10px 0;outline:none}
 .search-inp::placeholder{color:#3a5060}
-.back-btn{padding:6px 12px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;flex-shrink:0}
-.back-btn:hover{border-color:#00e5ff;color:#00e5ff}
 .wrap{max-width:700px;margin:0 auto;padding:16px}
-.tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(7,15,30,.5);border-radius:8px;padding:4px}
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:rgba(7,15,30,.5);border-radius:8px;padding:4px}
 .tab{flex:1;padding:8px;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-align:center;border:none;background:transparent;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em}
 .tab.active{background:rgba(0,229,255,.12);color:#00e5ff}
-.results{display:flex;flex-direction:column;gap:12px}
-/* User results */
-.user-card{display:flex;align-items:center;gap:12px;background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:10px;padding:12px 16px;cursor:pointer;transition:border-color .15s}
+.results{display:flex;flex-direction:column;gap:10px}
+.user-card{display:flex;align-items:center;gap:12px;background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:10px;padding:12px 14px;cursor:pointer;transition:border-color .15s}
 .user-card:hover{border-color:rgba(0,229,255,.3)}
-.av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0;overflow:hidden}
+.av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0;overflow:hidden}
 .av img{width:100%;height:100%;object-fit:cover}
 .ui{flex:1;min-width:0}
-.un{font-weight:700;font-size:15px;color:#e8f4ff;display:flex;align-items:center;gap:6px}
+.un{font-weight:700;font-size:14px;color:#e8f4ff;display:flex;align-items:center;gap:5px}
 .ub{font-size:12px;color:#5a8aaa;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v-icon{color:#00e5ff;font-size:12px}
-.role-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.06em}
+.role-tag{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700}
 .rt-creator{background:rgba(255,34,85,.15);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
 .rt-fan{background:rgba(0,229,255,.1);color:#00e5ff;border:1px solid rgba(0,229,255,.25)}
-.follow-btn{padding:6px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;border:1px solid rgba(0,229,255,.4);background:rgba(0,229,255,.08);color:#00e5ff;text-transform:uppercase;flex-shrink:0}
+.follow-btn{padding:6px 14px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;border:1px solid rgba(0,229,255,.4);background:rgba(0,229,255,.08);color:#00e5ff;text-transform:uppercase;flex-shrink:0}
 .follow-btn.following{border-color:#5a8aaa;color:#5a8aaa;background:transparent}
-/* Post results */
 .post-card{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s}
 .post-card:hover{border-color:rgba(0,229,255,.3)}
-.post-header{padding:10px 14px;display:flex;align-items:center;gap:10px}
-.post-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.post-header{padding:10px 14px;display:flex;align-items:center;gap:8px}
+.post-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
 .post-av img{width:100%;height:100%;object-fit:cover}
 .post-user{font-weight:700;font-size:13px;color:#00e5ff}
 .post-time{font-size:11px;color:#5a8aaa;margin-left:auto}
 .post-content{padding:0 14px 10px;font-size:14px;color:#c8d8e8;line-height:1.5}
-.post-media{width:100%;max-height:200px;object-fit:cover;display:block}
-.post-stats{padding:8px 14px;border-top:1px solid rgba(13,39,68,.4);display:flex;gap:14px;font-size:12px;color:#5a8aaa}
-/* Empty / loading */
+.post-media{width:100%;max-height:180px;object-fit:cover;display:block}
+.post-stats{padding:7px 14px;border-top:1px solid rgba(13,39,68,.4);display:flex;gap:14px;font-size:12px;color:#5a8aaa}
 .empty-msg{text-align:center;padding:40px;color:#5a8aaa;font-size:14px}
-.empty-icon{font-size:40px;margin-bottom:12px}
-.loader{text-align:center;padding:30px;color:#5a8aaa;font-size:13px}
-.section-title{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(13,39,68,.4)}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+.section-title{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(13,39,68,.4)}
+.trending-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.tag{padding:6px 14px;border:1px solid #0d2744;border-radius:20px;font-size:13px;color:#c8d8e8;cursor:pointer;transition:all .15s;font-family:Rajdhani,sans-serif;font-weight:700}
+.tag:hover{border-color:#ff2255;color:#ff6680}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important}.sn-bn-icon{font-size:22px;line-height:1}.sn-bn-lbl{font-size:9px}.sn-bn-plus{padding:4px 8px!important}.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800}.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none}}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <div class="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input class="search-inp" id="searchInp" placeholder="Buscar creadores, posts, hashtags..." autofocus>
+  </div>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" id="tabAll" onclick="switchTab('all')">Todo</button>
+    <button class="tab" id="tabUsers" onclick="switchTab('users')">Personas</button>
+    <button class="tab" id="tabPosts" onclick="switchTab('posts')">Posts</button>
+  </div>
+  <!-- Trending tags (shown before search) -->
+  <div id="trendingSection">
+    <div class="section-title">&#128293; TENDENCIAS</div>
+    <div class="trending-tags" id="trendingTags"><span style="color:#5a8aaa;font-size:13px">Cargando...</span></div>
+  </div>
+  <div id="resultsSection" style="display:none">
+    <div class="results" id="results"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<nav class="sn-bottom-nav">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
+  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+</nav>
+<script>(function(){var U='https://cdokplvoqivducsqrejt.supabase.co',K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';function go(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);if(!sb){setTimeout(go,400);return;}sb.auth.getSession().then(function(r){var a=document.getElementById('snNavAv');if(!a||!r.data||!r.data.session)return;sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();</script>
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
+var followingSet={};
+var lastUsers=[];
+var lastPosts=[];
+var curTab='all';
+var searchTimeout=null;
 
+sb.auth.getSession().then(function(r){
+  if(r.data.session){
+    currentUser=r.data.session.user;
+    sb.from('follows').select('following_id').eq('follower_id',currentUser.id).then(function(f){
+      (f.data||[]).forEach(function(x){followingSet[x.following_id]=true;});
+    });
+  }
+  loadTrending();
+});
+
+// Check URL params
+(function(){
+  var q=new URLSearchParams(location.search).get('q');
+  if(q){
+    document.addEventListener('DOMContentLoaded',function(){
+      var inp=document.getElementById('searchInp');
+      if(inp){inp.value=q;doSearch(q);}
+    });
+  }
+})();
+
+async function loadTrending(){
+  var r=await sb.from('posts').select('content').not('content','is',null).order('likes_count',{ascending:false}).limit(30);
+  var tags={};
+  (r.data||[]).forEach(function(p){
+    var matches=(p.content||'').match(/#(\w+)/g)||[];
+    matches.forEach(function(t){tags[t]=(tags[t]||0)+1;});
+  });
+  var sorted=Object.entries(tags).sort(function(a,b){return b[1]-a[1];}).slice(0,12);
+  var el=document.getElementById('trendingTags');
+  if(!sorted.length){el.innerHTML='<span style="color:#5a8aaa;font-size:13px">Sin tendencias aún</span>';return;}
+  el.innerHTML='';
+  sorted.forEach(function(t){
+    var tag=document.createElement('span');tag.className='tag';
+    tag.textContent=t[0];
+    tag.addEventListener('click',function(){
+      document.getElementById('searchInp').value=t[0];
+      doSearch(t[0]);
+    });
+    el.appendChild(tag);
+  });
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var inp=document.getElementById('searchInp');
+  inp.addEventListener('input',function(){
+    clearTimeout(searchTimeout);
+    var q=this.value.trim();
+    if(q.length===0){showTrending();return;}
+    if(q.length<2)return;
+    searchTimeout=setTimeout(function(){doSearch(q);},350);
+  });
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Enter')doSearch(this.value.trim());
+  });
+});
+
+function showTrending(){
+  document.getElementById('trendingSection').style.display='block';
+  document.getElementById('resultsSection').style.display='none';
+}
+
+async function doSearch(q){
+  if(!q)return;
+  document.getElementById('trendingSection').style.display='none';
+  document.getElementById('resultsSection').style.display='block';
+  var container=document.getElementById('results');
+  container.innerHTML='<div style="text-align:center;padding:30px;color:#5a8aaa;font-size:13px">Buscando...</div>';
+  var isHashtag=q.startsWith('#');
+  if(isHashtag){
+    curTab='posts';
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    document.getElementById('tabPosts').classList.add('active');
+  }
+  // Search users
+  if(!isHashtag){
+    var ru=await sb.from('profiles').select('id,username,avatar_url,bio,role,verification_status,followers_count').ilike('username','%'+q+'%').limit(10);
+    lastUsers=ru.data||[];
+  } else {
+    lastUsers=[];
+  }
+  // Search posts
+  var rp=await sb.from('posts').select('id,content,media_url,media_type,likes_count,comments_count,created_at,user_id').ilike('content','%'+q+'%').order('likes_count',{ascending:false}).limit(15);
+  lastPosts=rp.data||[];
+  renderResults(curTab);
+}
 
 function switchTab(tab){
   curTab=tab;
-  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
-  document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add("active");
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
   renderResults(tab);
 }
 
 async function renderResults(tab){
-  var container=document.getElementById("results");
-  container.innerHTML="";
-  var showUsers=(tab==="all"||tab==="users")&&lastUsers.length>0;
-  var showPosts=(tab==="all"||tab==="posts")&&lastPosts.length>0;
+  var container=document.getElementById('results');
+  container.innerHTML='';
+  var showUsers=(tab==='all'||tab==='users')&&lastUsers.length>0;
+  var showPosts=(tab==='all'||tab==='posts')&&lastPosts.length>0;
   if(showUsers){
-    if(tab==="all"){var t=document.createElement("div");t.className="section-title";t.textContent="PERSONAS";container.appendChild(t);}
+    if(tab==='all'){var t=document.createElement('div');t.className='section-title';t.textContent='PERSONAS';container.appendChild(t);}
     lastUsers.forEach(function(u){container.appendChild(buildUserCard(u));});
   }
   if(showPosts){
-    if(tab==="all"){var t2=document.createElement("div");t2.className="section-title";t2.style.marginTop="20px";t2.textContent="PUBLICACIONES";container.appendChild(t2);}
-    // Get usernames for posts
-    var uids=[...new Set(lastPosts.map(function(p){return p.user_id;}))];
-    var profs=await sb.from("profiles").select("id,username,avatar_url").in("id",uids);
+    if(tab==='all'&&showUsers){var t2=document.createElement('div');t2.className='section-title';t2.style.marginTop='16px';t2.textContent='PUBLICACIONES';container.appendChild(t2);}
+    var uids=[...new Set(lastPosts.map(function(p){return p.user_id;}))]; 
+    var profs=await sb.from('profiles').select('id,username,avatar_url').in('id',uids);
     var pm={};(profs.data||[]).forEach(function(p){pm[p.id]=p;});
     lastPosts.forEach(function(p){container.appendChild(buildPostCard(p,pm[p.user_id]));});
   }
   if(!showUsers&&!showPosts){
-    container.innerHTML="<div class=\"empty-msg\">Sin resultados en esta categoría</div>";
+    container.innerHTML='<div class="empty-msg">Sin resultados. Intenta con otro término.</div>';
   }
 }
 
 function buildUserCard(u){
-  var card=document.createElement("div");card.className="user-card";
-  card.addEventListener("click",function(){window.location.href="/profile.html?u="+u.username;});
-  var av=document.createElement("div");av.className="av";
-  if(u.avatar_url){var img=document.createElement("img");img.src=u.avatar_url;av.appendChild(img);}else av.textContent=(u.username||"?")[0].toUpperCase();
-  var info=document.createElement("div");info.className="ui";
-  var name=document.createElement("div");name.className="un";name.textContent="@"+u.username;
-  if(u.verification_status==="verified"){var vi=document.createElement("span");vi.className="v-icon";vi.textContent="✓";name.appendChild(vi);}
-  var rt=document.createElement("span");rt.className="role-tag "+(u.role==="creator"?"rt-creator":"rt-fan");rt.textContent=u.role==="creator"?"CREADOR":"FAN";name.appendChild(rt);
-  var bio=document.createElement("div");bio.className="ub";bio.textContent=u.bio||(u.followers_count||0)+" seguidores";
+  var card=document.createElement('div');card.className='user-card';
+  card.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
+  var av=document.createElement('div');av.className='av';
+  if(u.avatar_url){var img=document.createElement('img');img.src=u.avatar_url;av.appendChild(img);}else av.textContent=(u.username||'?')[0].toUpperCase();
+  var info=document.createElement('div');info.className='ui';
+  var name=document.createElement('div');name.className='un';name.textContent='@'+u.username;
+  if(u.verification_status==='verified'){var vi=document.createElement('span');vi.className='v-icon';vi.textContent='✓';name.appendChild(vi);}
+  var rt=document.createElement('span');rt.className='role-tag '+(u.role==='creator'?'rt-creator':'rt-fan');rt.textContent=u.role==='creator'?'CREADOR':'FAN';name.appendChild(rt);
+  var bio=document.createElement('div');bio.className='ub';bio.textContent=u.bio||(u.followers_count||0)+' seguidores';
   info.appendChild(name);info.appendChild(bio);
   card.appendChild(av);card.appendChild(info);
   if(currentUser&&u.id!==currentUser.id){
-    var fbtn=document.createElement("button");fbtn.className="follow-btn"+(followingSet[u.id]?" following":"");
-    fbtn.textContent=followingSet[u.id]?"Siguiendo":"Seguir";
+    var fbtn=document.createElement('button');fbtn.className='follow-btn'+(followingSet[u.id]?' following':'');fbtn.textContent=followingSet[u.id]?'Siguiendo':'Seguir';
     fbtn.dataset.uid=u.id;
-    fbtn.addEventListener("click",function(e){e.stopPropagation();toggleFollow(this);});
+    fbtn.addEventListener('click',function(e){e.stopPropagation();toggleFollow(this);});
     card.appendChild(fbtn);
   }
   return card;
 }
 
 function buildPostCard(post,profile){
-  var card=document.createElement("div");card.className="post-card";
-  card.addEventListener("click",function(){window.location.href="/feed.html?post="+post.id;});
-  var ph=document.createElement("div");ph.className="post-header";
-  var pav=document.createElement("div");pav.className="post-av";
-  if(profile&&profile.avatar_url){var img=document.createElement("img");img.src=profile.avatar_url;pav.appendChild(img);}
-  else pav.textContent=(profile?.username||"?")[0].toUpperCase();
-  var pu=document.createElement("div");pu.className="post-user";pu.textContent="@"+(profile?.username||"usuario");
-  var pt=document.createElement("div");pt.className="post-time";pt.textContent=getTimeAgo(post.created_at);
+  var card=document.createElement('div');card.className='post-card';
+  card.addEventListener('click',function(){window.location.href='/feed.html?post='+post.id;});
+  var ph=document.createElement('div');ph.className='post-header';
+  var pav=document.createElement('div');pav.className='post-av';
+  if(profile&&profile.avatar_url){var img=document.createElement('img');img.src=profile.avatar_url;pav.appendChild(img);}else pav.textContent=(profile?.username||'?')[0].toUpperCase();
+  var pu=document.createElement('div');pu.className='post-user';pu.textContent='@'+(profile?.username||'usuario');
+  var pt=document.createElement('div');pt.className='post-time';pt.textContent=getTimeAgo(post.created_at);
   ph.appendChild(pav);ph.appendChild(pu);ph.appendChild(pt);card.appendChild(ph);
-  if(post.media_url&&post.media_type!=="video"){var img2=document.createElement("img");img2.className="post-media";img2.src=post.media_url;img2.alt="post";card.appendChild(img2);}
-  if(post.content){var pc=document.createElement("div");pc.className="post-content";pc.textContent=post.content.slice(0,150)+(post.content.length>150?"...":"");card.appendChild(pc);}
-  var ps=document.createElement("div");ps.className="post-stats";
-  ps.innerHTML="&#10084; "+(post.likes_count||0)+" &nbsp; &#128172; "+(post.comments_count||0);
+  if(post.media_url&&post.media_type!=='video'){var im=document.createElement('img');im.className='post-media';im.src=post.media_url;im.alt='post';card.appendChild(im);}
+  if(post.content){var pc=document.createElement('div');pc.className='post-content';pc.textContent=post.content.slice(0,150)+(post.content.length>150?'..':'');card.appendChild(pc);}
+  var ps=document.createElement('div');ps.className='post-stats';
+  ps.innerHTML='&#10084; '+(post.likes_count||0)+'  &#128172; '+(post.comments_count||0);
   card.appendChild(ps);
   return card;
 }
 
 async function toggleFollow(btn){
-  if(!currentUser){window.location.href="/";return;}
-  var uid=btn.dataset.uid;
-  var isF=btn.classList.contains("following");
-  if(isF){
-    await sb.from("follows").delete().eq("follower_id",currentUser.id).eq("following_id",uid);
-    btn.textContent="Seguir";btn.classList.remove("following");delete followingSet[uid];
-    showToast("Dejaste de seguir");
-  } else {
-    await sb.from("follows").insert({follower_id:currentUser.id,following_id:uid});
-    btn.textContent="Siguiendo";btn.classList.add("following");followingSet[uid]=true;
-    showToast("\u2713 Siguiendo");
-  }
+  if(!currentUser){window.location.href='/';return;}
+  var uid=btn.dataset.uid;var isF=btn.classList.contains('following');
+  if(isF){await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',uid);btn.textContent='Seguir';btn.classList.remove('following');delete followingSet[uid];
+  }else{await sb.from('follows').insert({follower_id:currentUser.id,following_id:uid});btn.textContent='Siguiendo';btn.classList.add('following');followingSet[uid]=true;showToast('✓ Siguiendo');}
 }
 
-function getTimeAgo(ts){var d=(Date.now()-new Date(ts))/1000;if(d<60)return "ahora";if(d<3600)return Math.floor(d/60)+"m";if(d<86400)return Math.floor(d/3600)+"h";return Math.floor(d/86400)+"d";}
-function escHtml(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function showToast(msg,err){var t=document.getElementById("toast");t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";t.style.display="block";setTimeout(function(){t.style.display="none";},2500);}
+function getTimeAgo(ts){var d=(Date.now()-new Date(ts))/1000;if(d<60)return 'ahora';if(d<3600)return Math.floor(d/60)+'m';if(d<86400)return Math.floor(d/3600)+'h';return Math.floor(d/86400)+'d';}
+function showToast(msg,err){var t=document.getElementById('toast');t.textContent=msg;t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
 </script>
-
-
-
-<!-- SN Bottom Nav -->
-
-<style>
-/* SN-NAV */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:22px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:4px 8px!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-</style>
-
-<nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
-</nav>
-<script>(function(){var U='https://cdokplvoqivducsqrejt.supabase.co',K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';function go(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);if(!sb){setTimeout(go,400);return;}sb.auth.getSession().then(function(r){var a=document.getElementById('snNavAv');if(!a)return;if(!r.data||!r.data.session){a.innerHTML='&#128100;';return;}sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();</script>
 </body>
 </html>

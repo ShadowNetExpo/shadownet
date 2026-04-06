@@ -455,7 +455,7 @@ async function handleSubscribe(creatorId,price,paypalEmail,creatorUsername){
     openSubscribeModal(creatorId);
     return;
   } else {
-    await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"active",amount:0});
+    await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"active",amount:0,active:true,expires_at:new Date(Date.now()+30*24*3600*1000).toISOString()},{onConflict:"subscriber_id,creator_id"});
     if(currentProfile){
       await sb.from("notifications").insert({
         user_id:creatorId,from_user_id:currentUser.id,type:"subscription",

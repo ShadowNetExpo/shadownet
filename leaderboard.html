@@ -1,198 +1,193 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>
-(function(){
-  // Clear all service worker caches immediately
-  if('caches' in window){
-    caches.keys().then(function(k){k.forEach(function(n){caches.delete(n);});});
-  }
-  // Unregister any old service worker
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistrations().then(function(regs){
-      regs.forEach(function(r){
-        if(r.active&&r.active.scriptURL&&r.active.scriptURL.indexOf('sw.js')>-1){
-          // Only unregister if it's an old version (not v5)
-          r.active.postMessage({type:'GET_VERSION'});
-        }
-      });
-    });
-  }
-})();
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET — Ranking</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+*{box-sizing:border-box;margin:0;padding:0}body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh;padding-bottom:80px}
 header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px}
 .logo{font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
 .page-title{font-family:Orbitron,sans-serif;font-size:12px;color:#5a8aaa;letter-spacing:.1em}
-.wrap{max-width:700px;margin:0 auto;padding:24px 16px}
-/* Hero podium */
-.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:32px;padding:0 8px}
-.podium-item{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;max-width:140px}
+.wrap{max-width:700px;margin:0 auto;padding:20px 16px}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:28px;padding:0 8px}
+.podium-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;max-width:130px}
 .podium-av{border-radius:50%;border:3px solid;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;overflow:hidden;cursor:pointer}
 .podium-av img{width:100%;height:100%;object-fit:cover}
-.p1 .podium-av{width:72px;height:72px;font-size:26px;border-color:#ffd700}
-.p2 .podium-av{width:60px;height:60px;font-size:22px;border-color:#c0c0c0}
-.p3 .podium-av{width:52px;height:52px;font-size:18px;border-color:#cd7f32}
-.podium-name{font-weight:700;font-size:13px;text-align:center;cursor:pointer}
+.p1 .podium-av{width:68px;height:68px;font-size:24px;border-color:#ffd700;background:linear-gradient(135deg,#ff2255,#800011)}
+.p2 .podium-av{width:56px;height:56px;font-size:20px;border-color:#c0c0c0;background:linear-gradient(135deg,#ff2255,#800011)}
+.p3 .podium-av{width:48px;height:48px;font-size:16px;border-color:#cd7f32;background:linear-gradient(135deg,#ff2255,#800011)}
+.podium-name{font-weight:700;font-size:12px;text-align:center;cursor:pointer;color:#e8f4ff}
 .podium-name:hover{color:#00e5ff}
 .podium-pts{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa}
-.podium-rank{font-size:10px;color:#5a8aaa;background:rgba(7,15,30,.6);border:1px solid #0d2744;padding:2px 8px;border-radius:10px}
 .podium-block{border-radius:8px 8px 0 0;width:100%}
-.p1 .podium-block{height:80px;background:linear-gradient(180deg,rgba(255,215,0,.25),rgba(255,215,0,.1));border:1px solid rgba(255,215,0,.3)}
-.p2 .podium-block{height:60px;background:linear-gradient(180deg,rgba(192,192,192,.2),rgba(192,192,192,.08));border:1px solid rgba(192,192,192,.25)}
-.p3 .podium-block{height:44px;background:linear-gradient(180deg,rgba(205,127,50,.2),rgba(205,127,50,.08));border:1px solid rgba(205,127,50,.25)}
-.medal{font-size:24px;margin-bottom:-4px}
-/* List */
-.lb-list{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:12px;overflow:hidden;margin-bottom:24px}
-.lb-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(13,39,68,.4);cursor:pointer;transition:background .15s}
+.p1 .podium-block{height:70px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3)}
+.p2 .podium-block{height:52px;background:rgba(192,192,192,.1);border:1px solid rgba(192,192,192,.2)}
+.p3 .podium-block{height:38px;background:rgba(205,127,50,.1);border:1px solid rgba(205,127,50,.2)}
+.medal{font-size:22px}
+.lb-list{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:12px;overflow:hidden;margin-bottom:20px}
+.lb-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid rgba(13,39,68,.4);cursor:pointer;transition:background .15s}
 .lb-item:hover{background:rgba(0,229,255,.04)}
 .lb-item.me{background:rgba(255,34,85,.06);border-left:3px solid #ff2255}
-.lb-pos{font-family:Orbitron,sans-serif;font-size:13px;color:#5a8aaa;width:28px;text-align:center;flex-shrink:0}
-.lb-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.lb-pos{font-family:Orbitron,sans-serif;font-size:13px;color:#5a8aaa;width:26px;text-align:center;flex-shrink:0}
+.lb-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
 .lb-av img{width:100%;height:100%;object-fit:cover}
 .lb-info{flex:1;min-width:0}
 .lb-name{font-weight:700;font-size:14px;color:#e8f4ff}
-.lb-rank{font-size:11px;color:#5a8aaa;margin-top:2px}
+.lb-rank{font-size:11px;color:#5a8aaa;margin-top:1px}
 .lb-pts{font-family:Orbitron,sans-serif;font-size:14px;color:#ffaa00;flex-shrink:0}
-.lb-verified{color:#00e5ff;font-size:12px;margin-left:4px}
-/* My rank box */
-.my-rank-box{background:linear-gradient(135deg,rgba(255,34,85,.1),rgba(7,15,30,.6));border:1px solid rgba(255,34,85,.3);border-radius:12px;padding:18px;margin-bottom:24px;display:none}
-.my-rank-title{font-family:Orbitron,sans-serif;font-size:11px;color:#ff6680;letter-spacing:.1em;margin-bottom:12px}
-.my-rank-row{display:flex;align-items:center;gap:16px}
-.my-rank-pos{font-family:Orbitron,sans-serif;font-size:36px;color:#ffaa00}
-.my-rank-info{flex:1}
-.my-rank-name{font-weight:700;font-size:16px;color:#e8f4ff;margin-bottom:4px}
-.my-rank-pts{font-size:13px;color:#5a8aaa}
-.my-rank-bar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:10px}
-.my-rank-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ffaa00);border-radius:4px;transition:width .6s ease}
-.my-rank-next{font-size:11px;color:#5a8aaa;margin-top:6px}
-/* Referral box */
-.referral-box{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;padding:18px;margin-bottom:24px;display:none}
-.ref-title{font-family:Orbitron,sans-serif;font-size:11px;color:#00ff88;letter-spacing:.1em;margin-bottom:12px}
-.ref-code-row{display:flex;gap:8px;margin-bottom:10px}
-.ref-code{flex:1;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);color:#00ff88;border-radius:8px;padding:10px 14px;font-family:Orbitron,sans-serif;font-size:16px;letter-spacing:.12em;text-align:center}
-.copy-btn{padding:10px 16px;background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase}
-.copy-btn:hover{background:rgba(0,255,136,.25)}
-.ref-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ref-stat{background:rgba(1,2,12,.4);border-radius:8px;padding:10px;text-align:center}
-.ref-stat-num{font-family:Orbitron,sans-serif;font-size:20px;color:#e8f4ff}
-.ref-stat-lbl{font-size:11px;color:#5a8aaa;text-transform:uppercase;margin-top:3px}
-.ref-desc{font-size:12px;color:#5a8aaa;line-height:1.5;margin-bottom:12px}
+.lb-v{color:#00e5ff;font-size:12px;margin-left:3px}
+.my-rank-box{background:linear-gradient(135deg,rgba(255,34,85,.1),rgba(7,15,30,.6));border:1px solid rgba(255,34,85,.3);border-radius:12px;padding:16px;margin-bottom:20px;display:none}
+.my-rank-pos{font-family:Orbitron,sans-serif;font-size:32px;color:#ffaa00}
+.my-rank-bar{height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:10px}
+.my-rank-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ffaa00);border-radius:4px}
+.section-title{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.12em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #0d2744}
 .empty{text-align:center;padding:32px;color:#5a8aaa}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}
+.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important}
+.sn-bn-icon{font-size:22px;line-height:1}.sn-bn-lbl{font-size:9px}.sn-bn-plus{padding:4px 8px!important}
+.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800}
+.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none}}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <span class="page-title">RANKING FANS</span>
+</header>
+<div class="wrap">
+  <div class="section-title">&#127942; TOP 3</div>
+  <div class="podium" id="podium"><div style="text-align:center;padding:30px;color:#5a8aaa;width:100%">Cargando...</div></div>
+  <div class="my-rank-box" id="myRankBox">
+    <div class="section-title" style="margin-bottom:10px">&#128100; TU POSICIÓN</div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="my-rank-pos" id="myPos">#-</div>
+      <div><div style="font-weight:700;font-size:15px;color:#e8f4ff" id="myRankName">Cargando...</div><div style="font-size:12px;color:#5a8aaa" id="myRankPts">0 puntos</div></div>
+    </div>
+    <div class="my-rank-bar"><div class="my-rank-fill" id="myRankFill" style="width:0%"></div></div>
+    <div style="font-size:11px;color:#5a8aaa;margin-top:6px" id="myRankNext"></div>
+  </div>
+  <div class="section-title">&#128101; RANKING COMPLETO</div>
+  <div class="lb-list" id="lbList"><div class="empty">Cargando...</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<nav class="sn-bottom-nav">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
+  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+</nav>
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
 
+sb.auth.getSession().then(function(r){
+  if(r.data.session)currentUser=r.data.session.user;
+  loadLeaderboard();
+  initNav();
+});
+
+async function loadLeaderboard(){
+  var r=await sb.from('profiles')
+    .select('id,username,avatar_url,fan_points,fan_rank,fan_rank_name,verification_status')
+    .order('fan_points',{ascending:false}).limit(50);
+  if(r.error||!r.data){document.getElementById('lbList').innerHTML='<div class="empty">Error cargando ranking</div>';return;}
+  var data=r.data;
+  // Podium top 3
+  buildPodium(data.slice(0,3));
+  // My rank
+  if(currentUser){
+    var myIdx=data.findIndex(function(u){return u.id===currentUser.id;});
+    if(myIdx>-1) showMyRank(data[myIdx],myIdx+1);
+  }
+  // Full list
+  buildList(data);
+}
 
 function buildPodium(top){
-  var podium=document.getElementById("podium");
-  podium.innerHTML="";
-  var order=[1,0,2]; // 2nd, 1st, 3rd
-  var medals=["🥈","🥇","🥉"];
-  var classes=["p2","p1","p3"];
+  var podium=document.getElementById('podium');
+  podium.innerHTML='';
+  if(!top.length){podium.innerHTML='<div style="text-align:center;padding:30px;color:#5a8aaa;width:100%">Sin datos aún</div>';return;}
+  var order=[1,0,2];
+  var medals=['🥈','🥇','🥉'];
+  var cls=['p2','p1','p3'];
   order.forEach(function(idx){
     if(!top[idx])return;
     var u=top[idx];
-    var item=document.createElement("div");item.className="podium-item "+classes[order.indexOf(idx)];
-    var av=document.createElement("div");av.className="podium-av";
-    av.style.background="linear-gradient(135deg,#ff2255,#800011)";
-    if(u.avatar_url){var img=document.createElement("img");img.src=u.avatar_url;av.appendChild(img);}
-    else av.textContent=(u.username||"?")[0].toUpperCase();
-    av.addEventListener("click",function(){window.location.href="/profile.html?u="+u.username;});
-    var medal=document.createElement("div");medal.className="medal";medal.textContent=medals[idx];
-    var name=document.createElement("div");name.className="podium-name";name.textContent="@"+u.username;
-    name.addEventListener("click",function(){window.location.href="/profile.html?u="+u.username;});
-    var pts=document.createElement("div");pts.className="podium-pts";pts.textContent=(u.fan_points||0)+" pts";
-    var rank=document.createElement("div");rank.className="podium-rank";rank.textContent="⭐ "+(u.fan_rank_name||"Sombra");
-    var block=document.createElement("div");block.className="podium-block";
-    item.appendChild(medal);item.appendChild(av);item.appendChild(name);item.appendChild(pts);item.appendChild(rank);item.appendChild(block);
+    var item=document.createElement('div');item.className='podium-item '+cls[order.indexOf(idx)];
+    var medal=document.createElement('div');medal.className='medal';medal.textContent=medals[idx];
+    var av=document.createElement('div');av.className='podium-av';
+    if(u.avatar_url){var img=document.createElement('img');img.src=u.avatar_url;av.appendChild(img);}
+    else av.textContent=(u.username||'?')[0].toUpperCase();
+    av.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
+    var name=document.createElement('div');name.className='podium-name';name.textContent='@'+u.username;
+    name.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
+    var pts=document.createElement('div');pts.className='podium-pts';pts.textContent=(u.fan_points||0)+' pts';
+    var block=document.createElement('div');block.className='podium-block';
+    item.appendChild(medal);item.appendChild(av);item.appendChild(name);item.appendChild(pts);item.appendChild(block);
     podium.appendChild(item);
   });
 }
 
 function buildList(data){
-  var list=document.getElementById("lbList");list.innerHTML="";
+  var list=document.getElementById('lbList');
+  list.innerHTML='';
+  if(!data.length){list.innerHTML='<div class="empty">Sin usuarios aún</div>';return;}
   data.forEach(function(u,i){
-    var item=document.createElement("div");item.className="lb-item"+(currentUser&&u.id===currentUser.id?" me":"");
-    item.addEventListener("click",function(){window.location.href="/profile.html?u="+u.username;});
-    var pos=document.createElement("div");pos.className="lb-pos";pos.textContent="#"+(i+1);
-    var av=document.createElement("div");av.className="lb-av";
-    if(u.avatar_url){var img=document.createElement("img");img.src=u.avatar_url;av.appendChild(img);}
-    else av.textContent=(u.username||"?")[0].toUpperCase();
-    var info=document.createElement("div");info.className="lb-info";
-    var name=document.createElement("div");name.className="lb-name";
-    name.textContent="@"+u.username;
-    if(u.verification_status==="verified"){var vb=document.createElement("span");vb.className="lb-verified";vb.textContent="✓";name.appendChild(vb);}
-    var rankEl=document.createElement("div");rankEl.className="lb-rank";rankEl.textContent="⭐ Lv."+(u.fan_rank||1)+" "+(u.fan_rank_name||"Sombra");
-    info.appendChild(name);info.appendChild(rankEl);
-    var pts=document.createElement("div");pts.className="lb-pts";pts.textContent=(u.fan_points||0);
+    var item=document.createElement('div');item.className='lb-item'+(currentUser&&u.id===currentUser.id?' me':'');
+    item.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
+    var pos=document.createElement('div');pos.className='lb-pos';pos.textContent='#'+(i+1);
+    var av=document.createElement('div');av.className='lb-av';
+    if(u.avatar_url){var img=document.createElement('img');img.src=u.avatar_url;av.appendChild(img);}
+    else av.textContent=(u.username||'?')[0].toUpperCase();
+    var info=document.createElement('div');info.className='lb-info';
+    var nm=document.createElement('div');nm.className='lb-name';nm.textContent='@'+u.username;
+    if(u.verification_status==='verified'){var vb=document.createElement('span');vb.className='lb-v';vb.textContent='✓';nm.appendChild(vb);}
+    var rk=document.createElement('div');rk.className='lb-rank';rk.textContent='⭐ Lv.'+(u.fan_rank||1)+' '+(u.fan_rank_name||'Sombra');
+    info.appendChild(nm);info.appendChild(rk);
+    var pts=document.createElement('div');pts.className='lb-pts';pts.textContent=(u.fan_points||0);
     item.appendChild(pos);item.appendChild(av);item.appendChild(info);item.appendChild(pts);
     list.appendChild(item);
   });
 }
 
 function showMyRank(u,pos){
-  var box=document.getElementById("myRankBox");box.style.display="block";
-  document.getElementById("myPos").textContent="#"+pos;
-  document.getElementById("myRankName").textContent="⭐ "+(u.fan_rank_name||"Sombra")+" Lv."+(u.fan_rank||1);
-  document.getElementById("myRankPts").textContent=(u.fan_points||0)+" puntos";
+  var box=document.getElementById('myRankBox');box.style.display='block';
+  document.getElementById('myPos').textContent='#'+pos;
+  document.getElementById('myRankName').textContent='⭐ '+(u.fan_rank_name||'Sombra')+' Lv.'+(u.fan_rank||1);
+  document.getElementById('myRankPts').textContent=(u.fan_points||0)+' puntos';
   var pct=Math.min(100,(u.fan_points||0)%100);
-  document.getElementById("myRankFill").style.width=pct+"%";
-  var nextPts=Math.ceil((u.fan_points||0)/100)*100;
-  document.getElementById("myRankNext").textContent="Próximo nivel en "+(nextPts-(u.fan_points||0))+" pts";
-}
-
-function loadReferralBox(p){
-  if(!p)return;
-  var box=document.getElementById("referralBox");box.style.display="block";
-  document.getElementById("refCode").textContent=p.referral_code||"XXXXXXXX";
-  document.getElementById("refCount").textContent=p.referral_count||0;
-  document.getElementById("refEarnings").textContent=(p.referral_count||0)*100;
-}
-
-function copyRefCode(){
-  var code=document.getElementById("refCode").textContent;
-  var url=window.location.origin+"/?ref="+code;
-  navigator.clipboard.writeText(url).then(function(){showToast("✓ Link copiado: "+url);}).catch(function(){showToast("Código: "+code);});
+  document.getElementById('myRankFill').style.width=pct+'%';
+  var next=Math.ceil(((u.fan_points||0)+1)/100)*100;
+  document.getElementById('myRankNext').textContent='Próximo nivel en '+(next-(u.fan_points||0))+' pts';
 }
 
 function showToast(msg,err){
-  var t=document.getElementById("toast");
-  t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
-  t.style.display="block";setTimeout(function(){t.style.display="none";},3000);
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';
+  t.style.display='block';setTimeout(function(){t.style.display='none';},3000);
+}
+
+function initNav(){
+  var _s=window.sb||supabase.createClient(SB_URL,SB_KEY);
+  _s.auth.getSession().then(function(r){
+    var a=document.getElementById('snNavAv');if(!a||!r.data||!r.data.session)return;
+    _s.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
+      if(!p.data)return;
+      if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+      else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
+    });
+  });
 }
 </script>
-
-
-
-<!-- SN Bottom Nav -->
-
-<style>
-/* SN-NAV */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:22px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:4px 8px!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-</style>
-
-<nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
-</nav>
-<script>(function(){var U='https://cdokplvoqivducsqrejt.supabase.co',K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';function go(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);if(!sb){setTimeout(go,400);return;}sb.auth.getSession().then(function(r){var a=document.getElementById('snNavAv');if(!a)return;if(!r.data||!r.data.session){a.innerHTML='&#128100;';return;}sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();</script>
 </body>
 </html>

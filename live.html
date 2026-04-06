@@ -135,7 +135,7 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;height:100vh;ove
 .end-share-btn{padding:12px 28px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase}
 </style>
 <script>
-// ── HOST MODE ──
+// ââ HOST MODE ââ
 function loadAgoraSDK(){
   return new Promise(function(resolve,reject){
     if(window.AgoraRTC){resolve();return;}
@@ -150,7 +150,7 @@ function loadAgoraSDK(){
 async function initAgoraHost(){
   try{
     await loadAgoraSDK();
-    if(!AGORA_APP_ID){showToastMsg("⚠ Configura Agora App ID en el admin para transmitir",true);await initCameraFallback();return;}
+    if(!AGORA_APP_ID){showToastMsg("â  Configura Agora App ID en el admin para transmitir",true);await initCameraFallback();return;}
     AGORA_CHANNEL=currentUser.id;
     agoraClient=AgoraRTC.createClient({mode:"live",codec:"vp8"});
     await agoraClient.setClientRole("host");
@@ -159,11 +159,11 @@ async function initAgoraHost(){
     await agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,null,currentUser.id);
     await agoraClient.publish([localVideoTrack,localAudioTrack]);
     localVideoTrack.play("liveVideo");
-    document.getElementById("liveSubtitle").textContent="EN VIVO • "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("liveSubtitle").textContent="EN VIVO â¢ "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
     liveStartTime=Date.now();
-    agoraClient.on("exception",function(e){showToastMsg("⚠ "+e.msg,true);});
-    agoraClient.on("network-quality",function(stats){if(stats.uplinkNetworkQuality>=4)showToastMsg("⚠ Conexión débil",true);});
-    showToastMsg("🟢 Transmisión activa vía Agora");
+    agoraClient.on("exception",function(e){showToastMsg("â  "+e.msg,true);});
+    agoraClient.on("network-quality",function(stats){if(stats.uplinkNetworkQuality>=4)showToastMsg("â  ConexiÃ³n dÃ©bil",true);});
+    showToastMsg("ð¢ TransmisiÃ³n activa vÃ­a Agora");
   }catch(e){showToastMsg("Error Agora: "+e.message,true);await initCameraFallback();}
 }
 
@@ -171,19 +171,19 @@ async function initCameraFallback(){
   try{
     liveStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:currentFacingMode,width:{ideal:720},height:{ideal:1280}},audio:true});
     document.getElementById("liveVideo").srcObject=liveStream;
-    document.getElementById("liveSubtitle").textContent="EN VIVO (local) • "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("liveSubtitle").textContent="EN VIVO (local) â¢ "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
     liveStartTime=Date.now();
-  }catch(e){showToastMsg("Error cámara: "+e.message,true);}
+  }catch(e){showToastMsg("Error cÃ¡mara: "+e.message,true);}
 }
 
 async function flipCamera(){
   currentFacingMode=currentFacingMode==="user"?"environment":"user";
-  if(localVideoTrack){try{await localVideoTrack.setDevice(currentFacingMode==="user"?"camera_0":"camera_1");}catch(e){await localVideoTrack.stop();localVideoTrack=await AgoraRTC.createCameraVideoTrack({facingMode:currentFacingMode});localVideoTrack.play("liveVideo");await agoraClient.unpublish();await agoraClient.publish([localVideoTrack,localAudioTrack]);}showToastMsg(currentFacingMode==="user"?"Cámara frontal":"Cámara trasera");return;}
+  if(localVideoTrack){try{await localVideoTrack.setDevice(currentFacingMode==="user"?"camera_0":"camera_1");}catch(e){await localVideoTrack.stop();localVideoTrack=await AgoraRTC.createCameraVideoTrack({facingMode:currentFacingMode});localVideoTrack.play("liveVideo");await agoraClient.unpublish();await agoraClient.publish([localVideoTrack,localAudioTrack]);}showToastMsg(currentFacingMode==="user"?"CÃ¡mara frontal":"CÃ¡mara trasera");return;}
   if(liveStream)liveStream.getTracks().forEach(function(t){t.stop();});
-  await initCameraFallback();showToastMsg(currentFacingMode==="user"?"Cámara frontal":"Cámara trasera");
+  await initCameraFallback();showToastMsg(currentFacingMode==="user"?"CÃ¡mara frontal":"CÃ¡mara trasera");
 }
 
-// ── VIEWER MODE ──
+// ââ VIEWER MODE ââ
 async function initViewer(){
   var r=await sb.from("profiles").select("id,username,avatar_url").eq("username",_creatorParam).single();
   if(!r.data){showToastMsg("Creador no encontrado",true);setTimeout(function(){window.location.href="/";},2000);return;}
@@ -193,7 +193,7 @@ async function initViewer(){
   document.getElementById("liveSubtitle").textContent="Conectando...";
   document.getElementById("rightControls").style.display="none";
   buildViewerActionBar();buildGiftsGrid();
-  if(!AGORA_APP_ID){showToastMsg("Streaming no disponible",true);document.getElementById("liveSubtitle").textContent="Sin señal";return;}
+  if(!AGORA_APP_ID){showToastMsg("Streaming no disponible",true);document.getElementById("liveSubtitle").textContent="Sin seÃ±al";return;}
   try{
     await loadAgoraSDK();
     agoraClient=AgoraRTC.createClient({mode:"live",codec:"vp8"});
@@ -203,18 +203,18 @@ async function initViewer(){
       if(mediaType==="video"){user.videoTrack.play("liveVideo");document.getElementById("liveSubtitle").textContent="EN VIVO";}
       if(mediaType==="audio"){user.audioTrack.play();}
     });
-    agoraClient.on("user-unpublished",function(user,mediaType){if(mediaType==="video")document.getElementById("liveSubtitle").textContent="Cámara apagada";});
-    agoraClient.on("user-left",function(){showToastMsg("El creador terminó el live");document.getElementById("liveSubtitle").textContent="Live terminado";});
+    agoraClient.on("user-unpublished",function(user,mediaType){if(mediaType==="video")document.getElementById("liveSubtitle").textContent="CÃ¡mara apagada";});
+    agoraClient.on("user-left",function(){showToastMsg("El creador terminÃ³ el live");document.getElementById("liveSubtitle").textContent="Live terminado";});
     var uid=currentUser?currentUser.id:("anon_"+Math.floor(Math.random()*1e8));
     await agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,null,uid);
     document.getElementById("liveSubtitle").textContent="Esperando al creador...";
     subscribeLiveChannelViewer(creator.id);
-  }catch(e){showToastMsg("Error conexión: "+e.message,true);}
+  }catch(e){showToastMsg("Error conexiÃ³n: "+e.message,true);}
 }
 
 function buildViewerActionBar(){
   var bar=document.getElementById("actionBar");
-  var actions=[{icon:"🎁",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"💬",label:"Chat",fn:"document.getElementById('chatInp').focus()"},{icon:"🔗",label:"Compartir",fn:"shareLive()"},{icon:"🚪",label:"Salir",fn:"window.location.href='/'",style:"background:rgba(255,34,85,.2)"}];
+  var actions=[{icon:"ð",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"ð¬",label:"Chat",fn:"document.getElementById('chatInp').focus()"},{icon:"ð",label:"Compartir",fn:"shareLive()"},{icon:"ðª",label:"Salir",fn:"window.location.href='/'",style:"background:rgba(255,34,85,.2)"}];
   bar.innerHTML="";
   actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});
 }
@@ -225,76 +225,76 @@ function subscribeLiveChannelViewer(creatorId){
     .on("broadcast",{event:"gift"},function(p){animateGift(p.payload.emoji,p.payload.name,p.payload.cost);})
     .on("broadcast",{event:"viewer_count"},function(p){document.getElementById("viewerCount").textContent=p.payload.count||0;})
     .subscribe(function(status){
-      if(status==="SUBSCRIBED"&&_liveChannel){_liveChannel.send({type:"broadcast",event:"viewer_join",payload:{username:currentProfile?.username||"Anónimo"}});}
+      if(status==="SUBSCRIBED"&&_liveChannel){_liveChannel.send({type:"broadcast",event:"viewer_join",payload:{username:currentProfile?.username||"AnÃ³nimo"}});}
     });
 }
 
-// ── MIC / CAM ──
+// ââ MIC / CAM ââ
 function toggleMic(){
   _micOn=!_micOn;
   if(localAudioTrack){localAudioTrack.setEnabled(_micOn);}
   else if(liveStream){liveStream.getAudioTracks().forEach(function(t){t.enabled=_micOn;});}
   var btn=document.getElementById("micBtn");
-  if(btn){btn.querySelector(".live-action-icon").innerHTML=_micOn?"🔇":"🔈";}
-  showToastMsg(_micOn?"Micrófono ON":"Micrófono SILENCIADO");
+  if(btn){btn.querySelector(".live-action-icon").innerHTML=_micOn?"ð":"ð";}
+  showToastMsg(_micOn?"MicrÃ³fono ON":"MicrÃ³fono SILENCIADO");
 }
 function toggleCam(){
   _camOn=!_camOn;
   if(localVideoTrack){localVideoTrack.setEnabled(_camOn);}
   else if(liveStream){liveStream.getVideoTracks().forEach(function(t){t.enabled=_camOn;});}
   document.getElementById("liveVideo").style.opacity=_camOn?"1":"0";
-  showToastMsg(_camOn?"Cámara ON":"Cámara OFF");
+  showToastMsg(_camOn?"CÃ¡mara ON":"CÃ¡mara OFF");
 }
 
-// ── EFFECTS (sin cambios) ──
+// ââ EFFECTS (sin cambios) ââ
 function setVoiceEffect(type,btn){document.querySelectorAll(".voice-btn").forEach(function(b){b.classList.remove("active");});btn.classList.add("active");var vid=document.getElementById("liveVideo");var f={normal:"",robot:"hue-rotate(90deg) saturate(2)",chipmunk:"brightness(1.1) saturate(1.2)",deep:"brightness(.9) saturate(1.5)",echo:"contrast(1.1)",megaphone:"contrast(1.3) saturate(1.3)"};vid.style.filter=f[type]||"";showToastMsg("Voz: "+type);}
 function toggleBeauty(type,btn){beautyActive[type]=!beautyActive[type];btn.classList.toggle("active",beautyActive[type]);applyBeautyFilters();showToastMsg((beautyActive[type]?"ON: ":"OFF: ")+type);}
 function updateBeautySlider(type,val){document.getElementById(type+"Val").textContent=val+"%";applyBeautyFilters();}
 function applyBeautyFilters(){var filters=[];if(beautyActive.smooth)filters.push("blur("+(parseInt(document.getElementById("smoothSlider").value)*0.03)+"px)");if(beautyActive.bright)filters.push("brightness("+(1+(parseInt(document.getElementById("brightSlider").value)-50)/100)+")");document.getElementById("liveVideo").style.filter=filters.join(" ")||"none";}
-function playSFX(type){var ctx=new(window.AudioContext||window.webkitAudioContext)();var osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);var now=ctx.currentTime;var sfxMap={applause:{f:440,t:.1},laugh:{f:300,t:.8},horn:{f:440,t:.5},alarm:{f:880,t:.7},drum:{f:150,t:.5},confetti:{f:523,t:.3}};var s=sfxMap[type]||{f:440,t:.3};osc.frequency.value=s.f;gain.gain.setValueAtTime(.3,now);gain.gain.exponentialRampToValueAtTime(.001,now+s.t);osc.start(now);osc.stop(now+s.t);var icons={applause:"👏",laugh:"😂",horn:"📯",alarm:"🚨",drum:"🥁",confetti:"🎉"};showToastMsg((icons[type]||"")+" "+type);}
+function playSFX(type){var ctx=new(window.AudioContext||window.webkitAudioContext)();var osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);var now=ctx.currentTime;var sfxMap={applause:{f:440,t:.1},laugh:{f:300,t:.8},horn:{f:440,t:.5},alarm:{f:880,t:.7},drum:{f:150,t:.5},confetti:{f:523,t:.3}};var s=sfxMap[type]||{f:440,t:.3};osc.frequency.value=s.f;gain.gain.setValueAtTime(.3,now);gain.gain.exponentialRampToValueAtTime(.001,now+s.t);osc.start(now);osc.stop(now+s.t);var icons={applause:"ð",laugh:"ð",horn:"ð¯",alarm:"ð¨",drum:"ð¥",confetti:"ð"};showToastMsg((icons[type]||"")+" "+type);}
 
-// ── STICKERS ──
+// ââ STICKERS ââ
 function buildStickerGrid(){var grid=document.getElementById("stickerGrid");STICKERS.forEach(function(s){var btn=document.createElement("div");btn.className="sticker-pick";btn.textContent=s;btn.addEventListener("click",function(){addSticker(s);});grid.appendChild(btn);});}
 function addSticker(emoji){var sticker=document.createElement("div");sticker.className="sticker-item";sticker.textContent=emoji;sticker.style.left=Math.random()*60+10+"%";sticker.style.top=Math.random()*60+15+"%";var isDrag=false,sx,sy,ol,ot;sticker.addEventListener("mousedown",function(e){isDrag=true;sx=e.clientX;sy=e.clientY;ol=sticker.offsetLeft;ot=sticker.offsetTop;});document.addEventListener("mousemove",function(e){if(!isDrag)return;sticker.style.left=(ol+e.clientX-sx)+"px";sticker.style.top=(ot+e.clientY-sy)+"px";sticker.style.transform="";});document.addEventListener("mouseup",function(){isDrag=false;});var lastTap=0;sticker.addEventListener("click",function(){var now=Date.now();if(now-lastTap<400){sticker.remove();}lastTap=now;});document.getElementById("liveContainer").appendChild(sticker);closePanel("stickersPanel");}
 function clearStickers(){document.querySelectorAll(".sticker-item").forEach(function(s){s.remove()});}
 
-// ── GIFTS ──
-function buildGiftsGrid(){var grid=document.getElementById("giftsGrid");GIFTS.forEach(function(gift){var item=document.createElement("div");item.className="gift-item";item.innerHTML="<span class='gift-emoji'>"+gift.emoji+"</span><div class='gift-name'>"+gift.name+"</div><div class='gift-cost'>💀 "+gift.cost+"</div>";item.addEventListener("click",function(){sendGiftFromPanel(gift);});grid.appendChild(item);});}
+// ââ GIFTS ââ
+function buildGiftsGrid(){var grid=document.getElementById("giftsGrid");GIFTS.forEach(function(gift){var item=document.createElement("div");item.className="gift-item";item.innerHTML="<span class='gift-emoji'>"+gift.emoji+"</span><div class='gift-name'>"+gift.name+"</div><div class='gift-cost'>ð "+gift.cost+"</div>";item.addEventListener("click",function(){sendGiftFromPanel(gift);});grid.appendChild(item);});}
 async function sendGiftFromPanel(gift){if(!currentUser)return;if((currentProfile?.coins_balance||0)<gift.cost){showToastMsg("No tienes suficientes Almas",true);return;}await sb.from("profiles").update({coins_balance:(currentProfile.coins_balance-gift.cost)}).eq("id",currentUser.id);currentProfile.coins_balance-=gift.cost;document.getElementById("panelCoinsBalance").textContent=currentProfile.coins_balance;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"gift",payload:{emoji:gift.emoji,name:gift.name,cost:gift.cost}});animateGift(gift.emoji,gift.name,gift.cost);closePanel("giftsPanel");}
 function animateGift(emoji,name,cost){var el=document.createElement("div");el.className="gift-float";el.textContent=emoji;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},2500);var alert=document.createElement("div");alert.className="gift-alert";alert.innerHTML=emoji+"<br><span style='font-size:11px'>"+name+" (+"+cost+" Almas)</span>";document.getElementById("liveContainer").appendChild(alert);setTimeout(function(){alert.remove();},3000);totalGiftsReceived+=cost;updateGoalProgress(cost);}
 
-// ── POLL ──
-function startPoll(){var q=document.getElementById("pollQuestion").value.trim();var opts=[document.getElementById("pollOpt1").value.trim(),document.getElementById("pollOpt2").value.trim(),document.getElementById("pollOpt3").value.trim()].filter(Boolean);if(!q||opts.length<2){showToastMsg("Escribe la pregunta y al menos 2 opciones",true);return;}pollData={question:q,options:opts};document.getElementById("pollCreate").style.display="none";var res=document.getElementById("pollResults");res.style.display="block";res.innerHTML="<div style='font-size:13px;font-weight:700;color:#e8f4ff;margin-bottom:12px'>"+q+"</div>";opts.forEach(function(opt){var bar=document.createElement("div");bar.className="poll-result-bar";bar.innerHTML="<div class='poll-result-label'><span>"+opt+"</span><span>0%</span></div><div class='poll-bar-wrap'><div class='poll-bar-fill' style='width:0%'></div></div>";res.appendChild(bar);});var stop=document.createElement("button");stop.className="poll-start-btn";stop.style.background="rgba(255,34,85,.3)";stop.textContent="Terminar encuesta";stop.addEventListener("click",function(){pollData=null;document.getElementById("pollCreate").style.display="block";res.style.display="none";res.innerHTML="";});res.appendChild(stop);showToastMsg("📊 Encuesta lanzada!");}
+// ââ POLL ââ
+function startPoll(){var q=document.getElementById("pollQuestion").value.trim();var opts=[document.getElementById("pollOpt1").value.trim(),document.getElementById("pollOpt2").value.trim(),document.getElementById("pollOpt3").value.trim()].filter(Boolean);if(!q||opts.length<2){showToastMsg("Escribe la pregunta y al menos 2 opciones",true);return;}pollData={question:q,options:opts};document.getElementById("pollCreate").style.display="none";var res=document.getElementById("pollResults");res.style.display="block";res.innerHTML="<div style='font-size:13px;font-weight:700;color:#e8f4ff;margin-bottom:12px'>"+q+"</div>";opts.forEach(function(opt){var bar=document.createElement("div");bar.className="poll-result-bar";bar.innerHTML="<div class='poll-result-label'><span>"+opt+"</span><span>0%</span></div><div class='poll-bar-wrap'><div class='poll-bar-fill' style='width:0%'></div></div>";res.appendChild(bar);});var stop=document.createElement("button");stop.className="poll-start-btn";stop.style.background="rgba(255,34,85,.3)";stop.textContent="Terminar encuesta";stop.addEventListener("click",function(){pollData=null;document.getElementById("pollCreate").style.display="block";res.style.display="none";res.innerHTML="";});res.appendChild(stop);showToastMsg("ð Encuesta lanzada!");}
 
-// ── GOAL ──
-function setLiveGoal(){var target=parseInt(document.getElementById("goalTarget").value||0);var desc=document.getElementById("goalDescription").value.trim();if(target<10){showToastMsg("Meta mínima: 10 Almas",true);return;}goalTarget=target;goalCurrent=0;document.getElementById("liveGoal").style.display="block";document.getElementById("goalLabel").textContent=desc||"Meta de regalos";document.getElementById("goalProgress").textContent="0 / "+target+" Almas";document.getElementById("goalFill").style.width="0%";closePanel("goalPanel");showToastMsg("🎯 Meta de "+target+" Almas!");}
-function updateGoalProgress(amount){if(!goalTarget)return;goalCurrent+=amount;var pct=Math.min(100,(goalCurrent/goalTarget)*100);document.getElementById("goalFill").style.width=pct+"%";document.getElementById("goalProgress").textContent=goalCurrent+" / "+goalTarget+" Almas";if(goalCurrent>=goalTarget)showToastMsg("🏆 META ALCANZADA!");}
+// ââ GOAL ââ
+function setLiveGoal(){var target=parseInt(document.getElementById("goalTarget").value||0);var desc=document.getElementById("goalDescription").value.trim();if(target<10){showToastMsg("Meta mÃ­nima: 10 Almas",true);return;}goalTarget=target;goalCurrent=0;document.getElementById("liveGoal").style.display="block";document.getElementById("goalLabel").textContent=desc||"Meta de regalos";document.getElementById("goalProgress").textContent="0 / "+target+" Almas";document.getElementById("goalFill").style.width="0%";closePanel("goalPanel");showToastMsg("ð¯ Meta de "+target+" Almas!");}
+function updateGoalProgress(amount){if(!goalTarget)return;goalCurrent+=amount;var pct=Math.min(100,(goalCurrent/goalTarget)*100);document.getElementById("goalFill").style.width=pct+"%";document.getElementById("goalProgress").textContent=goalCurrent+" / "+goalTarget+" Almas";if(goalCurrent>=goalTarget)showToastMsg("ð META ALCANZADA!");}
 
-// ── CHAT ──
-function sendChatMsg(){var inp=document.getElementById("chatInp"),text=inp.value.trim();if(!text)return;inp.value="";if(text.startsWith("?"))addQAQuestion(text.slice(1).trim());if(_liveChannel)_liveChannel.send({type:"broadcast",event:"chat",payload:{user:currentProfile?.username||"Usuario",text:text,avatar:currentProfile?.avatar_url||null}});addChatMessage(currentProfile?.username||"Tú",text,currentProfile?.avatar_url||null);}
+// ââ CHAT ââ
+function sendChatMsg(){var inp=document.getElementById("chatInp"),text=inp.value.trim();if(!text)return;inp.value="";if(text.startsWith("?"))addQAQuestion(text.slice(1).trim());if(_liveChannel)_liveChannel.send({type:"broadcast",event:"chat",payload:{user:currentProfile?.username||"Usuario",text:text,avatar:currentProfile?.avatar_url||null}});addChatMessage(currentProfile?.username||"TÃº",text,currentProfile?.avatar_url||null);}
 function addChatMessage(username,text,avatar){var overlay=document.getElementById("chatOverlay");var msg=document.createElement("div");msg.className="live-chat-msg";var av=document.createElement("div");av.className="live-chat-av";if(avatar){var img=document.createElement("img");img.src=avatar;av.appendChild(img);}else av.textContent=(username||"?")[0].toUpperCase();var body=document.createElement("div");body.innerHTML="<span class='live-chat-name'>@"+username+"</span><span class='live-chat-text'>"+text+"</span>";msg.appendChild(av);msg.appendChild(body);overlay.appendChild(msg);while(overlay.children.length>8)overlay.removeChild(overlay.firstChild);}
 function addQAQuestion(question){var list=document.getElementById("qaList");list.innerHTML=list.innerHTML.replace('<div class="qa-empty">Sin preguntas aun.</div>',"");var item=document.createElement("div");item.className="qa-item";item.innerHTML="<div class='qa-question'>"+question+"</div><div class='qa-from'>@"+(currentProfile?.username||"usuario")+"</div><button class='qa-show-btn' onclick='showQAOnScreen(this)'>Mostrar</button>";item.querySelector(".qa-show-btn").dataset.q=question;list.prepend(item);}
-function showQAOnScreen(btn){var q=btn.dataset.q;var el=document.createElement("div");el.style.cssText="position:absolute;top:130px;left:12px;right:70px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px;z-index:60;font-size:13px;color:#fff";el.innerHTML="<div style='font-size:10px;color:#00e5ff;font-weight:700;margin-bottom:4px'>❓ PREGUNTA</div>"+q;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},8000);}
+function showQAOnScreen(btn){var q=btn.dataset.q;var el=document.createElement("div");el.style.cssText="position:absolute;top:130px;left:12px;right:70px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px;z-index:60;font-size:13px;color:#fff";el.innerHTML="<div style='font-size:10px;color:#00e5ff;font-weight:700;margin-bottom:4px'>â PREGUNTA</div>"+q;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},8000);}
 
-// ── SUPABASE CHANNEL (host) ──
+// ââ SUPABASE CHANNEL (host) ââ
 function subscribeLiveChannel(){
   if(!currentUser)return;
   _liveChannel=sb.channel("live:"+currentUser.id)
     .on("broadcast",{event:"chat"},function(p){if(p.payload.user!==currentProfile?.username)addChatMessage(p.payload.user,p.payload.text,p.payload.avatar);})
     .on("broadcast",{event:"gift"},function(p){animateGift(p.payload.emoji,p.payload.name,p.payload.cost);})
-    .on("broadcast",{event:"viewer_join"},function(p){totalViewers++;maxViewers=Math.max(maxViewers,totalViewers);document.getElementById("viewerCount").textContent=totalViewers;addChatMessage("Sistema",p.payload.username+" se unió 👋",null);_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
+    .on("broadcast",{event:"viewer_join"},function(p){totalViewers++;maxViewers=Math.max(maxViewers,totalViewers);document.getElementById("viewerCount").textContent=totalViewers;addChatMessage("Sistema",p.payload.username+" se uniÃ³ ð",null);_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
     .on("broadcast",{event:"viewer_leave"},function(){totalViewers=Math.max(0,totalViewers-1);document.getElementById("viewerCount").textContent=totalViewers;_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
     .subscribe();
 }
 
-// ── TIMER ──
-function startLiveTimer(){liveTimer=setInterval(function(){if(!liveStartTime)return;var e=Math.floor((Date.now()-liveStartTime)/1000),m=Math.floor(e/60),s=e%60;document.getElementById("liveSubtitle").textContent="EN VIVO • "+(m>0?m+"m ":"")+s+"s";},1000);}
+// ââ TIMER ââ
+function startLiveTimer(){liveTimer=setInterval(function(){if(!liveStartTime)return;var e=Math.floor((Date.now()-liveStartTime)/1000),m=Math.floor(e/60),s=e%60;document.getElementById("liveSubtitle").textContent="EN VIVO â¢ "+(m>0?m+"m ":"")+s+"s";},1000);}
 
-// ── ACTION BAR (host) ──
-function buildActionBar(){var bar=document.getElementById("actionBar");var actions=[{icon:"🎁",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"🔇",label:"Mic",fn:"toggleMic()",id:"micBtn"},{icon:"📹",label:"Cam",fn:"toggleCam()",id:"camBtn"},{icon:"📢",label:"Compartir",fn:"shareLive()"},{icon:"🛑",label:"Terminar",fn:"confirmEndLive()",style:"background:rgba(255,34,85,.3)"}];actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";if(a.id)btn.id=a.id;var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});}
+// ââ ACTION BAR (host) ââ
+function buildActionBar(){var bar=document.getElementById("actionBar");var actions=[{icon:"ð",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"ð",label:"Mic",fn:"toggleMic()",id:"micBtn"},{icon:"ð¹",label:"Cam",fn:"toggleCam()",id:"camBtn"},{icon:"ð¢",label:"Compartir",fn:"shareLive()"},{icon:"ð",label:"Terminar",fn:"confirmEndLive()",style:"background:rgba(255,34,85,.3)"}];actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";if(a.id)btn.id=a.id;var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});}
 
-// ── END LIVE ──
-function shareLive(){var url=location.origin+"/live.html?creator="+(currentProfile?.username||"");if(navigator.share)navigator.share({title:"SHADOWNET LIVE",text:"Estoy en vivo!",url:url});else navigator.clipboard.writeText(url).then(function(){showToastMsg("🔗 Link copiado!");});}
+// ââ END LIVE ââ
+function shareLive(){var url=location.origin+"/live.html?creator="+(currentProfile?.username||"");if(navigator.share)navigator.share({title:"SHADOWNET LIVE",text:"Estoy en vivo!",url:url});else navigator.clipboard.writeText(url).then(function(){showToastMsg("ð Link copiado!");});}
 function confirmEndLive(){if(confirm("Terminar el live?"))endLive();}
 function endLive(){
   clearInterval(liveTimer);
@@ -310,12 +310,12 @@ function endLive(){
   document.getElementById("endScreen").classList.add("show");
 }
 
-// ── PANELS / TOAST ──
+// ââ PANELS / TOAST ââ
 function openPanel(id){document.querySelectorAll(".live-panel").forEach(function(p){p.classList.remove("open");});document.getElementById(id)?.classList.add("open");}
 function closePanel(id){document.getElementById(id)?.classList.remove("open");}
 function showToastMsg(msg,err){var t=document.getElementById("liveToast");t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";t.style.display="block";clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display="none";},2500);}
 
-// ── MIRROR ──
+// ââ MIRROR ââ
 function toggleMirror(){isMirrored=!isMirrored;document.getElementById("liveVideo").style.transform=isMirrored?"scaleX(-1)":"scaleX(1)";document.getElementById("mirrorBtn").classList.toggle("active",isMirrored);showToastMsg(isMirrored?"Modo espejo ON":"Modo espejo OFF");}
 
 document.addEventListener("DOMContentLoaded",function(){
@@ -323,8 +323,175 @@ document.addEventListener("DOMContentLoaded",function(){
   document.addEventListener("click",function(e){if(!e.target.closest(".live-panel")&&!e.target.closest(".live-ctrl-btn")&&!e.target.closest(".live-action-btn")){document.querySelectorAll(".live-panel").forEach(function(p){p.classList.remove("open");});}});
 });
 </script>
-</script>
 
+<body>
+<!-- Main Live Container -->
+<div class="live-container" id="liveContainer">
+  <!-- Video background -->
+  <div class="live-video-wrap">
+    <video id="liveVideo" autoplay muted playsinline webkit-playsinline></video>
+  </div>
+
+  <!-- Top bar -->
+  <div class="live-topbar">
+    <button class="live-back-btn" onclick="history.length>1?history.back():window.location.href='/'">&#8592;</button>
+    <div class="live-title-wrap">
+      <div class="live-title" id="liveTitle">SHADOWNET LIVE</div>
+      <div class="live-subtitle" id="liveSubtitle">Iniciando...</div>
+    </div>
+    <div class="live-viewers-badge">
+      <div class="live-red-dot"></div>
+      <span id="viewerCount">0</span>
+    </div>
+  </div>
+
+  <!-- Right side controls (host only) -->
+  <div class="live-right-controls" id="rightControls">
+    <button class="live-ctrl-btn" id="mirrorBtn" onclick="toggleMirror()">
+      <span style="font-size:18px">&#128260;</span>
+      <span class="live-ctrl-label">Espejo</span>
+    </button>
+    <button class="live-ctrl-btn" onclick="flipCamera()">
+      <span style="font-size:18px">&#128247;</span>
+      <span class="live-ctrl-label">Voltear</span>
+    </button>
+    <button class="live-ctrl-btn" onclick="openPanel('effectsPanel')">
+      <span style="font-size:18px">&#10024;</span>
+      <span class="live-ctrl-label">Efectos</span>
+    </button>
+    <button class="live-ctrl-btn" onclick="openPanel('pollPanel')">
+      <span style="font-size:18px">&#128202;</span>
+      <span class="live-ctrl-label">Encuesta</span>
+    </button>
+    <button class="live-ctrl-btn" onclick="openPanel('qaPanel')">
+      <span style="font-size:18px">&#10067;</span>
+      <span class="live-ctrl-label">Q&amp;A</span>
+    </button>
+    <button class="live-ctrl-btn" onclick="openPanel('goalPanel')">
+      <span style="font-size:18px">&#127919;</span>
+      <span class="live-ctrl-label">Meta</span>
+    </button>
+  </div>
+
+  <!-- Live goal bar -->
+  <div class="live-goal" id="liveGoal">
+    <div class="live-goal-label">
+      <span id="goalLabel">Meta</span>
+      <span id="goalProgress">0 / 0</span>
+    </div>
+    <div class="live-goal-bar"><div class="live-goal-fill" id="goalFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Chat overlay (left) -->
+  <div class="live-chat-overlay" id="chatOverlay"></div>
+
+  <!-- Bottom bar -->
+  <div class="live-bottombar">
+    <div class="live-chat-row">
+      <input class="live-chat-inp" id="chatInp" placeholder="Escribe un mensaje...">
+      <button class="live-send-btn" onclick="sendChatMsg()">&#9658;</button>
+    </div>
+    <div class="live-action-bar" id="actionBar"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="live-toast" id="liveToast"></div>
+
+  <!-- End screen -->
+  <div class="end-live-screen" id="endScreen">
+    <div style="font-family:Orbitron,sans-serif;font-size:16px;color:#ff2255;letter-spacing:.1em;margin-bottom:24px">LIVE TERMINADO</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-bottom:24px">
+      <div class="end-stats"><div class="end-stat-num" id="endViewers">0</div><div class="end-stat-label">Espectadores</div></div>
+      <div class="end-stats"><div class="end-stat-num" id="endDuration">0m 0s</div><div class="end-stat-label">Duraci&#243;n</div></div>
+      <div class="end-stats"><div class="end-stat-num" id="endGifts">0</div><div class="end-stat-label">Almas recibidas</div></div>
+    </div>
+    <button class="end-share-btn" onclick="shareLive()">&#128279; Compartir resumen</button>
+    <button style="margin-top:12px;padding:12px 28px;background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;cursor:pointer" onclick="window.location.href='/'">Volver al inicio</button>
+  </div>
+
+  <!-- PANELS -->
+  <!-- Effects panel -->
+  <div class="live-panel" id="effectsPanel">
+    <div class="live-panel-header">EFECTOS Y FILTROS<button class="live-panel-close" onclick="closePanel('effectsPanel')">&#215;</button></div>
+    <div class="live-panel-body">
+      <div class="effects-section-title">BELLEZA</div>
+      <div class="beauty-grid">
+        <button class="beauty-btn" onclick="toggleBeauty('smooth',this)">&#10024; Suavizar</button>
+        <button class="beauty-btn" onclick="toggleBeauty('bright',this)">&#9728; Brillo</button>
+      </div>
+      <div class="beauty-slider-wrap" style="margin-top:12px">
+        <div class="beauty-slider-label"><span>Suavizar</span><span id="smoothVal">0%</span></div>
+        <input type="range" class="beauty-slider" id="smoothSlider" min="0" max="100" value="0" oninput="updateBeautySlider('smooth',this.value)">
+      </div>
+      <div class="beauty-slider-wrap">
+        <div class="beauty-slider-label"><span>Brillo</span><span id="brightVal">50%</span></div>
+        <input type="range" class="beauty-slider" id="brightSlider" min="0" max="100" value="50" oninput="updateBeautySlider('bright',this.value)">
+      </div>
+      <div class="effects-section-title">VOZ</div>
+      <div class="voice-grid">
+        <button class="voice-btn active" onclick="setVoiceEffect('normal',this)"><span class="voice-btn-icon">&#127908;</span>Normal</button>
+        <button class="voice-btn" onclick="setVoiceEffect('robot',this)"><span class="voice-btn-icon">&#129302;</span>Robot</button>
+        <button class="voice-btn" onclick="setVoiceEffect('chipmunk',this)"><span class="voice-btn-icon">&#128000;</span>Ardilla</button>
+        <button class="voice-btn" onclick="setVoiceEffect('deep',this)"><span class="voice-btn-icon">&#127925;</span>Grave</button>
+        <button class="voice-btn" onclick="setVoiceEffect('echo',this)"><span class="voice-btn-icon">&#127744;</span>Eco</button>
+        <button class="voice-btn" onclick="setVoiceEffect('megaphone',this)"><span class="voice-btn-icon">&#128227;</span>Megaf.</button>
+      </div>
+      <div class="effects-section-title">EFECTOS DE SONIDO</div>
+      <div class="sfx-grid">
+        <button class="sfx-btn" onclick="playSFX('applause')"><span class="sfx-icon">&#128079;</span>Aplausos</button>
+        <button class="sfx-btn" onclick="playSFX('laugh')"><span class="sfx-icon">&#128514;</span>Risa</button>
+        <button class="sfx-btn" onclick="playSFX('horn')"><span class="sfx-icon">&#128239;</span>Claxon</button>
+        <button class="sfx-btn" onclick="playSFX('alarm')"><span class="sfx-icon">&#128680;</span>Alarma</button>
+        <button class="sfx-btn" onclick="playSFX('drum')"><span class="sfx-icon">&#129345;</span>Tambor</button>
+        <button class="sfx-btn" onclick="playSFX('confetti')"><span class="sfx-icon">&#127881;</span>Confeti</button>
+      </div>
+      <div class="effects-section-title">STICKERS <button style="font-size:11px;color:#5a8aaa;background:none;border:none;cursor:pointer" onclick="clearStickers()">Limpiar</button></div>
+      <div class="sticker-grid" id="stickerGrid"></div>
+    </div>
+  </div>
+  <!-- Gifts panel -->
+  <div class="live-panel" id="giftsPanel">
+    <div class="live-panel-header">
+      REGALOS &nbsp; <span id="panelCoinsBalance" style="color:#ffaa00;font-family:Orbitron,sans-serif;font-size:12px">0 &#128128;</span>
+      <button class="live-panel-close" onclick="closePanel('giftsPanel')">&#215;</button>
+    </div>
+    <div class="live-panel-body">
+      <div class="gifts-grid" id="giftsGrid"></div>
+    </div>
+  </div>
+  <!-- Poll panel -->
+  <div class="live-panel" id="pollPanel">
+    <div class="live-panel-header">ENCUESTA<button class="live-panel-close" onclick="closePanel('pollPanel')">&#215;</button></div>
+    <div class="live-panel-body">
+      <div id="pollCreate">
+        <input class="poll-option-inp" id="pollQuestion" placeholder="Pregunta..." style="width:100%;margin-bottom:8px">
+        <div class="poll-option-row"><input class="poll-option-inp" id="pollOpt1" placeholder="Opci&#243;n 1"></div>
+        <div class="poll-option-row"><input class="poll-option-inp" id="pollOpt2" placeholder="Opci&#243;n 2"></div>
+        <div class="poll-option-row"><input class="poll-option-inp" id="pollOpt3" placeholder="Opci&#243;n 3 (opcional)"></div>
+        <button class="poll-start-btn" onclick="startPoll()">&#128202; Lanzar encuesta</button>
+      </div>
+      <div class="poll-results" id="pollResults"></div>
+    </div>
+  </div>
+  <!-- Q&A panel -->
+  <div class="live-panel" id="qaPanel">
+    <div class="live-panel-header">PREGUNTAS<button class="live-panel-close" onclick="closePanel('qaPanel')">&#215;</button></div>
+    <div class="live-panel-body">
+      <div class="qa-list" id="qaList"><div class="qa-empty">Sin preguntas aun.</div></div>
+    </div>
+  </div>
+  <!-- Goal panel -->
+  <div class="live-panel" id="goalPanel">
+    <div class="live-panel-header">META DE REGALOS<button class="live-panel-close" onclick="closePanel('goalPanel')">&#215;</button></div>
+    <div class="live-panel-body">
+      <div class="goal-box">
+        <input class="goal-inp" id="goalDescription" placeholder="Descripci&#243;n de la meta...">
+        <input class="goal-inp" id="goalTarget" type="number" placeholder="Almas objetivo (ej: 500)" min="10">
+        <button class="goal-set-btn" onclick="setLiveGoal()">&#127919; Activar meta</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /liveContainer -->
 <!-- SN Bottom Nav -->
 
 <style>
@@ -349,5 +516,46 @@ document.addEventListener("DOMContentLoaded",function(){
   <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
 <script>(function(){var U='https://cdokplvoqivducsqrejt.supabase.co',K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';function go(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);if(!sb){setTimeout(go,400);return;}sb.auth.getSession().then(function(r){var a=document.getElementById('snNavAv');if(!a)return;if(!r.data||!r.data.session){a.innerHTML='&#128100;';return;}sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();</script>
+
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null,currentProfile=null;
+var localVideoTrack=null,localAudioTrack=null,agoraClient=null,liveStream=null;
+var _liveChannel=null,liveTimer=null,liveStartTime=null;
+var totalViewers=0,maxViewers=0,totalGiftsReceived=0;
+var goalTarget=0,goalCurrent=0,pollData=null;
+var _micOn=true,_camOn=true,isMirrored=false,currentFacingMode='user';
+var beautyActive={smooth:false,bright:false};
+var _creatorParam=new URLSearchParams(location.search).get('creator');
+var AGORA_APP_ID='';
+var GIFTS=[{emoji:'\uD83C\uDF39',name:'Rosa',cost:10},{emoji:'\uD83D\uDC97',name:'Coraz\u00F3n',cost:25},{emoji:'\uD83D\uDD25',name:'Fuego',cost:50},{emoji:'\uD83D\uDC80',name:'Alma',cost:100},{emoji:'\uD83D\uDC51',name:'Corona',cost:200},{emoji:'\uD83D\uDC8E',name:'Diamante',cost:500},{emoji:'\uD83D\uDE80',name:'Cohete',cost:150},{emoji:'\u2B50',name:'Estrella',cost:75}];
+var STICKERS=['\uD83D\uDD25','\u2764\uFE0F','\uD83C\uDF89','\uD83D\uDE02','\uD83D\uDE0D','\uD83D\uDC4F','\uD83D\uDC80','\u26A1','\uD83C\uDF1F','\uD83C\uDF08','\uD83D\uDC8B','\uD83E\uDD73','\uD83D\uDD96','\uD83D\uDC7E','\uD83C\uDFC6'];
+
+sb.auth.getSession().then(async function(r){
+  if(!r.data.session){window.location.href='/';return;}
+  currentUser=r.data.session.user;
+  var p=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  currentProfile=p.data||{};
+  // Load AGORA app id
+  var cfg=await sb.from('platform_settings').select('value').eq('key','agora_app_id').single();
+  AGORA_APP_ID=(cfg.data&&cfg.data.value)||'';
+  // Update coins display
+  document.getElementById('panelCoinsBalance').textContent=(currentProfile.coins_balance||0)+' \uD83D\uDC80';
+  buildStickerGrid();
+  buildGiftsGrid();
+  if(_creatorParam){initViewer();}
+  else{
+    if(currentProfile.role!=='creator'&&!currentProfile.is_creator){showToastMsg('Solo creadores pueden iniciar lives',true);setTimeout(function(){window.location.href='/';},2000);return;}
+    buildActionBar();
+    initAgoraHost();
+    startLiveTimer();
+    subscribeLiveChannel();
+    // Save live to DB
+    await sb.from('live_streams').insert({host_id:currentUser.id,title:currentProfile.username+' en vivo',is_active:true,started_at:new Date().toISOString()}).catch(function(){});
+  }
+});
+</script>
 </body>
 </html>

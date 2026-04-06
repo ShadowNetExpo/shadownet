@@ -952,7 +952,7 @@ function loadCount(){
     });
   },500);
 }
-function setUser(u){if(new URLSearchParams(location.search).get('preview')==="landing"){return;}if(new URLSearchParams(location.search).get('preview')==="landing"){return;}if(new URLSearchParams(location.search).get('preview')==="landing"){return;}
+function setUser(u){if(new URLSearchParams(location.search).get('preview')==='landing'){return;}
   if(_userInited&&currentUser&&currentUser.id===u.id) return; // prevent double init
   _userInited=true;
   currentUser=u;sb.from('profiles').select('username,coins_balance').eq('id',u.id).single().then(function(r){var d=r.data||{}; var role=d.role||"fan"; _userRole=role;document.getElementById('dashUser').textContent='@'+(d.username||u.email.split('@')[0]);document.getElementById('dashCoins').textContent=d.coins_balance||100;document.getElementById('landPage').classList.add('off');// dashPage replaced by homeFeed

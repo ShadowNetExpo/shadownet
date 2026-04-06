@@ -313,9 +313,10 @@ async function openConversation(convId,peerId,peer){
 async function loadMessages(convId){
   var area=document.getElementById("chatMsgsArea");
   area.innerHTML="";
-  var r=await sb.from("direct_messages").select("*").eq("sender_id",currentUser.id).or("sender_id.eq."+activePeerId).order("created_at",{ascending:true}).limit(50);
-  // Filter for this conversation
-  var msgs=(r.data||[]).filter(function(m){return (m.sender_id===currentUser.id&&m.receiver_id===activePeerId)||(m.sender_id===activePeerId&&m.receiver_id===currentUser.id);});
+  var r=await sb.from("direct_messages").select("*")
+    .or("and(sender_id.eq."+currentUser.id+",receiver_id.eq."+activePeerId+"),and(sender_id.eq."+activePeerId+",receiver_id.eq."+currentUser.id+")")
+    .order("created_at",{ascending:true}).limit(50);
+  var msgs=r.data||[];
   msgs.forEach(function(m){appendMsg(m);});
   area.scrollTop=area.scrollHeight;
 }
@@ -340,6 +341,14 @@ async function sendDM(){
   var msg=inp.value.trim();
   if(!msg||!activePeerId||!currentUser||!activeConvId) return;
   inp.value="";
+  // Ensure conversation exists
+  if(!activeConvId){
+    var uid1=currentUser.id<activePeerId?currentUser.id:activePeerId;
+    var uid2=currentUser.id<activePeerId?activePeerId:currentUser.id;
+    var existConv=await sb.from("conversations").select("id").eq("user1_id",uid1).eq("user2_id",uid2).single();
+    if(existConv.data){activeConvId=existConv.data.id;}
+    else{var newConv=await sb.from("conversations").insert({user1_id:uid1,user2_id:uid2}).select().single();if(newConv.data)activeConvId=newConv.data.id;}
+  }
   var r=await sb.from("direct_messages").insert({sender_id:currentUser.id,receiver_id:activePeerId,message:msg});
   if(r.error){showToast("Error: "+r.error.message,true);return;}
   // Update conversation last message
@@ -531,9 +540,9 @@ async function loadMessageRequests(){
   var followedIds=(follows.data||[]).map(function(f){return f.following_id;});
   followedIds.push(currentUser.id);
 
-  var r=await sb.from("conversations").select("*,profiles!conversations_participant1_id_fkey(id,username,avatar_url)").or("participant2_id.eq."+currentUser.id+",participant1_id.eq."+currentUser.id).limit(50);
+  var r=await sb.from("conversations").select("*").or("user2_id.eq."+currentUser.id+",user1_id.eq."+currentUser.id).limit(50);
   var requests=(r.data||[]).filter(function(conv){
-    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     return !followedIds.includes(otherId);
   });
 
@@ -559,9 +568,9 @@ async function renderRequests(){
   var followedIds=(follows.data||[]).map(function(f){return f.following_id;});
   followedIds.push(currentUser.id);
 
-  var r=await sb.from("conversations").select("*").or("participant2_id.eq."+currentUser.id+",participant1_id.eq."+currentUser.id).limit(50);
+  var r=await sb.from("conversations").select("*").or("user2_id.eq."+currentUser.id+",user1_id.eq."+currentUser.id).limit(50);
   var requests=(r.data||[]).filter(function(conv){
-    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     return !followedIds.includes(otherId);
   });
 
@@ -570,7 +579,7 @@ async function renderRequests(){
 
   for(var i=0;i<requests.length;i++){
     var conv=requests[i];
-    var otherId=conv.participant1_id===currentUser.id?conv.participant2_id:conv.participant1_id;
+    var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     var prof=await sb.from("profiles").select("id,username,avatar_url").eq("id",otherId).single();
     if(!prof.data)continue;
     var p=prof.data;
@@ -649,14 +658,122 @@ async function sendMassMessage(){
   for(var i=0;i<Math.min(subs.length,50);i++){
     var subId=subs[i].subscriber_id;
     // Get or create conversation
-    var conv=await sb.from("conversations").select("id").or("participant1_id.eq."+currentUser.id+",participant2_id.eq."+currentUser.id).single();
+    var conv=await sb.from("conversations").select("id").or("user1_id.eq."+currentUser.id+",user2_id.eq."+currentUser.id).eq("user2_id",subId).single();
     var convId=conv.data?.id;
     if(!convId){
-      var nc=await sb.from("conversations").insert({participant1_id:currentUser.id,participant2_id:subId}).select().single();
+      var uid1m=currentUser.id<subId?currentUser.id:subId;var uid2m=currentUser.id<subId?subId:currentUser.id;var nc=await sb.from("conversations").insert({user1_id:uid1m,user2_id:uid2m}).select().single();
       convId=nc.data?.id;
     }
     if(convId){
-      await sb.from("direct_messages").insert({conversation_id:convId,sender_id:currentUser.id,content:content,is_ppv:isPPV,ppv_price:ppvPrice,ppv_unlocked:!isPPV});
+      await sb.from("direct_messages").insert({sender_id:currentUser.id,receiver_id:subId,message:content+(isPPV?' [PPV 
+      sent++;
+    }
+  }
+
+  document.getElementById("massModal").classList.remove("open");
+  showToast("\uD83D\uDCE8 Mensaje enviado a "+sent+" suscriptores!");
+}
+
+// Render PPV message bubble
+function renderPPVMessage(msg, isMine){
+  var bubble=document.createElement("div");
+  bubble.className="ppv-bubble";
+  bubble.dataset.msgId=msg.id;
+
+  if(msg.ppv_unlocked||isMine){
+    // Show content
+    if(msg.ppv_media_url){
+      var mediaWrap=document.createElement("div");mediaWrap.className="ppv-unlocked-media";
+      if(msg.ppv_media_type==="video"){
+        var vid=document.createElement("video");vid.src=msg.ppv_media_url;vid.controls=true;mediaWrap.appendChild(vid);
+      } else {
+        var img=document.createElement("img");img.src=msg.ppv_media_url;mediaWrap.appendChild(img);
+      }
+      bubble.appendChild(mediaWrap);
+    }
+    if(msg.content){var txt=document.createElement("div");txt.style.cssText="font-size:13px;color:#e8f4ff;margin-top:6px";txt.textContent=msg.content;bubble.appendChild(txt);}
+  } else {
+    // Locked PPV
+    var locked=document.createElement("div");locked.className="ppv-locked";
+    var icon=document.createElement("div");icon.className="ppv-lock-icon";icon.textContent="\uD83D\uDD12";
+    var label=document.createElement("div");label.className="ppv-label";label.textContent="Contenido exclusivo";
+    var priceBtn=document.createElement("button");priceBtn.className="ppv-price-tag";
+    priceBtn.textContent="Desbloquear por $"+parseFloat(msg.ppv_price).toFixed(2);
+    priceBtn.addEventListener("click",function(){unlockPPVMessage(msg.id,msg.ppv_price,msg.sender_id);});
+    locked.appendChild(icon);locked.appendChild(label);locked.appendChild(priceBtn);
+    bubble.appendChild(locked);
+  }
+  return bubble;
+}
+
+async function unlockPPVMessage(msgId, price, creatorId){
+  if(!currentUser){return;}
+  if(confirm("Desbloquear este mensaje por $"+parseFloat(price).toFixed(2)+"?")){
+    // Open PayPal
+    var prof=await sb.from("profiles").select("paypal_email,username").eq("id",creatorId).single();
+    if(prof.data?.paypal_email){
+      var handle=prof.data.paypal_email.replace(/@.*/,"");
+      window.open("https://www.paypal.com/paypalme/"+handle+"/"+price,"_blank");
+    }
+    // Mark as unlocked (pending manual confirmation for now)
+    await sb.from("direct_messages").update({ppv_unlocked:true}).eq("id",msgId);
+    showToast("\uD83D\uDD13 Completando pago en PayPal...");
+    setTimeout(function(){loadMessages(activeConvId);},3000);
+  }
+}
+</script>
+<div class="note-modal" id="noteModal">
+  <div class="note-box">
+    <div class="note-box-title">&#128172; TU NOTA</div>
+    <div class="note-box-sub">Comparte lo que piensas. Visible para tus seguidores durante 24h.</div>
+    <div class="note-inp-wrap">
+      <textarea class="note-inp" id="noteInp" placeholder="Escribe algo..." maxlength="60"></textarea>
+      <div class="note-char-count"><span id="noteCharCount">0</span>/60</div>
+    </div>
+    <div class="note-btns">
+      <button class="note-clear-btn" onclick="clearMyNote()">Borrar nota</button>
+      <button class="note-save-btn" onclick="saveMyNote()">Compartir</button>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <span style="font-size:11px;color:#5a8aaa;cursor:pointer" onclick="document.getElementById('noteModal').classList.remove('open')">Cancelar</span>
+    </div>
+  </div>
+</div>
+<!-- DM Requests Panel -->
+<div class="requests-panel" id="requestsPanel">
+  <div class="requests-header">
+    <button onclick="document.getElementById('requestsPanel').classList.remove('open')">&#8592;</button>
+    SOLICITUDES DE MENSAJES
+  </div>
+  <div id="requestsList" style="overflow-y:auto;flex:1"></div>
+</div>
+<!-- Mass Message Modal -->
+<div class="mass-modal" id="massModal">
+  <div class="mass-box">
+    <div class="mass-box-title">&#128228; MENSAJE MASIVO</div>
+    <div class="mass-recipients" id="massRecipients">Cargando suscriptores...</div>
+    <textarea class="mass-textarea" id="massMsgText" placeholder="Escribe tu mensaje para todos tus suscriptores..."></textarea>
+    <label class="mass-ppv-toggle">
+      <input type="checkbox" id="massPPVCheck" onchange="document.getElementById('massPPVPrice').classList.toggle('show',this.checked)">
+      Hacer PPV (contenido de pago)
+    </label>
+    <input class="mass-ppv-price" id="massPPVPrice" type="number" placeholder="Precio en $ para ver el contenido" min="1">
+    <button class="mass-send-btn" onclick="sendMassMessage()">&#128228; Enviar a todos</button>
+    <button class="mass-cancel" onclick="document.getElementById('massModal').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
+
+<nav class="sn-bottom-nav" id="snBottomNav"><a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a><a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a><a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a><a class="sn-bn-item sn-bn-active" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a><a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a></nav>
+<script>
+(function(){
+var _U='https://cdokplvoqivducsqrejt.supabase.co',_K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+function _sn(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(_U,_K):null);if(!sb){setTimeout(_sn,500);return;}sb.auth.getSession().then(function(r){if(!r.data||!r.data.session)return;var a=document.getElementById('snNavAv');if(!a)return;sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_sn);else _sn();
+})();
+</script>
+</body>
+</html>
++ppvPrice.toFixed(2)+']':''),is_ppv:isPPV,ppv_price:ppvPrice,ppv_unlocked:!isPPV});
       sent++;
     }
   }

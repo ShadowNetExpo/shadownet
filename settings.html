@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Configuración</title>
+<title>SHADOWNET â ConfiguraciÃ³n</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -44,7 +44,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .danger-btn:hover{background:rgba(255,34,85,.08)}
 .avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:16px}
 .av-preview{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;border:2px solid #0d2744;position:relative}
-.av-preview:hover::after{content:"📷";position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:50%}
+.av-preview:hover::after{content:"ð·";position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:50%}
 .av-preview img{width:100%;height:100%;object-fit:cover}
 .av-info p{font-size:12px;color:#5a8aaa;line-height:1.6}
 .upload-inp{display:none}
@@ -81,22 +81,22 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 <body>
 <header>
   <span class="logo" onclick="window.location.href='/'">SN</span>
-  <span class="page-title">CONFIGURACIÓN</span>
+  <span class="page-title">CONFIGURACIÃN</span>
 </header>
 
 <div class="wrap">
 
   <!-- PERFIL -->
   <div class="section">
-    <div class="section-head"><span class="section-icon">👤</span><span class="section-title">PERFIL</span></div>
+    <div class="section-head"><span class="section-icon">ð¤</span><span class="section-title">PERFIL</span></div>
     <div class="section-body">
       <div class="avatar-row">
         <div class="av-preview" id="avPreview" onclick="document.getElementById('avatarInp').click()">?</div>
-        <div class="av-info"><p>Foto de perfil<br><span style="color:#3a5060">JPG/PNG · Máximo 5MB</span></p><button class="outline-btn" style="margin-top:8px;padding:7px 16px;width:auto;font-size:11px" onclick="document.getElementById('avatarInp').click()">Cambiar foto</button></div>
+        <div class="av-info"><p>Foto de perfil<br><span style="color:#3a5060">JPG/PNG Â· MÃ¡ximo 5MB</span></p><button class="outline-btn" style="margin-top:8px;padding:7px 16px;width:auto;font-size:11px" onclick="document.getElementById('avatarInp').click()">Cambiar foto</button></div>
       </div>
       <input type="file" class="upload-inp" id="avatarInp" accept="image/*">
       <div class="cover-wrap" id="coverPreview" onclick="document.getElementById('coverInp').click()">
-        <span class="cover-wrap-label">🖼 Portada — click para cambiar</span>
+        <span class="cover-wrap-label">ð¼ Portada â click para cambiar</span>
       </div>
       <input type="file" class="upload-inp" id="coverInp" accept="image/*">
       <div class="field">
@@ -104,16 +104,16 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
         <input type="text" class="field-input" id="usernameInp" placeholder="@tu_usuario" maxlength="30">
       </div>
       <div class="field">
-        <label class="field-label">Biografía <span id="bioCount" style="float:right;color:#3a5060">0/160 caracteres</span></label>
-        <textarea class="field-input field-textarea" id="bioInp" placeholder="Cuéntanos sobre ti..." maxlength="160"></textarea>
+        <label class="field-label">BiografÃ­a <span id="bioCount" style="float:right;color:#3a5060">0/160 caracteres</span></label>
+        <textarea class="field-input field-textarea" id="bioInp" placeholder="CuÃ©ntanos sobre ti..." maxlength="160"></textarea>
       </div>
-      <button class="save-btn" id="saveProfileBtn" onclick="saveProfile()">💾 Guardar Perfil</button>
+      <button class="save-btn" id="saveProfileBtn" onclick="saveProfile()">ð¾ Guardar Perfil</button>
     </div>
   </div>
 
   <!-- CREADOR -->
   <div class="section" id="creatorSection" style="display:none">
-    <div class="section-head"><span class="section-icon">🎨</span><span class="section-title">CONFIGURACIÓN DE CREADOR</span></div>
+    <div class="section-head"><span class="section-icon">ð¨</span><span class="section-title">CONFIGURACIÃN DE CREADOR</span></div>
     <div class="section-body">
       <div class="earnings-row">
         <div class="earning-card"><div class="earning-label">Ganado total</div><div class="earning-val" id="totalEarnings">$0.00</div></div>
@@ -121,7 +121,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
         <div class="earning-card"><div class="earning-label">Retirado</div><div class="earning-val" style="color:#5a8aaa" id="totalWithdrawn">$0.00</div></div>
       </div>
       <div class="field">
-        <label class="field-label">Precio de suscripción mensual</label>
+        <label class="field-label">Precio de suscripciÃ³n mensual</label>
         <div class="price-wrap"><input type="number" class="field-input" id="priceInp" placeholder="9.99" min="0" step="0.01"></div>
         <p class="field-hint">Escribe 0 para perfil gratuito</p>
       </div>
@@ -129,54 +129,54 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
         <label class="field-label">Email PayPal (para retiros manuales)</label>
         <input type="email" class="field-input" id="paypalInp" placeholder="tu@paypal.com">
       </div>
-      <button class="save-btn" onclick="saveCreatorSettings()">💾 Guardar configuración</button>
+      <button class="save-btn" onclick="saveCreatorSettings()">ð¾ Guardar configuraciÃ³n</button>
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid #0d2744">
-        <div class="section-title" style="margin-bottom:12px">💳 STRIPE CONNECT — Pagos automáticos</div>
+        <div class="section-title" style="margin-bottom:12px">ð³ STRIPE CONNECT â Pagos automÃ¡ticos</div>
         <div id="stripeStatusBox" class="stripe-status-box none">Cargando estado de Stripe...</div>
-        <button class="outline-btn" id="stripeConnectBtn" onclick="connectStripe()" style="margin-top:0">💳 Conectar cuenta bancaria</button>
-        <button class="withdraw-btn" id="withdrawBtn" onclick="requestWithdraw()" disabled>💸 Solicitar retiro</button>
+        <button class="outline-btn" id="stripeConnectBtn" onclick="connectStripe()" style="margin-top:0">ð³ Conectar cuenta bancaria</button>
+        <button class="withdraw-btn" id="withdrawBtn" onclick="requestWithdraw()" disabled>ð¸ Solicitar retiro</button>
       </div>
     </div>
   </div>
 
   <!-- SEGURIDAD -->
   <div class="section">
-    <div class="section-head"><span class="section-icon">🔐</span><span class="section-title">SEGURIDAD</span></div>
+    <div class="section-head"><span class="section-icon">ð</span><span class="section-title">SEGURIDAD</span></div>
     <div class="section-body">
       <div class="field-row">
         <div class="field">
-          <label class="field-label">Nueva contraseña</label>
-          <input type="password" class="field-input" id="pwInp" placeholder="Mínimo 8 caracteres">
+          <label class="field-label">Nueva contraseÃ±a</label>
+          <input type="password" class="field-input" id="pwInp" placeholder="MÃ­nimo 8 caracteres">
         </div>
         <div class="field">
-          <label class="field-label">Confirmar contraseña</label>
-          <input type="password" class="field-input" id="pw2Inp" placeholder="Repite la contraseña">
+          <label class="field-label">Confirmar contraseÃ±a</label>
+          <input type="password" class="field-input" id="pw2Inp" placeholder="Repite la contraseÃ±a">
         </div>
       </div>
-      <button class="save-btn" onclick="changePassword()">🔐 Cambiar contraseña</button>
+      <button class="save-btn" onclick="changePassword()">ð Cambiar contraseÃ±a</button>
     </div>
   </div>
 
   <!-- NOTIFICACIONES -->
   <div class="section">
-    <div class="section-head"><span class="section-icon">🔔</span><span class="section-title">NOTIFICACIONES</span></div>
+    <div class="section-head"><span class="section-icon">ð</span><span class="section-title">NOTIFICACIONES</span></div>
     <div class="section-body">
       <div class="toggle-row"><div><div class="toggle-label">Likes en mis posts</div></div><button class="toggle on" id="togLikes" onclick="this.classList.toggle('on')"></button></div>
       <div class="toggle-row"><div><div class="toggle-label">Comentarios</div></div><button class="toggle on" id="togComments" onclick="this.classList.toggle('on')"></button></div>
       <div class="toggle-row"><div><div class="toggle-label">Nuevos seguidores</div></div><button class="toggle on" id="togFollows" onclick="this.classList.toggle('on')"></button></div>
       <div class="toggle-row"><div><div class="toggle-label">Mensajes directos</div></div><button class="toggle on" id="togDMs" onclick="this.classList.toggle('on')"></button></div>
       <div class="toggle-row"><div><div class="toggle-label">Nuevos suscriptores</div><div class="toggle-sub">Solo creadores</div></div><button class="toggle on" id="togSubs" onclick="this.classList.toggle('on')"></button></div>
-      <button class="save-btn" style="margin-top:14px" onclick="saveNotifPrefs()">💾 Guardar preferencias</button>
+      <button class="save-btn" style="margin-top:14px" onclick="saveNotifPrefs()">ð¾ Guardar preferencias</button>
     </div>
   </div>
 
   <!-- CUENTA -->
   <div class="section">
-    <div class="section-head"><span class="section-icon">⚙️</span><span class="section-title">CUENTA</span></div>
+    <div class="section-head"><span class="section-icon">âï¸</span><span class="section-title">CUENTA</span></div>
     <div class="section-body">
-      <div style="font-size:13px;color:#5a8aaa;margin-bottom:14px">Sesión iniciada como <strong id="sessionEmail" style="color:#c8d8e8">...</strong></div>
-      <button class="outline-btn" onclick="confirmLogout()" style="margin-top:0">🚪 Cerrar sesión</button>
-      <button class="danger-btn" onclick="confirmDelete()">⚠️ Eliminar cuenta</button>
+      <div style="font-size:13px;color:#5a8aaa;margin-bottom:14px">SesiÃ³n iniciada como <strong id="sessionEmail" style="color:#c8d8e8">...</strong></div>
+      <button class="outline-btn" onclick="confirmLogout()" style="margin-top:0">ðª Cerrar sesiÃ³n</button>
+      <button class="danger-btn" onclick="confirmDelete()">â ï¸ Eliminar cuenta</button>
     </div>
   </div>
 
@@ -185,11 +185,11 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 <div class="toast" id="toast"></div>
 
 <nav class="sn-bottom-nav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">🏠</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">🔍</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">ð </span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">ð</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">+</span></a>
-  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">💬</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/settings.html"><span class="sn-bn-icon">⚙️</span><span class="sn-bn-lbl">Ajustes</span></a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">ð¬</span><span class="sn-bn-lbl">Mensajes</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/settings.html"><span class="sn-bn-icon">âï¸</span><span class="sn-bn-lbl">Ajustes</span></a>
 </nav>
 
 <script>
@@ -219,7 +219,7 @@ async function loadProfile(){
   // Cover
   if(d.cover_url){
     var cp=document.getElementById('coverPreview');
-    cp.innerHTML='<img src="'+d.cover_url+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><span class="cover-wrap-label" style="position:relative;z-index:2;opacity:.7">🖼 Click para cambiar</span>';
+    cp.innerHTML='<img src="'+d.cover_url+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><span class="cover-wrap-label" style="position:relative;z-index:2;opacity:.7">ð¼ Click para cambiar</span>';
   }
   // Fields
   document.getElementById('usernameInp').value=d.username||'';
@@ -245,7 +245,7 @@ async function loadProfile(){
   if(d.notif_subs===false) document.getElementById('togSubs').classList.remove('on');
   // Check stripe return
   var params=new URLSearchParams(location.search);
-  if(params.get('stripe')==='success'){showToast('✅ Stripe conectado correctamente!');loadStripeStatus();}
+  if(params.get('stripe')==='success'){showToast('â Stripe conectado correctamente!');loadStripeStatus();}
   if(params.get('stripe')==='refresh'){showToast('Reintenta conectar tu cuenta Stripe',true);}
 }
 
@@ -254,7 +254,7 @@ async function saveProfile(){
   btn.disabled=true;btn.textContent='Guardando...';
   var username=document.getElementById('usernameInp').value.trim().replace(/[^a-zA-Z0-9_.]/g,'');
   var bio=document.getElementById('bioInp').value.trim();
-  if(!username||username.length<3){showToast('Usuario mínimo 3 caracteres',true);btn.disabled=false;btn.textContent='💾 Guardar Perfil';return;}
+  if(!username||username.length<3){showToast('Usuario mÃ­nimo 3 caracteres',true);btn.disabled=false;btn.textContent='ð¾ Guardar Perfil';return;}
   var updates={username:username,bio:bio};
   if(pendingAvatarFile){
     var ext=pendingAvatarFile.name.split('.').pop();
@@ -269,33 +269,33 @@ async function saveProfile(){
     if(!up2.error) updates.cover_url=sb.storage.from('media').getPublicUrl(path2).data.publicUrl;
   }
   var r=await sb.from('profiles').update(updates).eq('id',currentUser.id);
-  btn.disabled=false;btn.textContent='💾 Guardar Perfil';
-  if(r.error){showToast('Error: '+r.error.message,true);}else{showToast('✓ Perfil actualizado!');pendingAvatarFile=null;pendingCoverFile=null;}
+  btn.disabled=false;btn.textContent='ð¾ Guardar Perfil';
+  if(r.error){showToast('Error: '+r.error.message,true);}else{showToast('â Perfil actualizado!');pendingAvatarFile=null;pendingCoverFile=null;}
 }
 
 async function saveCreatorSettings(){
   var price=parseFloat(document.getElementById('priceInp').value||0);
   var paypal=document.getElementById('paypalInp').value.trim();
-  if(price>0&&price<1){showToast('Precio mínimo $1.00',true);return;}
+  if(price>0&&price<1){showToast('Precio mÃ­nimo $1.00',true);return;}
   var r=await sb.from('profiles').update({subscription_price:price,paypal_email:paypal}).eq('id',currentUser.id);
-  showToast(r.error?'Error: '+r.error.message:'✓ Configuración guardada!');
+  showToast(r.error?'Error: '+r.error.message:'â ConfiguraciÃ³n guardada!');
 }
 
 async function changePassword(){
   var pw=document.getElementById('pwInp').value;
   var pw2=document.getElementById('pw2Inp').value;
-  if(!pw){showToast('Ingresa una nueva contraseña',true);return;}
-  if(pw.length<8){showToast('Mínimo 8 caracteres',true);return;}
-  if(pw!==pw2){showToast('Las contraseñas no coinciden',true);return;}
+  if(!pw){showToast('Ingresa una nueva contraseÃ±a',true);return;}
+  if(pw.length<8){showToast('MÃ­nimo 8 caracteres',true);return;}
+  if(pw!==pw2){showToast('Las contraseÃ±as no coinciden',true);return;}
   var r=await sb.auth.updateUser({password:pw});
-  if(r.error){showToast('Error: '+r.error.message,true);}else{showToast('✓ Contraseña cambiada!');document.getElementById('pwInp').value='';document.getElementById('pw2Inp').value='';}
+  if(r.error){showToast('Error: '+r.error.message,true);}else{showToast('â ContraseÃ±a cambiada!');document.getElementById('pwInp').value='';document.getElementById('pw2Inp').value='';}
 }
 
 async function saveNotifPrefs(){
   function isOn(id){var el=document.getElementById(id);return el?el.classList.contains('on'):true;}
   var prefs={notif_likes:isOn('togLikes'),notif_comments:isOn('togComments'),notif_follows:isOn('togFollows'),notif_messages:isOn('togDMs'),notif_subs:isOn('togSubs'),notif_tips:true};
   var r=await sb.from('profiles').update(prefs).eq('id',currentUser.id);
-  showToast(r.error?'Error: '+r.error.message:'✓ Preferencias guardadas');
+  showToast(r.error?'Error: '+r.error.message:'â Preferencias guardadas');
 }
 
 async function connectStripe(){
@@ -310,10 +310,10 @@ async function connectStripe(){
     });
     var data=await res.json();
     if(data.url){window.location.href=data.url;}
-    else{showToast(data.error||'Error al conectar Stripe',true);if(btn){btn.disabled=false;btn.textContent='💳 Conectar cuenta bancaria';}}
+    else{showToast(data.error||'Error al conectar Stripe',true);if(btn){btn.disabled=false;btn.textContent='ð³ Conectar cuenta bancaria';}}
   }catch(e){
     showToast('Error: '+e.message,true);
-    if(btn){btn.disabled=false;btn.textContent='💳 Conectar cuenta bancaria';}
+    if(btn){btn.disabled=false;btn.textContent='ð³ Conectar cuenta bancaria';}
   }
 }
 
@@ -329,27 +329,27 @@ async function loadStripeStatus(){
     var d=await res.json();
     if(d.charges_enabled&&d.payouts_enabled){
       box.className='stripe-status-box active';
-      box.innerHTML='✅ Cuenta Stripe activa — recibirás pagos automáticos al instante';
-      if(connectBtn)connectBtn.textContent='✓ Cuenta conectada';
+      box.innerHTML='â Cuenta Stripe activa â recibirÃ¡s pagos automÃ¡ticos al instante';
+      if(connectBtn)connectBtn.textContent='â Cuenta conectada';
     } else if(d.account_id){
       box.className='stripe-status-box pending';
-      box.innerHTML='⏳ Onboarding incompleto — completa el proceso para recibir pagos';
-      if(connectBtn)connectBtn.textContent='▶ Continuar onboarding';
+      box.innerHTML='â³ Onboarding incompleto â completa el proceso para recibir pagos';
+      if(connectBtn)connectBtn.textContent='â¶ Continuar onboarding';
     } else {
       box.className='stripe-status-box none';
-      box.innerHTML='Sin cuenta Stripe conectada. Conéctala para recibir pagos automáticos.';
+      box.innerHTML='Sin cuenta Stripe conectada. ConÃ©ctala para recibir pagos automÃ¡ticos.';
     }
   }catch(e){box.innerHTML='No se pudo verificar estado de Stripe';}
 }
 
 async function requestWithdraw(){
   var pending=parseFloat(document.getElementById('pendingBalance').textContent.replace('$',''))||0;
-  if(pending<10){showToast('Mínimo $10 para retirar',true);return;}
-  var amount=prompt('¿Cuánto quieres retirar? Disponible: $'+pending.toFixed(2)+'
-(Mínimo $10.00)');
+  if(pending<10){showToast('MÃ­nimo $10 para retirar',true);return;}
+  var amount=prompt('Â¿CuÃ¡nto quieres retirar? Disponible: $'+pending.toFixed(2)+'
+(MÃ­nimo $10.00)');
   if(!amount)return;
   var amt=parseFloat(amount);
-  if(isNaN(amt)||amt<10||amt>pending){showToast('Monto inválido',true);return;}
+  if(isNaN(amt)||amt<10||amt>pending){showToast('Monto invÃ¡lido',true);return;}
   var sess=await sb.auth.getSession();
   if(!sess.data.session)return;
   var res=await fetch(SB_URL+'/functions/v1/stripe-onboard/withdraw',{
@@ -359,18 +359,18 @@ async function requestWithdraw(){
   });
   var d=await res.json();
   if(d.error){showToast('Error: '+d.error,true);return;}
-  showToast('✓ Retiro procesado! Neto: $'+parseFloat(d.net_amount).toFixed(2));
+  showToast('â Retiro procesado! Neto: $'+parseFloat(d.net_amount).toFixed(2));
   loadProfile();
 }
 
 function confirmLogout(){
-  if(confirm('¿Cerrar sesión?')){sb.auth.signOut().then(function(){window.location.href='/';});}
+  if(confirm('Â¿Cerrar sesiÃ³n?')){sb.auth.signOut().then(function(){window.location.href='/';});}
 }
 
 function confirmDelete(){
-  var c1=confirm('¿Seguro que quieres eliminar tu cuenta? Esta acción es irreversible.');
+  var c1=confirm('Â¿Seguro que quieres eliminar tu cuenta? Esta acciÃ³n es irreversible.');
   if(!c1)return;
-  var c2=confirm('ÚLTIMA ADVERTENCIA: Se eliminarán todos tus datos, publicaciones y ganancias.');
+  var c2=confirm('ÃLTIMA ADVERTENCIA: Se eliminarÃ¡n todos tus datos, publicaciones y ganancias.');
   if(!c2)return;
   showToast('Contacta a soporte para eliminar tu cuenta: soporte@shadownet.xxx');
 }
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded',function(){
     pendingCoverFile=this.files[0];
     var url=URL.createObjectURL(pendingCoverFile);
     var cp=document.getElementById('coverPreview');
-    cp.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><span class="cover-wrap-label" style="position:relative;z-index:2;opacity:.7">✓ Nueva portada</span>';
+    cp.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><span class="cover-wrap-label" style="position:relative;z-index:2;opacity:.7">â Nueva portada</span>';
   });
 });
 </script>

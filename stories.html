@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Stories</title>
+<title>SHADOWNET â Stories</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -140,14 +140,14 @@ header{justify-content:space-between!important;}
     <div class="section-title">CREAR STORY</div>
     <div class="upload-box" id="uploadBox">
       <input type="file" id="storyFile" accept="image/*,video/*">
-      <div class="upload-icon">📸</div>
+      <div class="upload-icon">ð¸</div>
       <div class="upload-label">Toca para subir foto o video</div>
       <div class="upload-sub">La story desaparece en 24 horas</div>
     </div>
     <div class="preview-box" id="previewBox"></div>
     <input class="caption-inp" id="captionInp" placeholder="Escribe un caption... (opcional)">
     <button class="publish-btn" id="publishBtn" onclick="publishStory()" disabled>
-      ⏰ PUBLICAR STORY (24H)
+      â° PUBLICAR STORY (24H)
     </button>
   </div>
 </div>
@@ -162,7 +162,7 @@ header{justify-content:space-between!important;}
         <div class="sv-time" id="svTime"></div>
       </div>
     </div>
-    <button class="sv-close" onclick="closeStoryViewer()">✕</button>
+    <button class="sv-close" onclick="closeStoryViewer()">â</button>
   </div>
   <div class="sv-media" id="svMedia"></div>
   <div class="sv-caption" id="svCaption"></div>
@@ -174,7 +174,7 @@ header{justify-content:space-between!important;}
     </div>
   <div class="sv-footer">
     <input class="sv-reply" id="svReply" placeholder="Responder a la story...">
-    <div class="sv-views" id="svViews">👁 0</div>
+    <div class="sv-views" id="svViews">ð 0</div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -433,10 +433,6 @@ async function reactToStory(storyId,emoji){
   showToast(emoji+' Reaccion enviada!');
 }
 
-// Aliases for audit compatibility
-function createStory(){ document.getElementById('storyUploadInput')?.click() || publishStory(); }
-function viewStory(groupIdx){ openStoryGroup(groupIdx||0); }
-function loadStories(){ /* called via DOMContentLoaded */ }
 
 </script>
 <!-- Create Highlight Modal -->
@@ -450,7 +446,11 @@ function loadStories(){ /* called via DOMContentLoaded */ }
       <button class="hl-save" onclick="createHighlight()">Crear</button>
     </div>
   </div>
-</// Aliases for audit compatibility
+</div> Aliases for audit compatibility
 function createStory(){ document.getElementById('storyUploadInput')?.click() || publishStory(); }
 function viewStory(groupIdx){ openStoryGroup(groupIdx||0); }
 function loadStories(){ /* called via DOMContentLoaded */ }
+
+</nav>
+</body>
+</html>

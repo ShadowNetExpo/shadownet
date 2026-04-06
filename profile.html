@@ -331,7 +331,7 @@ function renderProfile(p){
   // Store user_id for highlights
   window._profileUserId=p.id;
   // Load highlights (non-own first)
-  loadHighlights(p.id, !!(window.currentUser&&window.currentUser.id===p.id));
+  loadProfileHighlights(p.id, !!(window.currentUser&&window.currentUser.id===p.id));
 
   var av=document.getElementById("profileAvatar");
   av.innerHTML="";
@@ -451,17 +451,9 @@ async function checkSubState(creatorId,btn){
 async function handleSubscribe(creatorId,price,paypalEmail,creatorUsername){
   if(!currentUser){window.location.href="/";return;}
   if(price>0){
-    if(paypalEmail){
-      var handle=paypalEmail.replace(/@.*/,"");
-      var url="https://www.paypal.com/paypalme/"+handle+"/"+price;
-      if(confirm("Se abrira PayPal para suscribirte a @"+creatorUsername+" por $"+price.toFixed(2)+"/mes. Continuar?")){
-        window.open(url,"_blank");
-        await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"pending",amount:price});
-        showToast("Completa el pago en PayPal");
-      }
-    } else {
-      showToast("Este creador aun no configuro su metodo de pago",true);
-    }
+    // Usar Stripe via modal de tiers
+    openSubscribeModal(creatorId);
+    return;
   } else {
     await sb.from("subscriptions").upsert({subscriber_id:currentUser.id,creator_id:creatorId,status:"active",amount:0});
     if(currentProfile){
@@ -766,15 +758,19 @@ async function confirmSubscribe(){
     try {
       var sbUrl = 'https://cdokplvoqivducsqrejt.supabase.co';
       var sbKey = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-      var res = await fetch(sbUrl+'/functions/v1/stripe-payment', {
+      var res = await fetch(sbUrl+'/functions/v1/stripe-payment/subscribe', {
         method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':sbKey},
-        body: JSON.stringify({type:'subscription',creator_id:_subCreatorId,amount_cents:Math.round(_selectedTier.price*100),tier_id:_selectedTier.id,description:'Suscripción '+_selectedTier.name})
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({fanId:userId,creatorId:_subCreatorId,tierId:_selectedTier.id,priceUsd:_selectedTier.price})
       });
       var data = await res.json();
       if(data.error){ throw new Error(data.error); }
-      // For now show success (full Stripe Elements flow needs sk_live key)
-      showSubscribeSuccess();
+      // Mount Stripe Elements con el clientSecret
+      if(data.clientSecret){
+        mountSubscribeStripe(data.clientSecret, userId);
+      } else {
+        showSubscribeSuccess();
+      }
     } catch(e){
       // Fallback: save pending subscription
       await savePendingSubscription(userId);

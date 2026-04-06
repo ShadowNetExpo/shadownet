@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Feed</title>
+<title>SHADOWNET â Feed</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -324,7 +324,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <div class="post-actions">
       <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
       <button class="toggle-location-btn" id="locationToggleBtn" onclick="toggleLocationInput()">&#128205; Ubicacion</button>
-    <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, España">
+    <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, EspaÃ±a">
     <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label><button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
     </div>
   </div>
@@ -949,7 +949,7 @@ async function sharePost(postId, username){
 // SISTEMA DE REPORTES
 // =============================================
 // =============================================
-// EDITAR PUBLICACIÓN
+// EDITAR PUBLICACIÃN
 // =============================================
 var _editPostId = null;
 
@@ -967,7 +967,7 @@ function openEditPost(postId){
 async function saveEditPost(){
   if(!_editPostId || !currentUser) return;
   var newText = document.getElementById('editPostInp').value.trim();
-  if(!newText){ showToast('El texto no puede estar vacío', true); return; }
+  if(!newText){ showToast('El texto no puede estar vacÃ­o', true); return; }
   var btn = document.getElementById('editPostSaveBtn');
   btn.disabled = true; btn.textContent = 'Guardando...';
   var r = await sb.from('posts').update({content:newText}).eq('id',_editPostId);
@@ -981,104 +981,12 @@ async function saveEditPost(){
   }
   document.getElementById('editPostModal').classList.remove('open');
   _editPostId = null;
-  showToast('\u2713 Publicación editada');
+  showToast('\u2713 PublicaciÃ³n editada');
 }
 
 function closeEditPost(){
   document.getElementById('editPostModal').classList.remove('open');
   _editPostId = null;
-}
-
-function openReport(contentId, contentType, reportedUserId){
-  if(!currentUser){ showToast("Inicia sesion para reportar", true); return; }
-  document.getElementById("reportContentId").value = contentId;
-  document.getElementById("reportContentType").value = contentType;
-  document.getElementById("reportedUserId").value = reportedUserId||"";
-  document.getElementById("reportReason").value = "";
-  document.getElementById("reportDesc").value = "";
-  document.getElementById("reportMsg").style.display = "none";
-  document.getElementById("reportModal").classList.add("open");
-}
-
-async function submitReport(){
-  var reason = document.getElementById("reportReason").value;
-  var desc = document.getElementById("reportDesc").value.trim();
-  var contentId = document.getElementById("reportContentId").value;
-  var contentType = document.getElementById("reportContentType").value;
-  var reportedUserId = document.getElementById("reportedUserId").value;
-  var msg = document.getElementById("reportMsg");
-  if(!reason){ msg.textContent="Selecciona un motivo"; msg.style.color="#ff2255"; msg.style.display="block"; return; }
-  var r = await sb.from("reports").insert({
-    reporter_id: currentUser.id,
-    reported_user_id: reportedUserId||null,
-    content_type: contentType,
-    content_id: contentId,
-    reason: reason,
-    description: desc||null
-  });
-  if(r.error){ msg.textContent="Error: "+r.error.message; msg.style.color="#ff2255"; msg.style.display="block"; return; }
-  document.getElementById("reportModal").classList.remove("open");
-  showToast("\u2713 Reporte enviado. Lo revisaremos pronto.");
-}
-
-// =============================================
-// SISTEMA DE REPORTES
-// =============================================
-var _reportPostId = null;
-var _reportUserId = null;
-var _reportReason = null;
-var REPORT_REASONS = [
-  {id:"spam",icon:"\uD83D\uDCE3",label:"Spam o publicidad"},
-  {id:"nudity",icon:"\uD83D\uDEAB",label:"Desnudez no autorizada"},
-  {id:"harassment",icon:"\u26A0\uFE0F",label:"Acoso o bullying"},
-  {id:"fake",icon:"\uD83D\uDC64",label:"Cuenta o contenido falso"},
-  {id:"violence",icon:"\uD83D\uDCA5",label:"Violencia o contenido peligroso"},
-  {id:"minors",icon:"\uD83D\uDEE1\uFE0F",label:"Contenido con menores"},
-  {id:"other",icon:"\u2753",label:"Otro motivo"}
-];
-
-function openReport(postId, userId){
-  _reportPostId=postId; _reportUserId=userId; _reportReason=null;
-  var reasons=document.getElementById("reportReasons");
-  reasons.innerHTML="";
-  REPORT_REASONS.forEach(function(r){
-    var item=document.createElement("div");item.className="report-reason";item.dataset.id=r.id;
-    item.innerHTML="<span class=\"report-reason-icon\">"+r.icon+"</span>"+r.label;
-    item.addEventListener("click",function(){
-      document.querySelectorAll(".report-reason").forEach(function(el){el.classList.remove("sel");});
-      this.classList.add("sel");
-      _reportReason=this.dataset.id;
-      document.getElementById("rptSubmitBtn").disabled=false;
-      var det=document.getElementById("reportDetail");
-      det.classList.toggle("show",_reportReason==="other");
-    });
-    reasons.appendChild(item);
-  });
-  document.getElementById("reportDetail").value="";
-  document.getElementById("reportDetail").classList.remove("show");
-  document.getElementById("rptSubmitBtn").disabled=true;
-  document.getElementById("reportModal").classList.add("open");
-}
-
-function closeReport(){
-  document.getElementById("reportModal").classList.remove("open");
-  _reportPostId=null; _reportUserId=null; _reportReason=null;
-}
-
-async function submitReport(){
-  if(!currentUser||!_reportReason) return;
-  var details=document.getElementById("reportDetail").value.trim();
-  var r=await sb.from("reports").insert({
-    reporter_id:currentUser.id,
-    reported_user_id:_reportUserId||null,
-    content_type:"post",
-    content_id:_reportPostId||null,
-    reason:_reportReason,
-    description:details||null
-  });
-  closeReport();
-  if(r.error){showToast("Error al enviar reporte",true);}
-  else{showToast("\u2713 Reporte enviado. Gracias.");}
 }
 
 // Close menu when clicking outside
@@ -1564,32 +1472,6 @@ async function sendTip(){
 </script>
 
 <!-- Report Modal -->
-<div class="new-chat-modal" id="reportModalDup" style="display:none;align-items:center;justify-content:center">
-  <div class="modal-box" style="max-width:400px">
-    <div style="font-family:Orbitron,sans-serif;font-size:13px;color:#ff2255;margin-bottom:16px;letter-spacing:.1em">&#9888; REPORTAR CONTENIDO</div>
-    <input type="hidden" id="reportContentId">
-    <input type="hidden" id="reportContentType">
-    <input type="hidden" id="reportedUserId">
-    <p style="font-size:13px;color:#5a8aaa;margin-bottom:14px;line-height:1.5">Selecciona el motivo del reporte:</p>
-    <select id="reportReason" style="width:100%;padding:10px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:14px;margin-bottom:10px;outline:none">
-      <option value="">Selecciona un motivo...</option>
-      <option value="spam">Spam o publicidad</option>
-      <option value="nudity">Desnudez no consensuada</option>
-      <option value="harassment">Acoso o intimidacion</option>
-      <option value="fake">Cuenta falsa o suplantacion</option>
-      <option value="violence">Violencia o contenido dañino</option>
-      <option value="minors">Contenido con menores</option>
-      <option value="other">Otro motivo</option>
-    </select>
-    <textarea id="reportDesc" style="width:100%;padding:10px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;resize:none;height:70px;margin-bottom:14px;outline:none" placeholder="Descripcion adicional (opcional)..."></textarea>
-    <div style="display:flex;gap:10px">
-      <button onclick="document.getElementById('reportModal').classList.remove('open')" style="flex:1;padding:10px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;cursor:pointer">Cancelar</button>
-      <button onclick="submitReport()" style="flex:2;padding:10px;background:#ff2255;color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase">Enviar Reporte</button>
-    </div>
-    <p id="reportMsg" style="font-size:12px;margin-top:8px;display:none"></p>
-  </div>
-</div>
-
 <!-- Report Modal -->
 <div class="report-modal" id="reportModal">
   <div class="report-box">
@@ -1677,52 +1559,8 @@ async function sendTip(){
   </div>
 </div>
 
-<!-- Bottom Navigation -->
-<nav class="pg-bottom-nav" id="pgBottomNav">
-  <a class="pg-bn-item" href="/">
-    <span class="pg-bn-icon">&#127968;</span><span class="pg-bn-lbl">Inicio</span>
-  </a>
-  <a class="pg-bn-item" href="/explore.html">
-    <span class="pg-bn-icon">&#128269;</span><span class="pg-bn-lbl">Explorar</span>
-  </a>
-  <a class="pg-bn-item" href="/feed.html">
-    <span class="pg-bn-plus-inner">&#43;</span>
-  </a>
-  <a class="pg-bn-item" href="/messages.html">
-    <span class="pg-bn-icon">&#128172;</span><span class="pg-bn-lbl">Mensajes</span>
-  </a>
-  <a class="pg-bn-item active" href="/profile.html">
-    <div class="pg-bn-avatar" id="pgNavAvatar">&#128100;</div><span class="pg-bn-lbl">Perfil</span>
-  </a>
-</nav>
-<!-- Logout FAB -->
-<button id="logoutFab" onclick="if(window.sb)window.sb.auth.signOut().then(function(){window.location.href='/';})" style="display:none;position:fixed;bottom:80px;right:16px;z-index:201;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.4);color:#ff6680;padding:10px 18px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:.06em;">&#128275; Cerrar sesi&oacute;n</button>
-<script>
-// === NAV INIT ===
-(function(){
-  function initNav(){
-    if(!window.sb) return;
-    window.sb.auth.getSession().then(function(r){
-      if(!r.data.session) return;
-      var uid = r.data.session.user.id;
-      // Show logout btn
-      var lb = document.getElementById('logoutFab');
-      if(lb) lb.style.display='block';
-      // Update avatar
-      window.sb.from('profiles').select('username,avatar_url').eq('id',uid).single().then(function(p){
-        var av = document.getElementById('pgNavAvatar');
-        if(!av||!p.data) return;
-        if(p.data.avatar_url){av.innerHTML='<img src="'+p.data.avatar_url+'">'; }
-        else if(p.data.username){ av.textContent=p.data.username[0].toUpperCase(); }
-      });
-    });
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initNav);
-  else initNav();
-})();
-</script>
 <nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item sn-bn-active" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>

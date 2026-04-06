@@ -91,6 +91,7 @@ tbody tr:hover td{background:rgba(255,34,85,.03)}
 <div class="ni" id="ni-cr">&#x2B50; Creadores</div>
 <div class="ns">Sistema</div>
 <div class="ni" id="ni-st">&#x2699; Config</div>
+<div class="ni" id="ni-wd">&#x1F4B8; Retiros</div>
 <div class="ni" id="ni-site">&#x1F310; Ver sitio</div>
 </div>
 <div class="main">
@@ -139,6 +140,20 @@ tbody tr:hover td{background:rgba(255,34,85,.03)}
       <select class="fi" id="cs"><option value="true">Habilitado</option><option value="false">Deshabilitado</option></select></div>
     </div>
   </div></div>
+</div>
+<div class="pg" id="pg-wd">
+  <div class="pt">Retiros</div><div class="ps">Solicitudes de pago a creadores</div>
+  <div class="sg" id="wdsg"><div style="color:var(--tx3)">Cargando...</div></div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="ch"><span class="ct" style="color:#ff2255">&#x23F3; Solicitudes pendientes</span><button class="btn" id="reloadWdBtn">Actualizar</button></div>
+    <table><thead><tr><th>Creador</th><th>Monto</th><th>Neto (90%)</th><th>Método</th><th>Cuenta</th><th>Fecha</th><th>Acción</th></tr></thead>
+    <tbody id="wdbt"></tbody></table>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Historial completo</span></div>
+    <table><thead><tr><th>Creador</th><th>Monto</th><th>Estado</th><th>Stripe ID</th><th>Fecha</th></tr></thead>
+    <tbody id="wdhistbt"></tbody></table>
+  </div>
 </div>
 </div></div></div>
 <div class="toast" id="toast"></div>
@@ -426,6 +441,148 @@ async function lset() {
   if (s.commission_pct) g('cc').value = s.commission_pct;
   if (s.currency) g('cu').value = s.currency;
   if (s.stripe_enabled) g('cs').value = s.stripe_enabled;
+}
+
+g('ni-wd')?.addEventListener('click',function(){sp('wd');});
+g('reloadWdBtn')?.addEventListener('click',lwd);
+
+async function lwd(){
+  var r=await api('GET','/rest/v1/withdrawals?select=*&order=created_at.desc');
+  var r2=await dbGet('profiles','id,username');
+  var pmap={}; (r2||[]).forEach(function(p){pmap[p.id]=p.username;});
+  var all=Array.isArray(r.data)?r.data:[];
+  var pending=all.filter(function(w){return w.status==='pending';});
+  var total_pending=pending.reduce(function(a,w){return a+(parseFloat(w.amount)||0);},0);
+  var total_paid=all.filter(function(w){return w.status==='completed';}).reduce(function(a,w){return a+(parseFloat(w.net_amount)||0);},0);
+  g('wdsg').innerHTML=
+    '<div class="sc gr"><div class="sl">Pendientes</div><div class="sv">'+(pending.length)+'</div></div>'+
+    '<div class="sc go"><div class="sl">Total pendiente</div><div class="sv">
+  var u = async function(k, v) {
+    await api('POST', '/rest/v1/platform_settings', { key: k, value: v });
+  };
+  await u('commission_pct', g('cc').value);
+  await u('currency', g('cu').value);
+  await u('stripe_enabled', g('cs').value);
+  toast('Configuracion guardada');
+}
+</script>
+</body>
+</html>
++total_pending.toFixed(2)+'</div></div>'+
+    '<div class="sc bl"><div class="sl">Total pagado</div><div class="sv">
+  var u = async function(k, v) {
+    await api('POST', '/rest/v1/platform_settings', { key: k, value: v });
+  };
+  await u('commission_pct', g('cc').value);
+  await u('currency', g('cu').value);
+  await u('stripe_enabled', g('cs').value);
+  toast('Configuracion guardada');
+}
+</script>
+</body>
+</html>
++total_paid.toFixed(2)+'</div></div>';
+  g('wdbt').innerHTML=pending.length?pending.map(function(w){
+    return '<tr>'+
+      '<td><strong>@'+(pmap[w.user_id]||w.user_id.slice(0,8))+'</strong></td>'+
+      '<td class="mo">
+  var u = async function(k, v) {
+    await api('POST', '/rest/v1/platform_settings', { key: k, value: v });
+  };
+  await u('commission_pct', g('cc').value);
+  await u('currency', g('cu').value);
+  await u('stripe_enabled', g('cs').value);
+  toast('Configuracion guardada');
+}
+</script>
+</body>
+</html>
++parseFloat(w.amount).toFixed(2)+'</td>'+
+      '<td class="mo" style="color:var(--gr)">
+  var u = async function(k, v) {
+    await api('POST', '/rest/v1/platform_settings', { key: k, value: v });
+  };
+  await u('commission_pct', g('cc').value);
+  await u('currency', g('cu').value);
+  await u('stripe_enabled', g('cs').value);
+  toast('Configuracion guardada');
+}
+</script>
+</body>
+</html>
++parseFloat(w.net_amount||w.amount*0.9).toFixed(2)+'</td>'+
+      '<td><span class="bx go">'+(w.method||'manual')+'</span></td>'+
+      '<td style="font-size:11px;color:var(--tx3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(w.account_info||'-')+'</td>'+
+      '<td style="color:var(--tx3)">'+(w.created_at?w.created_at.slice(0,10):'-')+'</td>'+
+      '<td style="display:flex;gap:6px">'+
+        '<button class="btn p wd-pay-btn" data-wid="'+w.id+'" data-uid="'+w.user_id+'" data-uname="'+(pmap[w.user_id]||'?')+'" data-amount="'+w.net_amount+'">&#x2713; Pagar</button>'+
+        '<button class="btn wd-rej-btn" data-wid="'+w.id+'" data-uid="'+w.user_id+'" style="color:#ff2255;border-color:#ff2255">&#x2717; Rechazar</button>'+
+      '</td>'+
+    '</tr>';
+  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--tx3)">Sin solicitudes pendientes</td></tr>';
+  g('wdhistbt').innerHTML=all.slice(0,20).map(function(w){
+    return '<tr>'+
+      '<td>@'+(pmap[w.user_id]||w.user_id.slice(0,8))+'</td>'+
+      '<td class="mo">
+  var u = async function(k, v) {
+    await api('POST', '/rest/v1/platform_settings', { key: k, value: v });
+  };
+  await u('commission_pct', g('cc').value);
+  await u('currency', g('cu').value);
+  await u('stripe_enabled', g('cs').value);
+  toast('Configuracion guardada');
+}
+</script>
+</body>
+</html>
++parseFloat(w.amount).toFixed(2)+'</td>'+
+      '<td><span class="bx '+(w.status==='completed'?'gr':w.status==='rejected'?'bx gy':'go')+'">'+(w.status||'pending')+'</span></td>'+
+      '<td class="mo" style="font-size:10px">'+(w.stripe_transfer_id||'-')+'</td>'+
+      '<td style="color:var(--tx3)">'+(w.created_at?w.created_at.slice(0,10):'-')+'</td>'+
+    '</tr>';
+  }).join('')||'<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--tx3)">Sin historial</td></tr>';
+  document.querySelectorAll('.wd-pay-btn').forEach(function(b){
+    b.addEventListener('click',function(){approveWd(this.dataset.wid,this.dataset.uid,this.dataset.uname,this.dataset.amount);});
+  });
+  document.querySelectorAll('.wd-rej-btn').forEach(function(b){
+    b.addEventListener('click',function(){rejectWd(this.dataset.wid,this.dataset.uid);});
+  });
+}
+async function approveWd(wid,uid,uname,netAmount){
+  if(!confirm('✓ Marcar como pagado a @'+uname+'? Neto: 
+  var u = async function(k, v) {
+    await api('POST', '/rest/v1/platform_settings', { key: k, value: v });
+  };
+  await u('commission_pct', g('cc').value);
+  await u('currency', g('cu').value);
+  await u('stripe_enabled', g('cs').value);
+  toast('Configuracion guardada');
+}
+</script>
+</body>
+</html>
++parseFloat(netAmount).toFixed(2)))return;
+  var r=await api('PATCH','/rest/v1/withdrawals?id=eq.'+wid,{status:'completed',processed_at:new Date().toISOString()});
+  if(!r.ok){toast('Error al actualizar');return;}
+  toast('✓ Retiro marcado como pagado');
+  lwd();
+}
+async function rejectWd(wid,uid){
+  if(!confirm('✗ Rechazar este retiro? El saldo volverá al creador.'))return;
+  // Obtener monto para devolver
+  var r=await api('GET','/rest/v1/withdrawals?id=eq.'+wid);
+  var w=r.data&&r.data[0];
+  if(w){
+    // Restaurar saldo
+    var rp=await api('GET','/rest/v1/profiles?id=eq.'+uid+'&select=pending_withdrawal');
+    var profile=rp.data&&rp.data[0];
+    if(profile){
+      await api('PATCH','/rest/v1/profiles?id=eq.'+uid,{pending_withdrawal:(parseFloat(profile.pending_withdrawal)||0)+parseFloat(w.amount)});
+    }
+  }
+  await api('PATCH','/rest/v1/withdrawals?id=eq.'+wid,{status:'rejected'});
+  toast('✗ Retiro rechazado y saldo restaurado');
+  lwd();
 }
 async function sset() {
   var u = async function(k, v) {

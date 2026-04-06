@@ -1,25 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>
-(function(){
-  // Clear all service worker caches immediately
-  if('caches' in window){
-    caches.keys().then(function(k){k.forEach(function(n){caches.delete(n);});});
-  }
-  // Unregister any old service worker
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistrations().then(function(regs){
-      regs.forEach(function(r){
-        if(r.active&&r.active.scriptURL&&r.active.scriptURL.indexOf('sw.js')>-1){
-          // Only unregister if it's an old version (not v5)
-          r.active.postMessage({type:'GET_VERSION'});
-        }
-      });
-    });
-  }
-})();
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET — Configuración</title>
@@ -27,12 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh;padding-bottom:80px}
 header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px}
 .logo{font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
 .page-title{font-family:Orbitron,sans-serif;font-size:12px;color:#5a8aaa;letter-spacing:.1em}
-.wrap{max-width:640px;margin:0 auto;padding:24px 16px}
-.section{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;margin-bottom:20px;overflow:hidden}
+.wrap{max-width:640px;margin:0 auto;padding:20px 16px}
+.section{background:rgba(7,15,30,.7);border:1px solid #0d2744;border-radius:12px;margin-bottom:16px;overflow:hidden}
 .section-head{padding:14px 18px;border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:10px}
 .section-icon{font-size:18px}
 .section-title{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.1em}
@@ -42,281 +23,290 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .field-label{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
 .field-input{width:100%;padding:10px 14px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;transition:border-color .2s}
 .field-input:focus{border-color:#00e5ff}
-.field-input[type=number]{-moz-appearance:textfield}
 .field-input:disabled{opacity:.4;cursor:not-allowed}
 .field-textarea{resize:none;height:80px}
 .field-hint{font-size:11px;color:#3a5060;margin-top:5px}
 .field-row{display:flex;gap:10px}
 .field-row .field{flex:1}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(13,39,68,.3)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(13,39,68,.3)}
 .toggle-row:last-child{border-bottom:none;padding-bottom:0}
 .toggle-label{font-size:14px;color:#c8d8e8}
 .toggle-sub{font-size:11px;color:#5a8aaa;margin-top:2px}
-.toggle{width:44px;height:24px;background:#0d2744;border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle{width:44px;height:24px;background:#0d2744;border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none}
 .toggle.on{background:#00e5ff}
 .toggle::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s}
 .toggle.on::after{transform:translateX(20px)}
-.save-btn{width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
-.save-btn:hover{background:linear-gradient(135deg,#ff4477,#cc0044)}
+.save-btn{width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;transition:opacity .2s}
 .save-btn:disabled{opacity:.4;cursor:not-allowed}
-.danger-btn{width:100%;padding:12px;background:transparent;border:1px solid rgba(255,34,85,.4);color:#ff2255;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em}
-.danger-btn:hover{background:rgba(255,34,85,.1)}
-.avatar-upload{display:flex;align-items:center;gap:16px;margin-bottom:16px}
-.av-preview{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;border:2px solid #0d2744;position:relative}
-.av-preview:hover::after{content:"\uD83D\uDCF7";position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:50%}
+.outline-btn{width:100%;padding:11px;background:transparent;border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;transition:all .2s;margin-top:8px}
+.outline-btn:hover{background:rgba(0,229,255,.08)}
+.danger-btn{width:100%;padding:11px;background:transparent;border:1px solid rgba(255,34,85,.3);color:#ff2255;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;transition:all .2s;margin-top:8px}
+.danger-btn:hover{background:rgba(255,34,85,.08)}
+.avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.av-preview{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;border:2px solid #0d2744;position:relative}
+.av-preview:hover::after{content:"📷";position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:50%}
 .av-preview img{width:100%;height:100%;object-fit:cover}
-.av-info{flex:1}
-.av-info p{font-size:12px;color:#5a8aaa;line-height:1.5}
+.av-info p{font-size:12px;color:#5a8aaa;line-height:1.6}
 .upload-inp{display:none}
-.cover-upload{width:100%;height:80px;border-radius:8px;background:linear-gradient(135deg,#1a0020,#000814);border:2px dashed #0d2744;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
-.cover-upload:hover{border-color:#ff2255}
-.cover-upload img{width:100%;height:100%;object-fit:cover;position:absolute}
-.cover-upload-label{font-size:13px;color:#5a8aaa;position:relative;z-index:2}
-.price-symbol{position:relative}
-.price-symbol::before{content:"$";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#5a8aaa;font-size:14px;pointer-events:none}
-.price-symbol .field-input{padding-left:26px}
-.status-msg{font-size:13px;text-align:center;min-height:18px;margin-top:8px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
+.cover-wrap{width:100%;height:90px;border-radius:8px;background:linear-gradient(135deg,#100020,#000814);border:2px dashed #0d2744;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.cover-wrap:hover{border-color:#ff2255}
+.cover-wrap img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.cover-wrap-label{font-size:13px;color:#5a8aaa;position:relative;z-index:2}
+.price-wrap{position:relative}
+.price-wrap::before{content:"$";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#5a8aaa;font-size:14px;pointer-events:none}
+.price-wrap .field-input{padding-left:28px}
+.stripe-status-box{padding:14px;border-radius:8px;margin-bottom:14px;font-size:13px}
+.stripe-status-box.pending{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.25);color:#ffaa00}
+.stripe-status-box.active{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);color:#00ff88}
+.stripe-status-box.none{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);color:#5a8aaa}
+.earnings-row{display:flex;gap:10px;margin-bottom:14px}
+.earning-card{flex:1;background:rgba(1,2,12,.6);border:1px solid #0d2744;border-radius:8px;padding:12px;text-align:center}
+.earning-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.earning-val{font-family:Orbitron,sans-serif;font-size:18px;font-weight:900;color:#00ff88}
+.withdraw-btn{width:100%;padding:11px;background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(0,150,80,.1));border:1px solid rgba(0,255,136,.35);color:#00ff88;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.withdraw-btn:disabled{opacity:.3;cursor:not-allowed}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.97);border:1px solid #00ff88;color:#00ff88;padding:10px 22px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}
+.sn-bn-item:hover,.sn-bn-active{color:#ff2255!important}
+.sn-bn-icon{font-size:22px;line-height:1}
+.sn-bn-lbl{font-size:9px}
+.sn-bn-plus{padding:4px 8px!important}
+.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800}
+.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none}}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="window.location.href='/'">SN</span>
+  <span class="page-title">CONFIGURACIÓN</span>
+</header>
 
-.cover-upload{position:relative;overflow:hidden;user-select:none}
-.cover-upload img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;cursor:grab;transition:none}
-.cover-upload img.dragging{cursor:grabbing}
-.cover-drag-hint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:3px 10px;border-radius:10px;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap}
-.cover-upload:hover .cover-drag-hint{opacity:1}
-.cover-reposition-btn{position:absolute;top:8px;right:8px;padding:5px 12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;z-index:10;display:none}
-.cover-upload.has-image .cover-reposition-btn{display:block}
-.cover-save-pos-btn{position:absolute;bottom:8px;right:8px;padding:5px 12px;background:#00ff88;color:#000;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:11px;cursor:pointer;text-transform:uppercase;z-index:10;display:none}
-.cover-upload.repositioning .cover-save-pos-btn{display:block}
-.cover-upload.repositioning .cover-drag-hint{opacity:1}
+<div class="wrap">
 
+  <!-- PERFIL -->
+  <div class="section">
+    <div class="section-head"><span class="section-icon">👤</span><span class="section-title">PERFIL</span></div>
+    <div class="section-body">
+      <div class="avatar-row">
+        <div class="av-preview" id="avPreview" onclick="document.getElementById('avatarInp').click()">?</div>
+        <div class="av-info"><p>Foto de perfil<br><span style="color:#3a5060">JPG/PNG · Máximo 5MB</span></p><button class="outline-btn" style="margin-top:8px;padding:7px 16px;width:auto;font-size:11px" onclick="document.getElementById('avatarInp').click()">Cambiar foto</button></div>
+      </div>
+      <input type="file" class="upload-inp" id="avatarInp" accept="image/*">
+      <div class="cover-wrap" id="coverPreview" onclick="document.getElementById('coverInp').click()">
+        <span class="cover-wrap-label">🖼 Portada — click para cambiar</span>
+      </div>
+      <input type="file" class="upload-inp" id="coverInp" accept="image/*">
+      <div class="field">
+        <label class="field-label">Usuario</label>
+        <input type="text" class="field-input" id="usernameInp" placeholder="@tu_usuario" maxlength="30">
+      </div>
+      <div class="field">
+        <label class="field-label">Biografía <span id="bioCount" style="float:right;color:#3a5060">0/160 caracteres</span></label>
+        <textarea class="field-input field-textarea" id="bioInp" placeholder="Cuéntanos sobre ti..." maxlength="160"></textarea>
+      </div>
+      <button class="save-btn" id="saveProfileBtn" onclick="saveProfile()">💾 Guardar Perfil</button>
+    </div>
+  </div>
+
+  <!-- CREADOR -->
+  <div class="section" id="creatorSection" style="display:none">
+    <div class="section-head"><span class="section-icon">🎨</span><span class="section-title">CONFIGURACIÓN DE CREADOR</span></div>
+    <div class="section-body">
+      <div class="earnings-row">
+        <div class="earning-card"><div class="earning-label">Ganado total</div><div class="earning-val" id="totalEarnings">$0.00</div></div>
+        <div class="earning-card"><div class="earning-label">Disponible</div><div class="earning-val" id="pendingBalance">$0.00</div></div>
+        <div class="earning-card"><div class="earning-label">Retirado</div><div class="earning-val" style="color:#5a8aaa" id="totalWithdrawn">$0.00</div></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Precio de suscripción mensual</label>
+        <div class="price-wrap"><input type="number" class="field-input" id="priceInp" placeholder="9.99" min="0" step="0.01"></div>
+        <p class="field-hint">Escribe 0 para perfil gratuito</p>
+      </div>
+      <div class="field">
+        <label class="field-label">Email PayPal (para retiros manuales)</label>
+        <input type="email" class="field-input" id="paypalInp" placeholder="tu@paypal.com">
+      </div>
+      <button class="save-btn" onclick="saveCreatorSettings()">💾 Guardar configuración</button>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #0d2744">
+        <div class="section-title" style="margin-bottom:12px">💳 STRIPE CONNECT — Pagos automáticos</div>
+        <div id="stripeStatusBox" class="stripe-status-box none">Cargando estado de Stripe...</div>
+        <button class="outline-btn" id="stripeConnectBtn" onclick="connectStripe()" style="margin-top:0">💳 Conectar cuenta bancaria</button>
+        <button class="withdraw-btn" id="withdrawBtn" onclick="requestWithdraw()" disabled>💸 Solicitar retiro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGURIDAD -->
+  <div class="section">
+    <div class="section-head"><span class="section-icon">🔐</span><span class="section-title">SEGURIDAD</span></div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Nueva contraseña</label>
+          <input type="password" class="field-input" id="pwInp" placeholder="Mínimo 8 caracteres">
+        </div>
+        <div class="field">
+          <label class="field-label">Confirmar contraseña</label>
+          <input type="password" class="field-input" id="pw2Inp" placeholder="Repite la contraseña">
+        </div>
+      </div>
+      <button class="save-btn" onclick="changePassword()">🔐 Cambiar contraseña</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICACIONES -->
+  <div class="section">
+    <div class="section-head"><span class="section-icon">🔔</span><span class="section-title">NOTIFICACIONES</span></div>
+    <div class="section-body">
+      <div class="toggle-row"><div><div class="toggle-label">Likes en mis posts</div></div><button class="toggle on" id="togLikes" onclick="this.classList.toggle('on')"></button></div>
+      <div class="toggle-row"><div><div class="toggle-label">Comentarios</div></div><button class="toggle on" id="togComments" onclick="this.classList.toggle('on')"></button></div>
+      <div class="toggle-row"><div><div class="toggle-label">Nuevos seguidores</div></div><button class="toggle on" id="togFollows" onclick="this.classList.toggle('on')"></button></div>
+      <div class="toggle-row"><div><div class="toggle-label">Mensajes directos</div></div><button class="toggle on" id="togDMs" onclick="this.classList.toggle('on')"></button></div>
+      <div class="toggle-row"><div><div class="toggle-label">Nuevos suscriptores</div><div class="toggle-sub">Solo creadores</div></div><button class="toggle on" id="togSubs" onclick="this.classList.toggle('on')"></button></div>
+      <button class="save-btn" style="margin-top:14px" onclick="saveNotifPrefs()">💾 Guardar preferencias</button>
+    </div>
+  </div>
+
+  <!-- CUENTA -->
+  <div class="section">
+    <div class="section-head"><span class="section-icon">⚙️</span><span class="section-title">CUENTA</span></div>
+    <div class="section-body">
+      <div style="font-size:13px;color:#5a8aaa;margin-bottom:14px">Sesión iniciada como <strong id="sessionEmail" style="color:#c8d8e8">...</strong></div>
+      <button class="outline-btn" onclick="confirmLogout()" style="margin-top:0">🚪 Cerrar sesión</button>
+      <button class="danger-btn" onclick="confirmDelete()">⚠️ Eliminar cuenta</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav class="sn-bottom-nav">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">🏠</span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">🔍</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">+</span></a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">💬</span><span class="sn-bn-lbl">Mensajes</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/settings.html"><span class="sn-bn-icon">⚙️</span><span class="sn-bn-lbl">Ajustes</span></a>
+</nav>
+
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var currentUser=null;
+var pendingAvatarFile=null;
+var pendingCoverFile=null;
+
+// Redirigir si no autenticado
+sb.auth.getSession().then(function(r){
+  if(!r.data.session){window.location.href='/';return;}
+  currentUser=r.data.session.user;
+  document.getElementById('sessionEmail').textContent=currentUser.email;
+  loadProfile();
+});
+
+async function loadProfile(){
+  if(!currentUser)return;
+  var r=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(r.error||!r.data)return;
+  var d=r.data;
+  // Avatar
+  var av=document.getElementById('avPreview');
+  if(d.avatar_url){av.innerHTML='<img src="'+d.avatar_url+'">';}else{av.textContent=(d.username||'?')[0].toUpperCase();}
+  // Cover
+  if(d.cover_url){
+    var cp=document.getElementById('coverPreview');
+    cp.innerHTML='<img src="'+d.cover_url+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><span class="cover-wrap-label" style="position:relative;z-index:2;opacity:.7">🖼 Click para cambiar</span>';
+  }
+  // Fields
+  document.getElementById('usernameInp').value=d.username||'';
+  document.getElementById('bioInp').value=d.bio||'';
+  document.getElementById('bioCount').textContent=(d.bio||'').length+'/160 caracteres';
+  // Creator section
+  if(d.role==='creator'||d.is_creator){
+    document.getElementById('creatorSection').style.display='block';
+    document.getElementById('priceInp').value=d.subscription_price||'';
+    document.getElementById('paypalInp').value=d.paypal_email||'';
+    document.getElementById('totalEarnings').textContent='$'+(parseFloat(d.total_earnings||0)).toFixed(2);
+    document.getElementById('pendingBalance').textContent='$'+(parseFloat(d.pending_withdrawal||0)).toFixed(2);
+    document.getElementById('totalWithdrawn').textContent='$'+(parseFloat(d.total_withdrawn||0)).toFixed(2);
+    var wBtn=document.getElementById('withdrawBtn');
+    if(wBtn) wBtn.disabled=(parseFloat(d.pending_withdrawal||0)<10);
+    loadStripeStatus();
+  }
+  // Notif prefs
+  if(d.notif_likes===false) document.getElementById('togLikes').classList.remove('on');
+  if(d.notif_comments===false) document.getElementById('togComments').classList.remove('on');
+  if(d.notif_follows===false) document.getElementById('togFollows').classList.remove('on');
+  if(d.notif_messages===false) document.getElementById('togDMs').classList.remove('on');
+  if(d.notif_subs===false) document.getElementById('togSubs').classList.remove('on');
+  // Check stripe return
+  var params=new URLSearchParams(location.search);
+  if(params.get('stripe')==='success'){showToast('✅ Stripe conectado correctamente!');loadStripeStatus();}
+  if(params.get('stripe')==='refresh'){showToast('Reintenta conectar tu cuenta Stripe',true);}
+}
 
 async function saveProfile(){
-  var btn=document.querySelector(".save-btn");btn.disabled=true;btn.textContent="Guardando...";
-  var username=document.getElementById("usernameInp").value.trim().replace(/[^a-zA-Z0-9_]/g,"");
-  var bio=document.getElementById("bioInp").value.trim();
+  var btn=document.getElementById('saveProfileBtn');
+  btn.disabled=true;btn.textContent='Guardando...';
+  var username=document.getElementById('usernameInp').value.trim().replace(/[^a-zA-Z0-9_.]/g,'');
+  var bio=document.getElementById('bioInp').value.trim();
+  if(!username||username.length<3){showToast('Usuario mínimo 3 caracteres',true);btn.disabled=false;btn.textContent='💾 Guardar Perfil';return;}
   var updates={username:username,bio:bio};
-  // Upload avatar if changed
   if(pendingAvatarFile){
-    var ext=pendingAvatarFile.name.split(".").pop();
-    var path="avatars/"+currentUser.id+"/avatar."+ext;
-    var up=await sb.storage.from("media").upload(path,pendingAvatarFile,{upsert:true});
-    if(!up.error) updates.avatar_url=sb.storage.from("media").getPublicUrl(path).data.publicUrl;
+    var ext=pendingAvatarFile.name.split('.').pop();
+    var path='avatars/'+currentUser.id+'/avatar.'+ext;
+    var up=await sb.storage.from('media').upload(path,pendingAvatarFile,{upsert:true});
+    if(!up.error) updates.avatar_url=sb.storage.from('media').getPublicUrl(path).data.publicUrl;
   }
-  // Upload cover if changed
   if(pendingCoverFile){
-    var ext2=pendingCoverFile.name.split(".").pop();
-    var path2="covers/"+currentUser.id+"/cover."+ext2;
-    var up2=await sb.storage.from("media").upload(path2,pendingCoverFile,{upsert:true});
-    if(!up2.error) updates.cover_url=sb.storage.from("media").getPublicUrl(path2).data.publicUrl;
+    var ext2=pendingCoverFile.name.split('.').pop();
+    var path2='covers/'+currentUser.id+'/cover.'+ext2;
+    var up2=await sb.storage.from('media').upload(path2,pendingCoverFile,{upsert:true});
+    if(!up2.error) updates.cover_url=sb.storage.from('media').getPublicUrl(path2).data.publicUrl;
   }
-  var r=await sb.from("profiles").update(updates).eq("id",currentUser.id);
-  btn.disabled=false;btn.textContent="\u2713 Guardar Perfil";
-  if(r.error){showToast("Error: "+r.error.message,true);}
-  else{showToast("\u2713 Perfil actualizado!");pendingAvatarFile=null;pendingCoverFile=null;}
+  var r=await sb.from('profiles').update(updates).eq('id',currentUser.id);
+  btn.disabled=false;btn.textContent='💾 Guardar Perfil';
+  if(r.error){showToast('Error: '+r.error.message,true);}else{showToast('✓ Perfil actualizado!');pendingAvatarFile=null;pendingCoverFile=null;}
 }
 
 async function saveCreatorSettings(){
-  var price=parseFloat(document.getElementById("priceInp").value||0);
-  var paypal=document.getElementById("paypalInp").value.trim();
-  if(price>0&&price<1){showToast("Precio m\u00EDnimo $1.00",true);return;}
-  var r=await sb.from("profiles").update({subscription_price:price,paypal_email:paypal}).eq("id",currentUser.id);
-  if(r.error){showToast("Error: "+r.error.message,true);}
-  else showToast("\u2713 Configuraci\u00F3n de creador guardada!");
+  var price=parseFloat(document.getElementById('priceInp').value||0);
+  var paypal=document.getElementById('paypalInp').value.trim();
+  if(price>0&&price<1){showToast('Precio mínimo $1.00',true);return;}
+  var r=await sb.from('profiles').update({subscription_price:price,paypal_email:paypal}).eq('id',currentUser.id);
+  showToast(r.error?'Error: '+r.error.message:'✓ Configuración guardada!');
 }
 
 async function changePassword(){
-  var pw=document.getElementById("pwInp").value;
-  var pw2=document.getElementById("pw2Inp").value;
-  if(!pw){showToast("Ingresa una nueva contrase\u00F1a",true);return;}
-  if(pw.length<8){showToast("M\u00EDnimo 8 caracteres",true);return;}
-  if(pw!==pw2){showToast("Las contrase\u00F1as no coinciden",true);return;}
+  var pw=document.getElementById('pwInp').value;
+  var pw2=document.getElementById('pw2Inp').value;
+  if(!pw){showToast('Ingresa una nueva contraseña',true);return;}
+  if(pw.length<8){showToast('Mínimo 8 caracteres',true);return;}
+  if(pw!==pw2){showToast('Las contraseñas no coinciden',true);return;}
   var r=await sb.auth.updateUser({password:pw});
-  if(r.error){showToast("Error: "+r.error.message,true);}
-  else{showToast("\u2713 Contrase\u00F1a cambiada!");document.getElementById("pwInp").value="";document.getElementById("pw2Inp").value="";}
+  if(r.error){showToast('Error: '+r.error.message,true);}else{showToast('✓ Contraseña cambiada!');document.getElementById('pwInp').value='';document.getElementById('pw2Inp').value='';}
 }
 
-function togglePref(key,el){el.classList.toggle("on");}
-
-function confirmLogout(){
-  if(confirm("\u00BFCerrar sesi\u00F3n?")){sb.auth.signOut().then(function(){window.location.href="/";});}
-}
-
-function updateBioCount(){
-  var v=document.getElementById("bioInp").value.length;
-  document.getElementById("bioCount").textContent=v+"/160 caracteres";
-}
-document.getElementById("bioInp").addEventListener("input",updateBioCount);
-
-// Avatar file picker
-document.getElementById("avatarInp").addEventListener("change",function(){
-  if(!this.files[0])return;
-  pendingAvatarFile=this.files[0];
-  var url=URL.createObjectURL(pendingAvatarFile);
-  var av=document.getElementById("avPreview");av.innerHTML="";
-  var img=document.createElement("img");img.src=url;av.appendChild(img);
-});
-// Cover file picker
-document.getElementById("coverInp").addEventListener("change",function(){
-  if(!this.files[0])return;
-  pendingCoverFile=this.files[0];
-  var url=URL.createObjectURL(pendingCoverFile);
-  var cp=document.getElementById("coverPreview");
-  var existing=cp.querySelector("img");
-  if(existing)existing.remove();
-  var img=document.createElement("img");
-  img.src=url;
-  img.style.objectFit="cover";
-  img.style.width="100%";
-  img.style.height="100%";
-  img.style.objectPosition="center 50%";
-  _coverOffsetY=50;
-  cp.appendChild(img);
-  var lbl=document.getElementById("coverLabel");
-  if(lbl)lbl.style.display="none";
-  initCoverReposition(img);
-  setupDragListeners();
-});
-
-function showToast(msg,err){
-  var t=document.getElementById("toast");t.textContent=msg;
-  t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
-  t.style.display="block";setTimeout(function(){t.style.display="none";},3000);
-}
-
-// =============================================
-// COVER IMAGE DRAG-TO-REPOSITION
-// =============================================
-var _coverDragging = false;
-var _coverStartY = 0;
-var _coverOffsetY = 50; // percentage (0-100)
-var _coverStartOffset = 50;
-var _repositioning = false;
-
-function handleCoverClick(e) {
-  if (_repositioning) return;
-  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
-  var cp = document.getElementById("coverPreview");
-  if (!cp.classList.contains("has-image")) {
-    document.getElementById("coverInp").click();
-  }
-}
-
-function startReposition(e) {
-  e.stopPropagation();
-  _repositioning = true;
-  var cp = document.getElementById("coverPreview");
-  cp.classList.add("repositioning");
-  var hint = document.getElementById("coverDragHint");
-  if (hint) hint.textContent = "Arrastra la imagen para ajustar";
-  setupDragListeners();
-}
-
-function setupDragListeners() {
-  var cp = document.getElementById("coverPreview");
-  var img = cp.querySelector("img");
-  if (!img) return;
-
-  function onStart(e) {
-    if (!_repositioning) return;
-    _coverDragging = true;
-    _coverStartY = e.touches ? e.touches[0].clientY : e.clientY;
-    _coverStartOffset = _coverOffsetY;
-    img.classList.add("dragging");
-    e.preventDefault();
-  }
-
-  function onMove(e) {
-    if (!_coverDragging || !_repositioning) return;
-    var currentY = e.touches ? e.touches[0].clientY : e.clientY;
-    var delta = currentY - _coverStartY;
-    var containerH = cp.offsetHeight;
-    var imgH = img.naturalHeight * (cp.offsetWidth / img.naturalWidth);
-    var maxDelta = Math.max(0, imgH - containerH);
-    var pctDelta = maxDelta > 0 ? (delta / maxDelta) * 100 : 0;
-    _coverOffsetY = Math.max(0, Math.min(100, _coverStartOffset - pctDelta));
-    img.style.objectPosition = "center " + _coverOffsetY + "%";
-    img.style.objectFit = "cover";
-    img.style.position = "";
-    img.style.top = "";
-    img.style.left = "";
-    img.style.width = "100%";
-    img.style.height = "100%";
-    e.preventDefault();
-  }
-
-  function onEnd() {
-    _coverDragging = false;
-    if (img) img.classList.remove("dragging");
-  }
-
-  img.addEventListener("mousedown", onStart);
-  img.addEventListener("touchstart", onStart, {passive:false});
-  document.addEventListener("mousemove", onMove);
-  document.addEventListener("touchmove", onMove, {passive:false});
-  document.addEventListener("mouseup", onEnd);
-  document.addEventListener("touchend", onEnd);
-}
-
-function savePosition(e) {
-  e.stopPropagation();
-  _repositioning = false;
-  var cp = document.getElementById("coverPreview");
-  cp.classList.remove("repositioning");
-  var img = cp.querySelector("img");
-  if (img) img.classList.remove("dragging");
-  var hint = document.getElementById("coverDragHint");
-  if (hint) hint.textContent = "Arrastra para ajustar la posicion";
-  // Save position to profile
-  saveCoverPosition(_coverOffsetY);
-  showToast("\u2713 Posicion de portada guardada");
-}
-
-async function saveCoverPosition(posY) {
-  if (!currentUser) return;
-  await sb.from("profiles").update({cover_position: posY}).eq("id", currentUser.id);
-}
-
-// Initialize cover repositioning when cover loaded
-function initCoverReposition(img) {
-  var cp = document.getElementById("coverPreview");
-  cp.classList.add("has-image");
-  // Load saved position
-  sb.from("profiles").select("cover_position").eq("id", currentUser.id).single().then(function(r) {
-    if (r.data && r.data.cover_position !== null && r.data.cover_position !== undefined) {
-      _coverOffsetY = parseFloat(r.data.cover_position) || 50;
-      img.style.objectPosition = "center " + _coverOffsetY + "%";
-    }
-  });
-}
-
-// ---- NOTIF PREFS ----
 async function saveNotifPrefs(){
-  if(!window.sb||!currentUser)return;
-  // Toggle divs use class "on" — not checkboxes
-  function isOn(id){ var el=document.getElementById(id); return el ? el.classList.contains('on') : true; }
-  var prefs={
-    notif_likes: isOn('togLikes'),
-    notif_comments: isOn('togComments'),
-    notif_follows: isOn('togFollows'),
-    notif_messages: isOn('togDMs'),
-    notif_subs: isOn('togSubs'),
-    notif_tips: true
-  };
-  var r=await window.sb.from('profiles').update(prefs).eq('id',currentUser.id);
-  showToast(r.error?'Error: '+r.error.message:'\u2713 Preferencias guardadas');
+  function isOn(id){var el=document.getElementById(id);return el?el.classList.contains('on'):true;}
+  var prefs={notif_likes:isOn('togLikes'),notif_comments:isOn('togComments'),notif_follows:isOn('togFollows'),notif_messages:isOn('togDMs'),notif_subs:isOn('togSubs'),notif_tips:true};
+  var r=await sb.from('profiles').update(prefs).eq('id',currentUser.id);
+  showToast(r.error?'Error: '+r.error.message:'✓ Preferencias guardadas');
 }
 
-// ---- STRIPE CONNECT ----
 async function connectStripe(){
-  if(!window.sb)return;
-  var sess=await window.sb.auth.getSession();
+  var sess=await sb.auth.getSession();
   if(!sess.data.session){window.location.href='/';return;}
   var btn=document.getElementById('stripeConnectBtn');
   if(btn){btn.disabled=true;btn.textContent='Conectando...';}
   try{
-    var res=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/stripe-onboard',{
+    var res=await fetch(SB_URL+'/functions/v1/stripe-onboard',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su'}
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':SB_KEY}
     });
     var data=await res.json();
     if(data.url){window.location.href=data.url;}
@@ -327,33 +317,90 @@ async function connectStripe(){
   }
 }
 
+async function loadStripeStatus(){
+  var sess=await sb.auth.getSession();
+  if(!sess.data.session)return;
+  var box=document.getElementById('stripeStatusBox');
+  var connectBtn=document.getElementById('stripeConnectBtn');
+  try{
+    var res=await fetch(SB_URL+'/functions/v1/stripe-onboard/status',{
+      headers:{'Authorization':'Bearer '+sess.data.session.access_token,'apikey':SB_KEY}
+    });
+    var d=await res.json();
+    if(d.charges_enabled&&d.payouts_enabled){
+      box.className='stripe-status-box active';
+      box.innerHTML='✅ Cuenta Stripe activa — recibirás pagos automáticos al instante';
+      if(connectBtn)connectBtn.textContent='✓ Cuenta conectada';
+    } else if(d.account_id){
+      box.className='stripe-status-box pending';
+      box.innerHTML='⏳ Onboarding incompleto — completa el proceso para recibir pagos';
+      if(connectBtn)connectBtn.textContent='▶ Continuar onboarding';
+    } else {
+      box.className='stripe-status-box none';
+      box.innerHTML='Sin cuenta Stripe conectada. Conéctala para recibir pagos automáticos.';
+    }
+  }catch(e){box.innerHTML='No se pudo verificar estado de Stripe';}
+}
+
+async function requestWithdraw(){
+  var pending=parseFloat(document.getElementById('pendingBalance').textContent.replace('$',''))||0;
+  if(pending<10){showToast('Mínimo $10 para retirar',true);return;}
+  var amount=prompt('¿Cuánto quieres retirar? Disponible: $'+pending.toFixed(2)+'
+(Mínimo $10.00)');
+  if(!amount)return;
+  var amt=parseFloat(amount);
+  if(isNaN(amt)||amt<10||amt>pending){showToast('Monto inválido',true);return;}
+  var sess=await sb.auth.getSession();
+  if(!sess.data.session)return;
+  var res=await fetch(SB_URL+'/functions/v1/stripe-onboard/withdraw',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':SB_KEY},
+    body:JSON.stringify({amount:amt})
+  });
+  var d=await res.json();
+  if(d.error){showToast('Error: '+d.error,true);return;}
+  showToast('✓ Retiro procesado! Neto: $'+parseFloat(d.net_amount).toFixed(2));
+  loadProfile();
+}
+
+function confirmLogout(){
+  if(confirm('¿Cerrar sesión?')){sb.auth.signOut().then(function(){window.location.href='/';});}
+}
+
+function confirmDelete(){
+  var c1=confirm('¿Seguro que quieres eliminar tu cuenta? Esta acción es irreversible.');
+  if(!c1)return;
+  var c2=confirm('ÚLTIMA ADVERTENCIA: Se eliminarán todos tus datos, publicaciones y ganancias.');
+  if(!c2)return;
+  showToast('Contacta a soporte para eliminar tu cuenta: soporte@shadownet.xxx');
+}
+
+function showToast(msg,err){
+  var t=document.getElementById('toast');t.textContent=msg;
+  t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';
+  t.style.display='block';clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},3000);
+}
+
+// Bio counter
+document.addEventListener('DOMContentLoaded',function(){
+  var bio=document.getElementById('bioInp');
+  if(bio)bio.addEventListener('input',function(){document.getElementById('bioCount').textContent=this.value.length+'/160 caracteres';});
+  // Avatar picker
+  document.getElementById('avatarInp').addEventListener('change',function(){
+    if(!this.files[0])return;
+    pendingAvatarFile=this.files[0];
+    var url=URL.createObjectURL(pendingAvatarFile);
+    var av=document.getElementById('avPreview');av.innerHTML='<img src="'+url+'">';
+  });
+  // Cover picker
+  document.getElementById('coverInp').addEventListener('change',function(){
+    if(!this.files[0])return;
+    pendingCoverFile=this.files[0];
+    var url=URL.createObjectURL(pendingCoverFile);
+    var cp=document.getElementById('coverPreview');
+    cp.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><span class="cover-wrap-label" style="position:relative;z-index:2;opacity:.7">✓ Nueva portada</span>';
+  });
+});
 </script>
-
-
-
-<!-- SN Bottom Nav -->
-
-<style>
-/* SN-NAV */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:22px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:4px 8px!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-</style>
-
-<nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
-</nav>
-<script>(function(){var U='https://cdokplvoqivducsqrejt.supabase.co',K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';function go(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);if(!sb){setTimeout(go,400);return;}sb.auth.getSession().then(function(r){var a=document.getElementById('snNavAv');if(!a)return;if(!r.data||!r.data.session){a.innerHTML='&#128100;';return;}sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();</script>
 </body>
 </html>

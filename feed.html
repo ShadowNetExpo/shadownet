@@ -304,7 +304,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 </style>
 </head>
 <body>
-<header>
+<header><button id="notifBell" onclick="toggleNotifPanel()" style="margin-left:auto;background:none;border:none;color:#c8d8e8;font-size:22px;cursor:pointer;position:relative;padding:4px 8px" title="Notificaciones">&#128276;<span id="notifDot" style="display:none;position:absolute;top:2px;right:6px;width:9px;height:9px;background:#ff2255;border-radius:50%;border:2px solid #01020c"></span></button>
   <span class="logo" onclick="window.location.href='/'">SHADOWNET</span>
   <div class="nav-btns">
     <button class="nbtn active" onclick="window.location.href='/feed.html'">Feed</button>
@@ -1562,11 +1562,90 @@ async function sendTip(){
 <nav class="sn-bottom-nav" id="snBottomNav">
   <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <button class="sn-bn-item sn-bn-plus" onclick="openCreateSheet()" style="border:none;background:none;cursor:pointer"><span class="sn-bn-plus-inner">&#43;</span></button>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
   <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
 <script>
 (function(){var U='https://cdokplvoqivducsqrejt.supabase.co',K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';function go(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);if(!sb){setTimeout(go,400);return;}sb.auth.getSession().then(function(r){var a=document.getElementById('snNavAv');if(!a)return;if(!r.data||!r.data.session){a.innerHTML='&#128100;';return;}sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();</script>
+
+<!-- CREATION ACTION SHEET -->
+<div id="createSheet" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.7)" onclick="if(event.target===this)closeCreateSheet()">
+  <div style="position:fixed;bottom:0;left:0;right:0;background:#070f1e;border-top:1px solid #0d2744;border-radius:20px 20px 0 0;padding:24px 20px 40px;max-width:680px;margin:0 auto">
+    <div style="width:40px;height:4px;background:#0d2744;border-radius:2px;margin:0 auto 20px"></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <button onclick="closeCreateSheet();openNewPost()" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);border-radius:14px;padding:16px 8px;cursor:pointer;color:#ff6680;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
+        <span style="font-size:26px">&#128247;</span>Post
+      </button>
+      <button onclick="closeCreateSheet();window.location.href='/stories.html'" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);border-radius:14px;padding:16px 8px;cursor:pointer;color:#00e5ff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
+        <span style="font-size:26px">&#10024;</span>Historia
+      </button>
+      <button onclick="closeCreateSheet();window.location.href='/live.html'" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,0,80,.1);border:1px solid rgba(255,0,80,.3);border-radius:14px;padding:16px 8px;cursor:pointer;color:#ff2255;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
+        <span style="font-size:26px">&#128250;</span>Live
+      </button>
+      <button onclick="closeCreateSheet();window.location.href='/messages.html'" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2);border-radius:14px;padding:16px 8px;cursor:pointer;color:#ffaa00;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
+        <span style="font-size:26px">&#128172;</span>Mensaje
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div id="notifPanel" style="display:none;position:fixed;top:0;right:0;bottom:0;width:min(380px,100%);background:#070f1e;border-left:1px solid #0d2744;z-index:9997;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.5)">
+  <div style="position:sticky;top:0;background:#070f1e;border-bottom:1px solid #0d2744;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;z-index:1">
+    <span style="font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;letter-spacing:.08em">NOTIFICACIONES</span>
+    <button onclick="toggleNotifPanel()" style="background:none;border:none;color:#5a8aaa;font-size:22px;cursor:pointer">&times;</button>
+  </div>
+  <div id="notifList" style="padding:12px"><div style="text-align:center;padding:40px;color:#5a8aaa;font-size:13px">Cargando...</div></div>
+</div>
+
+<script>
+function openCreateSheet(){ document.getElementById('createSheet').style.display='block'; document.body.style.overflow='hidden'; }
+function closeCreateSheet(){ document.getElementById('createSheet').style.display='none'; document.body.style.overflow=''; }
+
+var _notifOpen = false;
+function toggleNotifPanel(){
+  _notifOpen = !_notifOpen;
+  document.getElementById('notifPanel').style.display = _notifOpen ? 'block' : 'none';
+  if(_notifOpen) loadNotifications();
+}
+
+async function loadNotifications(){
+  var list = document.getElementById('notifList');
+  if(!window.sb || !window.currentUser){ list.innerHTML='<div style="text-align:center;padding:40px;color:#5a8aaa;font-size:13px">Inicia sesi&#243;n para ver notificaciones</div>'; return; }
+  var r = await window.sb.from('notifications').select('*').eq('user_id', window.currentUser.id).order('created_at',{ascending:false}).limit(30);
+  var notifs = r.data || [];
+  // Mark as read
+  if(notifs.length) {
+    document.getElementById('notifDot').style.display='none';
+    window.sb.from('notifications').update({read:true}).eq('user_id',window.currentUser.id).eq('read',false).then(()=>{});
+  }
+  if(!notifs.length){ list.innerHTML='<div style="text-align:center;padding:40px;color:#5a8aaa;font-size:13px">Sin notificaciones</div>'; return; }
+  list.innerHTML = notifs.map(function(n){
+    var ico = n.type==='like'?'&#10084;':n.type==='follow'?'&#128100;':n.type==='comment'?'&#128172;':n.type==='tip'?'&#128176;':n.type==='subscription'?'&#11088;':'&#128276;';
+    var t = new Date(n.created_at);
+    var ago = Math.round((Date.now()-t.getTime())/60000);
+    var timeStr = ago<60?(ago+'m'):ago<1440?(Math.round(ago/60)+'h'):(Math.round(ago/1440)+'d');
+    return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #0a1628;cursor:pointer" onclick="'+( n.post_id ? 'window.location.href='feed.html?post='+n.post_id+''' : n.from_user_id ? 'window.location.href='profile.html?id='+n.from_user_id+''' : '')+'">'+
+      '<div style="width:36px;height:36px;border-radius:50%;background:rgba(255,34,85,.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">'+ico+'</div>'+
+      '<div style="flex:1">'+
+        '<div style="font-size:13px;color:#c8d8e8;line-height:1.4">'+n.message+'</div>'+
+        '<div style="font-size:11px;color:#5a8aaa;margin-top:3px">'+timeStr+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+// Check unread notifications on load
+(function(){
+  function checkUnread(){
+    if(!window.sb||!window.currentUser){setTimeout(checkUnread,1000);return;}
+    window.sb.from('notifications').select('id',{count:'exact',head:true}).eq('user_id',window.currentUser.id).eq('read',false).then(function(r){
+      if(r.count>0) document.getElementById('notifDot').style.display='block';
+    });
+  }
+  setTimeout(checkUnread, 1500);
+})();
+</script>
 </body>
 </html>

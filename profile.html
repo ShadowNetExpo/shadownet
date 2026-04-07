@@ -24,20 +24,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script>
-(function(){
-  var _U='https://cdokplvoqivducsqrejt.supabase.co',_K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function _guard(){
-    if(!window.supabase||!window.supabase.createClient){setTimeout(_guard,100);return;}
-    var _sb=window.supabase.createClient(_U,_K);
-    window.sb=window.sb||_sb;
-    _sb.auth.getSession().then(function(r){
-      if(!r.data||!r.data.session){window.location.replace('/');}
-    });
-  }
-  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_guard);}else{_guard();}
-})();
-</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -290,7 +277,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 <script>
 var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
 var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;window.sb=sb;
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
 var currentUser=null;
 var currentProfile=null;
 var targetProfile=null;
@@ -1437,6 +1424,31 @@ else _go();
       btn.style.display='flex';
     });
   });
+})();
+</script>
+
+<!-- Auth guard v3 - uses shared sb client -->
+<script>
+(function(){
+  function doCheck(){
+    var client = window.sb;
+    if(!client){ setTimeout(doCheck,200); return; }
+    client.auth.getSession().then(function(res){
+      if(res.data && res.data.session) return; // logged in, do nothing
+      // Not logged in yet - wait 800ms for token refresh before redirecting
+      setTimeout(function(){
+        client.auth.getSession().then(function(res2){
+          if(!res2.data || !res2.data.session) window.location.replace('/');
+        });
+      }, 800);
+    });
+  }
+  // Delay to ensure main scripts have run and window.sb is set
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(doCheck,400); });
+  } else {
+    setTimeout(doCheck,400);
+  }
 })();
 </script>
 </body>

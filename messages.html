@@ -3,26 +3,14 @@
 <head>
 <script>
 (function(){
-  // Clear all service worker caches immediately
   if('caches' in window){
     caches.keys().then(function(k){k.forEach(function(n){caches.delete(n);});});
-  }
-  // Unregister any old service worker
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistrations().then(function(regs){
-      regs.forEach(function(r){
-        if(r.active&&r.active.scriptURL&&r.active.scriptURL.indexOf('sw.js')>-1){
-          // Only unregister if it's an old version (not v5)
-          r.active.postMessage({type:'GET_VERSION'});
-        }
-      });
-    });
   }
 })();
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Mensajes</title>
+<title>SHADOWNET &#8212; Mensajes</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -76,12 +64,11 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .search-results{max-height:200px;overflow-y:auto}
 .search-result-item{padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;border-radius:8px;transition:background .15s}
 .search-result-item:hover{background:rgba(0,229,255,.08)}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none}
 .login-wall{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#5a8aaa}
 .login-wall a{color:#00e5ff;text-decoration:none;font-weight:700}
 @media(max-width:600px){.sidebar{width:100%;position:absolute;z-index:10;background:#01020c;height:calc(100vh - 52px)}.sidebar.hidden{display:none}.chat-area{width:100%}}
-
-/* Instagram Notes/Status */
+/* Notes */
 .note-bar{padding:12px 16px;border-bottom:1px solid rgba(13,39,68,.4);background:rgba(7,15,30,.5)}
 .note-bar-title{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
 .note-bubbles-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
@@ -93,7 +80,6 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .note-text-bubble{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #0d2744;border-radius:12px 12px 12px 0;padding:4px 8px;font-size:10px;color:#e8f4ff;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .note-username{font-size:10px;color:#5a8aaa;text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .my-note-bubble .note-av{border-color:#00e5ff}
-/* Note input modal */
 .note-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:none;align-items:center;justify-content:center}
 .note-modal.open{display:flex}
 .note-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:24px;width:100%;max-width:360px;margin:0 16px}
@@ -106,14 +92,11 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .note-btns{display:flex;gap:8px}
 .note-clear-btn{flex:1;padding:10px;background:transparent;border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase}
 .note-save-btn{flex:2;padding:10px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;text-transform:uppercase}
-
-/* DM Requests (Instagram style) */
+/* DM Requests */
 .dm-requests-btn{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(13,39,68,.4);cursor:pointer;transition:background .15s}
 .dm-requests-btn:hover{background:rgba(0,229,255,.04)}
 .dm-requests-label{font-size:13px;font-weight:700;color:#e8f4ff;display:flex;align-items:center;gap:8px}
 .dm-requests-count{background:#ff2255;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px}
-.dm-requests-arrow{color:#5a8aaa;font-size:16px}
-/* Requests panel */
 .requests-panel{position:fixed;inset:0;background:#01020c;z-index:1000;display:none;flex-direction:column}
 .requests-panel.open{display:flex}
 .requests-header{padding:14px 16px;border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px;font-family:Orbitron,sans-serif;font-size:12px;color:#e8f4ff;letter-spacing:.1em}
@@ -127,23 +110,18 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .request-actions{display:flex;gap:8px;flex-shrink:0}
 .req-accept{padding:7px 14px;background:#ff2255;border:none;color:#fff;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer}
 .req-decline{padding:7px 14px;background:transparent;border:1px solid #0d2744;color:#5a8aaa;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
-
-/* PPV Message (OnlyFans style) */
+/* PPV */
 .ppv-bubble{background:linear-gradient(135deg,rgba(255,34,85,.15),rgba(100,0,30,.1));border:1px solid rgba(255,34,85,.3);border-radius:12px;padding:12px;margin:4px 0;max-width:280px}
 .ppv-locked{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px}
 .ppv-lock-icon{font-size:32px}
-.ppv-price-tag{background:#ff2255;color:#fff;font-family:Orbitron,sans-serif;font-size:13px;font-weight:900;padding:6px 16px;border-radius:20px;cursor:pointer;transition:opacity .2s}
+.ppv-price-tag{background:#ff2255;color:#fff;font-family:Orbitron,sans-serif;font-size:13px;font-weight:900;padding:6px 16px;border-radius:20px;cursor:pointer;transition:opacity .2s;border:none}
 .ppv-price-tag:hover{opacity:.85}
 .ppv-label{font-size:11px;color:#ff9999}
 .ppv-unlocked-media{width:100%;border-radius:8px;overflow:hidden}
 .ppv-unlocked-media img,.ppv-unlocked-media video{width:100%;border-radius:8px}
-/* PPV Send button in chat */
-.ppv-send-btn{padding:6px 12px;background:linear-gradient(135deg,rgba(255,34,85,.2),rgba(100,0,30,.1));border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer;display:none}
-.ppv-send-btn.show{display:inline-flex;align-items:center;gap:4px}
-/* Mass Message button */
+/* Mass message */
 .mass-msg-btn{width:100%;padding:12px;background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,150,.08));border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
 .mass-msg-btn:hover{background:rgba(0,229,255,.25)}
-/* Mass msg modal */
 .mass-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:none;align-items:center;justify-content:center}
 .mass-modal.open{display:flex}
 .mass-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:24px;width:100%;max-width:420px;margin:0 16px;max-height:90vh;overflow-y:auto}
@@ -156,19 +134,18 @@ header{padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d
 .mass-ppv-price.show{display:block}
 .mass-send-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:14px;cursor:pointer;text-transform:uppercase}
 .mass-cancel{width:100%;margin-top:8px;padding:8px;background:transparent;border:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer}
-
-/* SN-NAV-FINAL */
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s;}
-.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important;}
-.sn-bn-icon{font-size:22px;line-height:1;}
-.sn-bn-lbl{font-size:9px;}
-.sn-bn-plus{padding:4px 8px!important;}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
-.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
-body{padding-bottom:72px;}
+/* Bottom nav */
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}
+.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important}
+.sn-bn-icon{font-size:22px;line-height:1}
+.sn-bn-lbl{font-size:9px}
+.sn-bn-plus{padding:4px 8px!important}
+.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800}
+.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none}}
+body{padding-bottom:72px}
 </style>
 </head>
 <body>
@@ -176,7 +153,9 @@ body{padding-bottom:72px;}
   <span class="logo" onclick="window.location.href='/'">SN</span>
   <span class="page-title">MENSAJES</span>
 </header>
-<div id="loginWall" class="layout" style="display:none"><div class="login-wall"><p>Inicia sesión para ver tus mensajes</p><a href="/">Ir al inicio</a></div></div>
+<div id="loginWall" class="layout" style="display:none">
+  <div class="login-wall"><p>Inicia sesion para ver tus mensajes</p><a href="/">Ir al inicio</a></div>
+</div>
 <div class="layout" id="mainLayout" style="display:none">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -184,31 +163,34 @@ body{padding-bottom:72px;}
       <button class="new-chat-btn" onclick="openNewChat()">+ Nuevo</button>
     </div>
     <div id="massMessageBtnWrap" style="padding:10px 16px;border-bottom:1px solid rgba(13,39,68,.4);display:none">
-    <button class="mass-msg-btn" onclick="openMassMessage()">&#128228; Mensaje masivo a suscriptores</button>
-  </div>
-  <div class="note-bar" id="noteBar">
-    <div class="note-bar-title">NOTAS</div>
-    <div class="note-bubbles-row" id="noteBubblesRow">
-      <div class="note-bubble my-note-bubble" onclick="openNoteModal()">
-        <div class="note-av-wrap">
-          <div class="note-av" id="myNoteAv" style="border-color:#00e5ff;font-size:20px">+</div>
-          <div class="note-text-bubble" id="myNoteBubble" style="display:none"></div>
+      <button class="mass-msg-btn" onclick="openMassMessage()">&#128228; Mensaje masivo a suscriptores</button>
+    </div>
+    <div class="note-bar" id="noteBar">
+      <div class="note-bar-title">NOTAS</div>
+      <div class="note-bubbles-row" id="noteBubblesRow">
+        <div class="note-bubble my-note-bubble" onclick="openNoteModal()">
+          <div class="note-av-wrap">
+            <div class="note-av" id="myNoteAv" style="border-color:#00e5ff;font-size:20px">+</div>
+            <div class="note-text-bubble" id="myNoteBubble" style="display:none"></div>
+          </div>
+          <div class="note-username">Tu nota</div>
         </div>
-        <div class="note-username">Tu nota</div>
       </div>
     </div>
-  </div>
-  <div class="dm-requests-btn" id="dmRequestsBtn" onclick="openRequestsPanel()" style="display:none">
-    <div class="dm-requests-label">
-      <span>&#128172;</span> Solicitudes de mensajes
-      <span class="dm-requests-count" id="requestsCount">0</span>
+    <div class="dm-requests-btn" id="dmRequestsBtn" onclick="openRequestsPanel()" style="display:none">
+      <div class="dm-requests-label">
+        <span>&#128172;</span> Solicitudes
+        <span class="dm-requests-count" id="requestsCount">0</span>
+      </div>
+      <span style="color:#5a8aaa;font-size:16px">&#8250;</span>
     </div>
-    <span class="dm-requests-arrow">&#8250;</span>
-  </div>
-  <div class="conv-list" id="convList"><div style="padding:20px;color:#5a8aaa;font-size:13px">Sin conversaciones</div></div>
+    <div class="conv-list" id="convList"><div style="padding:20px;color:#5a8aaa;font-size:13px">Sin conversaciones</div></div>
   </div>
   <div class="chat-area" id="chatArea">
-    <div class="empty-chat" id="emptyChat"><div class="empty-chat-icon">&#128172;</div><p>Selecciona una conversación</p></div>
+    <div class="empty-chat" id="emptyChat">
+      <div class="empty-chat-icon">&#128172;</div>
+      <p>Selecciona una conversacion</p>
+    </div>
     <div id="activeChatHeader" style="display:none" class="chat-header">
       <div class="conv-avatar" id="chatAvatar"></div>
       <div class="chat-user-name" id="chatUserName" onclick="goToProfile()"></div>
@@ -220,6 +202,7 @@ body{padding-bottom:72px;}
     </div>
   </div>
 </div>
+
 <div class="new-chat-modal" id="newChatModal">
   <div class="modal-box">
     <div class="modal-title">NUEVO MENSAJE</div>
@@ -228,7 +211,58 @@ body{padding-bottom:72px;}
     <button onclick="document.getElementById('newChatModal').classList.remove('open')" style="margin-top:10px;padding:8px 16px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:700;width:100%">Cancelar</button>
   </div>
 </div>
+
+<div class="note-modal" id="noteModal">
+  <div class="note-box">
+    <div class="note-box-title">&#128172; TU NOTA</div>
+    <div class="note-box-sub">Comparte lo que piensas. Visible 24h.</div>
+    <div class="note-inp-wrap">
+      <textarea class="note-inp" id="noteInp" placeholder="Escribe algo..." maxlength="60"></textarea>
+      <div class="note-char-count"><span id="noteCharCount">0</span>/60</div>
+    </div>
+    <div class="note-btns">
+      <button class="note-clear-btn" onclick="clearMyNote()">Borrar</button>
+      <button class="note-save-btn" onclick="saveMyNote()">Compartir</button>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <span style="font-size:11px;color:#5a8aaa;cursor:pointer" onclick="document.getElementById('noteModal').classList.remove('open')">Cancelar</span>
+    </div>
+  </div>
+</div>
+
+<div class="requests-panel" id="requestsPanel">
+  <div class="requests-header">
+    <button onclick="document.getElementById('requestsPanel').classList.remove('open')">&#8592;</button>
+    SOLICITUDES DE MENSAJES
+  </div>
+  <div id="requestsList" style="overflow-y:auto;flex:1"></div>
+</div>
+
+<div class="mass-modal" id="massModal">
+  <div class="mass-box">
+    <div class="mass-box-title">&#128228; MENSAJE MASIVO</div>
+    <div class="mass-recipients" id="massRecipients">Cargando suscriptores...</div>
+    <textarea class="mass-textarea" id="massMsgText" placeholder="Escribe tu mensaje para todos tus suscriptores..."></textarea>
+    <label class="mass-ppv-toggle">
+      <input type="checkbox" id="massPPVCheck" onchange="document.getElementById('massPPVPrice').classList.toggle('show',this.checked)">
+      Hacer PPV (contenido de pago)
+    </label>
+    <input class="mass-ppv-price" id="massPPVPrice" type="number" placeholder="Precio en $" min="1">
+    <button class="mass-send-btn" onclick="sendMassMessage()">&#128228; Enviar a todos</button>
+    <button class="mass-cancel" onclick="document.getElementById('massModal').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+
+<nav class="sn-bottom-nav">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
+  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+</nav>
+
 <script>
 var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
 var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
@@ -253,17 +287,24 @@ sb.auth.getSession().then(function(r){
     loadNotes();
     loadMessageRequests();
     checkCreatorForMassMsg();
+    updateNavAvatar();
     var target=new URLSearchParams(location.search).get("with");
     if(target) openChatWith(target);
   });
 });
 
+function updateNavAvatar(){
+  var a=document.getElementById("snNavAv");
+  if(!a||!currentProfile) return;
+  if(currentProfile.avatar_url) a.innerHTML='<img src="'+currentProfile.avatar_url+'">';
+  else if(currentProfile.username) a.textContent=currentProfile.username[0].toUpperCase();
+}
+
 async function loadConversations(){
   var list=document.getElementById("convList");
   var r=await sb.from("conversations").select("*").or("user1_id.eq."+currentUser.id+",user2_id.eq."+currentUser.id).order("last_message_at",{ascending:false}).limit(30);
-  if(!r.data||r.data.length===0){list.innerHTML="<div style=\"padding:20px;color:#5a8aaa;font-size:13px\">Sin conversaciones a\xFAn</div>";return;}
-  // Get peer profiles
-  var peerIds=[...new Set(r.data.map(function(c){return c.user1_id===currentUser.id?c.user2_id:c.user1_id;}))]
+  if(!r.data||r.data.length===0){list.innerHTML="<div style=\"padding:20px;color:#5a8aaa;font-size:13px\">Sin conversaciones aun</div>";return;}
+  var peerIds=[...new Set(r.data.map(function(c){return c.user1_id===currentUser.id?c.user2_id:c.user1_id;}))];
   var profiles=await sb.from("profiles").select("id,username,avatar_url").in("id",peerIds);
   var pm={}; (profiles.data||[]).forEach(function(p){pm[p.id]=p;});
   list.innerHTML="";
@@ -297,17 +338,18 @@ async function openConversation(convId,peerId,peer){
   var av=document.getElementById("chatAvatar");av.innerHTML="";
   if(peer.avatar_url){var img=document.createElement("img");img.src=peer.avatar_url;av.appendChild(img);}else av.textContent=(peer.username||"?")[0].toUpperCase();
   document.getElementById("chatUserName").textContent="@"+(peer.username||"usuario");
-  document.getElementById("chatUserName").dataset.username=peer.username;
+  document.getElementById("chatUserName").dataset.username=peer.username||"";
   document.getElementById("chatMsgsArea").style.display="flex";
   document.getElementById("chatInputArea").style.display="flex";
   await loadMessages(convId);
-  // Mark as read
-  var field=activeConvId?"unread_count_1":"unread_count_2";
-  var isUser1=!!(await sb.from("conversations").select("user1_id").eq("id",convId).single()).data?.user1_id===currentUser.id;
-  var uf=isUser1?"unread_count_1":"unread_count_2";
-  var upd={}; upd[uf]=0;
-  await sb.from("conversations").update(upd).eq("id",convId);
   subscribeToMessages(convId);
+  // Mark as read
+  var convData=(await sb.from("conversations").select("user1_id").eq("id",convId).single()).data;
+  if(convData){
+    var uf=convData.user1_id===currentUser.id?"unread_count_1":"unread_count_2";
+    var upd={};upd[uf]=0;
+    await sb.from("conversations").update(upd).eq("id",convId);
+  }
 }
 
 async function loadMessages(convId){
@@ -316,8 +358,7 @@ async function loadMessages(convId){
   var r=await sb.from("direct_messages").select("*")
     .or("and(sender_id.eq."+currentUser.id+",receiver_id.eq."+activePeerId+"),and(sender_id.eq."+activePeerId+",receiver_id.eq."+currentUser.id+")")
     .order("created_at",{ascending:true}).limit(50);
-  var msgs=r.data||[];
-  msgs.forEach(function(m){appendMsg(m);});
+  (r.data||[]).forEach(function(m){appendMsg(m);});
   area.scrollTop=area.scrollHeight;
 }
 
@@ -327,21 +368,26 @@ function appendMsg(m){
   var wrap=document.createElement("div");wrap.className="msg "+(isMine?"mine":"theirs");
   if(!isMine){
     var av=document.createElement("div");av.className="msg-avatar-sm";
-    if(activePeerProfile&&activePeerProfile.avatar_url){var img=document.createElement("img");img.src=activePeerProfile.avatar_url;av.appendChild(img);}else av.textContent=(activePeerProfile?.username||"?")[0].toUpperCase();
+    if(activePeerProfile&&activePeerProfile.avatar_url){var img=document.createElement("img");img.src=activePeerProfile.avatar_url;av.appendChild(img);}
+    else av.textContent=(activePeerProfile&&activePeerProfile.username?activePeerProfile.username:"?")[0].toUpperCase();
     wrap.appendChild(av);
   }
-  var bubble=document.createElement("div");bubble.className="msg-bubble";bubble.textContent=m.message;
+  if(m.is_ppv&&!m.ppv_unlocked&&!isMine){
+    wrap.appendChild(renderPPVMessage(m,isMine));
+  } else {
+    var bubble=document.createElement("div");bubble.className="msg-bubble";bubble.textContent=m.message||"";
+    wrap.appendChild(bubble);
+  }
   var time=document.createElement("div");time.className="msg-time";time.textContent=getTimeAgo(m.created_at);
-  wrap.appendChild(bubble);wrap.appendChild(time);
+  wrap.appendChild(time);
   area.appendChild(wrap);
 }
 
 async function sendDM(){
   var inp=document.getElementById("msgInp");
   var msg=inp.value.trim();
-  if(!msg||!activePeerId||!currentUser||!activeConvId) return;
+  if(!msg||!activePeerId||!currentUser) return;
   inp.value="";
-  // Ensure conversation exists
   if(!activeConvId){
     var uid1=currentUser.id<activePeerId?currentUser.id:activePeerId;
     var uid2=currentUser.id<activePeerId?activePeerId:currentUser.id;
@@ -351,12 +397,13 @@ async function sendDM(){
   }
   var r=await sb.from("direct_messages").insert({sender_id:currentUser.id,receiver_id:activePeerId,message:msg});
   if(r.error){showToast("Error: "+r.error.message,true);return;}
-  // Update conversation last message
-  var isUser1=(await sb.from("conversations").select("user1_id").eq("id",activeConvId).single()).data?.user1_id===currentUser.id;
-  var unreadField=isUser1?"unread_count_2":"unread_count_1";
-  var upd={last_message:msg,last_message_at:new Date().toISOString()};
-  upd[unreadField]=1;
-  await sb.from("conversations").update(upd).eq("id",activeConvId);
+  var convData=(await sb.from("conversations").select("user1_id").eq("id",activeConvId).single()).data;
+  if(convData){
+    var unreadField=convData.user1_id===currentUser.id?"unread_count_2":"unread_count_1";
+    var upd={last_message:msg,last_message_at:new Date().toISOString()};
+    upd[unreadField]=1;
+    await sb.from("conversations").update(upd).eq("id",activeConvId);
+  }
 }
 
 function subscribeToMessages(convId){
@@ -371,7 +418,7 @@ function subscribeToMessages(convId){
 }
 
 function subscribeToNewMessages(){
-  _convSub=sb.channel("convs-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"direct_messages",filter:"receiver_id=eq."+currentUser.id},function(p){
+  _convSub=sb.channel("convs-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"direct_messages",filter:"receiver_id=eq."+currentUser.id},function(){
     showToast("\uD83D\uDCAC Nuevo mensaje");
     loadConversations();
   }).subscribe();
@@ -381,7 +428,6 @@ async function openChatWith(username){
   var r=await sb.from("profiles").select("id,username,avatar_url").eq("username",username).single();
   if(r.error||!r.data){showToast("Usuario no encontrado",true);return;}
   var peer=r.data;
-  // Find or create conversation
   var uid1=currentUser.id<peer.id?currentUser.id:peer.id;
   var uid2=currentUser.id<peer.id?peer.id:currentUser.id;
   var conv=await sb.from("conversations").select("*").eq("user1_id",uid1).eq("user2_id",uid2).single();
@@ -417,7 +463,7 @@ document.getElementById("searchUserInp").addEventListener("input",function(){
       });
       res.appendChild(item);
     });
-    if(!r.data||r.data.length===0)res.innerHTML="<div style=\"padding:12px;color:#5a8aaa;font-size:13px\">Sin resultados</div>";
+    if(!r.data||!r.data.length)res.innerHTML="<div style=\"padding:12px;color:#5a8aaa;font-size:13px\">Sin resultados</div>";
   },300);
 });
 
@@ -430,42 +476,23 @@ function goToProfile(){
   if(un)window.location.href="/profile.html?u="+un;
 }
 
-function getTimeAgo(ts){
-  var d=(Date.now()-new Date(ts).getTime())/1000;
-  if(d<60)return "ahora"; if(d<3600)return Math.floor(d/60)+"m";
-  if(d<86400)return Math.floor(d/3600)+"h"; return Math.floor(d/86400)+"d";
-}
-
-function showToast(msg,err){
-  var t=document.getElementById("toast");
-  t.textContent=msg; t.style.borderColor=err?"#ff2255":"#00ff88"; t.style.color=err?"#ff2255":"#00ff88";
-  t.style.display="block"; setTimeout(function(){t.style.display="none";},2500);
-}
-
-// =============================================
-// INSTAGRAM NOTES / STATUS
-// =============================================
+// --- NOTES ---
 async function loadNotes(){
-  var row = document.getElementById("noteBubblesRow");
+  var row=document.getElementById("noteBubblesRow");
   if(!row||!currentUser) return;
-
-  // Load my own note first
-  var myProf = await sb.from("profiles").select("username,avatar_url,note_text,note_expires_at").eq("id",currentUser.id).single();
+  var myProf=await sb.from("profiles").select("username,avatar_url,note_text,note_expires_at").eq("id",currentUser.id).single();
   if(myProf.data){
-    var myAv = document.getElementById("myNoteAv");
+    var myAv=document.getElementById("myNoteAv");
     if(myAv){
       myAv.innerHTML="";
       if(myProf.data.avatar_url){var img=document.createElement("img");img.src=myProf.data.avatar_url;myAv.appendChild(img);}
       else myAv.textContent=(myProf.data.username||"?")[0].toUpperCase();
     }
-    // Show note if not expired
     var nb=document.getElementById("myNoteBubble");
     if(nb&&myProf.data.note_text&&new Date(myProf.data.note_expires_at)>new Date()){
       nb.textContent=myProf.data.note_text;nb.style.display="block";
     }
   }
-
-  // Load notes from people I follow
   var follows=await sb.from("follows").select("following_id").eq("follower_id",currentUser.id);
   var ids=(follows.data||[]).map(function(f){return f.following_id;});
   if(!ids.length) return;
@@ -487,14 +514,11 @@ async function loadNotes(){
 }
 
 function openNoteModal(){
-  if(!currentUser){return;}
-  var inp=document.getElementById("noteInp");
-  if(inp){
-    sb.from("profiles").select("note_text").eq("id",currentUser.id).single().then(function(r){
-      inp.value=r.data?.note_text||"";
-      updateNoteCount();
-    });
-  }
+  if(!currentUser) return;
+  sb.from("profiles").select("note_text").eq("id",currentUser.id).single().then(function(r){
+    var inp=document.getElementById("noteInp");
+    if(inp){inp.value=r.data&&r.data.note_text?r.data.note_text:"";updateNoteCount();}
+  });
   document.getElementById("noteModal").classList.add("open");
 }
 
@@ -506,7 +530,7 @@ function updateNoteCount(){
 
 async function saveMyNote(){
   if(!currentUser) return;
-  var text=document.getElementById("noteInp")?.value?.trim()||"";
+  var text=(document.getElementById("noteInp").value||"").trim();
   var expires=new Date(Date.now()+24*60*60*1000).toISOString();
   await sb.from("profiles").update({note_text:text||null,note_expires_at:text?expires:null}).eq("id",currentUser.id);
   document.getElementById("noteModal").classList.remove("open");
@@ -517,7 +541,7 @@ async function saveMyNote(){
 }
 
 async function clearMyNote(){
-  await sb.from("profiles").update({note_text:null,note_expires_at:null}).eq("id",currentUser?.id);
+  await sb.from("profiles").update({note_text:null,note_expires_at:null}).eq("id",currentUser&&currentUser.id);
   document.getElementById("noteInp").value="";
   document.getElementById("noteModal").classList.remove("open");
   var nb=document.getElementById("myNoteBubble");
@@ -525,32 +549,22 @@ async function clearMyNote(){
   showToast("Nota eliminada");
 }
 
-document.addEventListener("DOMContentLoaded",function(){
-  var inp=document.getElementById("noteInp");
-  if(inp)inp.addEventListener("input",updateNoteCount);
-});
+document.getElementById("noteInp").addEventListener("input",updateNoteCount);
 
-// =============================================
-// DM REQUESTS (Instagram style)
-// =============================================
+// --- DM REQUESTS ---
 async function loadMessageRequests(){
   if(!currentUser) return;
-  // Get conversations from non-followed users
   var follows=await sb.from("follows").select("following_id").eq("follower_id",currentUser.id);
   var followedIds=(follows.data||[]).map(function(f){return f.following_id;});
   followedIds.push(currentUser.id);
-
   var r=await sb.from("conversations").select("*").or("user2_id.eq."+currentUser.id+",user1_id.eq."+currentUser.id).limit(50);
   var requests=(r.data||[]).filter(function(conv){
     var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     return !followedIds.includes(otherId);
   });
-
-  var btn=document.getElementById("dmRequestsBtn");
-  var cnt=document.getElementById("requestsCount");
   if(requests.length>0){
-    if(btn){btn.style.display="flex";}
-    if(cnt){cnt.textContent=requests.length;}
+    var btn=document.getElementById("dmRequestsBtn");if(btn)btn.style.display="flex";
+    var cnt=document.getElementById("requestsCount");if(cnt)cnt.textContent=requests.length;
   }
 }
 
@@ -563,27 +577,22 @@ async function renderRequests(){
   var list=document.getElementById("requestsList");
   if(!list||!currentUser)return;
   list.innerHTML="<div style='padding:20px;color:#5a8aaa;text-align:center'>Cargando...</div>";
-
   var follows=await sb.from("follows").select("following_id").eq("follower_id",currentUser.id);
   var followedIds=(follows.data||[]).map(function(f){return f.following_id;});
   followedIds.push(currentUser.id);
-
   var r=await sb.from("conversations").select("*").or("user2_id.eq."+currentUser.id+",user1_id.eq."+currentUser.id).limit(50);
   var requests=(r.data||[]).filter(function(conv){
     var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     return !followedIds.includes(otherId);
   });
-
   if(!requests.length){list.innerHTML="<div style='padding:40px;color:#5a8aaa;text-align:center'>No tienes solicitudes pendientes</div>";return;}
   list.innerHTML="";
-
   for(var i=0;i<requests.length;i++){
     var conv=requests[i];
     var otherId=conv.user1_id===currentUser.id?conv.user2_id:conv.user1_id;
     var prof=await sb.from("profiles").select("id,username,avatar_url").eq("id",otherId).single();
     if(!prof.data)continue;
     var p=prof.data;
-
     var item=document.createElement("div");item.className="request-item";
     var av=document.createElement("div");av.className="request-av";
     if(p.avatar_url){var img=document.createElement("img");img.src=p.avatar_url;av.appendChild(img);}else av.textContent=(p.username||"?")[0].toUpperCase();
@@ -591,34 +600,28 @@ async function renderRequests(){
     var name=document.createElement("div");name.className="request-name";name.textContent="@"+p.username;
     var preview=document.createElement("div");preview.className="request-preview";preview.textContent="Quiere enviarte un mensaje";
     info.appendChild(name);info.appendChild(preview);
-
     var acts=document.createElement("div");acts.className="request-actions";
     var accept=document.createElement("button");accept.className="req-accept";accept.textContent="Aceptar";
-    accept.addEventListener("click",function(uid){return function(){
-      sb.from("follows").insert({follower_id:currentUser.id,following_id:uid}).then(function(){
-        item.remove();
-        showToast("\u2713 Solicitud aceptada");
-        loadMessageRequests();
+    (function(uid,itm){
+      accept.addEventListener("click",function(){
+        sb.from("follows").insert({follower_id:currentUser.id,following_id:uid}).then(function(){
+          itm.remove();showToast("\u2713 Solicitud aceptada");loadMessageRequests();
+        });
       });
-    };}(p.id));
+    })(p.id,item);
     var decline=document.createElement("button");decline.className="req-decline";decline.textContent="Rechazar";
-    decline.addEventListener("click",function(){item.remove();showToast("Solicitud rechazada");});
+    (function(itm){decline.addEventListener("click",function(){itm.remove();showToast("Solicitud rechazada");});})(item);
     acts.appendChild(accept);acts.appendChild(decline);
-
     item.appendChild(av);item.appendChild(info);item.appendChild(acts);
     list.appendChild(item);
   }
 }
 
-// =============================================
-// ONLYFANS: PPV + MASS MESSAGE
-// =============================================
-
-// Show mass message button for creators
+// --- MASS MESSAGE ---
 async function checkCreatorForMassMsg(){
   if(!currentUser)return;
   var r=await sb.from("profiles").select("role").eq("id",currentUser.id).single();
-  if(r.data?.role==="creator"){
+  if(r.data&&r.data.role==="creator"){
     var wrap=document.getElementById("massMessageBtnWrap");
     if(wrap)wrap.style.display="block";
   }
@@ -626,7 +629,6 @@ async function checkCreatorForMassMsg(){
 
 async function openMassMessage(){
   if(!currentUser)return;
-  // Count subscribers
   var r=await sb.from("subscriptions").select("*",{count:"exact",head:true}).eq("creator_id",currentUser.id).eq("status","active");
   var cnt=r.count||0;
   document.getElementById("massRecipients").textContent="\uD83D\uDC65 "+cnt+" suscriptor"+(cnt!==1?"es":"")+" recibiran este mensaje";
@@ -644,61 +646,48 @@ async function sendMassMessage(){
   var isPPV=document.getElementById("massPPVCheck").checked;
   var ppvPrice=isPPV?parseFloat(document.getElementById("massPPVPrice").value||0):0;
   if(isPPV&&ppvPrice<1){showToast("Precio PPV minimo: $1",true);return;}
-
-  // Get all subscribers
   var r=await sb.from("subscriptions").select("subscriber_id").eq("creator_id",currentUser.id).eq("status","active");
   var subs=r.data||[];
   if(!subs.length){showToast("No tienes suscriptores todavia",true);return;}
-
-  // Save mass message record
   await sb.from("mass_messages").insert({creator_id:currentUser.id,content:content,is_ppv:isPPV,ppv_price:ppvPrice,sent_count:subs.length});
-
-  // Send DM to each subscriber
   var sent=0;
   for(var i=0;i<Math.min(subs.length,50);i++){
     var subId=subs[i].subscriber_id;
-    // Get or create conversation
-    var conv=await sb.from("conversations").select("id").or("user1_id.eq."+currentUser.id+",user2_id.eq."+currentUser.id).eq("user2_id",subId).single();
-    var convId=conv.data?.id;
+    var uid1m=currentUser.id<subId?currentUser.id:subId;
+    var uid2m=currentUser.id<subId?subId:currentUser.id;
+    var conv=await sb.from("conversations").select("id").eq("user1_id",uid1m).eq("user2_id",uid2m).single();
+    var convId=conv.data&&conv.data.id;
     if(!convId){
-      var uid1m=currentUser.id<subId?currentUser.id:subId;var uid2m=currentUser.id<subId?subId:currentUser.id;var nc=await sb.from("conversations").insert({user1_id:uid1m,user2_id:uid2m}).select().single();
-      convId=nc.data?.id;
+      var nc=await sb.from("conversations").insert({user1_id:uid1m,user2_id:uid2m}).select().single();
+      convId=nc.data&&nc.data.id;
     }
     if(convId){
-      await sb.from("direct_messages").insert({sender_id:currentUser.id,receiver_id:subId,message:content+(isPPV?' [PPV 
+      var msgLabel=isPPV?" [PPV $"+ppvPrice.toFixed(2)+"]":"";
+      await sb.from("direct_messages").insert({sender_id:currentUser.id,receiver_id:subId,message:content+msgLabel,is_ppv:isPPV,ppv_price:ppvPrice,ppv_unlocked:!isPPV});
       sent++;
     }
   }
-
   document.getElementById("massModal").classList.remove("open");
   showToast("\uD83D\uDCE8 Mensaje enviado a "+sent+" suscriptores!");
 }
 
-// Render PPV message bubble
-function renderPPVMessage(msg, isMine){
-  var bubble=document.createElement("div");
-  bubble.className="ppv-bubble";
-  bubble.dataset.msgId=msg.id;
-
+// --- PPV ---
+function renderPPVMessage(msg,isMine){
+  var bubble=document.createElement("div");bubble.className="ppv-bubble";bubble.dataset.msgId=msg.id;
   if(msg.ppv_unlocked||isMine){
-    // Show content
     if(msg.ppv_media_url){
       var mediaWrap=document.createElement("div");mediaWrap.className="ppv-unlocked-media";
-      if(msg.ppv_media_type==="video"){
-        var vid=document.createElement("video");vid.src=msg.ppv_media_url;vid.controls=true;mediaWrap.appendChild(vid);
-      } else {
-        var img=document.createElement("img");img.src=msg.ppv_media_url;mediaWrap.appendChild(img);
-      }
+      if(msg.ppv_media_type==="video"){var vid=document.createElement("video");vid.src=msg.ppv_media_url;vid.controls=true;mediaWrap.appendChild(vid);}
+      else{var img=document.createElement("img");img.src=msg.ppv_media_url;mediaWrap.appendChild(img);}
       bubble.appendChild(mediaWrap);
     }
     if(msg.content){var txt=document.createElement("div");txt.style.cssText="font-size:13px;color:#e8f4ff;margin-top:6px";txt.textContent=msg.content;bubble.appendChild(txt);}
   } else {
-    // Locked PPV
     var locked=document.createElement("div");locked.className="ppv-locked";
     var icon=document.createElement("div");icon.className="ppv-lock-icon";icon.textContent="\uD83D\uDD12";
     var label=document.createElement("div");label.className="ppv-label";label.textContent="Contenido exclusivo";
     var priceBtn=document.createElement("button");priceBtn.className="ppv-price-tag";
-    priceBtn.textContent="Desbloquear por $"+parseFloat(msg.ppv_price).toFixed(2);
+    priceBtn.textContent="Desbloquear por $"+parseFloat(msg.ppv_price||0).toFixed(2);
     priceBtn.addEventListener("click",function(){unlockPPVMessage(msg.id,msg.ppv_price,msg.sender_id);});
     locked.appendChild(icon);locked.appendChild(label);locked.appendChild(priceBtn);
     bubble.appendChild(locked);
@@ -706,178 +695,33 @@ function renderPPVMessage(msg, isMine){
   return bubble;
 }
 
-async function unlockPPVMessage(msgId, price, creatorId){
-  if(!currentUser){return;}
-  if(confirm("Desbloquear este mensaje por $"+parseFloat(price).toFixed(2)+"?")){
-    // Open PayPal
+async function unlockPPVMessage(msgId,price,creatorId){
+  if(!currentUser) return;
+  if(confirm("Desbloquear este mensaje por $"+parseFloat(price||0).toFixed(2)+"?")){
     var prof=await sb.from("profiles").select("paypal_email,username").eq("id",creatorId).single();
-    if(prof.data?.paypal_email){
+    if(prof.data&&prof.data.paypal_email){
       var handle=prof.data.paypal_email.replace(/@.*/,"");
       window.open("https://www.paypal.com/paypalme/"+handle+"/"+price,"_blank");
     }
-    // Mark as unlocked (pending manual confirmation for now)
     await sb.from("direct_messages").update({ppv_unlocked:true}).eq("id",msgId);
     showToast("\uD83D\uDD13 Completando pago en PayPal...");
     setTimeout(function(){loadMessages(activeConvId);},3000);
   }
 }
-</script>
-<div class="note-modal" id="noteModal">
-  <div class="note-box">
-    <div class="note-box-title">&#128172; TU NOTA</div>
-    <div class="note-box-sub">Comparte lo que piensas. Visible para tus seguidores durante 24h.</div>
-    <div class="note-inp-wrap">
-      <textarea class="note-inp" id="noteInp" placeholder="Escribe algo..." maxlength="60"></textarea>
-      <div class="note-char-count"><span id="noteCharCount">0</span>/60</div>
-    </div>
-    <div class="note-btns">
-      <button class="note-clear-btn" onclick="clearMyNote()">Borrar nota</button>
-      <button class="note-save-btn" onclick="saveMyNote()">Compartir</button>
-    </div>
-    <div style="text-align:center;margin-top:10px">
-      <span style="font-size:11px;color:#5a8aaa;cursor:pointer" onclick="document.getElementById('noteModal').classList.remove('open')">Cancelar</span>
-    </div>
-  </div>
-</div>
-<!-- DM Requests Panel -->
-<div class="requests-panel" id="requestsPanel">
-  <div class="requests-header">
-    <button onclick="document.getElementById('requestsPanel').classList.remove('open')">&#8592;</button>
-    SOLICITUDES DE MENSAJES
-  </div>
-  <div id="requestsList" style="overflow-y:auto;flex:1"></div>
-</div>
-<!-- Mass Message Modal -->
-<div class="mass-modal" id="massModal">
-  <div class="mass-box">
-    <div class="mass-box-title">&#128228; MENSAJE MASIVO</div>
-    <div class="mass-recipients" id="massRecipients">Cargando suscriptores...</div>
-    <textarea class="mass-textarea" id="massMsgText" placeholder="Escribe tu mensaje para todos tus suscriptores..."></textarea>
-    <label class="mass-ppv-toggle">
-      <input type="checkbox" id="massPPVCheck" onchange="document.getElementById('massPPVPrice').classList.toggle('show',this.checked)">
-      Hacer PPV (contenido de pago)
-    </label>
-    <input class="mass-ppv-price" id="massPPVPrice" type="number" placeholder="Precio en $ para ver el contenido" min="1">
-    <button class="mass-send-btn" onclick="sendMassMessage()">&#128228; Enviar a todos</button>
-    <button class="mass-cancel" onclick="document.getElementById('massModal').classList.remove('open')">Cancelar</button>
-  </div>
-</div>
 
-<nav class="sn-bottom-nav" id="snBottomNav"><a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a><a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a><a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a><a class="sn-bn-item sn-bn-active" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a><a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a></nav>
-<script>
-(function(){
-var _U='https://cdokplvoqivducsqrejt.supabase.co',_K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-function _sn(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(_U,_K):null);if(!sb){setTimeout(_sn,500);return;}sb.auth.getSession().then(function(r){if(!r.data||!r.data.session)return;var a=document.getElementById('snNavAv');if(!a)return;sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_sn);else _sn();
-})();
-</script>
-</body>
-</html>
-+ppvPrice.toFixed(2)+']':''),is_ppv:isPPV,ppv_price:ppvPrice,ppv_unlocked:!isPPV});
-      sent++;
-    }
-  }
-
-  document.getElementById("massModal").classList.remove("open");
-  showToast("\uD83D\uDCE8 Mensaje enviado a "+sent+" suscriptores!");
+// --- UTILS ---
+function getTimeAgo(ts){
+  if(!ts) return "";
+  var d=(Date.now()-new Date(ts).getTime())/1000;
+  if(d<60)return "ahora";if(d<3600)return Math.floor(d/60)+"m";
+  if(d<86400)return Math.floor(d/3600)+"h";return Math.floor(d/86400)+"d";
 }
 
-// Render PPV message bubble
-function renderPPVMessage(msg, isMine){
-  var bubble=document.createElement("div");
-  bubble.className="ppv-bubble";
-  bubble.dataset.msgId=msg.id;
-
-  if(msg.ppv_unlocked||isMine){
-    // Show content
-    if(msg.ppv_media_url){
-      var mediaWrap=document.createElement("div");mediaWrap.className="ppv-unlocked-media";
-      if(msg.ppv_media_type==="video"){
-        var vid=document.createElement("video");vid.src=msg.ppv_media_url;vid.controls=true;mediaWrap.appendChild(vid);
-      } else {
-        var img=document.createElement("img");img.src=msg.ppv_media_url;mediaWrap.appendChild(img);
-      }
-      bubble.appendChild(mediaWrap);
-    }
-    if(msg.content){var txt=document.createElement("div");txt.style.cssText="font-size:13px;color:#e8f4ff;margin-top:6px";txt.textContent=msg.content;bubble.appendChild(txt);}
-  } else {
-    // Locked PPV
-    var locked=document.createElement("div");locked.className="ppv-locked";
-    var icon=document.createElement("div");icon.className="ppv-lock-icon";icon.textContent="\uD83D\uDD12";
-    var label=document.createElement("div");label.className="ppv-label";label.textContent="Contenido exclusivo";
-    var priceBtn=document.createElement("button");priceBtn.className="ppv-price-tag";
-    priceBtn.textContent="Desbloquear por $"+parseFloat(msg.ppv_price).toFixed(2);
-    priceBtn.addEventListener("click",function(){unlockPPVMessage(msg.id,msg.ppv_price,msg.sender_id);});
-    locked.appendChild(icon);locked.appendChild(label);locked.appendChild(priceBtn);
-    bubble.appendChild(locked);
-  }
-  return bubble;
+function showToast(msg,err){
+  var t=document.getElementById("toast");
+  t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";
+  t.style.display="block";setTimeout(function(){t.style.display="none";},2500);
 }
-
-async function unlockPPVMessage(msgId, price, creatorId){
-  if(!currentUser){return;}
-  if(confirm("Desbloquear este mensaje por $"+parseFloat(price).toFixed(2)+"?")){
-    // Open PayPal
-    var prof=await sb.from("profiles").select("paypal_email,username").eq("id",creatorId).single();
-    if(prof.data?.paypal_email){
-      var handle=prof.data.paypal_email.replace(/@.*/,"");
-      window.open("https://www.paypal.com/paypalme/"+handle+"/"+price,"_blank");
-    }
-    // Mark as unlocked (pending manual confirmation for now)
-    await sb.from("direct_messages").update({ppv_unlocked:true}).eq("id",msgId);
-    showToast("\uD83D\uDD13 Completando pago en PayPal...");
-    setTimeout(function(){loadMessages(currentConvId);},3000);
-  }
-}
-</script>
-<div class="note-modal" id="noteModal">
-  <div class="note-box">
-    <div class="note-box-title">&#128172; TU NOTA</div>
-    <div class="note-box-sub">Comparte lo que piensas. Visible para tus seguidores durante 24h.</div>
-    <div class="note-inp-wrap">
-      <textarea class="note-inp" id="noteInp" placeholder="Escribe algo..." maxlength="60"></textarea>
-      <div class="note-char-count"><span id="noteCharCount">0</span>/60</div>
-    </div>
-    <div class="note-btns">
-      <button class="note-clear-btn" onclick="clearMyNote()">Borrar nota</button>
-      <button class="note-save-btn" onclick="saveMyNote()">Compartir</button>
-    </div>
-    <div style="text-align:center;margin-top:10px">
-      <span style="font-size:11px;color:#5a8aaa;cursor:pointer" onclick="document.getElementById('noteModal').classList.remove('open')">Cancelar</span>
-    </div>
-  </div>
-</div>
-<!-- DM Requests Panel -->
-<div class="requests-panel" id="requestsPanel">
-  <div class="requests-header">
-    <button onclick="document.getElementById('requestsPanel').classList.remove('open')">&#8592;</button>
-    SOLICITUDES DE MENSAJES
-  </div>
-  <div id="requestsList" style="overflow-y:auto;flex:1"></div>
-</div>
-<!-- Mass Message Modal -->
-<div class="mass-modal" id="massModal">
-  <div class="mass-box">
-    <div class="mass-box-title">&#128228; MENSAJE MASIVO</div>
-    <div class="mass-recipients" id="massRecipients">Cargando suscriptores...</div>
-    <textarea class="mass-textarea" id="massMsgText" placeholder="Escribe tu mensaje para todos tus suscriptores..."></textarea>
-    <label class="mass-ppv-toggle">
-      <input type="checkbox" id="massPPVCheck" onchange="document.getElementById('massPPVPrice').classList.toggle('show',this.checked)">
-      Hacer PPV (contenido de pago)
-    </label>
-    <input class="mass-ppv-price" id="massPPVPrice" type="number" placeholder="Precio en $ para ver el contenido" min="1">
-    <button class="mass-send-btn" onclick="sendMassMessage()">&#128228; Enviar a todos</button>
-    <button class="mass-cancel" onclick="document.getElementById('massModal').classList.remove('open')">Cancelar</button>
-  </div>
-</div>
-
-<nav class="sn-bottom-nav" id="snBottomNav"><a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a><a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a><a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a><a class="sn-bn-item sn-bn-active" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a><a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a></nav>
-<script>
-(function(){
-var _U='https://cdokplvoqivducsqrejt.supabase.co',_K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-function _sn(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(_U,_K):null);if(!sb){setTimeout(_sn,500);return;}sb.auth.getSession().then(function(r){if(!r.data||!r.data.session)return;var a=document.getElementById('snNavAv');if(!a)return;sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_sn);else _sn();
-})();
 </script>
 </body>
 </html>

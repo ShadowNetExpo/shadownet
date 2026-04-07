@@ -1351,25 +1351,9 @@ function doLogout(){
 <button class="new-post-fab" id="newPostFab" onclick="openNewPost()">&#43;</button>
 
 <!-- Bottom Navigation -->
-<nav class="pg-bottom-nav" id="pgBottomNav">
-  <a class="pg-bn-item" href="/">
-    <span class="pg-bn-icon">&#127968;</span><span class="pg-bn-lbl">Inicio</span>
-  </a>
-  <a class="pg-bn-item" href="/explore.html">
-    <span class="pg-bn-icon">&#128269;</span><span class="pg-bn-lbl">Explorar</span>
-  </a>
-  <a class="pg-bn-item" href="/feed.html">
-    <span class="pg-bn-plus-inner">&#43;</span>
-  </a>
-  <a class="pg-bn-item" href="/messages.html">
-    <span class="pg-bn-icon">&#128172;</span><span class="pg-bn-lbl">Mensajes</span>
-  </a>
-  <a class="pg-bn-item active" href="/profile.html">
-    <div class="pg-bn-avatar" id="pgNavAvatar">&#128100;</div><span class="pg-bn-lbl">Perfil</span>
-  </a>
-</nav>
+
 <!-- Logout FAB -->
-<button id="logoutFab" onclick="if(window.sb)window.sb.auth.signOut().then(function(){window.location.href='/';})" style="display:none;position:fixed;bottom:80px;right:16px;z-index:201;background:rgba(255,34,85,.15);border:1px solid rgba(255,34,85,.4);color:#ff6680;padding:10px 18px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:.06em;">&#128275; Cerrar sesi&oacute;n</button>
+
 <script>
 // === NAV INIT ===
 (function(){
@@ -1395,7 +1379,7 @@ function doLogout(){
 })();
 </script>
 <nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
+  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>

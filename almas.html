@@ -110,5 +110,66 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
   <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
+var currentUser=null;
+
+sb.auth.getSession().then(function(r){
+  if(!r.data.session)return;
+  currentUser=r.data.session.user;
+  sb.from('profiles').select('coins_balance,username,avatar_url').eq('id',currentUser.id).single().then(function(p){
+    if(!p.data)return;
+    document.getElementById('balanceDisplay').textContent=(p.data.coins_balance||0)+' Almas';
+    var a=document.getElementById('snNavAv');
+    if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
+    document.getElementById('notifyEmail').value=currentUser.email||'';
+  });
+});
+
+async function subscribeNotify(){
+  var email=document.getElementById('notifyEmail').value.trim();
+  if(!email){showToast('Escribe tu email',true);return;}
+  // Save to notifications waitlist
+  if(currentUser){
+    await sb.from('notifications').insert({user_id:currentUser.id,type:'almas_waitlist',message:'✅ Te avisaremos cuando la tienda de Almas esté lista!'}).catch(()=>{});
+  }
+  showToast('✅ Te avisamos cuando esté lista!');
+}
+
+function showToast(msg,err){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';
+  t.style.display='block';setTimeout(function(){t.style.display='none';},3000);
+}
+</script>
+
+
+<!-- Auth guard v3 - uses shared sb client -->
+<script>
+(function(){
+  function doCheck(){
+    var client = window.sb;
+    if(!client){ setTimeout(doCheck,200); return; }
+    client.auth.getSession().then(function(res){
+      if(res.data && res.data.session) return; // logged in, do nothing
+      // Not logged in yet - wait 800ms for token refresh before redirecting
+      setTimeout(function(){
+        client.auth.getSession().then(function(res2){
+          if(!res2.data || !res2.data.session) window.location.replace('/');
+        });
+      }, 800);
+    });
+  }
+  // Delay to ensure main scripts have run and window.sb is set
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(doCheck,400); });
+  } else {
+    setTimeout(doCheck,400);
+  }
+})();
+</script>
 </body>
 </html>

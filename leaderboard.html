@@ -84,5 +84,136 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
   <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
 </nav>
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
+var currentUser=null;
+
+sb.auth.getSession().then(function(r){
+  if(r.data.session)currentUser=r.data.session.user;
+  loadLeaderboard();
+  initNav();
+});
+
+async function loadLeaderboard(){
+  var r=await sb.from('profiles')
+    .select('id,username,avatar_url,fan_points,fan_rank,fan_rank_name,verification_status')
+    .order('fan_points',{ascending:false}).limit(50);
+  if(r.error||!r.data){document.getElementById('lbList').innerHTML='<div class="empty">Error cargando ranking</div>';return;}
+  var data=r.data;
+  // Podium top 3
+  buildPodium(data.slice(0,3));
+  // My rank
+  if(currentUser){
+    var myIdx=data.findIndex(function(u){return u.id===currentUser.id;});
+    if(myIdx>-1) showMyRank(data[myIdx],myIdx+1);
+  }
+  // Full list
+  buildList(data);
+}
+
+function buildPodium(top){
+  var podium=document.getElementById('podium');
+  podium.innerHTML='';
+  if(!top.length){podium.innerHTML='<div style="text-align:center;padding:30px;color:#5a8aaa;width:100%">Sin datos aún</div>';return;}
+  var order=[1,0,2];
+  var medals=['🥈','🥇','🥉'];
+  var cls=['p2','p1','p3'];
+  order.forEach(function(idx){
+    if(!top[idx])return;
+    var u=top[idx];
+    var item=document.createElement('div');item.className='podium-item '+cls[order.indexOf(idx)];
+    var medal=document.createElement('div');medal.className='medal';medal.textContent=medals[idx];
+    var av=document.createElement('div');av.className='podium-av';
+    if(u.avatar_url){var img=document.createElement('img');img.src=u.avatar_url;av.appendChild(img);}
+    else av.textContent=(u.username||'?')[0].toUpperCase();
+    av.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
+    var name=document.createElement('div');name.className='podium-name';name.textContent='@'+u.username;
+    name.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
+    var pts=document.createElement('div');pts.className='podium-pts';pts.textContent=(u.fan_points||0)+' pts';
+    var block=document.createElement('div');block.className='podium-block';
+    item.appendChild(medal);item.appendChild(av);item.appendChild(name);item.appendChild(pts);item.appendChild(block);
+    podium.appendChild(item);
+  });
+}
+
+function buildList(data){
+  var list=document.getElementById('lbList');
+  list.innerHTML='';
+  if(!data.length){list.innerHTML='<div class="empty">Sin usuarios aún</div>';return;}
+  data.forEach(function(u,i){
+    var item=document.createElement('div');item.className='lb-item'+(currentUser&&u.id===currentUser.id?' me':'');
+    item.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
+    var pos=document.createElement('div');pos.className='lb-pos';pos.textContent='#'+(i+1);
+    var av=document.createElement('div');av.className='lb-av';
+    if(u.avatar_url){var img=document.createElement('img');img.src=u.avatar_url;av.appendChild(img);}
+    else av.textContent=(u.username||'?')[0].toUpperCase();
+    var info=document.createElement('div');info.className='lb-info';
+    var nm=document.createElement('div');nm.className='lb-name';nm.textContent='@'+u.username;
+    if(u.verification_status==='verified'){var vb=document.createElement('span');vb.className='lb-v';vb.textContent='✓';nm.appendChild(vb);}
+    var rk=document.createElement('div');rk.className='lb-rank';rk.textContent='⭐ Lv.'+(u.fan_rank||1)+' '+(u.fan_rank_name||'Sombra');
+    info.appendChild(nm);info.appendChild(rk);
+    var pts=document.createElement('div');pts.className='lb-pts';pts.textContent=(u.fan_points||0);
+    item.appendChild(pos);item.appendChild(av);item.appendChild(info);item.appendChild(pts);
+    list.appendChild(item);
+  });
+}
+
+function showMyRank(u,pos){
+  var box=document.getElementById('myRankBox');box.style.display='block';
+  document.getElementById('myPos').textContent='#'+pos;
+  document.getElementById('myRankName').textContent='⭐ '+(u.fan_rank_name||'Sombra')+' Lv.'+(u.fan_rank||1);
+  document.getElementById('myRankPts').textContent=(u.fan_points||0)+' puntos';
+  var pct=Math.min(100,(u.fan_points||0)%100);
+  document.getElementById('myRankFill').style.width=pct+'%';
+  var next=Math.ceil(((u.fan_points||0)+1)/100)*100;
+  document.getElementById('myRankNext').textContent='Próximo nivel en '+(next-(u.fan_points||0))+' pts';
+}
+
+function showToast(msg,err){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';
+  t.style.display='block';setTimeout(function(){t.style.display='none';},3000);
+}
+
+function initNav(){
+  var _s=window.sb||supabase.createClient(SB_URL,SB_KEY);
+  _s.auth.getSession().then(function(r){
+    var a=document.getElementById('snNavAv');if(!a||!r.data||!r.data.session)return;
+    _s.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
+      if(!p.data)return;
+      if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+      else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
+    });
+  });
+}
+</script>
+
+
+<!-- Auth guard v3 - uses shared sb client -->
+<script>
+(function(){
+  function doCheck(){
+    var client = window.sb;
+    if(!client){ setTimeout(doCheck,200); return; }
+    client.auth.getSession().then(function(res){
+      if(res.data && res.data.session) return; // logged in, do nothing
+      // Not logged in yet - wait 800ms for token refresh before redirecting
+      setTimeout(function(){
+        client.auth.getSession().then(function(res2){
+          if(!res2.data || !res2.data.session) window.location.replace('/');
+        });
+      }, 800);
+    });
+  }
+  // Delay to ensure main scripts have run and window.sb is set
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(doCheck,400); });
+  } else {
+    setTimeout(doCheck,400);
+  }
+})();
+</script>
 </body>
 </html>

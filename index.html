@@ -2374,29 +2374,54 @@ async function loadHomeStories(){
 <div class="modal" id="applyCreatorModal" style="align-items:center;justify-content:center">
   <div class="apply-box">
     <div class="apply-title">&#127775; QUIERO SER CREADOR</div>
-    <div class="apply-subtitle">CuÃ©ntanos sobre ti y quÃ© tipo de contenido crearÃ­as. Revisamos cada solicitud en 24-48h.</div>
+    <div class="apply-subtitle">Cu&#233;ntanos sobre ti y qu&#233; tipo de contenido crear&#237;as. Revisamos cada solicitud en 24-48h.</div>
     <label class="apply-label">Tipo de contenido</label>
     <select class="apply-select" id="applyContentType">
       <option value="">Selecciona...</option>
-      <option value="photos">&#128247; Fotos / GalerÃ­a</option>
+      <option value="photos">&#128247; Fotos / Galer&#237;a</option>
       <option value="video">&#127916; Video / Reels</option>
       <option value="live">&#128250; Lives / Streams</option>
       <option value="mixed">&#127775; Contenido mixto</option>
       <option value="adult">&#128274; Contenido +18 exclusivo</option>
     </select>
-    <label class="apply-label">Â¿Por quÃ© quieres ser creador? (min. 50 caracteres)</label>
-    <textarea class="inp" id="applyMotivation" style="height:90px;resize:none;margin-bottom:12px" placeholder="CuÃ©ntanos quÃ© tipo de contenido crearÃ­as y por quÃ©..."></textarea>
+    <label class="apply-label">&#191;Por qu&#233; quieres ser creador? (min. 50 caracteres)</label>
+    <textarea class="inp" id="applyMotivation" style="height:90px;resize:none;margin-bottom:12px" placeholder="Cu&#233;ntanos qu&#233; tipo de contenido crear&#237;as y por qu&#233;..."></textarea>
     <label class="apply-label">Redes sociales <span style="color:#5a8aaa;font-size:10px">(verifica al menos una)</span></label>
     <div id="socialVerifyWrap" style="margin-bottom:16px">
       <div style="display:flex;gap:8px;margin-bottom:8px">
-        <select id="socialPlatform" style="padding:9px 10px;background:rgba(1,2,12,.8);border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-family:Rajdhani,sans-serif;font-size:13px;outline:none;flex-shrink:0">
-          <option value="instagram">ï¿½ï¿½ Instagram</option>
-          <option value="tiktok">ï¿½ï¿½ TikTok</option>
-          <option value="twitter">ï¿½ï¿½ X / Twitter</option>
-          <option value="onlyfans">ï¿½ï¿½ OnlyFans</option>
-          <option value="youtube">ï¿½ï¿½ YouTube</option>
-          <option value="twitch">ï¿½ï¿½ Twitch</option>
-        </select>
+        <div id="socialPlatformPills" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+  <button type="button" class="soc-pill active" data-platform="instagram" onclick="selectSocPill(this)"
+    style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid rgba(193,53,132,.6);background:rgba(193,53,132,.12);color:#e8f4ff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.04em">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+    Instagram
+  </button>
+  <button type="button" class="soc-pill" data-platform="tiktok" onclick="selectSocPill(this)"
+    style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.04em">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.87a8.18 8.18 0 004.78 1.52V7A4.85 4.85 0 0119.59 6.69z"/></svg>
+    TikTok
+  </button>
+  <button type="button" class="soc-pill" data-platform="twitter" onclick="selectSocPill(this)"
+    style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.04em">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+    X / Twitter
+  </button>
+  <button type="button" class="soc-pill" data-platform="onlyfans" onclick="selectSocPill(this)"
+    style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.04em">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>
+    OnlyFans
+  </button>
+  <button type="button" class="soc-pill" data-platform="youtube" onclick="selectSocPill(this)"
+    style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.04em">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.3-1.9-1.2-2.7c-1.1-1.2-2.4-1.2-3-1.3C16.1 3 12 3 12 3s-4.1 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5.3 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.3.3 4.3s.3 1.9 1.2 2.7c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.7 12 21.7 12 21.7s4.1 0 6.8-.3c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.7 1.2-2.7s.3-2.1.3-4.3v-2C23.3 9.1 23 7 23 7zm-13.6 8.6V8.5l8.1 3.6-8.1 3.5z"/></svg>
+    YouTube
+  </button>
+  <button type="button" class="soc-pill" data-platform="twitch" onclick="selectSocPill(this)"
+    style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.04em">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+    Twitch
+  </button>
+</div>
+<input type="hidden" id="socialPlatform" value="instagram">
         <div style="display:flex;flex:1;gap:6px">
           <input class="inp" id="socialUsername" placeholder="tu_usuario" style="flex:1;margin:0" oninput="resetSocialVerify()">
           <button type="button" onclick="verifySocial()" id="socialVerifyBtn" style="padding:9px 14px;background:linear-gradient(135deg,#00e5ff,#0080aa);color:#000;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0">Verificar</button>
@@ -2667,6 +2692,37 @@ function ageGateAccept(){
 }
 function ageGateDecline(){
   window.location.href='https://www.google.com';
+}
+</script>
+
+<script>
+function selectSocPill(btn) {
+  document.querySelectorAll('.soc-pill').forEach(function(p) {
+    p.style.borderColor = '#0d2744';
+    p.style.background = 'transparent';
+    p.style.color = '#5a8aaa';
+  });
+  var platform = btn.dataset.platform;
+  var colors = {
+    instagram: 'rgba(193,53,132,.6)',
+    tiktok: 'rgba(0,229,255,.5)',
+    twitter: 'rgba(29,161,242,.5)',
+    onlyfans: 'rgba(0,174,239,.5)',
+    youtube: 'rgba(255,0,0,.5)',
+    twitch: 'rgba(145,70,255,.5)'
+  };
+  var bgs = {
+    instagram: 'rgba(193,53,132,.12)',
+    tiktok: 'rgba(0,229,255,.08)',
+    twitter: 'rgba(29,161,242,.08)',
+    onlyfans: 'rgba(0,174,239,.08)',
+    youtube: 'rgba(255,0,0,.08)',
+    twitch: 'rgba(145,70,255,.1)'
+  };
+  btn.style.borderColor = colors[platform] || 'rgba(0,229,255,.5)';
+  btn.style.background = bgs[platform] || 'rgba(0,229,255,.08)';
+  btn.style.color = '#e8f4ff';
+  document.getElementById('socialPlatform').value = platform;
 }
 </script>
 </body>

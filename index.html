@@ -41,6 +41,21 @@
   <link rel="canonical" href="https://shadownet-xi.vercel.app">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var _SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  var _SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  function tryRedirect(){
+    if(window.supabase&&window.supabase.createClient){
+      var _sb=window.supabase.createClient(_SB_URL,_SB_KEY);
+      _sb.auth.getSession().then(function(r){
+        if(r.data&&r.data.session) window.location.replace('/feed.html');
+      });
+    } else { setTimeout(tryRedirect,200); }
+  }
+  document.addEventListener('DOMContentLoaded',tryRedirect);
+})();
+</script>
   <script src="https://js.stripe.com/v3/"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -2523,7 +2538,7 @@ async function startPay(){
 }
 </script>
 <!-- SHADOWNET-NAV-V1 -->
-<nav class="sn-bottom-nav" id="snBottomNav">
+<nav id="snLandingNav" style="display:none" class="sn-bottom-nav" id="snBottomNav">
   <a class="sn-bn-item sn-bn-active" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="#" onclick="openQuickPost();return false;"><span class="sn-bn-plus-inner">&#43;</span></a>

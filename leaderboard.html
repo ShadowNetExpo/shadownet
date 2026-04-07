@@ -87,7 +87,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 <script>
 var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
 var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;window.sb=sb;
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
 var currentUser=null;
 
 sb.auth.getSession().then(function(r){
@@ -190,31 +190,28 @@ function initNav(){
 }
 </script>
 
-<!-- Auth Guard - uses shared sb client -->
+
+<!-- Auth guard v3 - uses shared sb client -->
 <script>
 (function(){
-  function _checkAuth(){
-    // Wait for sb to be initialized by page script
-    if(!window.sb){
-      setTimeout(_checkAuth, 150);
-      return;
-    }
-    window.sb.auth.getSession().then(function(r){
-      if(!r.data||!r.data.session){
-        // One retry after 600ms to handle token refresh
-        setTimeout(function(){
-          window.sb.auth.getSession().then(function(r2){
-            if(!r2.data||!r2.data.session) window.location.replace('/');
-          });
-        }, 600);
-      }
+  function doCheck(){
+    var client = window.sb;
+    if(!client){ setTimeout(doCheck,200); return; }
+    client.auth.getSession().then(function(res){
+      if(res.data && res.data.session) return; // logged in, do nothing
+      // Not logged in yet - wait 800ms for token refresh before redirecting
+      setTimeout(function(){
+        client.auth.getSession().then(function(res2){
+          if(!res2.data || !res2.data.session) window.location.replace('/');
+        });
+      }, 800);
     });
   }
-  // Start checking after page scripts have had time to run
+  // Delay to ensure main scripts have run and window.sb is set
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(_checkAuth, 300); });
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(doCheck,400); });
   } else {
-    setTimeout(_checkAuth, 300);
+    setTimeout(doCheck,400);
   }
 })();
 </script>

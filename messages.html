@@ -12,6 +12,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET &#8212; Mensajes</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+  var _U='https://cdokplvoqivducsqrejt.supabase.co',_K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  function _guard(){
+    if(!window.supabase||!window.supabase.createClient){setTimeout(_guard,100);return;}
+    var _sb=window.supabase.createClient(_U,_K);
+    window.sb=window.sb||_sb;
+    _sb.auth.getSession().then(function(r){
+      if(!r.data||!r.data.session){window.location.replace('/');}
+    });
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_guard);}else{_guard();}
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -266,7 +280,7 @@ body{padding-bottom:72px}
 <script>
 var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
 var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
-var sb=supabase.createClient(SB_URL,SB_KEY);
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;window.sb=sb;
 var currentUser=null;
 var currentProfile=null;
 var activeConvId=null;

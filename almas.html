@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Comprar Almas</title>
+<title>SHADOWNET — Tienda de Almas</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -14,40 +14,38 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .page-title{font-family:Orbitron,sans-serif;font-size:12px;color:#5a8aaa;letter-spacing:.1em}
 .balance-badge{margin-left:auto;display:flex;align-items:center;gap:6px;background:rgba(255,170,0,.12);border:1px solid rgba(255,170,0,.3);padding:6px 14px;border-radius:20px;font-family:Orbitron,sans-serif;font-size:13px;color:#ffaa00}
 .wrap{max-width:700px;margin:0 auto;padding:20px 16px}
-.hero{text-align:center;padding:28px 16px;margin-bottom:28px}
-.hero-skull{font-size:56px;margin-bottom:12px;display:block}
-.hero-title{font-family:Orbitron,sans-serif;font-size:22px;color:#ff2255;letter-spacing:.1em;margin-bottom:8px}
-.hero-sub{font-size:14px;color:#5a8aaa;line-height:1.6;max-width:400px;margin:0 auto}
+.hero{text-align:center;padding:32px 16px 24px}
+.hero-skull{font-size:64px;margin-bottom:16px;display:block}
+.hero-title{font-family:Orbitron,sans-serif;font-size:24px;color:#ff2255;letter-spacing:.1em;margin-bottom:10px}
+.hero-sub{font-size:15px;color:#5a8aaa;line-height:1.7;max-width:420px;margin:0 auto}
+.coming-soon-box{background:linear-gradient(135deg,rgba(255,170,0,.1),rgba(7,15,30,.8));border:2px solid rgba(255,170,0,.4);border-radius:20px;padding:36px 28px;text-align:center;margin:24px 0}
+.cs-icon{font-size:52px;margin-bottom:16px}
+.cs-title{font-family:Orbitron,sans-serif;font-size:18px;color:#ffaa00;letter-spacing:.08em;margin-bottom:12px}
+.cs-text{font-size:14px;color:#8aadcc;line-height:1.8;margin-bottom:20px}
+.cs-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,170,0,.15);border:1px solid rgba(255,170,0,.4);color:#ffaa00;padding:10px 20px;border-radius:30px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em}
+.notify-form{display:flex;gap:8px;max-width:400px;margin:20px auto 0}
+.notify-inp{flex:1;padding:12px 16px;background:rgba(1,2,12,.8);border:1px solid rgba(255,170,0,.3);color:#e8f4ff;border-radius:10px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none}
+.notify-inp:focus{border-color:#ffaa00}
+.notify-btn{padding:12px 20px;background:linear-gradient(135deg,#ffaa00,#cc6600);color:#000;border:none;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:13px;cursor:pointer;text-transform:uppercase;white-space:nowrap}
+.packs-preview{margin:32px 0}
 .section-title{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.12em;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #0d2744}
-.packs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:32px}
-.pack-card{background:rgba(7,15,30,.8);border:2px solid #0d2744;border-radius:16px;padding:24px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.pack-card:hover{border-color:#ff2255;transform:translateY(-2px);box-shadow:0 8px 32px rgba(255,34,85,.15)}
-.pack-card.popular{border-color:rgba(255,170,0,.5)}
-.pack-card.popular::before{content:'⭐ MÁS POPULAR';position:absolute;top:12px;right:12px;background:rgba(255,170,0,.15);border:1px solid rgba(255,170,0,.4);color:#ffaa00;font-size:9px;font-weight:800;padding:3px 10px;border-radius:10px;font-family:Rajdhani,sans-serif;letter-spacing:.08em}
-.pack-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
-.pack-name{font-family:Orbitron,sans-serif;font-size:14px;color:#e8f4ff;margin-bottom:4px}
-.pack-price{font-family:Orbitron,sans-serif;font-size:28px;color:#00ff88;font-weight:900}
-.pack-price span{font-size:16px;opacity:.7}
-.pack-almas-main{font-size:32px;font-weight:900;color:#ffaa00;font-family:Orbitron,sans-serif}
-.pack-almas-label{font-size:12px;color:#5a8aaa;margin-top:2px}
-.pack-bonus{display:inline-flex;align-items:center;gap:5px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:#00ff88;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin:12px 0;font-family:Rajdhani,sans-serif}
-.pack-equiv{font-size:12px;color:#3a5060;margin-bottom:16px;line-height:1.5}
-.pack-equiv span{color:#5a8aaa}
-.buy-btn{width:100%;padding:13px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:opacity .2s}
-.buy-btn:hover{opacity:.9}
-.buy-btn:disabled{opacity:.4;cursor:not-allowed}
-.popular .buy-btn{background:linear-gradient(135deg,#ffaa00,#cc6600);color:#000}
+.packs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.pack-card{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:14px;padding:22px;position:relative;overflow:hidden;opacity:.7}
+.pack-card.popular{border-color:rgba(255,170,0,.3);opacity:.85}
+.pack-card::after{content:'PRONTO';position:absolute;top:14px;right:14px;background:rgba(255,170,0,.2);border:1px solid rgba(255,170,0,.4);color:#ffaa00;font-size:9px;font-weight:800;padding:3px 10px;border-radius:10px;font-family:Rajdhani,sans-serif;letter-spacing:.08em}
+.pack-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.pack-name{font-family:Orbitron,sans-serif;font-size:13px;color:#c8d8e8;margin-bottom:4px}
+.pack-price{font-family:Orbitron,sans-serif;font-size:26px;color:#5a8aaa}
+.pack-almas{font-size:28px;font-weight:900;color:#ffaa00;font-family:Orbitron,sans-serif}
+.pack-almas-lbl{font-size:11px;color:#5a8aaa}
+.pack-bonus{display:inline-flex;align-items:center;gap:4px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:#3a7060;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:8px 0 12px}
+.pack-btn{width:100%;padding:11px;background:rgba(255,170,0,.1);border:1px solid rgba(255,170,0,.2);color:#5a6070;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:not-allowed;text-transform:uppercase;letter-spacing:.06em}
 .how-section{margin-bottom:28px}
-.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
 .how-item{background:rgba(7,15,30,.5);border:1px solid #0d2744;border-radius:12px;padding:16px;text-align:center}
 .how-icon{font-size:28px;margin-bottom:8px}
 .how-title{font-size:13px;font-weight:700;color:#e8f4ff;margin-bottom:4px}
 .how-desc{font-size:12px;color:#5a8aaa;line-height:1.5}
-.success-banner{background:linear-gradient(135deg,rgba(0,255,136,.12),rgba(7,15,30,.6));border:1px solid rgba(0,255,136,.3);border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;display:none}
-.success-banner.show{display:block}
-.success-banner .icon{font-size:40px;margin-bottom:8px}
-.success-title{font-family:Orbitron,sans-serif;font-size:14px;color:#00ff88;margin-bottom:6px}
-.success-msg{font-size:13px;color:#c8d8e8}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.97);border:1px solid #00ff88;color:#00ff88;padding:10px 22px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
 .sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
 .sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}
@@ -64,35 +62,43 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 <header>
   <span class="logo" onclick="window.location.href='/'">SN</span>
   <span class="page-title">TIENDA DE ALMAS</span>
-  <div class="balance-badge">&#128128; <span id="balanceDisplay">0</span> Almas</div>
+  <div class="balance-badge">&#128128; <span id="balanceDisplay">0</span></div>
 </header>
 <div class="wrap">
-  <!-- Success banner -->
-  <div class="success-banner" id="successBanner">
-    <div class="icon">&#128128;</div>
-    <div class="success-title" id="successTitle">¡ALMAS RECIBIDAS!</div>
-    <div class="success-msg" id="successMsg">Tu saldo ha sido actualizado.</div>
-  </div>
-
-  <!-- Hero -->
   <div class="hero">
     <span class="hero-skull">&#128128;</span>
     <div class="hero-title">ALMAS DE SHADOWNET</div>
-    <div class="hero-sub">La moneda de SHADOWNET. Úsal para enviar regalos en lives, propinas a creadores y desbloquear contenido exclusivo.</div>
+    <div class="hero-sub">La moneda oficial de SHADOWNET para enviar regalos en lives, propinas a creadores y desbloquear contenido exclusivo.</div>
   </div>
 
-  <!-- Packs -->
-  <div class="section-title">&#128176; PACKS DISPONIBLES</div>
-  <div class="packs-grid" id="packsGrid"></div>
+  <div class="coming-soon-box">
+    <div class="cs-icon">&#9203;</div>
+    <div class="cs-title">TIENDA MUY PRONTO</div>
+    <div class="cs-text">Estamos configurando el sistema de pagos para ofrecerte la mejor experiencia de compra. La tienda de Almas abre muy pronto.<br><br>¿Quieres que te avisemos cuando esté lista?</div>
+    <div class="cs-badge">&#128293; Lanzamiento inminente</div>
+    <div class="notify-form">
+      <input class="notify-inp" id="notifyEmail" placeholder="Tu email para avisar..." type="email">
+      <button class="notify-btn" onclick="subscribeNotify()">Avísame</button>
+    </div>
+  </div>
 
-  <!-- How to use -->
+  <div class="packs-preview">
+    <div class="section-title">&#128176; PACKS QUE LLEGAN</div>
+    <div class="packs-grid">
+      <div class="pack-card"><div class="pack-top"><div><div class="pack-name">&#128128; Iniciado</div><div class="pack-price">$0.99</div></div><div style="text-align:right"><div class="pack-almas">100</div><div class="pack-almas-lbl">Almas</div></div></div><button class="pack-btn">Próximamente</button></div>
+      <div class="pack-card"><div class="pack-top"><div><div class="pack-name">&#128128; Devoto</div><div class="pack-price">$4.99</div></div><div style="text-align:right"><div class="pack-almas">550</div><div class="pack-almas-lbl">Almas</div></div></div><div class="pack-bonus">+50 BONUS</div><button class="pack-btn">Próximamente</button></div>
+      <div class="pack-card popular"><div class="pack-top"><div><div class="pack-name">&#128128; Acólito ⭐</div><div class="pack-price">$9.99</div></div><div style="text-align:right"><div class="pack-almas">1400</div><div class="pack-almas-lbl">Almas</div></div></div><div class="pack-bonus">+200 BONUS</div><button class="pack-btn">Próximamente</button></div>
+      <div class="pack-card"><div class="pack-top"><div><div class="pack-name">&#128128; Elegido</div><div class="pack-price">$19.99</div></div><div style="text-align:right"><div class="pack-almas">3200</div><div class="pack-almas-lbl">Almas</div></div></div><div class="pack-bonus">+600 BONUS</div><button class="pack-btn">Próximamente</button></div>
+    </div>
+  </div>
+
   <div class="how-section">
-    <div class="section-title">¿PARA QUÉ SIRVEN?</div>
+    <div class="section-title">¿PARA QUÉ SIRVEN LAS ALMAS?</div>
     <div class="how-grid">
-      <div class="how-item"><div class="how-icon">&#127381;</div><div class="how-title">Regalos en Lives</div><div class="how-desc">Envía rosas, coronas y diamantes durante los directos de tus creadores favoritos.</div></div>
-      <div class="how-item"><div class="how-icon">&#128176;</div><div class="how-title">Propinas</div><div class="how-desc">Dale propinas a los creadores por sus publicaciones directamente desde el feed.</div></div>
-      <div class="how-item"><div class="how-icon">&#128274;</div><div class="how-title">Contenido Exclusivo</div><div class="how-desc">Desbloquea mensajes PPV y contenido de pago de los creadores que sigues.</div></div>
-      <div class="how-item"><div class="how-icon">&#127942;</div><div class="how-title">Subir de Rango</div><div class="how-desc">Gasta Almas para subir en el ranking de fans y desbloquear insignias exclusivas.</div></div>
+      <div class="how-item"><div class="how-icon">&#127381;</div><div class="how-title">Regalos en Lives</div><div class="how-desc">Envía rosas, coronas y diamantes durante los directos</div></div>
+      <div class="how-item"><div class="how-icon">&#128176;</div><div class="how-title">Propinas</div><div class="how-desc">Apoya a tus creadores favoritos directamente</div></div>
+      <div class="how-item"><div class="how-icon">&#128274;</div><div class="how-title">Contenido Premium</div><div class="how-desc">Desbloquea mensajes y contenido exclusivo PPV</div></div>
+      <div class="how-item"><div class="how-icon">&#127942;</div><div class="how-title">Subir de Rango</div><div class="how-desc">Escala en el ranking de fans y gana insignias</div></div>
     </div>
   </div>
 </div>
@@ -108,107 +114,35 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
 var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
 var sb=supabase.createClient(SB_URL,SB_KEY);
-var currentUser=null,currentSession=null;
-
-var PACKS=[
-  {key:'iniciado',name:'💀 Iniciado',almas:100,bonus:0,price:0.99,equiv:'10 regalos de rosa 🌹'},
-  {key:'devoto',name:'💀 Devoto',almas:500,bonus:50,price:4.99,equiv:'5 regalos de corona 👑'},
-  {key:'acolito',name:'💀 Acólito',almas:1200,bonus:200,price:9.99,popular:true,equiv:'2 regalos de diamante 💎 + extras'},
-  {key:'elegido',name:'💀 Elegido',almas:2600,bonus:600,price:19.99,equiv:'1 regalo cohete 🚀 + mucho más'},
-];
+var currentUser=null;
 
 sb.auth.getSession().then(function(r){
-  if(!r.data.session){window.location.href='/';return;}
+  if(!r.data.session)return;
   currentUser=r.data.session.user;
-  currentSession=r.data.session;
-  loadBalance();
-  renderPacks();
-  checkSuccess();
-  initNav();
+  sb.from('profiles').select('coins_balance,username,avatar_url').eq('id',currentUser.id).single().then(function(p){
+    if(!p.data)return;
+    document.getElementById('balanceDisplay').textContent=(p.data.coins_balance||0)+' Almas';
+    var a=document.getElementById('snNavAv');
+    if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
+    document.getElementById('notifyEmail').value=currentUser.email||'';
+  });
 });
 
-async function loadBalance(){
-  var r=await sb.from('profiles').select('coins_balance').eq('id',currentUser.id).single();
-  var bal=(r.data?.coins_balance)||0;
-  document.getElementById('balanceDisplay').textContent=bal;
-}
-
-function renderPacks(){
-  var grid=document.getElementById('packsGrid');
-  grid.innerHTML='';
-  PACKS.forEach(function(p){
-    var card=document.createElement('div');
-    card.className='pack-card'+(p.popular?' popular':'');
-    var bonusHtml=p.bonus>0?'<div class="pack-bonus">&#127381; +'+p.bonus+' BONUS</div>':'';
-    card.innerHTML=
-      '<div class="pack-top">'
-        +'<div><div class="pack-name">'+p.name+'</div><div class="pack-price"><span>$</span>'+p.price.toFixed(2)+'</div></div>'
-        +'<div style="text-align:right"><div class="pack-almas-main">'+(p.almas+p.bonus)+'</div><div class="pack-almas-label">Almas &#128128;</div></div>'
-      +'</div>'
-      +bonusHtml
-      +'<div class="pack-equiv"><span>Equivale a: </span>'+p.equiv+'</div>'
-      +'<button class="buy-btn" id="btn-'+p.key+'">&#128176; Comprar por $'+p.price.toFixed(2)+'</button>';
-    card.querySelector('.buy-btn').addEventListener('click',function(){buyPack(p.key,this);});
-    grid.appendChild(card);
-  });
-}
-
-async function buyPack(packKey,btn){
-  if(!currentUser){window.location.href='/';return;}
-  btn.disabled=true;btn.textContent='Redirigiendo...';
-  try{
-    var res=await fetch(SB_URL+'/functions/v1/stripe-payment',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentSession.access_token,'apikey':SB_KEY},
-      body:JSON.stringify({action:'create_almas_checkout',pack:packKey})
-    });
-    var data=await res.json();
-    if(data.url){window.location.href=data.url;}
-    else{showToast('Error: '+(data.error||'Intenta de nuevo'),true);btn.disabled=false;btn.textContent='💶 Comprar';}
-  }catch(e){
-    showToast('Error de conexión',true);btn.disabled=false;btn.textContent='💶 Comprar';
+async function subscribeNotify(){
+  var email=document.getElementById('notifyEmail').value.trim();
+  if(!email){showToast('Escribe tu email',true);return;}
+  // Save to notifications waitlist
+  if(currentUser){
+    await sb.from('notifications').insert({user_id:currentUser.id,type:'almas_waitlist',message:'✅ Te avisaremos cuando la tienda de Almas esté lista!'}).catch(()=>{});
   }
-}
-
-async function checkSuccess(){
-  var params=new URLSearchParams(location.search);
-  if(params.get('success')!=='1')return;
-  var sessionId=params.get('session_id');
-  if(!sessionId)return;
-  var banner=document.getElementById('successBanner');
-  banner.classList.add('show');
-  // Fulfill
-  try{
-    var res=await fetch(SB_URL+'/functions/v1/stripe-payment',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentSession.access_token,'apikey':SB_KEY},
-      body:JSON.stringify({action:'fulfill_almas',session_id:sessionId})
-    });
-    var data=await res.json();
-    if(data.ok){
-      var packNames={'iniciado':'Iniciado','devoto':'Devoto','acolito':'Acólito','elegido':'Elegido'};
-      var pack=params.get('pack')||'';
-      document.getElementById('successTitle').textContent='¡'+data.almas_added+' ALMAS RECIBIDAS!';
-      document.getElementById('successMsg').textContent='Pack '+packNames[pack]+' activado. Nuevo saldo: '+data.new_balance+' Almas 💀';
-      document.getElementById('balanceDisplay').textContent=data.new_balance;
-      // Clean URL
-      history.replaceState({},'','/almas.html');
-    }
-  }catch(e){}
+  showToast('✅ Te avisamos cuando esté lista!');
 }
 
 function showToast(msg,err){
   var t=document.getElementById('toast');
   t.textContent=msg;t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';
   t.style.display='block';setTimeout(function(){t.style.display='none';},3000);
-}
-
-function initNav(){
-  sb.from('profiles').select('username,avatar_url').eq('id',currentUser.id).single().then(function(p){
-    var a=document.getElementById('snNavAv');if(!a||!p.data)return;
-    if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-    else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
-  });
 }
 </script>
 </body>

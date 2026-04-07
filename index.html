@@ -43,17 +43,28 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  var _SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
-  var _SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function tryRedirect(){
-    if(window.supabase&&window.supabase.createClient){
-      var _sb=window.supabase.createClient(_SB_URL,_SB_KEY);
-      _sb.auth.getSession().then(function(r){
-        if(r.data&&r.data.session) window.location.replace('/feed.html');
-      });
-    } else { setTimeout(tryRedirect,200); }
+  // Check localStorage directly for Supabase session (fast, no network)
+  function checkSessionAndRedirect(){
+    try {
+      // Supabase v2 stores session under this key pattern
+      var keys = Object.keys(localStorage);
+      var sessionKey = keys.find(function(k){ return k.startsWith('sb-') && k.endsWith('-auth-token'); });
+      if(sessionKey){
+        var sess = JSON.parse(localStorage.getItem(sessionKey) || 'null');
+        if(sess && sess.access_token){
+          // Has a session token - redirect to feed
+          window.location.replace('/feed.html');
+          return;
+        }
+      }
+    } catch(e){}
+    // No session found - show landing page (do nothing)
   }
-  document.addEventListener('DOMContentLoaded',tryRedirect);
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', checkSessionAndRedirect);
+  } else {
+    checkSessionAndRedirect();
+  }
 })();
 </script>
   <script src="https://js.stripe.com/v3/"></script>

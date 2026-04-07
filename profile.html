@@ -309,6 +309,7 @@ async function loadById(id){
   if(r.error||!r.data){showToast("Perfil no encontrado",true);return;}
   renderProfile(r.data); loadPosts(r.data.id);
   loadProfileHighlights(r.data.id, !!(currentUser&&r.data.id===currentUser.id));
+  if(currentUser&&r.data.id===currentUser.id) checkOwnProfile(r.data.id, r.data.cover_position||50);
 }
 
 function renderProfile(p){

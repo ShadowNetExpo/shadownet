@@ -5,20 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET â Stories</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script>
-(function(){
-  var _U='https://cdokplvoqivducsqrejt.supabase.co',_K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  function _guard(){
-    if(!window.supabase||!window.supabase.createClient){setTimeout(_guard,100);return;}
-    var _sb=window.supabase.createClient(_U,_K);
-    window.sb=window.sb||_sb;
-    _sb.auth.getSession().then(function(r){
-      if(!r.data||!r.data.session){window.location.replace('/');}
-    });
-  }
-  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_guard);}else{_guard();}
-})();
-</script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -466,5 +452,34 @@ function viewStory(groupIdx){ openStoryGroup(groupIdx||0); }
 function loadStories(){ /* called via DOMContentLoaded */ }
 
 </nav>
+
+<!-- Auth Guard - uses shared sb client -->
+<script>
+(function(){
+  function _checkAuth(){
+    // Wait for sb to be initialized by page script
+    if(!window.sb){
+      setTimeout(_checkAuth, 150);
+      return;
+    }
+    window.sb.auth.getSession().then(function(r){
+      if(!r.data||!r.data.session){
+        // One retry after 600ms to handle token refresh
+        setTimeout(function(){
+          window.sb.auth.getSession().then(function(r2){
+            if(!r2.data||!r2.data.session) window.location.replace('/');
+          });
+        }, 600);
+      }
+    });
+  }
+  // Start checking after page scripts have had time to run
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(_checkAuth, 300); });
+  } else {
+    setTimeout(_checkAuth, 300);
+  }
+})();
+</script>
 </body>
 </html>

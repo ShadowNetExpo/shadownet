@@ -135,7 +135,7 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;height:100vh;ove
 .end-share-btn{padding:12px 28px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase}
 </style>
 <script>
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 HOST MODE \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 HOST MODE \u2500\u2500
 function loadAgoraSDK(){
   return new Promise(function(resolve,reject){
     if(window.AgoraRTC){resolve();return;}
@@ -150,7 +150,7 @@ function loadAgoraSDK(){
 async function initAgoraHost(){
   try{
     await loadAgoraSDK();
-    if(!AGORA_APP_ID){showToastMsg("\u00E2\u009A\u00A0 Configura Agora App ID en el admin para transmitir",true);await initCameraFallback();return;}
+    if(!AGORA_APP_ID){showToastMsg("\u26A0 Configura Agora App ID en el admin para transmitir",true);await initCameraFallback();return;}
     AGORA_CHANNEL=currentUser.id;
     agoraClient=AgoraRTC.createClient({mode:"live",codec:"vp8"});
     await agoraClient.setClientRole("host");
@@ -159,11 +159,11 @@ async function initAgoraHost(){
     await await(async function(){var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:AGORA_CHANNEL,uid:currentUser.id,role:'host'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,currentUser.id);})();
     await agoraClient.publish([localVideoTrack,localAudioTrack]);
     localVideoTrack.play("liveVideo");
-    (document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO \u00E2\u0080\u00A2 "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
+    (document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO \u2022 "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
     liveStartTime=Date.now();
-    agoraClient.on("exception",function(e){showToastMsg("\u00E2\u009A\u00A0 "+e.msg,true);});
-    agoraClient.on("network-quality",function(stats){if(stats.uplinkNetworkQuality>=4)showToastMsg("\u00E2\u009A\u00A0 Conexi\u00C3\u00B3n d\u00C3\u00A9bil",true);});
-    showToastMsg("\u00F0\u009F\u009F\u00A2 Transmisi\u00C3\u00B3n activa v\u00C3\u00ADa Agora");
+    agoraClient.on("exception",function(e){showToastMsg("\u26A0 "+e.msg,true);});
+    agoraClient.on("network-quality",function(stats){if(stats.uplinkNetworkQuality>=4)showToastMsg("\u26A0 Conexi\u00F3n d\u00E9bil",true);});
+    showToastMsg("\uD83D\uDFE2 Transmisi\u00F3n activa v\u00EDa Agora");
   }catch(e){showToastMsg("Error Agora: "+e.message,true);await initCameraFallback();}
 }
 
@@ -171,19 +171,19 @@ async function initCameraFallback(){
   try{
     liveStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:currentFacingMode,width:{ideal:720},height:{ideal:1280}},audio:true});
     document.getElementById("liveVideo").srcObject=liveStream;
-    (document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO (local) \u00E2\u0080\u00A2 "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
+    (document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO (local) \u2022 "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
     liveStartTime=Date.now();
-  }catch(e){showToastMsg("Error c\u00C3\u00A1mara: "+e.message,true);}
+  }catch(e){showToastMsg("Error c\u00E1mara: "+e.message,true);}
 }
 
 async function flipCamera(){
   currentFacingMode=currentFacingMode==="user"?"environment":"user";
-  if(localVideoTrack){try{await localVideoTrack.setDevice(currentFacingMode==="user"?"camera_0":"camera_1");}catch(e){await localVideoTrack.stop();localVideoTrack=await AgoraRTC.createCameraVideoTrack({facingMode:currentFacingMode});localVideoTrack.play("liveVideo");await agoraClient.unpublish();await agoraClient.publish([localVideoTrack,localAudioTrack]);}showToastMsg(currentFacingMode==="user"?"C\u00C3\u00A1mara frontal":"C\u00C3\u00A1mara trasera");return;}
+  if(localVideoTrack){try{await localVideoTrack.setDevice(currentFacingMode==="user"?"camera_0":"camera_1");}catch(e){await localVideoTrack.stop();localVideoTrack=await AgoraRTC.createCameraVideoTrack({facingMode:currentFacingMode});localVideoTrack.play("liveVideo");await agoraClient.unpublish();await agoraClient.publish([localVideoTrack,localAudioTrack]);}showToastMsg(currentFacingMode==="user"?"C\u00E1mara frontal":"C\u00E1mara trasera");return;}
   if(liveStream)liveStream.getTracks().forEach(function(t){t.stop();});
-  await initCameraFallback();showToastMsg(currentFacingMode==="user"?"C\u00C3\u00A1mara frontal":"C\u00C3\u00A1mara trasera");
+  await initCameraFallback();showToastMsg(currentFacingMode==="user"?"C\u00E1mara frontal":"C\u00E1mara trasera");
 }
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 VIEWER MODE \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 VIEWER MODE \u2500\u2500
 async function initViewer(){
   var r=await sb.from("profiles").select("id,username,avatar_url").eq("username",_creatorParam).single();
   if(!r.data){showToastMsg("Creador no encontrado",true);setTimeout(function(){window.location.href="/";},2000);return;}
@@ -193,7 +193,7 @@ async function initViewer(){
   (document.getElementById("liveSubtitle")||{}).textContent ="Conectando...";
   document.getElementById("rightControls").style.display="none";
   buildViewerActionBar();if(document.getElementById('giftGrid'))buildGiftsGrid();
-  if(!AGORA_APP_ID){showToastMsg("Streaming no disponible",true);(document.getElementById("liveSubtitle")||{}).textContent ="Sin se\u00C3\u00B1al";return;}
+  if(!AGORA_APP_ID){showToastMsg("Streaming no disponible",true);(document.getElementById("liveSubtitle")||{}).textContent ="Sin se\u00F1al";return;}
   try{
     await loadAgoraSDK();
     agoraClient=AgoraRTC.createClient({mode:"live",codec:"vp8"});
@@ -203,18 +203,18 @@ async function initViewer(){
       if(mediaType==="video"){user.videoTrack.play("liveVideo");(document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO";}
       if(mediaType==="audio"){user.audioTrack.play();}
     });
-    agoraClient.on("user-unpublished",function(user,mediaType){if(mediaType==="video")(document.getElementById("liveSubtitle")||{}).textContent ="C\u00C3\u00A1mara apagada";});
-    agoraClient.on("user-left",function(){showToastMsg("El creador termin\u00C3\u00B3 el live");(document.getElementById("liveSubtitle")||{}).textContent ="Live terminado";});
+    agoraClient.on("user-unpublished",function(user,mediaType){if(mediaType==="video")(document.getElementById("liveSubtitle")||{}).textContent ="C\u00E1mara apagada";});
+    agoraClient.on("user-left",function(){showToastMsg("El creador termin\u00F3 el live");(document.getElementById("liveSubtitle")||{}).textContent ="Live terminado";});
     var uid=currentUser?currentUser.id:("anon_"+Math.floor(Math.random()*1e8));
     await await(async function(){var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:AGORA_CHANNEL,uid:String(uid),role:'viewer'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,uid);})();
     (document.getElementById("liveSubtitle")||{}).textContent ="Esperando al creador...";
     subscribeLiveChannelViewer(creator.id);
-  }catch(e){showToastMsg("Error conexi\u00C3\u00B3n: "+e.message,true);}
+  }catch(e){showToastMsg("Error conexi\u00F3n: "+e.message,true);}
 }
 
 function buildViewerActionBar(){
   var bar=document.getElementById("actionBar");
-  var actions=[{icon:"\u00F0\u009F\u008E\u0081",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"\u00F0\u009F\u0092\u00AC",label:"Chat",fn:"document.getElementById('chatInp').focus()"},{icon:"\u00F0\u009F\u0094\u0097",label:"Compartir",fn:"shareLive()"},{icon:"\u00F0\u009F\u009A\u00AA",label:"Salir",fn:"window.location.href='/'",style:"background:rgba(255,34,85,.2)"}];
+  var actions=[{icon:"\uD83C\uDF81",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"\uD83D\uDCAC",label:"Chat",fn:"document.getElementById('chatInp').focus()"},{icon:"\uD83D\uDD17",label:"Compartir",fn:"shareLive()"},{icon:"\uD83D\uDEAA",label:"Salir",fn:"window.location.href='/'",style:"background:rgba(255,34,85,.2)"}];
   bar.innerHTML="";
   actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});
 }
@@ -225,76 +225,76 @@ function subscribeLiveChannelViewer(creatorId){
     .on("broadcast",{event:"gift"},function(p){animateGift(p.payload.emoji,p.payload.name,p.payload.cost);})
     .on("broadcast",{event:"viewer_count"},function(p){(document.getElementById("viewerCount")||{}).textContent =p.payload.count||0;})
     .subscribe(function(status){
-      if(status==="SUBSCRIBED"&&_liveChannel){_liveChannel.send({type:"broadcast",event:"viewer_join",payload:{username:currentProfile?.username||"An\u00C3\u00B3nimo"}});}
+      if(status==="SUBSCRIBED"&&_liveChannel){_liveChannel.send({type:"broadcast",event:"viewer_join",payload:{username:currentProfile?.username||"An\u00F3nimo"}});}
     });
 }
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 MIC / CAM \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 MIC / CAM \u2500\u2500
 function toggleMic(){
   _micOn=!_micOn;
   if(localAudioTrack){localAudioTrack.setEnabled(_micOn);}
   else if(liveStream){liveStream.getAudioTracks().forEach(function(t){t.enabled=_micOn;});}
   var btn=document.getElementById("micBtn");
-  if(btn){btn.querySelector(".live-action-icon").innerHTML=_micOn?"\u00F0\u009F\u0094\u0087":"\u00F0\u009F\u0094\u0088";}
-  showToastMsg(_micOn?"Micr\u00C3\u00B3fono ON":"Micr\u00C3\u00B3fono SILENCIADO");
+  if(btn){btn.querySelector(".live-action-icon").innerHTML=_micOn?"\uD83D\uDD07":"\uD83D\uDD08";}
+  showToastMsg(_micOn?"Micr\u00F3fono ON":"Micr\u00F3fono SILENCIADO");
 }
 function toggleCam(){
   _camOn=!_camOn;
   if(localVideoTrack){localVideoTrack.setEnabled(_camOn);}
   else if(liveStream){liveStream.getVideoTracks().forEach(function(t){t.enabled=_camOn;});}
   document.getElementById("liveVideo").style.opacity=_camOn?"1":"0";
-  showToastMsg(_camOn?"C\u00C3\u00A1mara ON":"C\u00C3\u00A1mara OFF");
+  showToastMsg(_camOn?"C\u00E1mara ON":"C\u00E1mara OFF");
 }
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 EFFECTS (sin cambios) \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 EFFECTS (sin cambios) \u2500\u2500
 function setVoiceEffect(type,btn){document.querySelectorAll(".voice-btn").forEach(function(b){b.classList.remove("active");});btn.classList.add("active");var vid=document.getElementById("liveVideo");var f={normal:"",robot:"hue-rotate(90deg) saturate(2)",chipmunk:"brightness(1.1) saturate(1.2)",deep:"brightness(.9) saturate(1.5)",echo:"contrast(1.1)",megaphone:"contrast(1.3) saturate(1.3)"};vid.style.filter=f[type]||"";showToastMsg("Voz: "+type);}
 function toggleBeauty(type,btn){beautyActive[type]=!beautyActive[type];btn.classList.toggle("active",beautyActive[type]);applyBeautyFilters();showToastMsg((beautyActive[type]?"ON: ":"OFF: ")+type);}
 function updateBeautySlider(type,val){document.getElementById(type+"Val").textContent=val+"%";applyBeautyFilters();}
 function applyBeautyFilters(){var filters=[];if(beautyActive.smooth)filters.push("blur("+(parseInt(document.getElementById("smoothSlider").value)*0.03)+"px)");if(beautyActive.bright)filters.push("brightness("+(1+(parseInt(document.getElementById("brightSlider").value)-50)/100)+")");document.getElementById("liveVideo").style.filter=filters.join(" ")||"none";}
-function playSFX(type){var ctx=new(window.AudioContext||window.webkitAudioContext)();var osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);var now=ctx.currentTime;var sfxMap={applause:{f:440,t:.1},laugh:{f:300,t:.8},horn:{f:440,t:.5},alarm:{f:880,t:.7},drum:{f:150,t:.5},confetti:{f:523,t:.3}};var s=sfxMap[type]||{f:440,t:.3};osc.frequency.value=s.f;gain.gain.setValueAtTime(.3,now);gain.gain.exponentialRampToValueAtTime(.001,now+s.t);osc.start(now);osc.stop(now+s.t);var icons={applause:"\u00F0\u009F\u0091\u008F",laugh:"\u00F0\u009F\u0098\u0082",horn:"\u00F0\u009F\u0093\u00AF",alarm:"\u00F0\u009F\u009A\u00A8",drum:"\u00F0\u009F\u00A5\u0081",confetti:"\u00F0\u009F\u008E\u0089"};showToastMsg((icons[type]||"")+" "+type);}
+function playSFX(type){var ctx=new(window.AudioContext||window.webkitAudioContext)();var osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);var now=ctx.currentTime;var sfxMap={applause:{f:440,t:.1},laugh:{f:300,t:.8},horn:{f:440,t:.5},alarm:{f:880,t:.7},drum:{f:150,t:.5},confetti:{f:523,t:.3}};var s=sfxMap[type]||{f:440,t:.3};osc.frequency.value=s.f;gain.gain.setValueAtTime(.3,now);gain.gain.exponentialRampToValueAtTime(.001,now+s.t);osc.start(now);osc.stop(now+s.t);var icons={applause:"\uD83D\uDC4F",laugh:"\uD83D\uDE02",horn:"\uD83D\uDCEF",alarm:"\uD83D\uDEA8",drum:"\uD83E\uDD41",confetti:"\uD83C\uDF89"};showToastMsg((icons[type]||"")+" "+type);}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 STICKERS \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 STICKERS \u2500\u2500
 function buildStickerGrid(){var _sg=document.getElementById('stickerGrid');if(!_sg){return;}}
 function addSticker(emoji){var sticker=document.createElement("div");sticker.className="sticker-item";sticker.textContent=emoji;sticker.style.left=Math.random()*60+10+"%";sticker.style.top=Math.random()*60+15+"%";var isDrag=false,sx,sy,ol,ot;sticker.addEventListener("mousedown",function(e){isDrag=true;sx=e.clientX;sy=e.clientY;ol=sticker.offsetLeft;ot=sticker.offsetTop;});document.addEventListener("mousemove",function(e){if(!isDrag)return;sticker.style.left=(ol+e.clientX-sx)+"px";sticker.style.top=(ot+e.clientY-sy)+"px";sticker.style.transform="";});document.addEventListener("mouseup",function(){isDrag=false;});var lastTap=0;sticker.addEventListener("click",function(){var now=Date.now();if(now-lastTap<400){sticker.remove();}lastTap=now;});document.getElementById("liveContainer").appendChild(sticker);closePanel("stickersPanel");}
 function clearStickers(){try{document.querySelectorAll(".sticker-item").forEach(function(s){s.remove()});}catch(e){}}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 GIFTS \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 GIFTS \u2500\u2500
 function buildGiftsGrid(){var _gg=document.getElementById('giftGrid');if(!_gg){return;}renderGiftGrid();}
 async function sendGiftFromPanel(gift){if(!currentUser)return;if((currentProfile?.coins_balance||0)<gift.cost){showToastMsg("No tienes suficientes Almas",true);return;}await sb.from("profiles").update({coins_balance:(currentProfile.coins_balance-gift.cost)}).eq("id",currentUser.id);currentProfile.coins_balance-=gift.cost;(document.getElementById("panelCoinsBalance")||{}).textContent =currentProfile.coins_balance;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"gift",payload:{emoji:gift.emoji,name:gift.name,cost:gift.cost}});animateGift(gift.emoji,gift.name,gift.cost);closePanel("giftsPanel");}
 function animateGift(emoji,name,cost){var el=document.createElement("div");el.className="gift-float";el.textContent=emoji;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},2500);var alert=document.createElement("div");alert.className="gift-alert";alert.innerHTML=emoji+"<br><span style='font-size:11px'>"+name+" (+"+cost+" Almas)</span>";document.getElementById("liveContainer").appendChild(alert);setTimeout(function(){alert.remove();},3000);totalGiftsReceived+=cost;updateGoalProgress(cost);}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 POLL \u00E2\u0094\u0080\u00E2\u0094\u0080
-function startPoll(){var q=document.getElementById("pollQuestion").value.trim();var opts=[document.getElementById("pollOpt1").value.trim(),document.getElementById("pollOpt2").value.trim(),document.getElementById("pollOpt3").value.trim()].filter(Boolean);if(!q||opts.length<2){showToastMsg("Escribe la pregunta y al menos 2 opciones",true);return;}pollData={question:q,options:opts};document.getElementById("pollCreate").style.display="none";var res=document.getElementById("pollResults");res.style.display="block";res.innerHTML="<div style='font-size:13px;font-weight:700;color:#e8f4ff;margin-bottom:12px'>"+q+"</div>";opts.forEach(function(opt){var bar=document.createElement("div");bar.className="poll-result-bar";bar.innerHTML="<div class='poll-result-label'><span>"+opt+"</span><span>0%</span></div><div class='poll-bar-wrap'><div class='poll-bar-fill' style='width:0%'></div></div>";res.appendChild(bar);});var stop=document.createElement("button");stop.className="poll-start-btn";stop.style.background="rgba(255,34,85,.3)";stop.textContent="Terminar encuesta";stop.addEventListener("click",function(){pollData=null;document.getElementById("pollCreate").style.display="block";res.style.display="none";res.innerHTML="";});res.appendChild(stop);showToastMsg("\u00F0\u009F\u0093\u008A Encuesta lanzada!");}
+// \u2500\u2500 POLL \u2500\u2500
+function startPoll(){var q=document.getElementById("pollQuestion").value.trim();var opts=[document.getElementById("pollOpt1").value.trim(),document.getElementById("pollOpt2").value.trim(),document.getElementById("pollOpt3").value.trim()].filter(Boolean);if(!q||opts.length<2){showToastMsg("Escribe la pregunta y al menos 2 opciones",true);return;}pollData={question:q,options:opts};document.getElementById("pollCreate").style.display="none";var res=document.getElementById("pollResults");res.style.display="block";res.innerHTML="<div style='font-size:13px;font-weight:700;color:#e8f4ff;margin-bottom:12px'>"+q+"</div>";opts.forEach(function(opt){var bar=document.createElement("div");bar.className="poll-result-bar";bar.innerHTML="<div class='poll-result-label'><span>"+opt+"</span><span>0%</span></div><div class='poll-bar-wrap'><div class='poll-bar-fill' style='width:0%'></div></div>";res.appendChild(bar);});var stop=document.createElement("button");stop.className="poll-start-btn";stop.style.background="rgba(255,34,85,.3)";stop.textContent="Terminar encuesta";stop.addEventListener("click",function(){pollData=null;document.getElementById("pollCreate").style.display="block";res.style.display="none";res.innerHTML="";});res.appendChild(stop);showToastMsg("\uD83D\uDCCA Encuesta lanzada!");}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 GOAL \u00E2\u0094\u0080\u00E2\u0094\u0080
-function setLiveGoal(){var target=parseInt(document.getElementById("goalTarget").value||0);var desc=document.getElementById("goalDescription").value.trim();if(target<10){showToastMsg("Meta m\u00C3\u00ADnima: 10 Almas",true);return;}goalTarget=target;goalCurrent=0;document.getElementById("liveGoal").style.display="block";(document.getElementById("goalLabel")||{}).textContent =desc||"Meta de regalos";(document.getElementById("goalProgress")||{}).textContent ="0 / "+target+" Almas";document.getElementById("goalFill").style.width="0%";closePanel("goalPanel");showToastMsg("\u00F0\u009F\u008E\u00AF Meta de "+target+" Almas!");}
-function updateGoalProgress(amount){if(!goalTarget)return;goalCurrent+=amount;var pct=Math.min(100,(goalCurrent/goalTarget)*100);document.getElementById("goalFill").style.width=pct+"%";(document.getElementById("goalProgress")||{}).textContent =goalCurrent+" / "+goalTarget+" Almas";if(goalCurrent>=goalTarget)showToastMsg("\u00F0\u009F\u008F\u0086 META ALCANZADA!");}
+// \u2500\u2500 GOAL \u2500\u2500
+function setLiveGoal(){var target=parseInt(document.getElementById("goalTarget").value||0);var desc=document.getElementById("goalDescription").value.trim();if(target<10){showToastMsg("Meta m\u00EDnima: 10 Almas",true);return;}goalTarget=target;goalCurrent=0;document.getElementById("liveGoal").style.display="block";(document.getElementById("goalLabel")||{}).textContent =desc||"Meta de regalos";(document.getElementById("goalProgress")||{}).textContent ="0 / "+target+" Almas";document.getElementById("goalFill").style.width="0%";closePanel("goalPanel");showToastMsg("\uD83C\uDFAF Meta de "+target+" Almas!");}
+function updateGoalProgress(amount){if(!goalTarget)return;goalCurrent+=amount;var pct=Math.min(100,(goalCurrent/goalTarget)*100);document.getElementById("goalFill").style.width=pct+"%";(document.getElementById("goalProgress")||{}).textContent =goalCurrent+" / "+goalTarget+" Almas";if(goalCurrent>=goalTarget)showToastMsg("\uD83C\uDFC6 META ALCANZADA!");}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 CHAT \u00E2\u0094\u0080\u00E2\u0094\u0080
-function sendChatMsg(){var inp=document.getElementById("chatInp"),text=inp.value.trim();if(!text)return;inp.value="";if(text.startsWith("?"))addQAQuestion(text.slice(1).trim());if(_liveChannel)_liveChannel.send({type:"broadcast",event:"chat",payload:{user:currentProfile?.username||"Usuario",text:text,avatar:currentProfile?.avatar_url||null}});addChatMessage(currentProfile?.username||"T\u00C3\u00BA",text,currentProfile?.avatar_url||null);}
+// \u2500\u2500 CHAT \u2500\u2500
+function sendChatMsg(){var inp=document.getElementById("chatInp"),text=inp.value.trim();if(!text)return;inp.value="";if(text.startsWith("?"))addQAQuestion(text.slice(1).trim());if(_liveChannel)_liveChannel.send({type:"broadcast",event:"chat",payload:{user:currentProfile?.username||"Usuario",text:text,avatar:currentProfile?.avatar_url||null}});addChatMessage(currentProfile?.username||"T\u00FA",text,currentProfile?.avatar_url||null);}
 function addChatMessage(username,text,avatar){var overlay=document.getElementById("chatOverlay");var msg=document.createElement("div");msg.className="live-chat-msg";var av=document.createElement("div");av.className="live-chat-av";if(avatar){var img=document.createElement("img");img.src=avatar;av.appendChild(img);}else av.textContent=(username||"?")[0].toUpperCase();var body=document.createElement("div");body.innerHTML="<span class='live-chat-name'>@"+username+"</span><span class='live-chat-text'>"+text+"</span>";msg.appendChild(av);msg.appendChild(body);overlay.appendChild(msg);while(overlay.children.length>8)overlay.removeChild(overlay.firstChild);}
 function addQAQuestion(question){var list=document.getElementById("qaList");list.innerHTML=list.innerHTML.replace('<div class="qa-empty">Sin preguntas aun.</div>',"");var item=document.createElement("div");item.className="qa-item";item.innerHTML="<div class='qa-question'>"+question+"</div><div class='qa-from'>@"+(currentProfile?.username||"usuario")+"</div><button class='qa-show-btn' onclick='showQAOnScreen(this)'>Mostrar</button>";item.querySelector(".qa-show-btn").dataset.q=question;list.prepend(item);}
-function showQAOnScreen(btn){var q=btn.dataset.q;var el=document.createElement("div");el.style.cssText="position:absolute;top:130px;left:12px;right:70px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px;z-index:60;font-size:13px;color:#fff";el.innerHTML="<div style='font-size:10px;color:#00e5ff;font-weight:700;margin-bottom:4px'>\u00E2\u009D\u0093 PREGUNTA</div>"+q;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},8000);}
+function showQAOnScreen(btn){var q=btn.dataset.q;var el=document.createElement("div");el.style.cssText="position:absolute;top:130px;left:12px;right:70px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px;z-index:60;font-size:13px;color:#fff";el.innerHTML="<div style='font-size:10px;color:#00e5ff;font-weight:700;margin-bottom:4px'>\u2753 PREGUNTA</div>"+q;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},8000);}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 SUPABASE CHANNEL (host) \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 SUPABASE CHANNEL (host) \u2500\u2500
 function subscribeLiveChannel(){
   if(!currentUser)return;
   _liveChannel=sb.channel("live:"+currentUser.id)
     .on("broadcast",{event:"chat"},function(p){if(p.payload.user!==currentProfile?.username)addChatMessage(p.payload.user,p.payload.text,p.payload.avatar);})
     .on("broadcast",{event:"gift"},function(p){animateGift(p.payload.emoji,p.payload.name,p.payload.cost);})
-    .on("broadcast",{event:"viewer_join"},function(p){totalViewers++;maxViewers=Math.max(maxViewers,totalViewers);(document.getElementById("viewerCount")||{}).textContent =totalViewers;addChatMessage("Sistema",p.payload.username+" se uni\u00C3\u00B3 \u00F0\u009F\u0091\u008B",null);_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
+    .on("broadcast",{event:"viewer_join"},function(p){totalViewers++;maxViewers=Math.max(maxViewers,totalViewers);(document.getElementById("viewerCount")||{}).textContent =totalViewers;addChatMessage("Sistema",p.payload.username+" se uni\u00F3 \uD83D\uDC4B",null);_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
     .on("broadcast",{event:"viewer_leave"},function(){totalViewers=Math.max(0,totalViewers-1);(document.getElementById("viewerCount")||{}).textContent =totalViewers;_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
     .subscribe();
 }
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 TIMER \u00E2\u0094\u0080\u00E2\u0094\u0080
-function startLiveTimer(){liveTimer=setInterval(function(){if(!liveStartTime)return;var e=Math.floor((Date.now()-liveStartTime)/1000),m=Math.floor(e/60),s=e%60;(document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO \u00E2\u0080\u00A2 "+(m>0?m+"m ":"")+s+"s";},1000);}
+// \u2500\u2500 TIMER \u2500\u2500
+function startLiveTimer(){liveTimer=setInterval(function(){if(!liveStartTime)return;var e=Math.floor((Date.now()-liveStartTime)/1000),m=Math.floor(e/60),s=e%60;(document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO \u2022 "+(m>0?m+"m ":"")+s+"s";},1000);}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 ACTION BAR (host) \u00E2\u0094\u0080\u00E2\u0094\u0080
-function buildActionBar(){var bar=document.getElementById("actionBar");var actions=[{icon:"\u00F0\u009F\u008E\u0081",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"\u00F0\u009F\u0094\u0087",label:"Mic",fn:"toggleMic()",id:"micBtn"},{icon:"\u00F0\u009F\u0093\u00B9",label:"Cam",fn:"toggleCam()",id:"camBtn"},{icon:"\u00F0\u009F\u0093\u00A2",label:"Compartir",fn:"shareLive()"},{icon:"\u00F0\u009F\u009B\u0091",label:"Terminar",fn:"confirmEndLive()",style:"background:rgba(255,34,85,.3)"}];actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";if(a.id)btn.id=a.id;var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});}
+// \u2500\u2500 ACTION BAR (host) \u2500\u2500
+function buildActionBar(){var bar=document.getElementById("actionBar");var actions=[{icon:"\uD83C\uDF81",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"\uD83D\uDD07",label:"Mic",fn:"toggleMic()",id:"micBtn"},{icon:"\uD83D\uDCF9",label:"Cam",fn:"toggleCam()",id:"camBtn"},{icon:"\uD83D\uDCE2",label:"Compartir",fn:"shareLive()"},{icon:"\uD83D\uDED1",label:"Terminar",fn:"confirmEndLive()",style:"background:rgba(255,34,85,.3)"}];actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";if(a.id)btn.id=a.id;var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 END LIVE \u00E2\u0094\u0080\u00E2\u0094\u0080
-function shareLive(){var url=location.origin+"/live.html?creator="+(currentProfile?.username||"");if(navigator.share)navigator.share({title:"SHADOWNET LIVE",text:"Estoy en vivo!",url:url});else navigator.clipboard.writeText(url).then(function(){showToastMsg("\u00F0\u009F\u0094\u0097 Link copiado!");});}
+// \u2500\u2500 END LIVE \u2500\u2500
+function shareLive(){var url=location.origin+"/live.html?creator="+(currentProfile?.username||"");if(navigator.share)navigator.share({title:"SHADOWNET LIVE",text:"Estoy en vivo!",url:url});else navigator.clipboard.writeText(url).then(function(){showToastMsg("\uD83D\uDD17 Link copiado!");});}
 function confirmEndLive(){if(confirm("Terminar el live?"))endLive();}
 function endLive(){
   clearInterval(liveTimer);
@@ -310,12 +310,12 @@ function endLive(){
   document.getElementById("endScreen").classList.add("show");
 }
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 PANELS / TOAST \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 PANELS / TOAST \u2500\u2500
 function openPanel(id){document.querySelectorAll(".live-panel").forEach(function(p){p.classList.remove("open");});document.getElementById(id)?.classList.add("open");}
 function closePanel(id){document.getElementById(id)?.classList.remove("open");}
 function showToastMsg(msg,isError,err){var t=document.getElementById("liveToast");t.textContent=msg;t.style.borderColor=err?"#ff2255":"#00ff88";t.style.color=err?"#ff2255":"#00ff88";t.style.display="block";clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display="none";},2500);}
 
-// \u00E2\u0094\u0080\u00E2\u0094\u0080 MIRROR \u00E2\u0094\u0080\u00E2\u0094\u0080
+// \u2500\u2500 MIRROR \u2500\u2500
 function toggleMirror(){isMirrored=!isMirrored;document.getElementById("liveVideo").style.transform=isMirrored?"scaleX(-1)":"scaleX(1)";document.getElementById("mirrorBtn").classList.toggle("active",isMirrored);showToastMsg(isMirrored?"Modo espejo ON":"Modo espejo OFF");}
 
 document.addEventListener("DOMContentLoaded",function(){

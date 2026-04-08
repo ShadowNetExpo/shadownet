@@ -404,5 +404,27 @@ async function sset() {
   toast('Configuracion guardada');
 }
 </script>
+
+<!-- Admin Auth Guard - restricts to admin user only -->
+<script>
+(function(){
+  var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  var ADMIN_ID='f8befa4f-08f8-4256-aa4e-1053d36a12c0';
+  function check(){
+    var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
+    if(!sb){setTimeout(check,300);return;}
+    sb.auth.getSession().then(function(r){
+      if(!r.data||!r.data.session){window.location.replace('/');return;}
+      if(r.data.session.user.id!==ADMIN_ID){
+        document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#01020c;color:#ff2255;font-family:Orbitron,sans-serif;font-size:18px;letter-spacing:.1em">ACCESO DENEGADO</div>';
+        setTimeout(function(){window.location.replace('/');},2000);
+      }
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(check,400);});
+  else setTimeout(check,400);
+})();
+</script>
 </body>
 </html>

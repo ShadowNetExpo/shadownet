@@ -1714,27 +1714,50 @@ function applyRoleDashboard(role){
 
 async function submitCreatorApplication(){
   if(!window.currentUser||!window.sb) return;
-  var motivation = document.getElementById("applyMotivation").value.trim();
-  var contentType = document.getElementById("applyContentType").value;
-  var social = document.getElementById("applySocial").value.trim();
-  var msg = document.getElementById("applyMsg");
-  if(!contentType){ msg.textContent="Selecciona el tipo de contenido"; msg.style.color="#ff2255"; msg.style.display="block"; return; }
-  if(motivation.length<50){ msg.textContent="Escribe al menos 50 caracteres"; msg.style.color="#ff2255"; msg.style.display="block"; return; }
-  var uname = document.getElementById("dashUser").textContent.replace("@","");
-  var r = await window.sb.from("creator_applications").upsert({
+  // Validate verified socials
+  if(!_verifiedSocials||_verifiedSocials.length===0){
+    showToast('⚠️ Verifica al menos una red social antes de enviar'); return;
+  }
+  var motivation = document.getElementById('applyMotivation')?.value?.trim()||'';
+  if(motivation.length<50){showToast('⚠️ La descripción debe tener mínimo 50 caracteres');return;}
+  var contentType = document.getElementById('applyContentType')?.value||'';
+  var social = {};
+  _verifiedSocials.forEach(function(s){social[s.platform]=s.username;});
+  
+  var submitBtn = document.querySelector('[onclick="submitCreatorApplication()"]');
+  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Enviando...';}
+  
+  var r = await window.sb.from('creator_applications').upsert({
     user_id: window.currentUser.id,
-    username: uname,
+    username: window.currentProfile?.username||'',
+    email: window.currentUser.email||'',
     motivation: motivation,
     content_type: contentType,
     social_links: social,
-    status: "pending"
+    status: 'pending',
+    submitted_at: new Date().toISOString()
   });
-  if(r.error){ msg.textContent="Error: "+r.error.message; msg.style.color="#ff2255"; msg.style.display="block"; return; }
-  await window.sb.from("profiles").update({role:"pending_creator"}).eq("id",window.currentUser.id);
-  _userRole="pending_creator";
-  document.getElementById("applyCreatorModal").classList.remove("open");
-  applyRoleDashboard("pending_creator");
-  showToast("\u2713 Solicitud enviada. Te notificaremos en 24-48h.");
+  
+  if(r.error){
+    showToast('❌ Error al enviar: '+r.error.message);
+    if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='🚀 Enviar Solicitud';}
+    return;
+  }
+  
+  // Notify admin (Cerbero)
+  await window.sb.from('notifications').insert({
+    user_id: 'f8befa4f-08f8-4256-aa4e-1053d36a12c0',
+    type: 'creator_application',
+    actor_id: window.currentUser.id,
+    message: '🚀 Nueva solicitud de creador: @'+(window.currentProfile?.username||window.currentUser.email)
+      +' | '+contentType+' | Redes: '+Object.keys(social).join(', '),
+    read: false
+  }).catch(function(){});
+  
+  await window.sb.from('profiles').update({role:'pending_creator'}).eq('id',window.currentUser.id);
+  document.getElementById('applyCreatorModal').classList.remove('open');
+  applyRoleDashboard('pending_creator');
+  showToast('✓ Solicitud enviada. Te notificaremos en 24-48h.');
 }
 
 function openApplyModal(){

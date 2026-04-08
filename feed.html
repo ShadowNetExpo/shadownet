@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Feed</title>
+<title>SHADOWNET &#8212; Feed</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -322,7 +322,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <div class="post-actions">
       <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
       <button class="toggle-location-btn" id="locationToggleBtn" onclick="toggleLocationInput()">&#128205; Ubicacion</button>
-    <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, España">
+    <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, Espa&#241;a">
     <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label><button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
     </div>
   </div>
@@ -1005,7 +1005,7 @@ function openNewPost(){
   }
 }
 
-// EDITAR PUBLICACIÃÂN
+// EDITAR PUBLICACI\u00C3\u0093N
 // =============================================
 var _editPostId = null;
 
@@ -1023,7 +1023,7 @@ function openEditPost(postId){
 async function saveEditPost(){
   if(!_editPostId || !currentUser) return;
   var newText = document.getElementById('editPostInp').value.trim();
-  if(!newText){ showToast('El texto no puede estar vacío', true); return; }
+  if(!newText){ showToast('El texto no puede estar vac\u00EDo', true); return; }
   var btn = document.getElementById('editPostSaveBtn');
   btn.disabled = true; btn.textContent = 'Guardando...';
   var r = await sb.from('posts').update({content:newText}).eq('id',_editPostId);
@@ -1037,7 +1037,7 @@ async function saveEditPost(){
   }
   document.getElementById('editPostModal').classList.remove('open');
   _editPostId = null;
-  showToast('\u2713 Publicación editada');
+  showToast('\u2713 Publicaci\u00F3n editada');
 }
 
 function closeEditPost(){
@@ -1708,11 +1708,11 @@ function openLiveStaging(){
     modal.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px';
     modal.innerHTML = '<div style="position:relative;width:100%;max-width:480px;aspect-ratio:9/16;background:#111;border-radius:16px;overflow:hidden;margin:0 auto">'
       +'<video id="livePreviewVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover"></video>'
-      +'<div style="position:absolute;top:16px;left:16px;background:rgba(0,0,0,.6);color:#fff;padding:6px 12px;border-radius:20px;font-size:13px;font-family:Rajdhani,sans-serif">Vista previa — no estás en vivo</div>'
+      +'<div style="position:absolute;top:16px;left:16px;background:rgba(0,0,0,.6);color:#fff;padding:6px 12px;border-radius:20px;font-size:13px;font-family:Rajdhani,sans-serif">Vista previa \u2014 no est\u00E1s en vivo</div>'
       +'</div>'
       +'<div style="display:flex;gap:16px;padding:0 20px;width:100%;max-width:480px;box-sizing:border-box">'
-      +'<button onclick="closeLiveStaging()" style="flex:1;padding:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;cursor:pointer">✕ Cancelar</button>'
-      +'<button onclick="goLiveNow()" style="flex:2;padding:14px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;cursor:pointer">🔴 EMITIR EN VIVO</button>'
+      +'<button onclick="closeLiveStaging()" style="flex:1;padding:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;cursor:pointer">\u2715 Cancelar</button>'
+      +'<button onclick="goLiveNow()" style="flex:2;padding:14px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;cursor:pointer">\uD83D\uDD34 EMITIR EN VIVO</button>'
       +'</div>';
     document.body.appendChild(modal);
     // Start camera preview

@@ -436,6 +436,18 @@ document.addEventListener("DOMContentLoaded",function(){
         <button class="bg-btn" onclick="setVirtualBg('beach')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,229,255,.3);background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=60') center/cover;color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px #000">🏖️ Playa</button>
         <button class="bg-btn" onclick="setVirtualBg('galaxy')" style="padding:6px;border-radius:8px;border:2px solid rgba(170,0,255,.4);background:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=200&q=60') center/cover;color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px #000">🌌 Galaxia</button>
       </div>
+      <div class="beauty-slider-wrap">
+        <div class="beauty-slider-label"><span>Contraste</span><span id="contrastVal">50%</span></div>
+        <input type="range" class="beauty-slider" id="contrastSlider" min="0" max="100" value="50" oninput="updateBeautySlider('contrast',this.value)">
+      </div>
+      <div class="beauty-slider-wrap">
+        <div class="beauty-slider-label"><span>Saturación</span><span id="saturVal">50%</span></div>
+        <input type="range" class="beauty-slider" id="saturSlider" min="0" max="100" value="50" oninput="updateBeautySlider('satur',this.value)">
+      </div>
+      <div class="beauty-slider-wrap">
+        <div class="beauty-slider-label"><span>Calidez</span><span id="warmVal">50%</span></div>
+        <input type="range" class="beauty-slider" id="warmSlider" min="0" max="100" value="50" oninput="updateBeautySlider('warm',this.value)">
+      </div>
       <div class="effects-section-title">VOZ</div>
       <div class="voice-grid">
         <button class="voice-btn active" onclick="setVoiceEffect('normal',this)"><span class="voice-btn-icon">&#127908;</span>Normal</button>
@@ -444,6 +456,15 @@ document.addEventListener("DOMContentLoaded",function(){
         <button class="voice-btn" onclick="setVoiceEffect('deep',this)"><span class="voice-btn-icon">&#127925;</span>Grave</button>
         <button class="voice-btn" onclick="setVoiceEffect('echo',this)"><span class="voice-btn-icon">&#127744;</span>Eco</button>
         <button class="voice-btn" onclick="setVoiceEffect('megaphone',this)"><span class="voice-btn-icon">&#128227;</span>Megaf.</button>
+      </div>
+      <div class="effects-section-title" style="margin-top:16px">FONDO VIRTUAL</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px">
+        <button onclick="setVirtualBg('none')" style="padding:6px;border-radius:8px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.4);color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">&#10005; Sin fondo</button>
+        <button onclick="setVirtualBg('blur')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,229,255,.4);background:rgba(0,229,255,.1);color:#00e5ff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">🌫️ Difuminado</button>
+        <button onclick="setVirtualBg('green')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,255,100,.4);background:rgba(0,255,100,.1);color:#00ff64;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">🟩 Pantalla verde</button>
+        <button onclick="setVirtualBg('city')" style="padding:6px;border-radius:8px;border:1px solid rgba(255,170,0,.4);background:rgba(30,20,0,.6);color:#ffaa00;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">🌆 Ciudad</button>
+        <button onclick="setVirtualBg('beach')" style="padding:6px;border-radius:8px;border:1px solid rgba(0,229,255,.3);background:rgba(0,20,30,.6);color:#00e5ff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">🏖️ Playa</button>
+        <button onclick="setVirtualBg('galaxy')" style="padding:6px;border-radius:8px;border:1px solid rgba(170,0,255,.4);background:rgba(20,0,30,.6);color:#aa00ff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">🌌 Galaxia</button>
       </div>
       <div class="effects-section-title">EFECTOS DE SONIDO</div>
       <div class="sfx-grid">

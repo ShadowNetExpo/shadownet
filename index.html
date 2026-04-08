@@ -1049,7 +1049,6 @@ function doLogout(){sb.auth.signOut();}
 document.getElementById('shopModal').addEventListener('click',function(e){if(e.target===this)closeShop();});
 function renderPacks(){var g=document.getElementById('packGrid');g.innerHTML=PACKS.map(function(p,i){return '<div class="pack'+(p.hot?' hot':'')+'" id="pk'+i+'" onclick="pickPack('+i+')">'+'<div class="pskulls">&#128128; '+p.skulls.toLocaleString()+'</div>'+(p.bonus>0?'<div class="pbonus">+'+p.bonus+' BONUS</div>':'<div style="height:14px"></div>')+'<div class="pprice">$'+p.price.toFixed(2)+'</div>'+'<div class="plabel">'+p.label+'</div>'+'</div>';}).join('');}
 
-async 
 
 
 

@@ -258,5 +258,25 @@ async function toggleFollow(btn){
 function getTimeAgo(ts){var d=(Date.now()-new Date(ts))/1000;if(d<60)return 'ahora';if(d<3600)return Math.floor(d/60)+'m';if(d<86400)return Math.floor(d/3600)+'h';return Math.floor(d/86400)+'d';}
 function showToast(msg,err){var t=document.getElementById('toast');t.textContent=msg;t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
 </script>
+
+<!-- Auth guard v3 -->
+<script>
+(function(){
+  function doCheck(){
+    var client=window.sb;
+    if(!client){setTimeout(doCheck,200);return;}
+    client.auth.getSession().then(function(res){
+      if(res.data&&res.data.session)return;
+      setTimeout(function(){
+        client.auth.getSession().then(function(res2){
+          if(!res2.data||!res2.data.session)window.location.replace('/');
+        });
+      },800);
+    });
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(doCheck,400);});}
+  else{setTimeout(doCheck,400);}
+})();
+</script>
 </body>
 </html>

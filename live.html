@@ -159,7 +159,7 @@ async function initAgoraHost(){
     await await(async function(){var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:AGORA_CHANNEL,uid:currentUser.id,role:'host'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,currentUser.id);})();
     await agoraClient.publish([localVideoTrack,localAudioTrack]);
     localVideoTrack.play("liveVideo");
-    document.getElementById("liveSubtitle").textContent="EN VIVO â¢ "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
+    (document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO â¢ "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
     liveStartTime=Date.now();
     agoraClient.on("exception",function(e){showToastMsg("â  "+e.msg,true);});
     agoraClient.on("network-quality",function(stats){if(stats.uplinkNetworkQuality>=4)showToastMsg("â  ConexiÃ³n dÃ©bil",true);});
@@ -171,7 +171,7 @@ async function initCameraFallback(){
   try{
     liveStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:currentFacingMode,width:{ideal:720},height:{ideal:1280}},audio:true});
     document.getElementById("liveVideo").srcObject=liveStream;
-    document.getElementById("liveSubtitle").textContent="EN VIVO (local) â¢ "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
+    (document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO (local) â¢ "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
     liveStartTime=Date.now();
   }catch(e){showToastMsg("Error cÃ¡mara: "+e.message,true);}
 }
@@ -189,25 +189,25 @@ async function initViewer(){
   if(!r.data){showToastMsg("Creador no encontrado",true);setTimeout(function(){window.location.href="/";},2000);return;}
   var creator=r.data;
   AGORA_CHANNEL=creator.id;
-  document.getElementById("liveTitle").textContent=creator.username.toUpperCase()+" EN VIVO";
-  document.getElementById("liveSubtitle").textContent="Conectando...";
+  (document.getElementById("liveTitle")||{}).textContent =creator.username.toUpperCase()+" EN VIVO";
+  (document.getElementById("liveSubtitle")||{}).textContent ="Conectando...";
   document.getElementById("rightControls").style.display="none";
   buildViewerActionBar();buildGiftsGrid();
-  if(!AGORA_APP_ID){showToastMsg("Streaming no disponible",true);document.getElementById("liveSubtitle").textContent="Sin seÃ±al";return;}
+  if(!AGORA_APP_ID){showToastMsg("Streaming no disponible",true);(document.getElementById("liveSubtitle")||{}).textContent ="Sin seÃ±al";return;}
   try{
     await loadAgoraSDK();
     agoraClient=AgoraRTC.createClient({mode:"live",codec:"vp8"});
     await agoraClient.setClientRole("audience",{level:1});
     agoraClient.on("user-published",async function(user,mediaType){
       await agoraClient.subscribe(user,mediaType);
-      if(mediaType==="video"){user.videoTrack.play("liveVideo");document.getElementById("liveSubtitle").textContent="EN VIVO";}
+      if(mediaType==="video"){user.videoTrack.play("liveVideo");(document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO";}
       if(mediaType==="audio"){user.audioTrack.play();}
     });
-    agoraClient.on("user-unpublished",function(user,mediaType){if(mediaType==="video")document.getElementById("liveSubtitle").textContent="CÃ¡mara apagada";});
-    agoraClient.on("user-left",function(){showToastMsg("El creador terminÃ³ el live");document.getElementById("liveSubtitle").textContent="Live terminado";});
+    agoraClient.on("user-unpublished",function(user,mediaType){if(mediaType==="video")(document.getElementById("liveSubtitle")||{}).textContent ="CÃ¡mara apagada";});
+    agoraClient.on("user-left",function(){showToastMsg("El creador terminÃ³ el live");(document.getElementById("liveSubtitle")||{}).textContent ="Live terminado";});
     var uid=currentUser?currentUser.id:("anon_"+Math.floor(Math.random()*1e8));
     await await(async function(){var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:AGORA_CHANNEL,uid:String(uid),role:'viewer'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,uid);})();
-    document.getElementById("liveSubtitle").textContent="Esperando al creador...";
+    (document.getElementById("liveSubtitle")||{}).textContent ="Esperando al creador...";
     subscribeLiveChannelViewer(creator.id);
   }catch(e){showToastMsg("Error conexiÃ³n: "+e.message,true);}
 }
@@ -223,7 +223,7 @@ function subscribeLiveChannelViewer(creatorId){
   _liveChannel=sb.channel("live:"+creatorId)
     .on("broadcast",{event:"chat"},function(p){addChatMessage(p.payload.user,p.payload.text,p.payload.avatar);})
     .on("broadcast",{event:"gift"},function(p){animateGift(p.payload.emoji,p.payload.name,p.payload.cost);})
-    .on("broadcast",{event:"viewer_count"},function(p){document.getElementById("viewerCount").textContent=p.payload.count||0;})
+    .on("broadcast",{event:"viewer_count"},function(p){(document.getElementById("viewerCount")||{}).textContent =p.payload.count||0;})
     .subscribe(function(status){
       if(status==="SUBSCRIBED"&&_liveChannel){_liveChannel.send({type:"broadcast",event:"viewer_join",payload:{username:currentProfile?.username||"AnÃ³nimo"}});}
     });
@@ -260,15 +260,15 @@ function clearStickers(){document.querySelectorAll(".sticker-item").forEach(func
 
 // ââ GIFTS ââ
 function buildGiftsGrid(){var grid=document.getElementById("giftsGrid");GIFTS.forEach(function(gift){var item=document.createElement("div");item.className="gift-item";item.innerHTML="<span class='gift-emoji'>"+gift.emoji+"</span><div class='gift-name'>"+gift.name+"</div><div class='gift-cost'>ð "+gift.cost+"</div>";item.addEventListener("click",function(){sendGiftFromPanel(gift);});grid.appendChild(item);});}
-async function sendGiftFromPanel(gift){if(!currentUser)return;if((currentProfile?.coins_balance||0)<gift.cost){showToastMsg("No tienes suficientes Almas",true);return;}await sb.from("profiles").update({coins_balance:(currentProfile.coins_balance-gift.cost)}).eq("id",currentUser.id);currentProfile.coins_balance-=gift.cost;document.getElementById("panelCoinsBalance").textContent=currentProfile.coins_balance;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"gift",payload:{emoji:gift.emoji,name:gift.name,cost:gift.cost}});animateGift(gift.emoji,gift.name,gift.cost);closePanel("giftsPanel");}
+async function sendGiftFromPanel(gift){if(!currentUser)return;if((currentProfile?.coins_balance||0)<gift.cost){showToastMsg("No tienes suficientes Almas",true);return;}await sb.from("profiles").update({coins_balance:(currentProfile.coins_balance-gift.cost)}).eq("id",currentUser.id);currentProfile.coins_balance-=gift.cost;(document.getElementById("panelCoinsBalance")||{}).textContent =currentProfile.coins_balance;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"gift",payload:{emoji:gift.emoji,name:gift.name,cost:gift.cost}});animateGift(gift.emoji,gift.name,gift.cost);closePanel("giftsPanel");}
 function animateGift(emoji,name,cost){var el=document.createElement("div");el.className="gift-float";el.textContent=emoji;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},2500);var alert=document.createElement("div");alert.className="gift-alert";alert.innerHTML=emoji+"<br><span style='font-size:11px'>"+name+" (+"+cost+" Almas)</span>";document.getElementById("liveContainer").appendChild(alert);setTimeout(function(){alert.remove();},3000);totalGiftsReceived+=cost;updateGoalProgress(cost);}
 
 // ââ POLL ââ
 function startPoll(){var q=document.getElementById("pollQuestion").value.trim();var opts=[document.getElementById("pollOpt1").value.trim(),document.getElementById("pollOpt2").value.trim(),document.getElementById("pollOpt3").value.trim()].filter(Boolean);if(!q||opts.length<2){showToastMsg("Escribe la pregunta y al menos 2 opciones",true);return;}pollData={question:q,options:opts};document.getElementById("pollCreate").style.display="none";var res=document.getElementById("pollResults");res.style.display="block";res.innerHTML="<div style='font-size:13px;font-weight:700;color:#e8f4ff;margin-bottom:12px'>"+q+"</div>";opts.forEach(function(opt){var bar=document.createElement("div");bar.className="poll-result-bar";bar.innerHTML="<div class='poll-result-label'><span>"+opt+"</span><span>0%</span></div><div class='poll-bar-wrap'><div class='poll-bar-fill' style='width:0%'></div></div>";res.appendChild(bar);});var stop=document.createElement("button");stop.className="poll-start-btn";stop.style.background="rgba(255,34,85,.3)";stop.textContent="Terminar encuesta";stop.addEventListener("click",function(){pollData=null;document.getElementById("pollCreate").style.display="block";res.style.display="none";res.innerHTML="";});res.appendChild(stop);showToastMsg("ð Encuesta lanzada!");}
 
 // ââ GOAL ââ
-function setLiveGoal(){var target=parseInt(document.getElementById("goalTarget").value||0);var desc=document.getElementById("goalDescription").value.trim();if(target<10){showToastMsg("Meta mÃ­nima: 10 Almas",true);return;}goalTarget=target;goalCurrent=0;document.getElementById("liveGoal").style.display="block";document.getElementById("goalLabel").textContent=desc||"Meta de regalos";document.getElementById("goalProgress").textContent="0 / "+target+" Almas";document.getElementById("goalFill").style.width="0%";closePanel("goalPanel");showToastMsg("ð¯ Meta de "+target+" Almas!");}
-function updateGoalProgress(amount){if(!goalTarget)return;goalCurrent+=amount;var pct=Math.min(100,(goalCurrent/goalTarget)*100);document.getElementById("goalFill").style.width=pct+"%";document.getElementById("goalProgress").textContent=goalCurrent+" / "+goalTarget+" Almas";if(goalCurrent>=goalTarget)showToastMsg("ð META ALCANZADA!");}
+function setLiveGoal(){var target=parseInt(document.getElementById("goalTarget").value||0);var desc=document.getElementById("goalDescription").value.trim();if(target<10){showToastMsg("Meta mÃ­nima: 10 Almas",true);return;}goalTarget=target;goalCurrent=0;document.getElementById("liveGoal").style.display="block";(document.getElementById("goalLabel")||{}).textContent =desc||"Meta de regalos";(document.getElementById("goalProgress")||{}).textContent ="0 / "+target+" Almas";document.getElementById("goalFill").style.width="0%";closePanel("goalPanel");showToastMsg("ð¯ Meta de "+target+" Almas!");}
+function updateGoalProgress(amount){if(!goalTarget)return;goalCurrent+=amount;var pct=Math.min(100,(goalCurrent/goalTarget)*100);document.getElementById("goalFill").style.width=pct+"%";(document.getElementById("goalProgress")||{}).textContent =goalCurrent+" / "+goalTarget+" Almas";if(goalCurrent>=goalTarget)showToastMsg("ð META ALCANZADA!");}
 
 // ââ CHAT ââ
 function sendChatMsg(){var inp=document.getElementById("chatInp"),text=inp.value.trim();if(!text)return;inp.value="";if(text.startsWith("?"))addQAQuestion(text.slice(1).trim());if(_liveChannel)_liveChannel.send({type:"broadcast",event:"chat",payload:{user:currentProfile?.username||"Usuario",text:text,avatar:currentProfile?.avatar_url||null}});addChatMessage(currentProfile?.username||"TÃº",text,currentProfile?.avatar_url||null);}
@@ -282,13 +282,13 @@ function subscribeLiveChannel(){
   _liveChannel=sb.channel("live:"+currentUser.id)
     .on("broadcast",{event:"chat"},function(p){if(p.payload.user!==currentProfile?.username)addChatMessage(p.payload.user,p.payload.text,p.payload.avatar);})
     .on("broadcast",{event:"gift"},function(p){animateGift(p.payload.emoji,p.payload.name,p.payload.cost);})
-    .on("broadcast",{event:"viewer_join"},function(p){totalViewers++;maxViewers=Math.max(maxViewers,totalViewers);document.getElementById("viewerCount").textContent=totalViewers;addChatMessage("Sistema",p.payload.username+" se uniÃ³ ð",null);_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
-    .on("broadcast",{event:"viewer_leave"},function(){totalViewers=Math.max(0,totalViewers-1);document.getElementById("viewerCount").textContent=totalViewers;_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
+    .on("broadcast",{event:"viewer_join"},function(p){totalViewers++;maxViewers=Math.max(maxViewers,totalViewers);(document.getElementById("viewerCount")||{}).textContent =totalViewers;addChatMessage("Sistema",p.payload.username+" se uniÃ³ ð",null);_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
+    .on("broadcast",{event:"viewer_leave"},function(){totalViewers=Math.max(0,totalViewers-1);(document.getElementById("viewerCount")||{}).textContent =totalViewers;_liveChannel.send({type:"broadcast",event:"viewer_count",payload:{count:totalViewers}});})
     .subscribe();
 }
 
 // ââ TIMER ââ
-function startLiveTimer(){liveTimer=setInterval(function(){if(!liveStartTime)return;var e=Math.floor((Date.now()-liveStartTime)/1000),m=Math.floor(e/60),s=e%60;document.getElementById("liveSubtitle").textContent="EN VIVO â¢ "+(m>0?m+"m ":"")+s+"s";},1000);}
+function startLiveTimer(){liveTimer=setInterval(function(){if(!liveStartTime)return;var e=Math.floor((Date.now()-liveStartTime)/1000),m=Math.floor(e/60),s=e%60;(document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO â¢ "+(m>0?m+"m ":"")+s+"s";},1000);}
 
 // ââ ACTION BAR (host) ââ
 function buildActionBar(){var bar=document.getElementById("actionBar");var actions=[{icon:"ð",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"ð",label:"Mic",fn:"toggleMic()",id:"micBtn"},{icon:"ð¹",label:"Cam",fn:"toggleCam()",id:"camBtn"},{icon:"ð¢",label:"Compartir",fn:"shareLive()"},{icon:"ð",label:"Terminar",fn:"confirmEndLive()",style:"background:rgba(255,34,85,.3)"}];actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";if(a.id)btn.id=a.id;var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});}
@@ -304,9 +304,9 @@ function endLive(){
   if(liveStream)liveStream.getTracks().forEach(function(t){t.stop();});
   if(_liveChannel)sb.removeChannel(_liveChannel);
   var e=liveStartTime?Math.floor((Date.now()-liveStartTime)/1000):0;
-  document.getElementById("endViewers").textContent=maxViewers;
-  document.getElementById("endDuration").textContent=Math.floor(e/60)+"m "+e%60+"s";
-  document.getElementById("endGifts").textContent=totalGiftsReceived;
+  (document.getElementById("endViewers")||{}).textContent =maxViewers;
+  (document.getElementById("endDuration")||{}).textContent =Math.floor(e/60)+"m "+e%60+"s";
+  (document.getElementById("endGifts")||{}).textContent =totalGiftsReceived;
   document.getElementById("endScreen").classList.add("show");
 }
 
@@ -562,8 +562,8 @@ sb.auth.getSession().then(async function(r){
   var cfg=await sb.from('platform_settings').select('value').eq('key','agora_app_id').single();
   AGORA_APP_ID=(cfg.data&&cfg.data.value)||'';
   // Update coins display
-  document.getElementById('panelCoinsBalance').textContent=(currentProfile.coins_balance||0)+' \uD83D\uDC80';
-  buildStickerGrid();
+  (document.getElementById('panelCoinsBalance')||{}).textContent =(currentProfile.coins_balance||0)+' \uD83D\uDC80';
+  if(typeof buildStickerGrid==='function') buildStickerGrid();
   buildGiftsGrid();
   if(_creatorParam){initViewer();}
   else{
@@ -746,7 +746,7 @@ function sendGift(giftId){
       // Broadcast gift
       if(_liveChannel) _liveChannel.send({type:'broadcast',event:'gift',payload:{emoji:g.emoji,name:g.name,cost:g.cost,from:window.currentProfile?.username||'Usuario'}});
       animateGift(g.emoji,g.name,g.cost);
-      document.getElementById('userCoinsDisplay').textContent=r.data.almas-g.cost;
+      (document.getElementById('userCoinsDisplay')||{}).textContent =r.data.almas-g.cost;
     });
   });
 }
@@ -786,7 +786,7 @@ document.addEventListener('DOMContentLoaded',function(){
   // Load user coins
   if(window.sb&&window.currentUser){
     window.sb.from('profiles').select('almas').eq('id',window.currentUser.id).single().then(function(r){
-      if(r.data) document.getElementById('userCoinsDisplay').textContent=r.data.almas||0;
+      if(r.data) (document.getElementById('userCoinsDisplay')||{}).textContent =r.data.almas||0;
     });
   }
 });

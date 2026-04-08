@@ -699,6 +699,23 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
 .age-gate-no:hover{border-color:#ff2255;color:#ff6680}
 .age-gate-note{font-size:11px;color:#3a5060;margin-top:14px;line-height:1.5}
 </style>
+
+<script>
+(function(){
+  // Sync check: if Supabase session token exists in localStorage, redirect immediately
+  // This prevents the login screen flash for logged-in users
+  try{
+    var keys=Object.keys(localStorage);
+    var sbKey=keys.find(function(k){return k.startsWith('sb-')&&k.endsWith('-auth-token');});
+    if(sbKey){
+      var session=JSON.parse(localStorage.getItem(sbKey));
+      if(session&&session.access_token&&session.expires_at&&session.expires_at>Math.floor(Date.now()/1000)){
+        window.location.replace('/feed.html');
+      }
+    }
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 <nav>

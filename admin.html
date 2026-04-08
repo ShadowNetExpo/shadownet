@@ -426,5 +426,29 @@ async function sset() {
   else setTimeout(check,400);
 })();
 </script>
+
+<!-- Admin auth guard -->
+<script>
+(function(){
+  function doAdminCheck(){
+    var client=window.sb;
+    if(!client){setTimeout(doAdminCheck,200);return;}
+    client.auth.getSession().then(function(res){
+      if(!res.data||!res.data.session){window.location.replace('/');return;}
+      var uid=res.data.session.user.id;
+      client.from('profiles').select('username,role').eq('id',uid).single().then(function(r){
+        if(!r.data){window.location.replace('/');return;}
+        var isAdmin=(r.data.role==='admin'||r.data.username==='Cerbero');
+        if(!isAdmin){window.location.replace('/');}
+      });
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){setTimeout(doAdminCheck,400);});
+  } else {
+    setTimeout(doAdminCheck,400);
+  }
+})();
+</script>
 </body>
 </html>

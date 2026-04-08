@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Configuración</title>
+<title>SHADOWNET &#8212; Configuraci&#243;n</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -127,7 +127,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       </div>
       <!-- Payment methods -->
       <div class="field">
-        <label class="field-label" style="margin-bottom:8px">💸 Método de retiro</label>
+        <label class="field-label" style="margin-bottom:8px">&#55357;&#56504; M&#233;todo de retiro</label>
         <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
           <button onclick="selectPayMethod('paypal')" id="tab_paypal" class="pay-tab active" style="padding:6px 14px;border-radius:20px;border:1px solid #00e5ff;background:rgba(0,229,255,.15);color:#00e5ff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">PayPal</button>
           <button onclick="selectPayMethod('iban')" id="tab_iban" class="pay-tab" style="padding:6px 14px;border-radius:20px;border:1px solid #0d2744;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">Banco / IBAN</button>
@@ -145,26 +145,26 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
           <input type="text" class="field-input" id="ibanInp" placeholder="ES00 0000 0000 0000 0000 0000" style="margin-bottom:10px">
           <label class="field-label">BIC / SWIFT (opcional)</label>
           <input type="text" class="field-input" id="bicInp" placeholder="XXXXXXXX">
-          <p class="field-hint">Transferencias SEPA — sin comisiones en Europa</p>
+          <p class="field-hint">Transferencias SEPA &#8212; sin comisiones en Europa</p>
         </div>
         <div id="payMethod_card" class="pay-method-panel" style="display:none">
-          <label class="field-label">Número de tarjeta de débito</label>
+          <label class="field-label">N&#250;mero de tarjeta de d&#233;bito</label>
           <input type="text" class="field-input" id="cardNumberInp" placeholder="0000 0000 0000 0000" maxlength="19" style="margin-bottom:10px">
           <div style="display:flex;gap:10px">
             <div style="flex:1"><label class="field-label">Caducidad</label><input type="text" class="field-input" id="cardExpInp" placeholder="MM/AA" maxlength="5"></div>
-            <div style="flex:1"><label class="field-label">País</label><select class="field-input" id="cardCountryInp" style="background:rgba(1,2,12,.8);color:#e8f4ff"><option value="ES">España</option><option value="BE">Bélgica</option><option value="FR">Francia</option><option value="DE">Alemania</option><option value="MX">México</option><option value="CO">Colombia</option><option value="AR">Argentina</option></select></div>
+            <div style="flex:1"><label class="field-label">Pa&#237;s</label><select class="field-input" id="cardCountryInp" style="background:rgba(1,2,12,.8);color:#e8f4ff"><option value="ES">Espa&#241;a</option><option value="BE">B&#233;lgica</option><option value="FR">Francia</option><option value="DE">Alemania</option><option value="MX">M&#233;xico</option><option value="CO">Colombia</option><option value="AR">Argentina</option></select></div>
           </div>
-          <p class="field-hint">Solo tarjetas de débito Visa/Mastercard</p>
+          <p class="field-hint">Solo tarjetas de d&#233;bito Visa/Mastercard</p>
         </div>
         <div id="payMethod_crypto" class="pay-method-panel" style="display:none">
           <label class="field-label">Red de pago</label>
           <select class="field-input" id="cryptoNetworkInp" style="background:rgba(1,2,12,.8);color:#e8f4ff;margin-bottom:10px"><option value="usdt_trc20">USDT (TRC-20)</option><option value="usdt_erc20">USDT (ERC-20)</option><option value="btc">Bitcoin (BTC)</option><option value="eth">Ethereum (ETH)</option></select>
-          <label class="field-label">Dirección de wallet</label>
+          <label class="field-label">Direcci&#243;n de wallet</label>
           <input type="text" class="field-input" id="cryptoAddrInp" placeholder="0x... o T...">
-          <p class="field-hint">Envía solo a wallets que controlas</p>
+          <p class="field-hint">Env&#237;a solo a wallets que controlas</p>
         </div>
       </div>
-      <button class="save-btn" onclick="saveCreatorSettings()">✓ Guardar configuración</button>
+      <button class="save-btn" onclick="saveCreatorSettings()">&#10003; Guardar configuraci&#243;n</button>
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid #0d2744">
         <div class="section-title" style="margin-bottom:12px"> STRIPE CONNECT  Pagos automticos</div>
         <div id="stripeStatusBox" class="stripe-status-box none">Cargando estado de Stripe...</div>
@@ -406,7 +406,7 @@ async function loadStripeStatus(){
 async function requestWithdraw(){
   var pending=parseFloat(document.getElementById('pendingBalance').textContent.replace('$',''))||0;
   if(pending<10){showToast('Mnimo $10 para retirar',true);return;}
-  var amount=prompt('Cunto quieres retirar? Disponible: $'+pending.toFixed(2)+'(Mínimo $10.00)');
+  var amount=prompt('Cunto quieres retirar? Disponible: $'+pending.toFixed(2)+'(M\u00EDnimo $10.00)');
   if(!amount)return;
   var amt=parseFloat(amount);
   if(isNaN(amt)||amt<10||amt>pending){showToast('Monto invlido',true);return;}

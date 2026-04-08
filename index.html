@@ -28,7 +28,7 @@
 <meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=192&bold=true">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET â Sin lÃ­mites, sin cadenas</title>
+<title>SHADOWNET — Sin límites, sin cadenas</title>
   <meta name="description" content="SHADOWNET â La plataforma para creadores adultos sin lÃ­mites. Lives, mensajes privados, regalos animados y el 90% de tus ingresos.">
   <meta property="og:title" content="SHADOWNET â Sin lÃ­mites, sin cadenas">
   <meta property="og:description" content="La plataforma adulta para creadores que quieren el control total. 90% de comisiÃ³n.">
@@ -67,7 +67,6 @@
   }
 })();
 </script>
-  <script src="https://js.stripe.com/v3/"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--c:#00e5ff;--b:#0088ff;--r:#ff2255;--o:#ff6600;--g:#00ff88;--bg:#01020c;--cd:#070f1e;--br:#0d2744;--t1:#e8f4ff;--t2:#5a8aaa;--t3:#1e3a55;--gl:#ffd200}
@@ -2589,10 +2588,9 @@ function showNav(){
   if(!sb2){setTimeout(showNav,500);return;}
   sb2.auth.getSession().then(function(r){
     if(!r.data||!r.data.session)return;
-    var n=document.getElementById('snBottomNav');if(n)n.style.display='flex';
+    var a=document.getElementById('snNavAv');if(!a)return;
     sb2.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
       if(!p.data)return;
-      var a=document.getElementById('snNavAv');if(!a)return;
       if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';
       else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
     });
@@ -2607,7 +2605,7 @@ function renderPost(p,currentUserId){
   if(p.media_url){
     var isVid=p.media_url.match(/\.(mp4|mov|webm)/i);
     if(isVid)media='<video class="sn-post-media" src="'+p.media_url+'" playsinline muted loop onclick="this.paused?this.play():this.pause()"></video>';
-    else media='<img class="sn-post-media" src="'+p.media_url+'" loading="lazy" alt="post" ondblclick="likePost(''+p.id+'',this)">';
+    else media='<img class="sn-post-media" src="'+p.media_url+'" loading="lazy" alt="post" ondblclick="likePost(\x27'+p.id+'\x27,this)">';
   }
   var locked=p.is_premium&&!p.user_has_access&&p.user_id!==currentUserId;
   var av=(p.profile&&p.profile.avatar_url)?'<img src="'+p.profile.avatar_url+'">':'&#128100;';
@@ -2615,27 +2613,25 @@ function renderPost(p,currentUserId){
   var verified=p.profile&&p.profile.is_verified?'<span class="sn-post-verified">&#10003;</span>':'';
   var likes=p.likes_count||0;
   var caption=p.content?'<div class="sn-post-caption"><strong>'+uname+'</strong>'+escHtml(p.content)+'</div>':'';
-  return '<div class="sn-post-card" data-pid="'+p.id+'">' +
+  return '<div class="sn-post-card" data-pid="'+p.id+'">'+
     '<div class="sn-post-header">'+
-      '<button class="sn-post-av" onclick="viewProfile(''+p.user_id+'')">'+(p.profile&&p.profile.avatar_url?'<img src="'+p.profile.avatar_url+'">':'&#128100;')+'</button>'+
-      '<div class="sn-post-meta"><div class="sn-post-username" onclick="viewProfile(''+p.user_id+'')" style="cursor:pointer">'+uname+verified+'</div></div>'+
-      '<button class="sn-post-more" onclick="showPostMenu(''+p.id+'')">&hellip;</button>'+
+      '<button class="sn-post-av" onclick="viewProfile(\x27'+p.user_id+'\x27)">'+av+'</button>'+
+      '<div class="sn-post-meta"><div class="sn-post-username" onclick="viewProfile(\x27'+p.user_id+'\x27)" style="cursor:pointer">'+uname+verified+'</div></div>'+
+      '<button class="sn-post-more" onclick="showPostMenu(\x27'+p.id+'\x27)">&hellip;</button>'+
     '</div>'+
     (locked?
-      '<div class="sn-post-locked"><div class="sn-post-locked-icon">&#128274;</div><div class="sn-post-locked-text">Contenido exclusivo para suscriptores</div><button class="sn-post-locked-btn" onclick="subscribeTo(''+p.user_id+'')">&hearts; Suscribirse</button></div>':
+      '<div class="sn-post-locked"><div class="sn-post-locked-icon">&#128274;</div><div class="sn-post-locked-text">Contenido exclusivo</div><button class="sn-post-locked-btn" onclick="subscribeTo(\x27'+p.user_id+'\x27)">&#9829; Suscribirme</button></div>':
       media)+
     '<div class="sn-post-actions">'+
-      '<button class="sn-post-btn'+(isLiked?' liked':'')+'" onclick="likePost(''+p.id+'',this)">'+(isLiked?'&#10084;':'&#9825;')+'</button>'+
-      '<button class="sn-post-btn" onclick="openComments(''+p.id+'')" style="font-size:22px">&#128172;</button>'+
-      '<button class="sn-post-btn" onclick="sharePost(''+p.id+'')" style="font-size:20px">&#10148;</button>'+
-      '<button class="sn-post-btn sn-post-btn-save" onclick="tipPost(''+p.user_id+'')" style="font-size:20px">&#128138;</button>'+
+      '<button class="sn-post-btn'+(isLiked?' liked':'')+' onclick="likePost(\x27'+p.id+'\x27,this)">'+(isLiked?'&#10084;':'&#9825;')+'</button>'+
+      '<button class="sn-post-btn" onclick="openComments(\x27'+p.id+'\x27)" style="font-size:22px">&#128172;</button>'+
+      '<button class="sn-post-btn" onclick="sharePost(\x27'+p.id+'\x27)" style="font-size:20px">&#10148;&#65039;</button>'+
     '</div>'+
     (likes>0?'<div class="sn-post-likes">'+likes+' me gusta</div>':'')+
     caption+
   '</div>';
 }
-function escHtml(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/
-/g,'<br>'):'';
+function escHtml(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'):'';
 }
 function timeAgo(d){
   var diff=Date.now()-d.getTime(),s=Math.floor(diff/1000);

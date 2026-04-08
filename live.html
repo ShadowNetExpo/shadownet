@@ -429,19 +429,19 @@ document.addEventListener("DOMContentLoaded",function(){
       </div>
       <div class="effects-section-title" style="margin-top:16px">FONDO VIRTUAL</div>
       <div class="bg-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px">
-        <button class="bg-btn" onclick="setVirtualBg('none')" style="padding:6px;border-radius:8px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.4);color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">✕ Sin fondo</button>
-        <button class="bg-btn" onclick="setVirtualBg('blur')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,229,255,.4);background:rgba(0,229,255,.1);color:#00e5ff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">🌫️ Difuminado</button>
-        <button class="bg-btn" onclick="setVirtualBg('green')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,255,100,.4);background:rgba(0,255,100,.1);color:#00ff64;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">🟩 Pantalla verde</button>
-        <button class="bg-btn" onclick="setVirtualBg('city')" style="padding:6px;border-radius:8px;border:2px solid rgba(255,170,0,.4);background:url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=200&q=60') center/cover;color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px #000">🌆 Ciudad</button>
-        <button class="bg-btn" onclick="setVirtualBg('beach')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,229,255,.3);background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=60') center/cover;color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px #000">🏖️ Playa</button>
-        <button class="bg-btn" onclick="setVirtualBg('galaxy')" style="padding:6px;border-radius:8px;border:2px solid rgba(170,0,255,.4);background:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=200&q=60') center/cover;color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px #000">🌌 Galaxia</button>
+        <button class="bg-btn" onclick="setVirtualBg('none')" style="padding:6px;border-radius:8px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.4);color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">&#10005; Sin fondo</button>
+        <button class="bg-btn" onclick="setVirtualBg('blur')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,229,255,.4);background:rgba(0,229,255,.1);color:#00e5ff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">&#55356;&#57131;&#65039; Difuminado</button>
+        <button class="bg-btn" onclick="setVirtualBg('green')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,255,100,.4);background:rgba(0,255,100,.1);color:#00ff64;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">&#55357;&#57321; Pantalla verde</button>
+        <button class="bg-btn" onclick="setVirtualBg('city')" style="padding:6px;border-radius:8px;border:2px solid rgba(255,170,0,.4);background:url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=200&q=60') center/cover;color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px #000">&#55356;&#57094; Ciudad</button>
+        <button class="bg-btn" onclick="setVirtualBg('beach')" style="padding:6px;border-radius:8px;border:2px solid rgba(0,229,255,.3);background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=60') center/cover;color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px #000">&#55356;&#57302;&#65039; Playa</button>
+        <button class="bg-btn" onclick="setVirtualBg('galaxy')" style="padding:6px;border-radius:8px;border:2px solid rgba(170,0,255,.4);background:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=200&q=60') center/cover;color:#fff;font-size:11px;font-family:Rajdhani,sans-serif;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px #000">&#55356;&#57100; Galaxia</button>
       </div>
       <div class="beauty-slider-wrap">
         <div class="beauty-slider-label"><span>Contraste</span><span id="contrastVal">50%</span></div>
         <input type="range" class="beauty-slider" id="contrastSlider" min="0" max="100" value="50" oninput="updateBeautySlider('contrast',this.value)">
       </div>
       <div class="beauty-slider-wrap">
-        <div class="beauty-slider-label"><span>Saturación</span><span id="saturVal">50%</span></div>
+        <div class="beauty-slider-label"><span>Saturaci&#243;n</span><span id="saturVal">50%</span></div>
         <input type="range" class="beauty-slider" id="saturSlider" min="0" max="100" value="50" oninput="updateBeautySlider('satur',this.value)">
       </div>
       <div class="beauty-slider-wrap">
@@ -471,7 +471,7 @@ document.addEventListener("DOMContentLoaded",function(){
   <!-- Gifts panel -->
   <div class="live-panel" id="giftsPanel">
     <div class="live-panel-header">
-      <span style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:.1em">🎁 REGALOS</span>
+      <span style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:.1em">&#55356;&#57217; REGALOS</span>
       <button onclick="closePanel('giftsPanel')" style="background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer">&#10005;</button>
     </div>
     <div class="live-panel-body" style="padding:12px">

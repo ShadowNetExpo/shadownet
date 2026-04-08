@@ -125,11 +125,46 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
         <div class="price-wrap"><input type="number" class="field-input" id="priceInp" placeholder="9.99" min="0" step="0.01"></div>
         <p class="field-hint">Escribe 0 para perfil gratuito</p>
       </div>
+      <!-- Payment methods -->
       <div class="field">
-        <label class="field-label">Email PayPal (para retiros manuales)</label>
-        <input type="email" class="field-input" id="paypalInp" placeholder="tu@paypal.com">
+        <label class="field-label" style="margin-bottom:8px">💸 Método de retiro</label>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button onclick="selectPayMethod('paypal')" id="tab_paypal" class="pay-tab active" style="padding:6px 14px;border-radius:20px;border:1px solid #00e5ff;background:rgba(0,229,255,.15);color:#00e5ff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">PayPal</button>
+          <button onclick="selectPayMethod('iban')" id="tab_iban" class="pay-tab" style="padding:6px 14px;border-radius:20px;border:1px solid #0d2744;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">Banco / IBAN</button>
+          <button onclick="selectPayMethod('card')" id="tab_card" class="pay-tab" style="padding:6px 14px;border-radius:20px;border:1px solid #0d2744;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">Tarjeta</button>
+          <button onclick="selectPayMethod('crypto')" id="tab_crypto" class="pay-tab" style="padding:6px 14px;border-radius:20px;border:1px solid #0d2744;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">Crypto</button>
+        </div>
+        <div id="payMethod_paypal" class="pay-method-panel">
+          <label class="field-label">Email de PayPal</label>
+          <input type="email" class="field-input" id="paypalInp" placeholder="tu@paypal.com">
+        </div>
+        <div id="payMethod_iban" class="pay-method-panel" style="display:none">
+          <label class="field-label">Titular de la cuenta</label>
+          <input type="text" class="field-input" id="bankNameInp" placeholder="Nombre y apellidos" style="margin-bottom:10px">
+          <label class="field-label">IBAN</label>
+          <input type="text" class="field-input" id="ibanInp" placeholder="ES00 0000 0000 0000 0000 0000" style="margin-bottom:10px">
+          <label class="field-label">BIC / SWIFT (opcional)</label>
+          <input type="text" class="field-input" id="bicInp" placeholder="XXXXXXXX">
+          <p class="field-hint">Transferencias SEPA — sin comisiones en Europa</p>
+        </div>
+        <div id="payMethod_card" class="pay-method-panel" style="display:none">
+          <label class="field-label">Número de tarjeta de débito</label>
+          <input type="text" class="field-input" id="cardNumberInp" placeholder="0000 0000 0000 0000" maxlength="19" style="margin-bottom:10px">
+          <div style="display:flex;gap:10px">
+            <div style="flex:1"><label class="field-label">Caducidad</label><input type="text" class="field-input" id="cardExpInp" placeholder="MM/AA" maxlength="5"></div>
+            <div style="flex:1"><label class="field-label">País</label><select class="field-input" id="cardCountryInp" style="background:rgba(1,2,12,.8);color:#e8f4ff"><option value="ES">España</option><option value="BE">Bélgica</option><option value="FR">Francia</option><option value="DE">Alemania</option><option value="MX">México</option><option value="CO">Colombia</option><option value="AR">Argentina</option></select></div>
+          </div>
+          <p class="field-hint">Solo tarjetas de débito Visa/Mastercard</p>
+        </div>
+        <div id="payMethod_crypto" class="pay-method-panel" style="display:none">
+          <label class="field-label">Red de pago</label>
+          <select class="field-input" id="cryptoNetworkInp" style="background:rgba(1,2,12,.8);color:#e8f4ff;margin-bottom:10px"><option value="usdt_trc20">USDT (TRC-20)</option><option value="usdt_erc20">USDT (ERC-20)</option><option value="btc">Bitcoin (BTC)</option><option value="eth">Ethereum (ETH)</option></select>
+          <label class="field-label">Dirección de wallet</label>
+          <input type="text" class="field-input" id="cryptoAddrInp" placeholder="0x... o T...">
+          <p class="field-hint">Envía solo a wallets que controlas</p>
+        </div>
       </div>
-      <button class="save-btn" onclick="saveCreatorSettings()"> Guardar configuracin</button>
+      <button class="save-btn" onclick="saveCreatorSettings()">✓ Guardar configuración</button>
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid #0d2744">
         <div class="section-title" style="margin-bottom:12px"> STRIPE CONNECT  Pagos automticos</div>
         <div id="stripeStatusBox" class="stripe-status-box none">Cargando estado de Stripe...</div>
@@ -273,6 +308,32 @@ async function saveProfile(){
   if(r.error){showToast('Error: '+r.error.message,true);}else{showToast(' Perfil actualizado!');pendingAvatarFile=null;pendingCoverFile=null;}
 }
 
+function selectPayMethod(method){
+  document.querySelectorAll('.pay-tab').forEach(function(t){
+    var isActive = t.id==='tab_'+method;
+    t.classList.toggle('active',isActive);
+    t.style.borderColor = isActive?'#00e5ff':'#0d2744';
+    t.style.background = isActive?'rgba(0,229,255,.15)':'transparent';
+    t.style.color = isActive?'#00e5ff':'#5a8aaa';
+  });
+  document.querySelectorAll('.pay-method-panel').forEach(function(p){
+    p.style.display = p.id==='payMethod_'+method?'block':'none';
+  });
+}
+
+
+function selectPayMethod(method){
+  document.querySelectorAll('.pay-tab').forEach(function(t){
+    var on = t.id==='tab_'+method;
+    t.classList.toggle('active',on);
+    t.style.borderColor = on?'#00e5ff':'#0d2744';
+    t.style.background = on?'rgba(0,229,255,.15)':'transparent';
+    t.style.color = on?'#00e5ff':'#5a8aaa';
+  });
+  document.querySelectorAll('.pay-method-panel').forEach(function(p){
+    p.style.display = p.id==='payMethod_'+method?'block':'none';
+  });
+}
 async function saveCreatorSettings(){
   var price=parseFloat(document.getElementById('priceInp').value||0);
   var paypal=document.getElementById('paypalInp').value.trim();

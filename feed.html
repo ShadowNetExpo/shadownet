@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="SHADOWNET">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET Ã¢ÂÂ Feed</title>
+<title>SHADOWNET — Feed</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -324,7 +324,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <div class="post-actions">
       <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
       <button class="toggle-location-btn" id="locationToggleBtn" onclick="toggleLocationInput()">&#128205; Ubicacion</button>
-    <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, EspaÃÂ±a">
+    <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, España">
     <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label><button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
     </div>
   </div>
@@ -946,9 +946,67 @@ async function sharePost(postId, username){
 }
 
 // =============================================
+// =============================================
 // SISTEMA DE REPORTES
 // =============================================
-// =============================================
+var _reportPostId=null,_reportUserId=null,_reportReason=null;
+var REPORT_REASONS=[
+  {icon:'\u26a0\ufe0f',text:'Contenido inapropiado'},
+  {icon:'\ud83d\udcf8',text:'Contenido sexual no permitido'},
+  {icon:'\ud83d\udde1\ufe0f',text:'Violencia o contenido perturbador'},
+  {icon:'\ud83d\udeab',text:'Spam o contenido eng\u00f1oso'},
+  {icon:'\u26a0\ufe0f',text:'Acoso o bullying'},
+  {icon:'\ud83d\udccb',text:'Otro motivo'}
+];
+function openReport(postId,type,userId){
+  _reportPostId=postId;_reportUserId=userId||null;_reportReason=null;
+  var reasons=document.getElementById('reportReasons');
+  if(reasons){
+    reasons.innerHTML='';
+    REPORT_REASONS.forEach(function(r){
+      var el=document.createElement('div');el.className='report-reason';
+      el.innerHTML='<span class="report-reason-icon">'+r.icon+'</span>'+r.text;
+      el.addEventListener('click',function(){
+        document.querySelectorAll('.report-reason').forEach(function(e){e.classList.remove('sel');});
+        el.classList.add('sel');_reportReason=r.text;
+        var det=document.getElementById('reportDetail');if(det)det.classList.add('show');
+        var btn=document.getElementById('rptSubmitBtn');if(btn)btn.disabled=false;
+      });
+      reasons.appendChild(el);
+    });
+  }
+  var det=document.getElementById('reportDetail');if(det){det.classList.remove('show');det.value='';}
+  var btn=document.getElementById('rptSubmitBtn');if(btn)btn.disabled=true;
+  var modal=document.getElementById('reportModal');if(modal)modal.classList.add('open');
+}
+function closeReport(){
+  var modal=document.getElementById('reportModal');if(modal)modal.classList.remove('open');
+  _reportPostId=null;_reportReason=null;
+}
+async function submitReport(){
+  if(!_reportPostId||!_reportReason||!currentUser)return;
+  var detail=document.getElementById('reportDetail')?.value?.trim()||'';
+  var btn=document.getElementById('rptSubmitBtn');
+  if(btn){btn.disabled=true;btn.textContent='Enviando...';}
+  await sb.from('reports').insert({
+    reporter_id:currentUser.id,reported_user_id:_reportUserId||null,
+    post_id:_reportPostId,reason:_reportReason,details:detail||null,status:'pending'
+  });
+  closeReport();
+  if(btn){btn.disabled=false;btn.textContent='Enviar Reporte';}
+  showToast('\u2713 Reporte enviado. Gracias.');
+}
+
+// === FIX 4: openNewPost function ===
+function openNewPost(){
+  var box=document.getElementById('postBox');
+  if(box){
+    box.style.display='block';
+    box.scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(function(){var ta=document.getElementById('postText');if(ta)ta.focus();},300);
+  }
+}
+
 // EDITAR PUBLICACIÃÂN
 // =============================================
 var _editPostId = null;
@@ -967,7 +1025,7 @@ function openEditPost(postId){
 async function saveEditPost(){
   if(!_editPostId || !currentUser) return;
   var newText = document.getElementById('editPostInp').value.trim();
-  if(!newText){ showToast('El texto no puede estar vacÃÂ­o', true); return; }
+  if(!newText){ showToast('El texto no puede estar vacío', true); return; }
   var btn = document.getElementById('editPostSaveBtn');
   btn.disabled = true; btn.textContent = 'Guardando...';
   var r = await sb.from('posts').update({content:newText}).eq('id',_editPostId);
@@ -981,7 +1039,7 @@ async function saveEditPost(){
   }
   document.getElementById('editPostModal').classList.remove('open');
   _editPostId = null;
-  showToast('\u2713 PublicaciÃÂ³n editada');
+  showToast('\u2713 Publicación editada');
 }
 
 function closeEditPost(){
@@ -1626,7 +1684,7 @@ async function loadNotifications(){
     var t = new Date(n.created_at);
     var ago = Math.round((Date.now()-t.getTime())/60000);
     var timeStr = ago<60?(ago+'m'):ago<1440?(Math.round(ago/60)+'h'):(Math.round(ago/1440)+'d');
-    return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #0a1628;cursor:pointer" onclick="'+( n.post_id ? 'window.location.href='feed.html?post='+n.post_id+''' : n.from_user_id ? 'window.location.href='profile.html?id='+n.from_user_id+''' : '')+'">'+
+    return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid #0a1628;cursor:pointer" onclick="'+(n.post_id?'window.location.href=\'feed.html?post=\'+n.post_id+\'':n.from_user_id?'window.location.href=\'profile.html?id=\'+n.from_user_id+\'':'')+'">'+
       '<div style="width:36px;height:36px;border-radius:50%;background:rgba(255,34,85,.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">'+ico+'</div>'+
       '<div style="flex:1">'+
         '<div style="font-size:13px;color:#c8d8e8;line-height:1.4">'+n.message+'</div>'+

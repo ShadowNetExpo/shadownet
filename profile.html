@@ -1133,8 +1133,7 @@ async function openCreateHighlight(){
   var grid=document.getElementById('hlStoriesGrid');
   grid.innerHTML='';
   if(stories.length===0){
-    grid.innerHTML='<p style="color:#5a8aaa;font-size:13px;grid-column:1/-1;text-align:center;padding:20px">No tienes historias.
-Sube una historia primero.</p>';
+    grid.innerHTML='<p style="color:#5a8aaa;font-size:13px;grid-column:1/-1;text-align:center;padding:20px">No tienes historias. Sube una historia primero.</p>';
   } else {
     stories.forEach(function(s){
       var item=document.createElement('div');item.className='hs-item';item.dataset.id=s.id;item.dataset.url=s.media_url;item.dataset.type=s.media_type;

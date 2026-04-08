@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Buscar</title>
+<title>SHADOWNET &#8212; Buscar</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -125,7 +125,7 @@ async function loadTrending(){
   });
   var sorted=Object.entries(tags).sort(function(a,b){return b[1]-a[1];}).slice(0,12);
   var el=document.getElementById('trendingTags');
-  if(!sorted.length){el.innerHTML='<span style="color:#5a8aaa;font-size:13px">Sin tendencias aún</span>';return;}
+  if(!sorted.length){el.innerHTML='<span style="color:#5a8aaa;font-size:13px">Sin tendencias a\u00FAn</span>';return;}
   el.innerHTML='';
   sorted.forEach(function(t){
     var tag=document.createElement('span');tag.className='tag';
@@ -206,7 +206,7 @@ async function renderResults(tab){
     lastPosts.forEach(function(p){container.appendChild(buildPostCard(p,pm[p.user_id]));});
   }
   if(!showUsers&&!showPosts){
-    container.innerHTML='<div class="empty-msg">Sin resultados. Intenta con otro término.</div>';
+    container.innerHTML='<div class="empty-msg">Sin resultados. Intenta con otro t\u00E9rmino.</div>';
   }
 }
 
@@ -217,7 +217,7 @@ function buildUserCard(u){
   if(u.avatar_url){var img=document.createElement('img');img.src=u.avatar_url;av.appendChild(img);}else av.textContent=(u.username||'?')[0].toUpperCase();
   var info=document.createElement('div');info.className='ui';
   var name=document.createElement('div');name.className='un';name.textContent='@'+u.username;
-  if(u.verification_status==='verified'){var vi=document.createElement('span');vi.className='v-icon';vi.textContent='✓';name.appendChild(vi);}
+  if(u.verification_status==='verified'){var vi=document.createElement('span');vi.className='v-icon';vi.textContent='\u2713';name.appendChild(vi);}
   var rt=document.createElement('span');rt.className='role-tag '+(u.role==='creator'?'rt-creator':'rt-fan');rt.textContent=u.role==='creator'?'CREADOR':'FAN';name.appendChild(rt);
   var bio=document.createElement('div');bio.className='ub';bio.textContent=u.bio||(u.followers_count||0)+' seguidores';
   info.appendChild(name);info.appendChild(bio);
@@ -243,7 +243,7 @@ function buildPostCard(post,profile){
   if(post.media_url&&post.media_type!=='video'){var im=document.createElement('img');im.className='post-media';im.src=post.media_url;im.alt='post';card.appendChild(im);}
   if(post.content){var pc=document.createElement('div');pc.className='post-content';pc.textContent=post.content.slice(0,150)+(post.content.length>150?'..':'');card.appendChild(pc);}
   var ps=document.createElement('div');ps.className='post-stats';
-  ps.innerHTML='&#10084; '+(post.likes_count||0)+'  &#128172; '+(post.comments_count||0);
+  ps.innerHTML='&#10084; '+(post.likes_count||0)+'\u00A0\u00A0&#128172; '+(post.comments_count||0);
   card.appendChild(ps);
   return card;
 }
@@ -252,7 +252,7 @@ async function toggleFollow(btn){
   if(!currentUser){window.location.href='/';return;}
   var uid=btn.dataset.uid;var isF=btn.classList.contains('following');
   if(isF){await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',uid);btn.textContent='Seguir';btn.classList.remove('following');delete followingSet[uid];
-  }else{await sb.from('follows').insert({follower_id:currentUser.id,following_id:uid});btn.textContent='Siguiendo';btn.classList.add('following');followingSet[uid]=true;showToast('✓ Siguiendo');}
+  }else{await sb.from('follows').insert({follower_id:currentUser.id,following_id:uid});btn.textContent='Siguiendo';btn.classList.add('following');followingSet[uid]=true;showToast('\u2713 Siguiendo');}
 }
 
 function getTimeAgo(ts){var d=(Date.now()-new Date(ts))/1000;if(d<60)return 'ahora';if(d<3600)return Math.floor(d/60)+'m';if(d<86400)return Math.floor(d/3600)+'h';return Math.floor(d/86400)+'d';}

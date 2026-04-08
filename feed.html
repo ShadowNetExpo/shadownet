@@ -1631,14 +1631,11 @@ async function sendTip(){
 <div id="createSheet" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.7)" onclick="if(event.target===this)closeCreateSheet()">
   <div style="position:fixed;bottom:0;left:0;right:0;background:#070f1e;border-top:1px solid #0d2744;border-radius:20px 20px 0 0;padding:24px 20px 40px;max-width:680px;margin:0 auto">
     <div style="width:40px;height:4px;background:#0d2744;border-radius:2px;margin:0 auto 20px"></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-      <button onclick="closeCreateSheet();openNewPost()" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);border-radius:14px;padding:16px 8px;cursor:pointer;color:#ff6680;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
-        <span style="font-size:26px">&#128247;</span>Post
-      </button>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
       <button onclick="closeCreateSheet();window.location.href='/stories.html'" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);border-radius:14px;padding:16px 8px;cursor:pointer;color:#00e5ff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
         <span style="font-size:26px">&#10024;</span>Historia
       </button>
-      <button onclick="closeCreateSheet();window.location.href='/live.html'" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,0,80,.1);border:1px solid rgba(255,0,80,.3);border-radius:14px;padding:16px 8px;cursor:pointer;color:#ff2255;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
+      <button onclick="closeCreateSheet();openLiveStaging()" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,0,80,.1);border:1px solid rgba(255,0,80,.3);border-radius:14px;padding:16px 8px;cursor:pointer;color:#ff2255;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
         <span style="font-size:26px">&#128250;</span>Live
       </button>
       <button onclick="closeCreateSheet();window.location.href='/messages.html'" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2);border-radius:14px;padding:16px 8px;cursor:pointer;color:#ffaa00;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">
@@ -1668,6 +1665,16 @@ function toggleNotifPanel(){
   if(_notifOpen) loadNotifications();
 }
 
+function notifNavigate(n){
+  try{
+    if(n.type==='follow'||n.type==='follow_request'){window.location.href='/profile.html?user='+(n.actor_id||'');}
+    else if(n.type==='like'||n.type==='comment'){window.location.href=n.post_id?'/feed.html?post='+n.post_id:'/feed.html';}
+    else if(n.type==='subscription'||n.type==='tip'){window.location.href='/profile.html?user='+(n.actor_id||'');}
+    else if(n.type==='message'){window.location.href='/messages.html';}
+    else{window.location.href='/feed.html';}
+  }catch(e){window.location.href='/feed.html';}
+  var p=document.getElementById('notifPanel');if(p)p.classList.remove('open');
+}
 async function loadNotifications(){
   var list = document.getElementById('notifList');
   if(!window.sb || !window.currentUser){ list.innerHTML='<div style="text-align:center;padding:40px;color:#5a8aaa;font-size:13px">Inicia sesi&#243;n para ver notificaciones</div>'; return; }
@@ -1694,6 +1701,44 @@ async function loadNotifications(){
   }).join('');
 }
 
+// openLiveStaging - pre-live preview screen
+function openLiveStaging(){
+  var modal = document.getElementById('liveStageModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'liveStageModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px';
+    modal.innerHTML = '<div style="position:relative;width:100%;max-width:480px;aspect-ratio:9/16;background:#111;border-radius:16px;overflow:hidden;margin:0 auto">'
+      +'<video id="livePreviewVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover"></video>'
+      +'<div style="position:absolute;top:16px;left:16px;background:rgba(0,0,0,.6);color:#fff;padding:6px 12px;border-radius:20px;font-size:13px;font-family:Rajdhani,sans-serif">Vista previa — no estás en vivo</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:16px;padding:0 20px;width:100%;max-width:480px;box-sizing:border-box">'
+      +'<button onclick="closeLiveStaging()" style="flex:1;padding:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;cursor:pointer">✕ Cancelar</button>'
+      +'<button onclick="goLiveNow()" style="flex:2;padding:14px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;cursor:pointer">🔴 EMITIR EN VIVO</button>'
+      +'</div>';
+    document.body.appendChild(modal);
+    // Start camera preview
+    navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(function(stream){
+      var v=document.getElementById('livePreviewVideo');
+      if(v){v.srcObject=stream;window.__stageStream=stream;}
+    }).catch(function(){});
+  } else {
+    modal.style.display='flex';
+    navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(function(stream){
+      var v=document.getElementById('livePreviewVideo');
+      if(v){v.srcObject=stream;window.__stageStream=stream;}
+    }).catch(function(){});
+  }
+}
+function closeLiveStaging(){
+  var m=document.getElementById('liveStageModal');
+  if(m)m.style.display='none';
+  if(window.__stageStream){window.__stageStream.getTracks().forEach(function(t){t.stop();});window.__stageStream=null;}
+}
+function goLiveNow(){
+  closeLiveStaging();
+  window.location.href='/live.html';
+}
 // Check unread notifications on load
 (function(){
   function checkUnread(){

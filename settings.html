@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET  Configuracin</title>
+<title>SHADOWNET — Configuración</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -345,8 +345,7 @@ async function loadStripeStatus(){
 async function requestWithdraw(){
   var pending=parseFloat(document.getElementById('pendingBalance').textContent.replace('$',''))||0;
   if(pending<10){showToast('Mnimo $10 para retirar',true);return;}
-  var amount=prompt('Cunto quieres retirar? Disponible: $'+pending.toFixed(2)+'
-(Mnimo $10.00)');
+  var amount=prompt('Cunto quieres retirar? Disponible: $'+pending.toFixed(2)+'(Mínimo $10.00)');
   if(!amount)return;
   var amt=parseFloat(amount);
   if(isNaN(amt)||amt<10||amt>pending){showToast('Monto invlido',true);return;}

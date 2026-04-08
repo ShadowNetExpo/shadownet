@@ -192,7 +192,7 @@ async function initViewer(){
   (document.getElementById("liveTitle")||{}).textContent =creator.username.toUpperCase()+" EN VIVO";
   (document.getElementById("liveSubtitle")||{}).textContent ="Conectando...";
   document.getElementById("rightControls").style.display="none";
-  buildViewerActionBar();buildGiftsGrid();
+  buildViewerActionBar();if(document.getElementById('giftGrid'))buildGiftsGrid();
   if(!AGORA_APP_ID){showToastMsg("Streaming no disponible",true);(document.getElementById("liveSubtitle")||{}).textContent ="Sin seÃ±al";return;}
   try{
     await loadAgoraSDK();
@@ -254,12 +254,12 @@ function applyBeautyFilters(){var filters=[];if(beautyActive.smooth)filters.push
 function playSFX(type){var ctx=new(window.AudioContext||window.webkitAudioContext)();var osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);var now=ctx.currentTime;var sfxMap={applause:{f:440,t:.1},laugh:{f:300,t:.8},horn:{f:440,t:.5},alarm:{f:880,t:.7},drum:{f:150,t:.5},confetti:{f:523,t:.3}};var s=sfxMap[type]||{f:440,t:.3};osc.frequency.value=s.f;gain.gain.setValueAtTime(.3,now);gain.gain.exponentialRampToValueAtTime(.001,now+s.t);osc.start(now);osc.stop(now+s.t);var icons={applause:"ð",laugh:"ð",horn:"ð¯",alarm:"ð¨",drum:"ð¥",confetti:"ð"};showToastMsg((icons[type]||"")+" "+type);}
 
 // ââ STICKERS ââ
-function buildStickerGrid(){var _sg=document.getElementById('stickerGrid');if(!_sg)return;var grid=document.getElementById("stickerGrid");STICKERS.forEach(function(s){var btn=document.createElement("div");btn.className="sticker-pick";btn.textContent=s;btn.addEventListener("click",function(){addSticker(s);});grid.appendChild(btn);});}
+function buildStickerGrid(){var _sg=document.getElementById('stickerGrid');if(!_sg)return;var _sg=document.getElementById('stickerGrid');if(!_sg)return;var grid=document.getElementById("stickerGrid");STICKERS.forEach(function(s){var btn=document.createElement("div");btn.className="sticker-pick";btn.textContent=s;btn.addEventListener("click",function(){addSticker(s);});grid.appendChild(btn);});}
 function addSticker(emoji){var sticker=document.createElement("div");sticker.className="sticker-item";sticker.textContent=emoji;sticker.style.left=Math.random()*60+10+"%";sticker.style.top=Math.random()*60+15+"%";var isDrag=false,sx,sy,ol,ot;sticker.addEventListener("mousedown",function(e){isDrag=true;sx=e.clientX;sy=e.clientY;ol=sticker.offsetLeft;ot=sticker.offsetTop;});document.addEventListener("mousemove",function(e){if(!isDrag)return;sticker.style.left=(ol+e.clientX-sx)+"px";sticker.style.top=(ot+e.clientY-sy)+"px";sticker.style.transform="";});document.addEventListener("mouseup",function(){isDrag=false;});var lastTap=0;sticker.addEventListener("click",function(){var now=Date.now();if(now-lastTap<400){sticker.remove();}lastTap=now;});document.getElementById("liveContainer").appendChild(sticker);closePanel("stickersPanel");}
 function clearStickers(){try{document.querySelectorAll(".sticker-item").forEach(function(s){s.remove()});}catch(e){}}
 
 // ââ GIFTS ââ
-function buildGiftsGrid(){var grid=document.getElementById("giftsGrid");GIFTS.forEach(function(gift){var item=document.createElement("div");item.className="gift-item";item.innerHTML="<span class='gift-emoji'>"+gift.emoji+"</span><div class='gift-name'>"+gift.name+"</div><div class='gift-cost'>ð "+gift.cost+"</div>";item.addEventListener("click",function(){sendGiftFromPanel(gift);});grid.appendChild(item);});}
+function buildGiftsGrid(){var _gg=document.getElementById('giftGrid');if(!_gg)return;var grid=document.getElementById("giftsGrid");GIFTS.forEach(function(gift){var item=document.createElement("div");item.className="gift-item";item.innerHTML="<span class='gift-emoji'>"+gift.emoji+"</span><div class='gift-name'>"+gift.name+"</div><div class='gift-cost'>ð "+gift.cost+"</div>";item.addEventListener("click",function(){sendGiftFromPanel(gift);});grid.appendChild(item);});}
 async function sendGiftFromPanel(gift){if(!currentUser)return;if((currentProfile?.coins_balance||0)<gift.cost){showToastMsg("No tienes suficientes Almas",true);return;}await sb.from("profiles").update({coins_balance:(currentProfile.coins_balance-gift.cost)}).eq("id",currentUser.id);currentProfile.coins_balance-=gift.cost;(document.getElementById("panelCoinsBalance")||{}).textContent =currentProfile.coins_balance;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"gift",payload:{emoji:gift.emoji,name:gift.name,cost:gift.cost}});animateGift(gift.emoji,gift.name,gift.cost);closePanel("giftsPanel");}
 function animateGift(emoji,name,cost){var el=document.createElement("div");el.className="gift-float";el.textContent=emoji;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},2500);var alert=document.createElement("div");alert.className="gift-alert";alert.innerHTML=emoji+"<br><span style='font-size:11px'>"+name+" (+"+cost+" Almas)</span>";document.getElementById("liveContainer").appendChild(alert);setTimeout(function(){alert.remove();},3000);totalGiftsReceived+=cost;updateGoalProgress(cost);}
 
@@ -564,7 +564,7 @@ sb.auth.getSession().then(async function(r){
   // Update coins display
   (document.getElementById('panelCoinsBalance')||{}).textContent =(currentProfile.coins_balance||0)+' \uD83D\uDC80';
   if(typeof buildStickerGrid==='function') buildStickerGrid();
-  buildGiftsGrid();
+  if(document.getElementById('giftGrid'))buildGiftsGrid();
   if(_creatorParam){initViewer();}
   else{
     if(currentProfile.role!=='creator'&&!currentProfile.is_creator){showToastMsg('Solo creadores pueden iniciar lives',true);setTimeout(function(){window.location.href='/';},2000);return;}

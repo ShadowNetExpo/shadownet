@@ -156,7 +156,7 @@ async function initAgoraHost(){
     await agoraClient.setClientRole("host");
     localVideoTrack=await AgoraRTC.createCameraVideoTrack({facingMode:currentFacingMode,encoderConfig:{width:720,height:1280,frameRate:30,bitrateMin:600,bitrateMax:2000}});
     localAudioTrack=await AgoraRTC.createMicrophoneAudioTrack({encoderConfig:"speech_standard"});
-    await agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,null,currentUser.id);
+    await await(async function(){var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:AGORA_CHANNEL,uid:currentUser.id,role:'host'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,currentUser.id);})();
     await agoraClient.publish([localVideoTrack,localAudioTrack]);
     localVideoTrack.play("liveVideo");
     document.getElementById("liveSubtitle").textContent="EN VIVO â¢ "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
@@ -206,7 +206,7 @@ async function initViewer(){
     agoraClient.on("user-unpublished",function(user,mediaType){if(mediaType==="video")document.getElementById("liveSubtitle").textContent="CÃ¡mara apagada";});
     agoraClient.on("user-left",function(){showToastMsg("El creador terminÃ³ el live");document.getElementById("liveSubtitle").textContent="Live terminado";});
     var uid=currentUser?currentUser.id:("anon_"+Math.floor(Math.random()*1e8));
-    await agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,null,uid);
+    await await(async function(){var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:AGORA_CHANNEL,uid:String(uid),role:'viewer'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,uid);})();
     document.getElementById("liveSubtitle").textContent="Esperando al creador...";
     subscribeLiveChannelViewer(creator.id);
   }catch(e){showToastMsg("Error conexiÃ³n: "+e.message,true);}

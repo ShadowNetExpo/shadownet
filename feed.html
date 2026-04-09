@@ -301,6 +301,21 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
 .sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 @media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
+
+/* === LIVE SECTION === */
+.sn-live-section{padding:8px 0 4px;margin-bottom:4px}
+.sn-live-section-title{font-size:12px;font-weight:700;color:#ff2255;text-transform:uppercase;letter-spacing:.08em;padding:0 16px 8px;display:flex;align-items:center;gap:6px}
+.sn-live-dot{width:8px;height:8px;border-radius:50%;background:#ff2255;animation:sn-pulse 1.2s infinite}
+@keyframes sn-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.sn-live-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 8px;scrollbar-width:none}
+.sn-live-scroll::-webkit-scrollbar{display:none}
+.sn-live-card{flex-shrink:0;width:72px;cursor:pointer;text-align:center}
+.sn-live-avatar-wrap{position:relative;width:64px;height:64px;margin:0 auto 4px}
+.sn-live-avatar-wrap img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2.5px solid #ff2255}
+.sn-live-badge{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);background:#ff2255;color:#fff;font-size:10px;font-weight:800;font-family:Rajdhani,sans-serif;padding:1px 7px;border-radius:10px;border:1.5px solid #0a0a0f;letter-spacing:.04em}
+.sn-live-name{font-size:11px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68px}
+.sn-live-viewers{font-size:10px;color:#666}
+.sn-notif-live{background:#ff2255;color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:1px 5px;margin-left:4px;font-family:Rajdhani,sans-serif}
 </style>
 </head>
 <body>
@@ -332,7 +347,13 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <button class="tab" id="tabTrending" onclick="loadFeed('trending')">&#128293; Trending</button>
     <button class="tab" id="tabSaved" onclick="loadFeed('saved')">&#128278; Guardados</button>
   </div>
-  <div id="feedContainer" class="feed"><div class="loader">Cargando feed...</div></div>
+  <div id="feedContainer" 
+<!-- EN VIVO AHORA -->
+<div id="sn-live-section" class="sn-live-section" style="display:none">
+  <div class="sn-live-section-title"><span class="sn-live-dot"></span> En vivo ahora <span id="sn-live-count" class="sn-notif-live" style="display:none"></span></div>
+  <div class="sn-live-scroll" id="sn-live-scroll"></div>
+</div>
+class="feed"><div class="loader">Cargando feed...</div></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
@@ -1772,6 +1793,47 @@ function goLiveNow(){
   } else {
     setTimeout(doCheck,400);
   }
+})();
+</script>
+
+<script>
+(function(){
+  var SB='https://cdokplvoqivducsqrejt.supabase.co';
+  var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g';
+  function fetchLive(){
+    var tok=AK;
+    var doFetch=function(t){
+      fetch(SB+'/rest/v1/live_streams?is_active=eq.true&select=id,host_id,title,viewer_count,agora_channel,profiles(username,avatar_url)&order=viewer_count.desc',{headers:{'apikey':AK,'Authorization':'Bearer '+t}})
+      .then(function(r){return r.json();})
+      .then(function(data){renderLive(data);}).catch(function(){});
+    };
+    if(window.sb){window.sb.auth.getSession().then(function(s){if(s.data&&s.data.session)tok=s.data.session.access_token;doFetch(tok);}).catch(function(){doFetch(tok);});}
+    else{doFetch(tok);}
+  }
+  function renderLive(streams){
+    var sec=document.getElementById('sn-live-section');
+    var scroll=document.getElementById('sn-live-scroll');
+    var badge=document.getElementById('sn-live-count');
+    if(!sec||!scroll) return;
+    if(!streams||!streams.length){sec.style.display='none';return;}
+    sec.style.display='block';
+    if(badge){badge.textContent=streams.length;badge.style.display='';}
+    scroll.innerHTML=streams.map(function(s){
+      var p=s.profiles||{};
+      var u=p.username||'Live';
+      var av=p.avatar_url||('https://api.dicebear.com/7.x/personas/svg?seed='+u);
+      return '<div class="sn-live-card" onclick="location.href=\'live.html?mode=viewer&host='+s.host_id+'&ch='+s.agora_channel+'\'">'+
+        '<div class="sn-live-avatar-wrap"><img src="'+av+'" alt="'+u+'" onerror="this.src=\'https://api.dicebear.com/7.x/personas/svg?seed='+u+'\'"><span class="sn-live-badge">LIVE</span></div>'+
+        '<div class="sn-live-name">'+u+'</div>'+
+        (s.viewer_count>0?'<div class="sn-live-viewers">'+s.viewer_count+' viendo</div>':'')+
+        '</div>';
+    }).join('');
+  }
+  window.snJoinLive=function(h,ch){location.href='live.html?mode=viewer&host='+h+'&ch='+ch;};
+  if(document.readyState!=='loading'){fetchLive();}
+  else{document.addEventListener('DOMContentLoaded',fetchLive);}
+  if(window.sb){var ch=window.sb.channel('live-discovery').on('postgres_changes',{event:'*',schema:'public',table:'live_streams'},fetchLive).subscribe();}
+  setInterval(fetchLive,30000);
 })();
 </script>
 </body>

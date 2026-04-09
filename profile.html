@@ -225,6 +225,14 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .sn-live-toast-dot{width:8px;height:8px;border-radius:50%;background:#ff2255;animation:sn-pulse 1.2s infinite;flex-shrink:0}
 .sn-live-toast-btn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;white-space:nowrap}
 .sn-notif-count-badge{position:absolute;top:-4px;right:-4px;background:#ff2255;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;border:1.5px solid #0a0a0f;line-height:1}
+
+/* === LIVE BUTTON ON PROFILE === */
+.sn-profile-live-btn{display:none;align-items:center;gap:8px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:9px 18px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:.04em;animation:sn-live-pulse 1.8s infinite;position:relative;overflow:hidden;text-decoration:none}
+.sn-profile-live-btn.visible{display:flex}
+.sn-profile-live-btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.1);opacity:0;transition:opacity .2s}
+.sn-profile-live-btn:hover::before{opacity:1}
+.sn-profile-live-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:sn-pulse 1s infinite;flex-shrink:0}
+@keyframes sn-live-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,34,85,.5)}50%{box-shadow:0 0 0 8px rgba(255,34,85,0)}}
 </style>
 </head>
 <body>
@@ -1473,6 +1481,106 @@ else _go();
   function updBadge(n){cnt=n;document.querySelectorAll('[data-page="notifications"],[href*="notif"],#notif-nav-btn,.nav-notif-btn').forEach(function(b){var ex=b.querySelector('.sn-notif-count-badge');if(n>0){b.style.position='relative';if(!ex){var d=document.createElement('span');d.className='sn-notif-count-badge';b.appendChild(d);ex=d;}ex.textContent=n>9?'9+':String(n);ex.style.display='flex';}else if(ex){ex.style.display='none';}});}
   function init(){if(!window.sb)return;window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;uid=s.data.session.user.id;var tok=s.data.session.access_token;fetch(SB+'/rest/v1/notifications?user_id=eq.'+uid+'&is_read=eq.false&select=id',{headers:{'apikey':AK,'Authorization':'Bearer '+tok,'Prefer':'count=exact','Range':'0-0'}}).then(function(r){updBadge(parseInt((r.headers.get('Content-Range')||'0/0').split('/')[1]||'0',10)||0);}).catch(function(){});window.sb.channel('notif-rt-'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+uid},function(p){var n=p.new;if(!n)return;updBadge(cnt+1);if(n.type==='live_started'){var d=typeof n.data==='string'?JSON.parse(n.data||'{}'):(n.data||{});n.data=d;if(showing)queue.push(n);else showT(n);}}).subscribe();}).catch(function(){});}
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,500);});}else{setTimeout(init,500);}
+})();
+</script>
+
+<script>
+// === CHECK IF PROFILE USER IS LIVE ===
+(function(){
+  var SB='https://cdokplvoqivducsqrejt.supabase.co';
+  var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g';
+
+  function checkProfileLive(profileId){
+    if(!profileId) return;
+    fetch(SB+'/rest/v1/live_streams?host_id=eq.'+profileId+'&is_active=eq.true&select=id,agora_channel,viewer_count&limit=1', {
+      headers:{'apikey':AK}
+    })
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data && data.length > 0){
+        var stream = data[0];
+        showLiveBtnOnProfile(profileId, stream.agora_channel, stream.viewer_count || 0);
+      }
+    }).catch(function(){});
+  }
+
+  function showLiveBtnOnProfile(hostId, channel, viewers){
+    // Remove existing if any
+    var existing = document.getElementById('sn-profile-live-btn');
+    if(existing) existing.remove();
+
+    // Create button
+    var btn = document.createElement('button');
+    btn.id = 'sn-profile-live-btn';
+    btn.className = 'sn-profile-live-btn visible';
+    btn.innerHTML = '<span class="sn-profile-live-dot"></span> EN VIVO'+(viewers>0?' &middot; '+viewers+' viendo':'');
+    btn.onclick = function(){
+      location.href = 'live.html?mode=viewer&host='+hostId+'&ch='+channel;
+    };
+
+    // Insert at top of profileActions, before other buttons
+    var actionsEl = document.getElementById('profileActions');
+    if(actionsEl){
+      actionsEl.insertBefore(btn, actionsEl.firstChild);
+    } else {
+      // Fallback: insert after avatar
+      var avatar = document.querySelector('.profile-avatar-wrap') || document.querySelector('.profile-header');
+      if(avatar) avatar.after(btn);
+    }
+  }
+
+  // Hook into the profile load cycle
+  // Watch for profileActions to be populated (MutationObserver)
+  function setupLiveCheck(){
+    var actionsEl = document.getElementById('profileActions');
+    if(!actionsEl) return;
+
+    var observer = new MutationObserver(function(mutations){
+      // When profile is loaded, check if user is live
+      mutations.forEach(function(m){
+        if(m.addedNodes.length > 0){
+          // Get the current profile user ID
+          var profileId = window._currentProfileId || window.currentProfileId ||
+            new URLSearchParams(location.search).get('id') ||
+            new URLSearchParams(location.search).get('u');
+          if(profileId) { observer.disconnect(); checkProfileLive(profileId); }
+        }
+      });
+    });
+    observer.observe(actionsEl, {childList:true, subtree:false});
+  }
+
+  // Also expose a global for other scripts to call
+  window.snCheckProfileLive = checkProfileLive;
+
+  // Subscribe to live_streams changes for this profile
+  function subscribeProfileLive(profileId){
+    if(!window.sb || !profileId) return;
+    window.sb.channel('profile-live-'+profileId)
+      .on('postgres_changes', {event:'*', schema:'public', table:'live_streams', filter:'host_id=eq.'+profileId},
+        function(payload){
+          var s = payload.new || {};
+          if(s.is_active){
+            showLiveBtnOnProfile(profileId, s.agora_channel, s.viewer_count||0);
+          } else {
+            var btn = document.getElementById('sn-profile-live-btn');
+            if(btn) btn.remove();
+          }
+        })
+      .subscribe();
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', setupLiveCheck);
+  } else {
+    setupLiveCheck();
+  }
+
+  // If profileId is in URL, check immediately
+  var urlId = new URLSearchParams(location.search).get('id') || new URLSearchParams(location.search).get('u');
+  if(urlId){
+    setTimeout(function(){ checkProfileLive(urlId); subscribeProfileLive(urlId); }, 800);
+  }
 })();
 </script>
 </body>

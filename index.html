@@ -2771,5 +2771,44 @@ function selectSocPill(btn) {
   document.getElementById('socialPlatform').value = platform;
 }
 </script>
+
+<!-- COOKIE BANNER (EU/Belgium ePrivacy + GDPR) -->
+<div id="sn-cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#111;border-top:1px solid #222;padding:16px 20px;box-shadow:0 -4px 24px rgba(0,0,0,.5)">
+  <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div style="flex:1;min-width:220px">
+      <p style="margin:0 0 4px;font-size:14px;color:#fff;font-weight:600;font-family:Rajdhani,sans-serif">&#127850; Usamos cookies</p>
+      <p style="margin:0;font-size:13px;color:#888;line-height:1.5">Usamos cookies esenciales para el funcionamiento de la plataforma y cookies funcionales para mejorar tu experiencia. <a href="/cookies.html" style="color:#ff2255;text-decoration:none">Pol&iacute;tica de Cookies</a> &middot; <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Privacidad</a></p>
+    </div>
+    <div style="display:flex;gap:10px;flex-shrink:0">
+      <button onclick="snCookieDecline()" style="background:transparent;border:1px solid #333;color:#888;padding:9px 18px;border-radius:20px;cursor:pointer;font-size:13px;font-family:Inter,sans-serif">Solo esenciales</button>
+      <button onclick="snCookieAccept()" style="background:linear-gradient(135deg,#ff2255,#cc0030);border:none;color:#fff;padding:9px 22px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;font-family:Rajdhani,sans-serif">Aceptar todo</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  function snShowCookieBanner(){
+    var consent=localStorage.getItem('sn_cookie_consent');
+    if(!consent){
+      var b=document.getElementById('sn-cookie-banner');
+      if(b) b.style.display='block';
+    }
+  }
+  window.snCookieAccept=function(){
+    localStorage.setItem('sn_cookie_consent','all');
+    localStorage.setItem('sn_cookie_consent_date',new Date().toISOString());
+    var b=document.getElementById('sn-cookie-banner');
+    if(b){b.style.transition='transform .3s ease,opacity .3s ease';b.style.opacity='0';b.style.transform='translateY(100%)';setTimeout(function(){b.style.display='none';},300);}
+  };
+  window.snCookieDecline=function(){
+    localStorage.setItem('sn_cookie_consent','essential');
+    localStorage.setItem('sn_cookie_consent_date',new Date().toISOString());
+    var b=document.getElementById('sn-cookie-banner');
+    if(b){b.style.transition='transform .3s ease,opacity .3s ease';b.style.opacity='0';b.style.transform='translateY(100%)';setTimeout(function(){b.style.display='none';},300);}
+  };
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',snShowCookieBanner);}
+  else{snShowCookieBanner();}
+})();
+</script>
 </body>
 </html>

@@ -399,6 +399,44 @@ document.addEventListener("DOMContentLoaded",function(){
 </script>
 
 <body>
+<!-- VIEWER MODE OVERLAY -->
+<div id="sn-viewer-wrap">
+  <video id="sn-viewer-video" autoplay playsinline muted></video>
+  <audio id="sn-viewer-audio" autoplay></audio>
+  <div class="sn-viewer-overlay">
+    <div class="sn-viewer-top">
+      <button class="sn-viewer-back" onclick="history.back()">&#8592;</button>
+      <div class="sn-viewer-host-info">
+        <img id="sn-viewer-avatar" class="sn-viewer-avatar" src="" alt="">
+        <div>
+          <div class="sn-viewer-name" id="sn-viewer-host-name">Cargando...</div>
+          <span class="sn-viewer-live-badge">LIVE</span>
+        </div>
+      </div>
+      <div class="sn-viewer-viewers"><span>&#128065;</span> <span id="sn-viewer-count">0</span></div>
+    </div>
+    <div class="sn-viewer-bottom">
+      <div class="sn-viewer-chat" id="sn-viewer-chat"></div>
+      <div class="sn-viewer-input-row">
+        <input class="sn-viewer-input" id="sn-viewer-input" placeholder="Escribe un mensaje..." maxlength="200">
+        <button class="sn-viewer-gift-btn" onclick="snViewerSendGift()" title="Enviar regalo">&#127873;</button>
+        <button class="sn-viewer-send-btn" onclick="snViewerSendMsg()">&#8593;</button>
+      </div>
+    </div>
+    <div class="sn-viewer-loading" id="sn-viewer-loading">
+      <div class="sn-viewer-spinner"></div>
+      <div class="sn-viewer-loading-text">Conectando al live...</div>
+      <div class="sn-viewer-loading-sub" id="sn-viewer-loading-sub">Buscando al creador</div>
+    </div>
+    <div class="sn-viewer-offline" id="sn-viewer-offline">
+      <div class="sn-viewer-offline-icon">&#128247;</div>
+      <div class="sn-viewer-offline-text">El live ha terminado</div>
+      <div class="sn-viewer-offline-sub">Este creador ya no está transmitiendo</div>
+      <button onclick="location.href='/feed.html'" style="margin-top:24px;background:#ff2255;border:none;color:#fff;padding:12px 28px;border-radius:24px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:16px;cursor:pointer">Volver al feed</button>
+    </div>
+  </div>
+</div>
+
 <!-- Main Live Container -->
 <div class="live-container" id="liveContainer">
   <!-- Video background -->
@@ -600,6 +638,38 @@ document.addEventListener("DOMContentLoaded",function(){
 .sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800;}
 .sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 @media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
+
+/* === VIEWER MODE === */
+#sn-viewer-wrap{position:fixed;inset:0;background:#000;z-index:1;display:none;flex-direction:column}
+#sn-viewer-video{width:100%;height:100%;object-fit:cover;background:#000}
+.sn-viewer-overlay{position:absolute;inset:0;pointer-events:none;z-index:2}
+.sn-viewer-top{position:absolute;top:0;left:0;right:0;padding:16px;display:flex;align-items:center;gap:12px;background:linear-gradient(#000a,transparent);pointer-events:all}
+.sn-viewer-back{background:rgba(0,0,0,.5);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.sn-viewer-host-info{display:flex;align-items:center;gap:10px;flex:1}
+.sn-viewer-avatar{width:40px;height:40px;border-radius:50%;border:2px solid #ff2255;object-fit:cover}
+.sn-viewer-name{color:#fff;font-weight:700;font-size:15px;font-family:Rajdhani,sans-serif}
+.sn-viewer-live-badge{background:#ff2255;color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:10px;font-family:Rajdhani,sans-serif}
+.sn-viewer-viewers{color:rgba(255,255,255,.7);font-size:13px;display:flex;align-items:center;gap:4px}
+.sn-viewer-bottom{position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,#000c);pointer-events:all}
+.sn-viewer-chat{max-height:160px;overflow-y:auto;scrollbar-width:none;margin-bottom:12px}
+.sn-viewer-chat::-webkit-scrollbar{display:none}
+.sn-viewer-msg{background:rgba(0,0,0,.5);border-radius:12px;padding:6px 12px;margin-bottom:4px;display:inline-block;max-width:85%}
+.sn-viewer-msg-user{font-weight:700;color:#ff2255;font-size:12px}
+.sn-viewer-msg-text{color:#fff;font-size:13px;margin-left:6px}
+.sn-viewer-input-row{display:flex;gap:8px;align-items:center}
+.sn-viewer-input{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:24px;padding:10px 16px;color:#fff;font-size:14px;outline:none}
+.sn-viewer-input::placeholder{color:rgba(255,255,255,.5)}
+.sn-viewer-send-btn{background:#ff2255;border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.sn-viewer-gift-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center}
+.sn-viewer-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;z-index:10}
+.sn-viewer-spinner{width:48px;height:48px;border:3px solid rgba(255,34,85,.2);border-top-color:#ff2255;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sn-viewer-loading-text{color:#fff;font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700}
+.sn-viewer-loading-sub{color:#666;font-size:14px;margin-top:4px}
+.sn-viewer-offline{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:#0a0a0f;z-index:10}
+.sn-viewer-offline-icon{font-size:64px;margin-bottom:16px}
+.sn-viewer-offline-text{color:#fff;font-family:Rajdhani,sans-serif;font-size:22px;font-weight:700}
+.sn-viewer-offline-sub{color:#555;font-size:14px;margin-top:8px}
 </style>
 
 <nav class="sn-bottom-nav" id="snBottomNav">
@@ -865,6 +935,230 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 });
 
+</script>
+
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  var isViewer = params.get('mode') === 'viewer';
+  if(!isViewer) return;
+
+  // Hide host UI, show viewer UI
+  var wrap = document.getElementById('sn-viewer-wrap');
+  if(wrap) wrap.style.display = 'flex';
+
+  // Hide the host elements
+  document.addEventListener('DOMContentLoaded', function(){
+    // Hide host-only elements
+    ['#go-live-btn','#end-live-btn','.live-controls','.effects-panel','.sfx-panel','.gift-goal','.live-staging'].forEach(function(sel){
+      var el = document.querySelector(sel);
+      if(el) el.style.display = 'none';
+    });
+  });
+
+  var SB = 'https://cdokplvoqivducsqrejt.supabase.co';
+  var AK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g';
+  var APP_ID = '97632de735ad497ebe68343d998b790a';
+  var hostId = params.get('host') || '';
+  var channel = params.get('ch') || params.get('channel') || '';
+
+  var viewerClient = null;
+  var remoteUsers = {};
+  var myUserId = null;
+  var chatChannel = null;
+
+  function setLoadingText(txt){ var el=document.getElementById('sn-viewer-loading-sub'); if(el)el.textContent=txt; }
+
+  // Load host profile info
+  function loadHostProfile(){
+    if(!hostId) return;
+    fetch(SB+'/rest/v1/profiles?id=eq.'+hostId+'&select=username,avatar_url,subscription_price', {
+      headers:{'apikey':AK,'Authorization':'Bearer '+AK}
+    }).then(function(r){return r.json();}).then(function(data){
+      if(data && data[0]){
+        var p = data[0];
+        var nameEl = document.getElementById('sn-viewer-host-name');
+        var avatarEl = document.getElementById('sn-viewer-avatar');
+        if(nameEl) nameEl.textContent = p.username || 'Creator';
+        if(avatarEl && p.avatar_url) avatarEl.src = p.avatar_url;
+        else if(avatarEl) avatarEl.src = 'https://api.dicebear.com/7.x/personas/svg?seed='+(p.username||'user');
+        document.title = (p.username||'Live') + ' \u2014 SHADOWNET LIVE';
+      }
+    }).catch(function(){});
+  }
+
+  // Get agora token and connect as audience
+  async function connectAsViewer(){
+    try {
+      setLoadingText('Obteniendo acceso...');
+      // Get auth token if logged in
+      var tok = AK;
+      if(window.sb){
+        try{
+          var sess = await window.sb.auth.getSession();
+          if(sess.data && sess.data.session){
+            tok = sess.data.session.access_token;
+            myUserId = sess.data.session.user.id;
+          }
+        } catch(e){}
+      }
+
+      setLoadingText('Conectando a Agora...');
+      // Fetch token for viewer
+      var r = await fetch(SB+'/functions/v1/agora-token', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':AK,'Authorization':'Bearer '+tok},
+        body: JSON.stringify({channel: channel || hostId, uid: myUserId || '0', role: 'audience'})
+      });
+      var data = await r.json();
+      if(data.error) throw new Error(data.error);
+
+      var finalChannel = data.channel || channel || hostId;
+      var finalToken = data.token || null;
+      var finalUid = myUserId || String(Math.floor(Math.random()*100000));
+
+      // Create Agora client as AUDIENCE
+      viewerClient = AgoraRTC.createClient({mode:'live', codec:'vp8'});
+      await viewerClient.setClientRole('audience');
+
+      // Handle remote user publishing
+      viewerClient.on('user-published', async function(user, mediaType){
+        await viewerClient.subscribe(user, mediaType);
+        if(mediaType === 'video'){
+          var videoEl = document.getElementById('sn-viewer-video');
+          if(videoEl){
+            user.videoTrack.play(videoEl);
+            videoEl.muted = false;
+          }
+          hideLoading();
+        }
+        if(mediaType === 'audio'){
+          user.audioTrack.play();
+        }
+        remoteUsers[user.uid] = user;
+        updateViewerCount();
+      });
+
+      viewerClient.on('user-unpublished', function(user){
+        delete remoteUsers[user.uid];
+        updateViewerCount();
+      });
+
+      viewerClient.on('user-left', function(){
+        updateViewerCount();
+        // Check if host left
+        setTimeout(function(){ if(Object.keys(remoteUsers).length === 0){ showOffline(); } }, 3000);
+      });
+
+      viewerClient.on('connection-state-change', function(curState){
+        if(curState === 'DISCONNECTED'){ showOffline(); }
+      });
+
+      setLoadingText('Uniendote al canal...');
+      await viewerClient.join(APP_ID, finalChannel, finalToken, finalUid);
+
+      // Update viewer count in DB
+      updateViewerCountDB(finalChannel, 1);
+
+      // Setup realtime chat
+      setupChat(finalChannel, tok);
+
+    } catch(e) {
+      console.error('Viewer connect error:', e);
+      setLoadingText('Error: ' + e.message);
+      setTimeout(showOffline, 2000);
+    }
+  }
+
+  function hideLoading(){
+    var el = document.getElementById('sn-viewer-loading');
+    if(el) el.style.display = 'none';
+  }
+
+  function showOffline(){
+    hideLoading();
+    var el = document.getElementById('sn-viewer-offline');
+    if(el) el.style.display = 'flex';
+    // Remove from viewer count
+    if(viewerClient){
+      updateViewerCountDB(channel || hostId, -1);
+      try{ viewerClient.leave(); }catch(e){}
+    }
+  }
+
+  function updateViewerCount(){
+    var count = Object.keys(remoteUsers).length;
+    var el = document.getElementById('sn-viewer-count');
+    if(el) el.textContent = count;
+  }
+
+  function updateViewerCountDB(ch, delta){
+    // Update viewer_count in live_streams table
+    if(!ch) return;
+    fetch(SB+'/rest/v1/rpc/increment_viewer_count', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':AK},
+      body: JSON.stringify({p_channel: ch, p_delta: delta})
+    }).catch(function(){});
+  }
+
+  // Chat via Supabase Realtime
+  function setupChat(ch, tok){
+    if(!window.sb) return;
+    chatChannel = window.sb.channel('live-chat:'+ch, {config:{broadcast:{self:true}}});
+    chatChannel.on('broadcast', {event:'message'}, function(payload){
+      addChatMessage(payload.payload);
+    }).subscribe();
+  }
+
+  function addChatMessage(msg){
+    var chat = document.getElementById('sn-viewer-chat');
+    if(!chat) return;
+    var div = document.createElement('div');
+    div.className = 'sn-viewer-msg';
+    div.innerHTML = '<span class="sn-viewer-msg-user">'+escHtml(msg.username||'?')+'</span><span class="sn-viewer-msg-text">'+escHtml(msg.text||'')+'</span>';
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+    // Keep max 50 messages
+    while(chat.children.length > 50) chat.removeChild(chat.firstChild);
+  }
+
+  function escHtml(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  window.snViewerSendMsg = function(){
+    var input = document.getElementById('sn-viewer-input');
+    if(!input || !input.value.trim()) return;
+    var text = input.value.trim();
+    input.value = '';
+    if(!chatChannel) return;
+    // Get current username
+    var username = 'Fan';
+    if(window.sb){ window.sb.auth.getSession().then(function(s){ if(s.data&&s.data.session){ fetch(SB+'/rest/v1/profiles?id=eq.'+s.data.session.user.id+'&select=username',{headers:{'apikey':AK}}).then(function(r){return r.json();}).then(function(d){if(d[0])username=d[0].username;chatChannel.send({type:'broadcast',event:'message',payload:{username:username,text:text}});}).catch(function(){chatChannel.send({type:'broadcast',event:'message',payload:{username:'Fan',text:text}});});}}); }
+    else { chatChannel.send({type:'broadcast',event:'message',payload:{username:'Fan',text:text}}); }
+  };
+
+  window.snViewerSendGift = function(){
+    // Redirect to almas purchase if needed, or show gift panel
+    showToastMsg && showToastMsg('\u2764\uFE0F Regalos disponibles pr\u00F3ximamente');
+  };
+
+  // Enter key to send
+  document.addEventListener('DOMContentLoaded', function(){
+    var input = document.getElementById('sn-viewer-input');
+    if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ window.snViewerSendMsg(); } });
+  });
+
+  // Start viewer flow
+  loadHostProfile();
+  if(document.readyState !== 'loading'){ connectAsViewer(); }
+  else { document.addEventListener('DOMContentLoaded', connectAsViewer); }
+
+  // Cleanup on leave
+  window.addEventListener('beforeunload', function(){
+    if(viewerClient){ try{ updateViewerCountDB(channel||hostId,-1); viewerClient.leave(); }catch(e){} }
+    if(chatChannel){ try{ chatChannel.unsubscribe(); }catch(e){} }
+  });
+})();
 </script>
 </body>
 </html>

@@ -382,6 +382,26 @@ function endLive(){
   (document.getElementById("endDuration")||{}).textContent =Math.floor(e/60)+"m "+e%60+"s";
   (document.getElementById("endGifts")||{}).textContent =totalGiftsReceived;
   document.getElementById("endScreen").classList.add("show");
+
+  // Mark live as ended in DB
+  (function(){
+    var SB='https://cdokplvoqivducsqrejt.supabase.co';
+    var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g';
+    if(window.sb && window.sb.auth){
+      window.sb.auth.getSession().then(function(s){
+        if(!s.data||!s.data.session) return;
+        var uid=s.data.session.user.id;
+        var tok=s.data.session.access_token;
+        // Get the channel from the agora-token response stored globally
+        var ch = window._snLiveChannel || '';
+        fetch(SB+'/rest/v1/rpc/end_live_stream',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','apikey':AK,'Authorization':'Bearer '+tok},
+          body:JSON.stringify({p_host_id:uid, p_channel:ch})
+        }).catch(function(e){console.warn('end live err:',e);});
+      }).catch(function(){});
+    }
+  })();
 }
 
 // \u2500\u2500 PANELS / TOAST \u2500\u2500
@@ -1014,6 +1034,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if(data.error) throw new Error(data.error);
 
       var finalChannel = data.channel || channel || hostId;
+      window._snLiveChannel = data.channel || '';
       var finalToken = data.token || null;
       var finalUid = myUserId || String(Math.floor(Math.random()*100000));
 

@@ -378,6 +378,23 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-live-toast-dot{width:8px;height:8px;border-radius:50%;background:#ff2255;animation:sn-pulse 1.2s infinite;flex-shrink:0}
 .sn-live-toast-btn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;white-space:nowrap}
 .sn-notif-count-badge{position:absolute;top:-4px;right:-4px;background:#ff2255;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;border:1.5px solid #0a0a0f;line-height:1}
+
+/* PPV */
+.sn-ppv-card{position:relative;overflow:hidden}
+.sn-ppv-lock{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.95) 70%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:20px;z-index:10}
+.sn-ppv-icon{font-size:32px;margin-bottom:8px}
+.sn-ppv-title{font-family:Rajdhani,sans-serif;font-weight:800;font-size:16px;color:#fff;text-align:center;margin-bottom:4px}
+.sn-ppv-price{font-size:13px;color:#ffa500;font-family:Rajdhani,sans-serif;font-weight:700;margin-bottom:12px}
+.sn-ppv-unlock-btn{background:linear-gradient(135deg,#ffa500,#ff6b00);border:none;border-radius:20px;color:#fff;padding:10px 24px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:.04em}
+.sn-ppv-preview{width:100%;height:180px;object-fit:cover;filter:blur(8px) brightness(.5);border-radius:12px;pointer-events:none}
+.sn-ppv-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:flex-end;justify-content:center}
+.sn-ppv-modal.open{display:flex}
+.sn-ppv-sheet{background:#111;border-radius:20px 20px 0 0;padding:28px 22px 32px;width:100%;max-width:480px;animation:slideUp .3s ease}
+.sn-ppv-sheet-title{font-family:Rajdhani,sans-serif;font-weight:900;font-size:22px;color:#fff;margin-bottom:4px}
+.sn-ppv-sheet-sub{font-size:13px;color:#555;margin-bottom:20px}
+.sn-ppv-confirm-btn{width:100%;padding:14px;background:linear-gradient(135deg,#ffa500,#ff6b00);border:none;border-radius:12px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:800;font-size:17px;cursor:pointer;letter-spacing:.04em}
+.sn-ppv-confirm-btn:disabled{opacity:.4;cursor:not-allowed}
+
 </style>
 </head>
 <body>
@@ -2139,6 +2156,99 @@ if(_origSubmit){
     _origSubmit();
   };
 }
+</script>
+
+<div class="sn-ppv-modal" id="sn-ppv-modal" onclick="if(event.target===this)snPPVClose()">
+  <div class="sn-ppv-sheet">
+    <div class="sn-ppv-sheet-title">&#128274; Contenido exclusivo</div>
+    <div class="sn-ppv-sheet-sub" id="sn-ppv-desc">Desbloquea este post para verlo</div>
+    <div style="background:#0d0d1a;border-radius:12px;padding:16px;margin-bottom:20px;text-align:center">
+      <div style="font-size:13px;color:#888;margin-bottom:4px">Precio</div>
+      <div style="font-family:Rajdhani,sans-serif;font-weight:900;font-size:32px;color:#ffa500" id="sn-ppv-price-display">0</div>
+      <div style="font-size:11px;color:#555">Almas</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;margin-bottom:16px">
+      <span>Tu saldo: <span id="sn-ppv-balance" style="color:#fff">...</span> Almas</span>
+      <a href="almas.html" style="color:#ffa500;text-decoration:none">+ Comprar Almas</a>
+    </div>
+    <button class="sn-ppv-confirm-btn" id="sn-ppv-confirm-btn" onclick="snPPVConfirm()">Desbloquear por <span id="sn-ppv-btn-price">0</span> Almas</button>
+    <div style="text-align:center;margin-top:12px"><button onclick="snPPVClose()" style="background:none;border:none;color:#444;cursor:pointer;font-family:Rajdhani,sans-serif;font-size:14px">Cancelar</button></div>
+  </div>
+</div>
+<script>
+var _ppvPostId=null,_ppvPrice=0;
+var _PPVSB="https://cdokplvoqivducsqrejt.supabase.co";
+var _PPVAK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g";
+window.snPPVOpen=function(postId,price,title){
+  _ppvPostId=postId;_ppvPrice=price||0;
+  var desc=document.getElementById("sn-ppv-desc");if(desc)desc.textContent=title||"Desbloquea este post para verlo";
+  var pd=document.getElementById("sn-ppv-price-display");if(pd)pd.textContent=price||0;
+  var pb=document.getElementById("sn-ppv-btn-price");if(pb)pb.textContent=price||0;
+  document.getElementById("sn-ppv-modal").classList.add("open");
+  // Load user balance
+  if(window.sb){window.sb.auth.getSession().then(function(s){
+    if(!s.data||!s.data.session)return;
+    fetch(_PPVSB+"/rest/v1/profiles?id=eq."+s.data.session.user.id+"&select=coins_balance",{headers:{"apikey":_PPVAK,"Authorization":"Bearer "+s.data.session.access_token}})
+    .then(function(r){return r.json();}).then(function(d){var el=document.getElementById("sn-ppv-balance");if(el&&d[0])el.textContent=d[0].coins_balance||0;}).catch(function(){});
+  });}
+};
+window.snPPVClose=function(){document.getElementById("sn-ppv-modal").classList.remove("open");_ppvPostId=null;};
+window.snPPVConfirm=async function(){
+  if(!_ppvPostId||!window.sb)return;
+  var btn=document.getElementById("sn-ppv-confirm-btn");btn.disabled=true;btn.textContent="Desbloqueando...";
+  try{
+    var s=await window.sb.auth.getSession();
+    if(!s.data||!s.data.session){btn.disabled=false;btn.textContent="Inicia sesi\u00F3n";return;}
+    var r=await fetch(_PPVSB+"/rest/v1/rpc/unlock_ppv_post",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":_PPVAK,"Authorization":"Bearer "+s.data.session.access_token},
+      body:JSON.stringify({p_buyer:s.data.session.user.id,p_post_id:_ppvPostId})
+    });
+    var d=await r.json();
+    if(d.ok||d.owned||d.already_owned){
+      snPPVClose();
+      if(window.showToast)showToast("\u2705 Post desbloqueado");
+      // Remove lock overlay from post card
+      var lock=document.querySelector("[data-ppv-post=\""+_ppvPostId+"\"]");
+      if(lock)lock.remove();
+    } else {
+      btn.textContent="Error: "+(d.error||"Int\u00E9ntalo de nuevo");btn.disabled=false;
+    }
+  }catch(e){btn.disabled=false;btn.textContent="Error de conexi\u00F3n";}
+};
+// Patch buildPostCard to add PPV lock overlay
+(function(){
+  var _origBuild=window.buildPostCard;
+  if(!_origBuild) return;
+  window.buildPostCard=function(post,profile,liked,saved){
+    var el=_origBuild(post,profile,liked,saved);
+    if(!el) return el;
+    if(!post.is_ppv) return el;
+    // Check if user already owns it (we skip the check here for simplicity - server enforces)
+    el.classList.add("sn-ppv-card");
+    // Add blur overlay to any images/videos
+    el.querySelectorAll("img:not(.sn-lt2-av):not(.sn-hash-result-av)").forEach(function(img){
+      img.style.filter="blur(10px) brightness(.4)";
+      img.style.pointerEvents="none";
+    });
+    el.querySelectorAll("video").forEach(function(v){
+      v.style.filter="blur(10px) brightness(.4)";v.controls=false;
+    });
+    // Create lock overlay
+    var lock=document.createElement("div");lock.className="sn-ppv-lock";
+    lock.dataset.ppvPost=post.id;
+    var icon=document.createElement("div");icon.className="sn-ppv-icon";icon.textContent="\uD83D\uDD12";
+    var title=document.createElement("div");title.className="sn-ppv-title";
+    title.textContent=post.ppv_title||"Contenido exclusivo PPV";
+    var price=document.createElement("div");price.className="sn-ppv-price";
+    price.textContent=(post.ppv_price||0)+" Almas para desbloquear";
+    var btn=document.createElement("button");btn.className="sn-ppv-unlock-btn";
+    btn.textContent="\uD83D\uDD13 Desbloquear";
+    btn.onclick=function(e){e.stopPropagation();snPPVOpen(post.id,post.ppv_price,post.ppv_title);};
+    lock.appendChild(icon);lock.appendChild(title);lock.appendChild(price);lock.appendChild(btn);
+    el.style.position="relative";el.appendChild(lock);
+    return el;
+  };
+})();
 </script>
 </body>
 </html>

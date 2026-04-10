@@ -88,6 +88,31 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-lt2-btn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0}
 @keyframes sn-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
+
+/* === TIERS MGMT === */
+.sn-tm-card{background:#0d0d1a;border:1.5px solid #1a1a2e;border-radius:14px;padding:14px;margin-bottom:10px;position:relative}
+.sn-tm-card.active{border-color:rgba(255,34,85,.3)}
+.sn-tm-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sn-tm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sn-tm-name{font-family:Rajdhani,sans-serif;font-weight:800;font-size:16px;flex:1}
+.sn-tm-price{font-family:Rajdhani,sans-serif;font-weight:700;color:#ff2255;font-size:15px}
+.sn-tm-desc{font-size:12px;color:#555;margin-bottom:8px}
+.sn-tm-perks{font-size:11px;color:#666;margin-bottom:8px}
+.sn-tm-actions{display:flex;gap:8px}
+.sn-tm-btn{padding:6px 12px;border-radius:8px;border:none;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+.sn-tm-edit{background:rgba(0,200,255,.1);color:#00c8ff;border:1px solid rgba(0,200,255,.2)}
+.sn-tm-toggle{background:rgba(255,165,0,.1);color:#ffa500;border:1px solid rgba(255,165,0,.2)}
+.sn-tm-del{background:rgba(255,34,85,.1);color:#ff2255;border:1px solid rgba(255,34,85,.2)}
+.sn-tm-add{width:100%;padding:12px;border:2px dashed #1a1a2e;background:none;color:#333;border-radius:12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;margin-top:4px}
+.sn-tm-add:hover{border-color:#ff2255;color:#ff2255}
+.sn-tm-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:flex-end;justify-content:center}
+.sn-tm-modal.open{display:flex}
+.sn-tm-sheet{background:#111;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px;animation:slideUp .3s ease;max-height:90vh;overflow-y:auto}
+.sn-tm-label{font-size:11px;color:#555;font-family:Rajdhani,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;margin-top:14px}
+.sn-tm-input{width:100%;background:#0d0d1a;border:1px solid #1a1a2e;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:Inter,sans-serif;outline:none}
+.sn-tm-input:focus{border-color:#ff2255}
+.sn-tm-save{width:100%;padding:13px;background:linear-gradient(135deg,#ff2255,#cc0030);border:none;border-radius:12px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:800;font-size:16px;cursor:pointer;margin-top:16px}
+
 </style>
 
 <meta property="og:title" content="Configuración &mdash; SHADOWNET">
@@ -128,7 +153,14 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 
   <!-- CREADOR -->
   <div class="section" id="creatorSection" style="display:none">
-    <div class="section-head"><span class="section-icon"></span><span class="section-title">CONFIGURACI&#211;N DE CREADOR</span></div>
+    <div class="section-head"><span class="section-icon"></span><span class="section-title">CONFIGURACI&#211;N DE CREADOR</span>
+    <!-- TIERS SECTION -->
+    <div class="section" style="margin-top:16px">
+      <div class="section-head"><span class="section-icon">&#128176;</span><div><div class="section-title">Planes de suscripci&#243;n</div><div class="section-subtitle">Crea tiers de pago para tus fans</div></div></div>
+      <div id="sn-tiers-list" style="margin-top:12px"><div style="color:#333;font-family:Rajdhani,sans-serif;text-align:center;padding:16px">Cargando...</div></div>
+      <button class="sn-tm-add" onclick="snTmOpenCreate()">+ Nuevo plan de suscripci&#243;n</button>
+    </div>
+</div>
     <div class="section-body">
       <div class="earnings-row">
         <div class="earning-card"><div class="earning-label">Ganado total</div><div class="earning-val" id="totalEarnings">$0.00</div></div>
@@ -502,6 +534,154 @@ document.addEventListener('DOMContentLoaded',function(){
     setTimeout(doCheck,400);
   }
 })();
+</script>
+
+<!-- TIER MGMT MODAL -->
+<div class="sn-tm-modal" id="sn-tm-modal" onclick="if(event.target===this)snTmClose()">
+  <div class="sn-tm-sheet">
+    <div style="font-family:Rajdhani,sans-serif;font-weight:900;font-size:20px;color:#fff;margin-bottom:16px" id="sn-tm-modal-title">Nuevo plan</div>
+    <div class="sn-tm-label">Nombre del plan</div>
+    <input class="sn-tm-input" id="sn-tm-name" placeholder="Ej: Fan, Premium, VIP" maxlength="40">
+    <div class="sn-tm-label">Precio mensual (EUR)</div>
+    <input class="sn-tm-input" id="sn-tm-price" type="number" placeholder="0" min="0" step="0.01">
+    <div class="sn-tm-label">Descripci&#243;n</div>
+    <input class="sn-tm-input" id="sn-tm-desc" placeholder="Describe qu&#233; incluye este plan..." maxlength="120">
+    <div class="sn-tm-label">Beneficios (uno por l&#237;nea)</div>
+    <textarea class="sn-tm-input" id="sn-tm-perks" rows="3" placeholder="Acceso a contenido exclusivo&#10;Chat privado&#10;Fotos sin censura" style="resize:none;height:80px"></textarea>
+    <div class="sn-tm-label">Color del badge</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px" id="sn-tm-colors"><div class="sn-tm-color-opt" data-color="#ff2255" style="width:28px;height:28px;border-radius:50%;background:#ff2255;cursor:pointer;border:2px solid transparent"></div><div class="sn-tm-color-opt" data-color="#a855f7" style="width:28px;height:28px;border-radius:50%;background:#a855f7;cursor:pointer;border:2px solid transparent"></div><div class="sn-tm-color-opt" data-color="#ffa500" style="width:28px;height:28px;border-radius:50%;background:#ffa500;cursor:pointer;border:2px solid transparent"></div><div class="sn-tm-color-opt" data-color="#00c8ff" style="width:28px;height:28px;border-radius:50%;background:#00c8ff;cursor:pointer;border:2px solid transparent"></div><div class="sn-tm-color-opt" data-color="#00c853" style="width:28px;height:28px;border-radius:50%;background:#00c853;cursor:pointer;border:2px solid transparent"></div><div class="sn-tm-color-opt" data-color="#e91e63" style="width:28px;height:28px;border-radius:50%;background:#e91e63;cursor:pointer;border:2px solid transparent"></div></div>
+    <button class="sn-tm-save" onclick="snTmSave()">Guardar plan</button>
+    <div style="text-align:center;margin-top:10px"><button onclick="snTmClose()" style="background:none;border:none;color:#444;cursor:pointer;font-family:Rajdhani,sans-serif;font-size:14px">Cancelar</button></div>
+  </div>
+</div>
+<script>
+var _tmUID=null,_tmTok=null,_tmEditId=null,_tmColor="#ff2255";
+var _STMB="https://cdokplvoqivducsqrejt.supabase.co";
+var _STMK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g";
+// Hook into existing auth loading
+(function(){
+  var orig=window.loadProfile||null;
+  function waitAuth(){
+    if(window.sb){
+      window.sb.auth.getSession().then(function(s){
+        if(!s.data||!s.data.session)return;
+        _tmUID=s.data.session.user.id;
+        _tmTok=s.data.session.access_token;
+        snTmLoadTiers();
+      });
+    } else setTimeout(waitAuth,400);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(waitAuth,800);});
+  else setTimeout(waitAuth,800);
+})();
+function snTmLoadTiers(){
+  if(!_tmUID)return;
+  fetch(_STMB+"/rest/v1/subscription_tiers?creator_id=eq."+_tmUID+"&order=sort_order.asc,price.asc",{
+    headers:{"apikey":_STMK,"Authorization":"Bearer "+_tmTok}
+  }).then(function(r){return r.json();})
+  .then(function(tiers){
+    var el=document.getElementById("sn-tiers-list");if(!el)return;
+    el.innerHTML="";
+    if(!tiers||!tiers.length){
+      var empty=document.createElement("div");empty.style.cssText="color:#333;font-family:Rajdhani,sans-serif;text-align:center;padding:16px;font-size:13px";
+      empty.textContent="No tienes planes todav\u00EDa. Crea uno para monetizar tu perfil.";
+      el.appendChild(empty);return;
+    }
+    tiers.forEach(function(t){el.appendChild(snTmBuildCard(t));});
+  }).catch(function(){});
+}
+function snTmBuildCard(t){
+  var card=document.createElement("div");card.className="sn-tm-card"+(t.is_active?" active":"");
+  var hdr=document.createElement("div");hdr.className="sn-tm-header";
+  var dot=document.createElement("div");dot.className="sn-tm-dot";dot.style.background=t.badge_color||"#ff2255";
+  var nm=document.createElement("div");nm.className="sn-tm-name";nm.style.color=t.badge_color||"#ff2255";nm.textContent=t.name;
+  var pr=document.createElement("div");pr.className="sn-tm-price";pr.textContent=(parseFloat(t.price||0)===0?"GRATIS":t.price+"\u20AC/mes");
+  var sub=document.createElement("div");sub.style.cssText="font-size:10px;color:#555;font-family:Rajdhani,sans-serif";sub.textContent=(t.is_active?"ACTIVO":"INACTIVO")+(t.subscriber_count>0?" \u2022 "+t.subscriber_count+" subs":"");
+  hdr.appendChild(dot);hdr.appendChild(nm);hdr.appendChild(pr);
+  card.appendChild(hdr);card.appendChild(sub);
+  if(t.description){var ds=document.createElement("div");ds.className="sn-tm-desc";ds.textContent=t.description;card.appendChild(ds);}
+  var perks=t.benefits||t.perks||[];
+  if(typeof perks==="string")try{perks=JSON.parse(perks);}catch(e){perks=[];}
+  if(perks.length){var pk=document.createElement("div");pk.className="sn-tm-perks";pk.textContent="\u2713 "+perks.join(" \u2022 \u2713 ");card.appendChild(pk);}
+  var actions=document.createElement("div");actions.className="sn-tm-actions";
+  var editBtn=document.createElement("button");editBtn.className="sn-tm-btn sn-tm-edit";editBtn.textContent="Editar";
+  editBtn.onclick=function(){snTmOpenEdit(t);};
+  var toggleBtn=document.createElement("button");toggleBtn.className="sn-tm-btn sn-tm-toggle";
+  toggleBtn.textContent=t.is_active?"Desactivar":"Activar";
+  toggleBtn.onclick=function(){snTmToggle(t.id,!t.is_active);};
+  var delBtn=document.createElement("button");delBtn.className="sn-tm-btn sn-tm-del";delBtn.textContent="Borrar";
+  delBtn.onclick=function(){if(confirm("\u00BFEliminar este plan?"))snTmDelete(t.id);};
+  actions.appendChild(editBtn);actions.appendChild(toggleBtn);if(!t.subscriber_count||t.subscriber_count===0)actions.appendChild(delBtn);
+  card.appendChild(actions);
+  return card;
+}
+function snTmOpenCreate(){
+  _tmEditId=null;_tmColor="#ff2255";
+  document.getElementById("sn-tm-modal-title").textContent="Nuevo plan";
+  document.getElementById("sn-tm-name").value="";
+  document.getElementById("sn-tm-price").value="";
+  document.getElementById("sn-tm-desc").value="";
+  document.getElementById("sn-tm-perks").value="";
+  document.querySelectorAll(".sn-tm-color-opt").forEach(function(d){d.style.borderColor=d.dataset.color==="#ff2255"?"#fff":"transparent";});
+  document.getElementById("sn-tm-modal").classList.add("open");
+}
+function snTmOpenEdit(t){
+  _tmEditId=t.id;_tmColor=t.badge_color||"#ff2255";
+  document.getElementById("sn-tm-modal-title").textContent="Editar plan";
+  document.getElementById("sn-tm-name").value=t.name||"";
+  document.getElementById("sn-tm-price").value=t.price||0;
+  document.getElementById("sn-tm-desc").value=t.description||"";
+  var perks=t.benefits||t.perks||[];
+  if(typeof perks==="string")try{perks=JSON.parse(perks);}catch(e){perks=[];}
+  document.getElementById("sn-tm-perks").value=Array.isArray(perks)?perks.join("\n"):"";
+  document.querySelectorAll(".sn-tm-color-opt").forEach(function(d){d.style.borderColor=d.dataset.color===_tmColor?"#fff":"transparent";});
+  document.getElementById("sn-tm-modal").classList.add("open");
+}
+window.snTmClose=function(){document.getElementById("sn-tm-modal").classList.remove("open");_tmEditId=null;};
+// Color picker
+document.addEventListener("click",function(e){
+  var opt=e.target.closest&&e.target.closest(".sn-tm-color-opt");
+  if(!opt)return;
+  _tmColor=opt.dataset.color;
+  document.querySelectorAll(".sn-tm-color-opt").forEach(function(d){d.style.borderColor=d.dataset.color===_tmColor?"#fff":"transparent";});
+});
+window.snTmSave=async function(){
+  var nm=document.getElementById("sn-tm-name").value.trim();
+  var pr=parseFloat(document.getElementById("sn-tm-price").value||0);
+  var ds=document.getElementById("sn-tm-desc").value.trim();
+  var perksRaw=document.getElementById("sn-tm-perks").value.trim();
+  var perks=perksRaw?perksRaw.split("\n").map(function(l){return l.trim();}).filter(Boolean):[];
+  if(!nm){alert("El nombre es obligatorio");return;}
+  var saveBtn=document.querySelector(".sn-tm-save");saveBtn.textContent="Guardando...";saveBtn.disabled=true;
+  try{
+    var H={"Content-Type":"application/json","apikey":_STMK,"Authorization":"Bearer "+_tmTok,"Prefer":"return=representation"};
+    var body=JSON.stringify({creator_id:_tmUID,name:nm,price:pr,description:ds,benefits:perks,badge_color:_tmColor,is_active:true});
+    var url=_STMB+"/rest/v1/subscription_tiers";
+    var method="POST";
+    if(_tmEditId){url+="?id=eq."+_tmEditId;method="PATCH";}
+    var r=await fetch(url,{method:method,headers:H,body:body});
+    if(r.ok){
+      snTmClose();snTmLoadTiers();
+      if(window.showToast)showToast(_tmEditId?"\u2705 Plan actualizado":"\u2705 Plan creado");
+    } else {
+      var err=await r.json();alert("Error: "+(err.message||r.status));
+    }
+  }catch(e){alert("Error: "+e.message);}
+  finally{saveBtn.textContent="Guardar plan";saveBtn.disabled=false;}
+};
+function snTmToggle(id,active){
+  if(!_tmTok)return;
+  fetch(_STMB+"/rest/v1/subscription_tiers?id=eq."+id,{
+    method:"PATCH",headers:{"Content-Type":"application/json","apikey":_STMK,"Authorization":"Bearer "+_tmTok},
+    body:JSON.stringify({is_active:active})
+  }).then(function(){snTmLoadTiers();}).catch(function(){});
+}
+function snTmDelete(id){
+  if(!_tmTok)return;
+  fetch(_STMB+"/rest/v1/subscription_tiers?id=eq."+id,{
+    method:"DELETE",headers:{"apikey":_STMK,"Authorization":"Bearer "+_tmTok}
+  }).then(function(){snTmLoadTiers();}).catch(function(){});
+}
 </script>
 </body>
 </html>

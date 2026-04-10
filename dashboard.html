@@ -52,7 +52,23 @@ body{background:#0a0a0f;color:#ccc;font-family:Inter,sans-serif;font-size:14px;p
 .sn-bn a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
 .sn-bn a:hover{color:#ff2255}
 .sn-bn-ico{font-size:22px;line-height:1}
+
+/* LT2 */
+.sn-live-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120px);z-index:99999;background:#111;border:1.5px solid #ff2255;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;min-width:280px;max-width:360px;box-shadow:0 8px 32px rgba(255,34,85,.25);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;opacity:0;pointer-events:none}
+.sn-live-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
+.sn-lt2-av{width:44px;height:44px;border-radius:50%;border:2px solid #ff2255;object-fit:cover;flex-shrink:0}
+.sn-lt2-dot{width:8px;height:8px;border-radius:50%;background:#ff2255;animation:sn-pulse 1.2s infinite;flex-shrink:0}
+.sn-lt2-info{flex:1;min-width:0}
+.sn-lt2-name{font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sn-lt2-msg{font-size:12px;color:#888;margin-top:2px}
+.sn-lt2-btn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0}
+@keyframes sn-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
 </style>
+
+<meta property="og:title" content="Dashboard Creador &mdash; SHADOWNET">
+<meta property="og:description" content="Tus analytics, ingresos, suscriptores y estadísticas de creador en SHADOWNET.">
+<meta name="description" content="Tus analytics, ingresos, suscriptores y estadísticas de creador en SHADOWNET.">
 </head>
 <body>
 <div class="sn-top">

@@ -256,6 +256,32 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .sn-tier-free-btn{width:100%;padding:14px;background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.3);border-radius:12px;color:#00c853;font-family:Rajdhani,sans-serif;font-weight:800;font-size:17px;cursor:pointer;margin-top:16px;letter-spacing:.04em}
 .sn-tier-loading{text-align:center;padding:30px;color:#333;font-family:Rajdhani,sans-serif;font-size:16px}
 
+
+/* === FAN RANK SYSTEM === */
+.sn-rank-widget{background:linear-gradient(135deg,rgba(255,165,0,.08),rgba(255,34,85,.05));border:1px solid rgba(255,165,0,.2);border-radius:16px;padding:16px;margin-top:14px}
+.sn-rank-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sn-rank-badge{font-size:28px;line-height:1}
+.sn-rank-info{flex:1}
+.sn-rank-name{font-family:Rajdhani,sans-serif;font-weight:800;font-size:16px}
+.sn-rank-pts{font-size:12px;color:#888;margin-top:2px}
+.sn-rank-progress-bg{height:6px;background:#1a1a2e;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.sn-rank-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#ffa500,#ff6b00);transition:width .6s ease}
+.sn-rank-next{font-size:11px;color:#555;text-align:right}
+.sn-rank-perks{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.sn-rank-perk{background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.15);color:#ffa500;border-radius:20px;padding:2px 10px;font-size:11px;font-family:Rajdhani,sans-serif;font-weight:700}
+.sn-top-fans{margin-top:14px}
+.sn-top-fans-title{font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;border-left:3px solid #ffa500;padding-left:8px}
+.sn-top-fan-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #0d0d1a}
+.sn-top-fan-row:last-child{border-bottom:none}
+.sn-top-fan-rank{font-family:Rajdhani,sans-serif;font-weight:900;font-size:16px;color:#333;width:22px;text-align:center}
+.sn-top-fan-rank.top1{color:#ffd700}
+.sn-top-fan-rank.top2{color:#c0c0c0}
+.sn-top-fan-rank.top3{color:#cd7f32}
+.sn-top-fan-av{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #1a1a2e;flex-shrink:0}
+.sn-top-fan-name{flex:1;font-family:Rajdhani,sans-serif;font-weight:700;color:#ccc;font-size:14px}
+.sn-top-fan-badge{font-size:16px}
+.sn-top-fan-pts{font-size:11px;color:#555;font-family:Rajdhani,sans-serif}
+
 </style>
 
 <meta property="og:title" content="Perfil &mdash; SHADOWNET">
@@ -1725,6 +1751,119 @@ window.snCloseTierModal=function(){
   document.getElementById("sn-tier-modal").classList.remove("open");
   _snTierCreatorId=null;_snTierSelected=null;
 };
+</script>
+<script>
+(function(){
+  var SB="https://cdokplvoqivducsqrejt.supabase.co";
+  var AK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g";
+  function loadFanRank(fanId, creatorId){
+    if(!fanId||!creatorId||fanId===creatorId)return;
+    fetch(SB+"/rest/v1/rpc/get_fan_rank",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":AK},
+      body:JSON.stringify({p_fan_id:fanId,p_creator_id:creatorId})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(!d||d.error)return;
+      var sec=document.getElementById("profileSubSection");if(!sec)return;
+      // Build rank widget
+      var w=document.createElement("div");w.className="sn-rank-widget";
+      var hdr=document.createElement("div");hdr.className="sn-rank-header";
+      var badge=document.createElement("div");badge.className="sn-rank-badge";badge.textContent=d.badge_emoji||"\u2B50";
+      var info=document.createElement("div");info.className="sn-rank-info";
+      var nm=document.createElement("div");nm.className="sn-rank-name";nm.style.color=d.badge_color||"#ffa500";nm.textContent="Rango: "+d.rank_name;
+      var pts=document.createElement("div");pts.className="sn-rank-pts";pts.textContent=d.points+" puntos acumulados";
+      info.appendChild(nm);info.appendChild(pts);
+      hdr.appendChild(badge);hdr.appendChild(info);
+      w.appendChild(hdr);
+      // Progress bar
+      if(d.next_rank_name){
+        var bg=document.createElement("div");bg.className="sn-rank-progress-bg";
+        var fill=document.createElement("div");fill.className="sn-rank-progress-fill";fill.style.width=(d.progress_pct||0)+"%";
+        bg.appendChild(fill);w.appendChild(bg);
+        var nxt=document.createElement("div");nxt.className="sn-rank-next";nxt.textContent="Pr\u00F3ximo: "+d.next_rank_name+" ("+d.next_rank_points+" pts)";w.appendChild(nxt);
+      }
+      // Perks
+      if(d.perks&&d.perks.length){
+        var perksWrap=document.createElement("div");perksWrap.className="sn-rank-perks";
+        d.perks.forEach(function(p){var sp=document.createElement("span");sp.className="sn-rank-perk";sp.textContent=p;perksWrap.appendChild(sp);});
+        w.appendChild(perksWrap);
+      }
+      sec.appendChild(w);
+    }).catch(function(){});
+  }
+  function loadTopFans(creatorId){
+    fetch(SB+"/rest/v1/rpc/get_creator_top_fans",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":AK},
+      body:JSON.stringify({p_creator_id:creatorId,p_limit:5})
+    }).then(function(r){return r.json();}).then(function(fans){
+      if(!fans||!fans.length)return;
+      var sec=document.getElementById("profileSubSection");if(!sec)return;
+      var wrap=document.createElement("div");wrap.className="sn-top-fans";
+      var title=document.createElement("div");title.className="sn-top-fans-title";title.textContent="\uD83D\uDC51 Top Fans";
+      wrap.appendChild(title);
+      fans.forEach(function(f,i){
+        var row=document.createElement("div");row.className="sn-top-fan-row";
+        row.style.cursor="pointer";
+        row.onclick=function(){location.href="profile.html?u="+encodeURIComponent(f.username||"");};
+        var rnk=document.createElement("div");rnk.className="sn-top-fan-rank"+(i===0?" top1":i===1?" top2":i===2?" top3":"");rnk.textContent=i+1;
+        var av=document.createElement("img");av.className="sn-top-fan-av";
+        av.src=f.avatar_url||("https://api.dicebear.com/7.x/personas/svg?seed="+(f.username||"u"));
+        var nm=document.createElement("div");nm.className="sn-top-fan-name";nm.textContent=f.username||"?";
+        var bdg=document.createElement("div");bdg.className="sn-top-fan-badge";bdg.textContent=f.badge_emoji||"\u2B50";
+        var pts=document.createElement("div");pts.className="sn-top-fan-pts";pts.textContent=f.total_points+" pts";
+        row.appendChild(rnk);row.appendChild(av);row.appendChild(nm);row.appendChild(bdg);row.appendChild(pts);
+        wrap.appendChild(row);
+      });
+      sec.appendChild(wrap);
+    }).catch(function(){});
+  }
+  // Hook into profile load
+  var _origLoad=window.loadProfile;
+  window._snRankLoaded=false;
+  function tryLoadRank(){
+    var params=new URLSearchParams(location.search);
+    var creatorUsername=params.get("u")||params.get("id");
+    if(!creatorUsername)return;
+    // Watch for profileSubSection to be ready and profile to load
+    var obs=new MutationObserver(function(){
+      var sec=document.getElementById("profileSubSection");
+      var profileUsernameEl=document.getElementById("profileUsername");
+      if(sec&&profileUsernameEl&&profileUsernameEl.textContent&&!window._snRankLoaded){
+        window._snRankLoaded=true;
+        obs.disconnect();
+        // Get creator id from profileActions data or from URL
+        var creatorId=window._currentProfileId||window.currentProfileId;
+        if(!creatorId&&window._profileUser)creatorId=window._profileUser.id;
+        if(!creatorId)return;
+        // Get current user
+        if(window.sb){window.sb.auth.getSession().then(function(s){
+          if(!s.data||!s.data.session){
+            loadTopFans(creatorId);
+            return;
+          }
+          loadFanRank(s.data.session.user.id,creatorId);
+          loadTopFans(creatorId);
+        });}
+      }
+    });
+    obs.observe(document.body,{childList:true,subtree:true});
+    // Also try immediately after 1s
+    setTimeout(function(){
+      var sec=document.getElementById("profileSubSection");
+      var creatorId=window._currentProfileId||window.currentProfileId;
+      if(sec&&creatorId&&!window._snRankLoaded){
+        window._snRankLoaded=true;
+        obs.disconnect();
+        if(window.sb){window.sb.auth.getSession().then(function(s){
+          var fanId=s.data&&s.data.session?s.data.session.user.id:null;
+          if(fanId)loadFanRank(fanId,creatorId);
+          loadTopFans(creatorId);
+        });}
+      }
+    },1500);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",tryLoadRank);
+  else tryLoadRank();
+})();
 </script>
 </body>
 </html>

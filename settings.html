@@ -113,6 +113,19 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-tm-input:focus{border-color:#ff2255}
 .sn-tm-save{width:100%;padding:13px;background:linear-gradient(135deg,#ff2255,#cc0030);border:none;border-radius:12px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:800;font-size:16px;cursor:pointer;margin-top:16px}
 
+
+/* REFERRAL */
+.sn-ref-box{background:rgba(0,200,255,.05);border:1px solid rgba(0,200,255,.15);border-radius:12px;padding:16px;margin-top:12px}
+.sn-ref-link{font-family:monospace;font-size:12px;color:#00c8ff;background:#0a0a1a;padding:8px 12px;border-radius:8px;word-break:break-all;display:block;margin:8px 0}
+.sn-ref-stats{display:flex;gap:16px;margin-top:10px}
+.sn-ref-stat{text-align:center;flex:1}
+.sn-ref-stat-val{font-family:Rajdhani,sans-serif;font-weight:900;font-size:24px;color:#fff}
+.sn-ref-stat-lbl{font-size:11px;color:#555;font-family:Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.06em}
+.sn-copy-btn{background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.2);color:#00c8ff;border-radius:8px;padding:6px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-top:8px}
+.sn-welcome-area{width:100%;background:#0d0d1a;border:1px solid #1a1a2e;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:Inter,sans-serif;outline:none;resize:none;height:80px;margin-top:6px}
+.sn-welcome-area:focus{border-color:#ff2255}
+.sn-save-welcome{padding:8px 18px;background:linear-gradient(135deg,#ff2255,#cc0030);border:none;border-radius:8px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px}
+
 </style>
 
 <meta property="og:title" content="Configuración &mdash; SHADOWNET">
@@ -159,6 +172,29 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       <div class="section-head"><span class="section-icon">&#128176;</span><div><div class="section-title">Planes de suscripci&#243;n</div><div class="section-subtitle">Crea tiers de pago para tus fans</div></div></div>
       <div id="sn-tiers-list" style="margin-top:12px"><div style="color:#333;font-family:Rajdhani,sans-serif;text-align:center;padding:16px">Cargando...</div></div>
       <button class="sn-tm-add" onclick="snTmOpenCreate()">+ Nuevo plan de suscripci&#243;n</button>
+    </div>
+
+    <!-- WELCOME MSG -->
+    <div class="section" style="margin-top:16px">
+      <div class="section-head"><span class="section-icon">&#128140;</span><div><div class="section-title">Mensaje de bienvenida</div><div class="section-subtitle">Se env&#237;a autom&#225;ticamente a cada nuevo suscriptor</div></div></div>
+      <textarea class="sn-welcome-area" id="sn-welcome-msg" placeholder="&#161;Hola! Gracias por suscribirte. Bienvenid&#64; a mi contenido exclusivo..." maxlength="300"></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+        <span id="sn-welcome-chars" style="font-size:11px;color:#555">0/300</span>
+        <button class="sn-save-welcome" onclick="snSaveWelcome()">Guardar mensaje</button>
+      </div>
+    </div>
+    <!-- REFERRAL -->
+    <div class="section" style="margin-top:16px">
+      <div class="section-head"><span class="section-icon">&#128279;</span><div><div class="section-title">Programa de referidos</div><div class="section-subtitle">Comparte tu link y gana cuando traes nuevos usuarios</div></div></div>
+      <div class="sn-ref-box">
+        <div style="font-size:12px;color:#888;margin-bottom:4px">Tu link de referido:</div>
+        <div class="sn-ref-link" id="sn-ref-link">Cargando...</div>
+        <button class="sn-copy-btn" onclick="snCopyRef()">&#128203; Copiar link</button>
+        <div class="sn-ref-stats">
+          <div class="sn-ref-stat"><div class="sn-ref-stat-val" id="sn-ref-total">-</div><div class="sn-ref-stat-lbl">Total</div></div>
+          <div class="sn-ref-stat"><div class="sn-ref-stat-val" id="sn-ref-month">-</div><div class="sn-ref-stat-lbl">Este mes</div></div>
+        </div>
+      </div>
     </div>
 </div>
     <div class="section-body">
@@ -682,6 +718,60 @@ function snTmDelete(id){
     method:"DELETE",headers:{"apikey":_STMK,"Authorization":"Bearer "+_tmTok}
   }).then(function(){snTmLoadTiers();}).catch(function(){});
 }
+</script>
+<script>
+var _SRFB="https://cdokplvoqivducsqrejt.supabase.co";
+var _SRFK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g";
+// Character counter for welcome message
+document.addEventListener("DOMContentLoaded",function(){
+  var ta=document.getElementById("sn-welcome-msg");
+  if(ta){ta.addEventListener("input",function(){var c=document.getElementById("sn-welcome-chars");if(c)c.textContent=ta.value.length+"/300";});}
+  // Load welcome msg and referral data when auth loads
+  var chk=setInterval(function(){
+    if(window.sb){clearInterval(chk);window.sb.auth.getSession().then(function(s){
+      if(!s.data||!s.data.session)return;
+      var uid=s.data.session.user.id,tok=s.data.session.access_token;
+      var H={"apikey":_SRFK,"Authorization":"Bearer "+tok};
+      // Load welcome message + referral_code
+      fetch(_SRFB+"/rest/v1/profiles?id=eq."+uid+"&select=welcome_message,referral_code",{headers:H})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(!d||!d[0])return;
+          var ta=document.getElementById("sn-welcome-msg");
+          if(ta&&d[0].welcome_message){ta.value=d[0].welcome_message;var c=document.getElementById("sn-welcome-chars");if(c)c.textContent=d[0].welcome_message.length+"/300";}
+          var code=d[0].referral_code||"";
+          var link=location.origin+"/?ref="+code;
+          var el=document.getElementById("sn-ref-link");if(el)el.textContent=link;
+          window._snRefCode=code;
+        }).catch(function(){});
+      // Load referral stats
+      fetch(_SRFB+"/rest/v1/referral_stats?referrer_id=eq."+uid+"&select=total_referrals,referrals_this_month",{headers:H})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var tot=document.getElementById("sn-ref-total"),mon=document.getElementById("sn-ref-month");
+          if(d&&d[0]){if(tot)tot.textContent=d[0].total_referrals||0;if(mon)mon.textContent=d[0].referrals_this_month||0;}
+          else{if(tot)tot.textContent="0";if(mon)mon.textContent="0";}
+        }).catch(function(){if(document.getElementById("sn-ref-total"))document.getElementById("sn-ref-total").textContent="0";if(document.getElementById("sn-ref-month"))document.getElementById("sn-ref-month").textContent="0";});
+    });}
+  },300);
+});
+window.snSaveWelcome=function(){
+  var ta=document.getElementById("sn-welcome-msg");if(!ta||!window.sb)return;
+  var msg=ta.value.trim();
+  window.sb.auth.getSession().then(function(s){
+    if(!s.data||!s.data.session)return;
+    var uid=s.data.session.user.id,tok=s.data.session.access_token;
+    fetch(_SRFB+"/rest/v1/profiles?id=eq."+uid,{
+      method:"PATCH",headers:{"Content-Type":"application/json","apikey":_SRFK,"Authorization":"Bearer "+tok},
+      body:JSON.stringify({welcome_message:msg})
+    }).then(function(r){if(r.ok&&window.showToast)showToast(msg?"\u2705 Mensaje guardado":"\u2705 Mensaje eliminado");}).catch(function(){});
+  });
+};
+window.snCopyRef=function(){
+  var el=document.getElementById("sn-ref-link");if(!el)return;
+  if(navigator.clipboard){navigator.clipboard.writeText(el.textContent).then(function(){if(window.showToast)showToast("\u2705 Link copiado");}).catch(function(){});}
+  else{var ta2=document.createElement("textarea");ta2.value=el.textContent;document.body.appendChild(ta2);ta2.select();document.execCommand("copy");document.body.removeChild(ta2);if(window.showToast)showToast("\u2705 Link copiado");}
+};
 </script>
 </body>
 </html>

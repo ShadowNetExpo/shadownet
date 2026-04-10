@@ -391,6 +391,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       <span class="post-username" id="myUsername">@usuario</span>
     </div>
     <textarea class="textarea" id="postText" placeholder="Comparte algo con tus seguidores..."></textarea>
+    <div style="margin-top:8px"><input id="postHashtags" type="text" placeholder="#hashtag1 #hashtag2 ..." maxlength="200" style="width:100%;background:rgba(0,200,255,.05);border:1px solid rgba(0,200,255,.15);border-radius:8px;padding:8px 12px;color:#ccc;font-size:13px;font-family:Inter,sans-serif;outline:none" oninput="snPreviewHashtags(this.value)"><div id="hashtagPreview" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px"></div></div>
     <div class="media-preview" id="mediaPreview"></div>
     <div class="post-actions">
       <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
@@ -2108,6 +2109,32 @@ document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&
   function init(){if(!window.sb)return;window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;uid=s.data.session.user.id;var tok=s.data.session.access_token;fetch(SB+'/rest/v1/notifications?user_id=eq.'+uid+'&is_read=eq.false&select=id',{headers:{'apikey':AK,'Authorization':'Bearer '+tok,'Prefer':'count=exact','Range':'0-0'}}).then(function(r){updBadge(parseInt((r.headers.get('Content-Range')||'0/0').split('/')[1]||'0',10)||0);}).catch(function(){});window.sb.channel('notif-rt-feed-'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+uid},function(p){var n=p.new;if(!n)return;updBadge(cnt+1);if(n.type==='live_started'){var d=typeof n.data==='string'?JSON.parse(n.data||'{}'):(n.data||{});n.data=d;if(showing)queue.push(n);else showT(n);}}).subscribe();}).catch(function(){});}
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,600);});}else{setTimeout(init,600);}
 })();
+</script>
+
+<script>
+// Hashtag input helpers
+window.snPreviewHashtags=function(val){
+  var prev=document.getElementById('hashtagPreview');
+  if(!prev)return;
+  var tags=val.match(/#[a-zA-Z0-9_\u00C0-\u024F]+/g)||[];
+  prev.innerHTML=tags.map(function(t){return '<span style="background:rgba(0,200,255,.1);color:#00c8ff;padding:2px 8px;border-radius:12px;font-size:12px">'+t+'</span>';}).join('');
+};
+// Extract hashtags from text + hashtag field
+window.snExtractHashtags=function(){
+  var hashField=document.getElementById('postHashtags');
+  var textArea=document.getElementById('postText');
+  var combined=(textArea?textArea.value:'')+(hashField?' '+hashField.value:'');
+  var tags=(combined.match(/#[a-zA-Z0-9_\u00C0-\u024F]+/g)||[]).map(function(t){return t.slice(1).toLowerCase();});
+  return [...new Set(tags)].slice(0,10);
+};
+// Patch submitPost to include hashtags
+var _origSubmit=window.submitPost;
+if(_origSubmit){
+  window.submitPost=function(){
+    window._pendingHashtags=snExtractHashtags();
+    _origSubmit();
+  };
+}
 </script>
 </body>
 </html>

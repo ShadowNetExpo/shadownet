@@ -194,6 +194,8 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
         <div style="font-size:12px;color:#888;margin-bottom:4px">Tu link de referido:</div>
         <div class="sn-ref-link" id="sn-ref-link">Cargando...</div>
         <button class="sn-copy-btn" onclick="snCopyRef()">&#128203; Copiar link</button>
+        <button class="sn-copy-btn" onclick="snShareRef()" style="background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.2);color:#00c853">&#128257; Compartir</button>
+
         <div class="sn-ref-stats">
           <div class="sn-ref-stat"><div class="sn-ref-stat-val" id="sn-ref-total">-</div><div class="sn-ref-stat-lbl">Total</div></div>
           <div class="sn-ref-stat"><div class="sn-ref-stat-val" id="sn-ref-month">-</div><div class="sn-ref-stat-lbl">Este mes</div></div>
@@ -753,13 +755,22 @@ document.addEventListener("DOMContentLoaded",function(){
           window._snRefCode=code;
         }).catch(function(){});
       // Load referral stats
-      fetch(_SRFB+"/rest/v1/referral_stats?referrer_id=eq."+uid+"&select=total_referrals,referrals_this_month",{headers:H})
-        .then(function(r){return r.json();})
-        .then(function(d){
-          var tot=document.getElementById("sn-ref-total"),mon=document.getElementById("sn-ref-month");
-          if(d&&d[0]){if(tot)tot.textContent=d[0].total_referrals||0;if(mon)mon.textContent=d[0].referrals_this_month||0;}
-          else{if(tot)tot.textContent="0";if(mon)mon.textContent="0";}
-        }).catch(function(){if(document.getElementById("sn-ref-total"))document.getElementById("sn-ref-total").textContent="0";if(document.getElementById("sn-ref-month"))document.getElementById("sn-ref-month").textContent="0";});
+      fetch(_SRFB+"/rest/v1/rpc/get_my_referral_stats",{
+  method:"POST",headers:{"Content-Type":"application/json","apikey":_SRFK,"Authorization":"Bearer "+tok},
+  body:JSON.stringify({p_user_id:uid})
+}).then(function(r){return r.json();})
+.then(function(d){
+  var tot=document.getElementById("sn-ref-total"),mon=document.getElementById("sn-ref-month");
+  var lnk=document.getElementById("sn-ref-link");
+  if(d&&d.referral_url&&lnk)lnk.textContent=d.referral_url;
+  if(d&&tot)tot.textContent=d.total_referrals||0;
+  if(d&&mon)mon.textContent=d.referrals_this_month||0;
+  window._snRefCode=d&&d.referral_code;
+}).catch(function(){
+  var tot=document.getElementById("sn-ref-total"),mon=document.getElementById("sn-ref-month");
+  if(tot)tot.textContent="0";if(mon)mon.textContent="0";
+});
+);
     });}
   },300);
 });
@@ -780,6 +791,13 @@ window.snCopyRef=function(){
   if(navigator.clipboard){navigator.clipboard.writeText(el.textContent).then(function(){if(window.showToast)showToast("\u2705 Link copiado");}).catch(function(){});}
   else{var ta2=document.createElement("textarea");ta2.value=el.textContent;document.body.appendChild(ta2);ta2.select();document.execCommand("copy");document.body.removeChild(ta2);if(window.showToast)showToast("\u2705 Link copiado");}
 };
+window.snShareRef=function(){
+  var el=document.getElementById("sn-ref-link");if(!el)return;
+  var url=el.textContent.trim();
+  if(navigator.share){navigator.share({title:"\u00DAnete a SHADOWNET",text:"Te invito a SHADOWNET - la plataforma para creadores sin l\u00EDmites",url:url}).catch(function(){});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){if(window.showToast)showToast("\u2705 Link copiado");});}
+};
+
 </script>
 
 <div class="sn-nov" id="sn-nov" onclick="snNC()"></div>

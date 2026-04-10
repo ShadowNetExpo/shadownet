@@ -233,6 +233,29 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .sn-profile-live-btn:hover::before{opacity:1}
 .sn-profile-live-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:sn-pulse 1s infinite;flex-shrink:0}
 @keyframes sn-live-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,34,85,.5)}50%{box-shadow:0 0 0 8px rgba(255,34,85,0)}}
+
+/* === SUBSCRIPTION TIERS === */
+.sn-tier-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:flex-end;justify-content:center}
+.sn-tier-modal.open{display:flex}
+.sn-tier-sheet{background:#111;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:520px;animation:slideUp .3s ease;max-height:90vh;overflow-y:auto}
+.sn-tier-title{font-family:Rajdhani,sans-serif;font-weight:900;font-size:22px;color:#fff;margin-bottom:4px}
+.sn-tier-sub{font-size:13px;color:#555;margin-bottom:20px}
+.sn-tier-card{background:#0d0d1a;border:2px solid #1a1a2e;border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative}
+.sn-tier-card:hover,.sn-tier-card.selected{border-color:#ff2255;background:rgba(255,34,85,.06)}
+.sn-tier-card.popular::before{content:"POPULAR";position:absolute;top:-10px;right:14px;background:#ff2255;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;font-family:Rajdhani,sans-serif;letter-spacing:.08em}
+.sn-tier-name{font-family:Rajdhani,sans-serif;font-weight:800;font-size:18px;margin-bottom:2px}
+.sn-tier-price{font-size:26px;font-weight:900;font-family:Rajdhani,sans-serif;color:#fff}
+.sn-tier-price span{font-size:14px;color:#666;font-weight:400}
+.sn-tier-desc{font-size:12px;color:#666;margin:6px 0}
+.sn-tier-perks{list-style:none;margin-top:8px}
+.sn-tier-perks li{font-size:12px;color:#aaa;padding:2px 0}
+.sn-tier-perks li::before{content:"\2713  ";color:#00c853;font-weight:700}
+.sn-tier-free-badge{display:inline-block;background:rgba(0,200,83,.15);color:#00c853;border:1px solid rgba(0,200,83,.3);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;font-family:Rajdhani,sans-serif;margin-left:8px}
+.sn-tier-subscribe-btn{width:100%;padding:14px;background:linear-gradient(135deg,#ff2255,#cc0030);border:none;border-radius:12px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:800;font-size:17px;cursor:pointer;margin-top:16px;letter-spacing:.04em;transition:opacity .2s}
+.sn-tier-subscribe-btn:disabled{opacity:.4;cursor:not-allowed}
+.sn-tier-free-btn{width:100%;padding:14px;background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.3);border-radius:12px;color:#00c853;font-family:Rajdhani,sans-serif;font-weight:800;font-size:17px;cursor:pointer;margin-top:16px;letter-spacing:.04em}
+.sn-tier-loading{text-align:center;padding:30px;color:#333;font-family:Rajdhani,sans-serif;font-size:16px}
+
 </style>
 
 <meta property="og:title" content="Perfil &mdash; SHADOWNET">
@@ -1585,6 +1608,123 @@ else _go();
     setTimeout(function(){ checkProfileLive(urlId); subscribeProfileLive(urlId); }, 800);
   }
 })();
+</script>
+
+<!-- SUBSCRIPTION TIERS MODAL -->
+<div class="sn-tier-modal" id="sn-tier-modal" onclick="if(event.target===this)snCloseTierModal()">
+  <div class="sn-tier-sheet">
+    <div class="sn-tier-title" id="sn-tier-creator-name">Suscribirse</div>
+    <div class="sn-tier-sub">Elige un plan para acceder a contenido exclusivo</div>
+    <div id="sn-tier-list"><div class="sn-tier-loading">Cargando planes...</div></div>
+    <button class="sn-tier-subscribe-btn" id="sn-tier-confirm-btn" disabled onclick="snConfirmTier()">Continuar</button>
+    <div style="text-align:center;margin-top:10px"><button onclick="snCloseTierModal()" style="background:none;border:none;color:#444;cursor:pointer;font-family:Rajdhani,sans-serif;font-size:14px">Cancelar</button></div>
+  </div>
+</div>
+<script>
+var _snTierCreatorId=null,_snTierSelected=null,_snTiers=[];
+var _SBT="https://cdokplvoqivducsqrejt.supabase.co";
+var _AKT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g";
+window.openSubscribeModal=function(creatorId){
+  _snTierCreatorId=creatorId;
+  _snTierSelected=null;
+  _snTiers=[];
+  document.getElementById("sn-tier-modal").classList.add("open");
+  document.getElementById("sn-tier-confirm-btn").disabled=true;
+  document.getElementById("sn-tier-list").innerHTML='<div class="sn-tier-loading">Cargando planes...</div>';
+  // Load creator username for title
+  fetch(_SBT+"/rest/v1/profiles?id=eq."+creatorId+"&select=username",{headers:{"apikey":_AKT}})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d&&d[0]) document.getElementById("sn-tier-creator-name").textContent="Suscribirse a @"+d[0].username;
+    }).catch(function(){});
+  // Load tiers
+  fetch(_SBT+"/rest/v1/subscription_tiers?creator_id=eq."+creatorId+"&is_active=eq.true&order=sort_order.asc,price.asc",{headers:{"apikey":_AKT}})
+    .then(function(r){return r.json();})
+    .then(function(tiers){
+      _snTiers=tiers||[];
+      snRenderTiers(_snTiers);
+    }).catch(function(){ snRenderTiers([]); });
+};
+function snRenderTiers(tiers){
+  var el=document.getElementById("sn-tier-list");if(!el)return;
+  if(!tiers||!tiers.length){
+    // No tiers - show free follow only
+    el.innerHTML='';
+    var div=document.createElement("div");div.className="sn-tier-card selected";div.dataset.tierId="";
+    var nm=document.createElement("div");nm.className="sn-tier-name";nm.style.color="#00c853";nm.textContent="Seguir gratis";
+    var pr=document.createElement("div");pr.className="sn-tier-price";pr.innerHTML="0 \u20AC<span>/mes</span>";
+    var ds=document.createElement("div");ds.className="sn-tier-desc";ds.textContent="Accede al contenido p\u00FAblico del creador.";
+    div.appendChild(nm);div.appendChild(pr);div.appendChild(ds);el.appendChild(div);
+    _snTierSelected={id:null,price:0};snUpdateConfirmBtn();
+    return;
+  }
+  el.innerHTML="";
+  tiers.forEach(function(t,i){
+    var card=document.createElement("div");card.className="sn-tier-card"+(i===1&&tiers.length>1?" popular":"");card.dataset.tierId=t.id;
+    card.onclick=function(){snSelectTier(t,card);};
+    // Badge color dot
+    var nm=document.createElement("div");nm.className="sn-tier-name";nm.style.color=t.badge_color||"#ff2255";
+    nm.textContent=t.name||(t.badge_name||"Tier "+( i+1));
+    var pr=document.createElement("div");pr.className="sn-tier-price";
+    pr.innerHTML=(t.price||0)+"\u20AC <span>/mes</span>"+(parseFloat(t.price||0)===0?"<span class=\"sn-tier-free-badge\">GRATIS</span>":"");
+    card.appendChild(nm);card.appendChild(pr);
+    if(t.description){var ds=document.createElement("div");ds.className="sn-tier-desc";ds.textContent=t.description;card.appendChild(ds);}
+    var perks=t.benefits||t.perks||[];
+    if(typeof perks==="string")try{perks=JSON.parse(perks);}catch(e){perks=[];}
+    if(perks.length){
+      var ul=document.createElement("ul");ul.className="sn-tier-perks";
+      perks.forEach(function(p){var li=document.createElement("li");li.textContent=p;ul.appendChild(li);});
+      card.appendChild(ul);
+    }
+    el.appendChild(card);
+  });
+}
+function snSelectTier(tier,cardEl){
+  _snTierSelected=tier;
+  document.querySelectorAll(".sn-tier-card").forEach(function(c){c.classList.remove("selected");});
+  cardEl.classList.add("selected");
+  snUpdateConfirmBtn();
+}
+function snUpdateConfirmBtn(){
+  var btn=document.getElementById("sn-tier-confirm-btn");if(!btn)return;
+  if(!_snTierSelected){btn.disabled=true;btn.textContent="Elige un plan";return;}
+  var price=parseFloat(_snTierSelected.price||0);
+  if(price===0){btn.disabled=false;btn.textContent="Seguir gratis \u2192";btn.style.background="rgba(0,200,83,.15)";btn.style.color="#00c853";btn.style.border="1px solid rgba(0,200,83,.3)";}
+  else{btn.disabled=false;btn.textContent="Suscribirse por "+price+"\u20AC/mes \u2192";btn.style.background="linear-gradient(135deg,#ff2255,#cc0030)";btn.style.color="#fff";btn.style.border="none";}
+}
+window.snConfirmTier=async function(){
+  if(!_snTierSelected||!_snTierCreatorId)return;
+  var btn=document.getElementById("sn-tier-confirm-btn");btn.disabled=true;btn.textContent="Procesando...";
+  try{
+    if(!window.sb){btn.disabled=false;btn.textContent="Error: inicia sesi\u00F3n";return;}
+    var s=await window.sb.auth.getSession();
+    if(!s.data||!s.data.session){location.href="/";return;}
+    var uid=s.data.session.user.id;
+    var price=parseFloat(_snTierSelected.price||0);
+    if(price>0){
+      // Paid tier - redirect to Stripe checkout
+      var resp=await fetch(_SBT+"/functions/v1/stripe-payment",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","apikey":_AKT,"Authorization":"Bearer "+s.data.session.access_token},
+        body:JSON.stringify({creator_id:_snTierCreatorId,tier_id:_snTierSelected.id,amount:Math.round(price*100),currency:"eur",subscriber_id:uid})
+      });
+      var data=await resp.json();
+      if(data.url){location.href=data.url;return;}
+      if(data.checkout_url){location.href=data.checkout_url;return;}
+      btn.textContent="Error al procesar";btn.disabled=false;
+    } else {
+      // Free follow
+      var exp=new Date(Date.now()+30*24*3600*1000).toISOString();
+      await window.sb.from("subscriptions").upsert({subscriber_id:uid,creator_id:_snTierCreatorId,tier_id:_snTierSelected.id||null,status:"active",amount:0,price:0,active:true,expires_at:exp},{onConflict:"subscriber_id,creator_id"});
+      snCloseTierModal();
+      if(window.showToast)showToast("\u2705 Ahora sigues a este creador");
+      setTimeout(function(){location.reload();},800);
+    }
+  }catch(e){btn.disabled=false;btn.textContent="Error: "+e.message;}
+};
+window.snCloseTierModal=function(){
+  document.getElementById("sn-tier-modal").classList.remove("open");
+  _snTierCreatorId=null;_snTierSelected=null;
+};
 </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Stories</title>
+<title>SHADOWNET &#8212; Stories</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -125,6 +125,13 @@ header{justify-content:space-between!important;}
 .sn-live-toast-dot{width:8px;height:8px;border-radius:50%;background:#ff2255;animation:sn-pulse 1.2s infinite;flex-shrink:0}
 .sn-live-toast-btn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;white-space:nowrap}
 .sn-notif-count-badge{position:absolute;top:-4px;right:-4px;background:#ff2255;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;border:1.5px solid #0a0a0f;line-height:1}
+
+
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#0a0f1c;border-top:1px solid #0d2744;display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:900}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}
+.sn-bn-item:hover,.sn-bn-item.active{color:#ff2255}
+.sn-bn-icon{font-size:22px;line-height:1}
+.sn-nb{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:color .2s}.sn-nb:hover{color:#fff}.sn-nbc{position:absolute;top:2px;right:8px;background:#ff2255;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:900;display:none;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;border:1.5px solid #000}.sn-nbc.on{display:flex}.sn-np{position:fixed;top:0;right:0;width:min(360px,100vw);height:100vh;background:#111;z-index:9998;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;border-left:1px solid #1a1a2e}.sn-np.open{transform:translateX(0)}.sn-nov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9997;display:none}.sn-nov.on{display:block}.sn-nh{display:flex;align-items:center;padding:16px;border-bottom:1px solid #1a1a2e;flex-shrink:0}.sn-nht{flex:1;font-family:Rajdhani,sans-serif;font-weight:900;font-size:18px;color:#fff}.sn-nmr{background:none;border:1px solid #1a1a2e;color:#666;border-radius:8px;padding:4px 10px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;cursor:pointer}.sn-ncl{background:none;border:none;color:#555;font-size:22px;cursor:pointer;padding:0 4px;margin-left:8px}.sn-nl{flex:1;overflow-y:auto;padding:4px 0}.sn-ni{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #0d0d1a;cursor:pointer}.sn-ni.u{background:rgba(255,34,85,.04);border-left:3px solid #ff2255}.sn-nic{width:40px;height:40px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}.sn-nid{flex:1;min-width:0}.sn-nit{font-size:13px;color:#ccc;line-height:1.4}.sn-niz{font-size:11px;color:#555;font-family:Rajdhani,sans-serif}.sn-nem{text-align:center;padding:40px 20px;color:#333;font-family:Rajdhani,sans-serif}
 </style>
 
 <meta property="og:title" content="Historias &mdash; SHADOWNET">
@@ -154,14 +161,14 @@ header{justify-content:space-between!important;}
     <div class="section-title">CREAR STORY</div>
     <div class="upload-box" id="uploadBox">
       <input type="file" id="storyFile" accept="image/*,video/*">
-      <div class="upload-icon">ð¸</div>
+      <div class="upload-icon">&#240;&#159;&#147;&#184;</div>
       <div class="upload-label">Toca para subir foto o video</div>
       <div class="upload-sub">La story desaparece en 24 horas</div>
     </div>
     <div class="preview-box" id="previewBox"></div>
     <input class="caption-inp" id="captionInp" placeholder="Escribe un caption... (opcional)">
     <button class="publish-btn" id="publishBtn" onclick="publishStory()" disabled>
-      â° PUBLICAR STORY (24H)
+      &#226;&#143;&#176; PUBLICAR STORY (24H)
     </button>
   </div>
 </div>
@@ -176,7 +183,7 @@ header{justify-content:space-between!important;}
         <div class="sv-time" id="svTime"></div>
       </div>
     </div>
-    <button class="sv-close" onclick="closeStoryViewer()">â</button>
+    <button class="sv-close" onclick="closeStoryViewer()">&#226;&#156;&#149;</button>
   </div>
   <div class="sv-media" id="svMedia"></div>
   <div class="sv-caption" id="svCaption"></div>
@@ -188,7 +195,7 @@ header{justify-content:space-between!important;}
     </div>
   <div class="sv-footer">
     <input class="sv-reply" id="svReply" placeholder="Responder a la story...">
-    <div class="sv-views" id="svViews">ð 0</div>
+    <div class="sv-views" id="svViews">&#240;&#159;&#145;&#129; 0</div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -506,5 +513,24 @@ function loadStories(){ /* called via DOMContentLoaded */ }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,500);});}else{setTimeout(init,500);}
 })();
 </script>
+
+<nav class="sn-bottom-nav" id="snBottomNav">
+  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-icon">&#127968;</span>Feed</a>
+  <a class="sn-bn-item active" href="/stories.html"><span class="sn-bn-icon">&#127775;</span>Stories</a>
+  <a class="sn-bn-item" href="/search.html"><span class="sn-bn-icon">&#128269;</span>Buscar</a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span>Msgs</a>
+  <a class="sn-bn-item" href="/profile.html"><span class="sn-bn-icon">&#128100;</span>Perfil</a>
+  <button class="sn-nb" id="sn-nb" onclick="snNO()"><span style="font-size:20px">&#128276;</span><div class="sn-nbc" id="sn-nbc"></div>NOTIF</button>
+</nav>
+
+<div class="sn-nov" id="sn-nov" onclick="snNC()"></div>
+<div class="sn-np" id="sn-np">
+  <div class="sn-nh"><div class="sn-nht">Notificaciones</div><button class="sn-nmr" onclick="snNMR()">Todo le&iacute;do</button><button class="sn-ncl" onclick="snNC()">&#10005;</button></div>
+  <div class="sn-nl" id="sn-nl"><div class="sn-nem">Cargando...</div></div>
+</div>
+
+<script>
+var _NB="https://cdokplvoqivducsqrejt.supabase.co",_NK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTk4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g",_NU=null,_NT=null,_NCh=null;function snNTA(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);return s<60?"ahora":s<3600?Math.floor(s/60)+"m":s<86400?Math.floor(s/3600)+"h":Math.floor(s/86400)+"d";}function snNSB(n){var b=document.getElementById("sn-nbc");if(!b)return;if(n>0){b.textContent=n>9?"9+":n;b.classList.add("on");}else{b.classList.remove("on");b.textContent="";}}function snNL(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/notifications?user_id=eq."+_NU+"&order=created_at.desc&limit=20",{headers:{"apikey":_NK,"Authorization":"Bearer "+_NT}}).then(function(r){return r.json();}).then(function(ns){ns=ns||[];var el=document.getElementById("sn-nl");if(!el)return;el.innerHTML="";if(!ns.length){var e=document.createElement("div");e.className="sn-nem";e.textContent="No hay notificaciones";el.appendChild(e);return;}ns.forEach(function(n){var it=document.createElement("div");it.className="sn-ni"+(n.is_read?"":" u");it.onclick=function(){snNC();};var ic=document.createElement("div");ic.className="sn-nic";ic.textContent="\uD83D\uDD14";var ct=document.createElement("div");ct.className="sn-nid";var tx=document.createElement("div");tx.className="sn-nit";tx.textContent=n.title||n.message||"";var ti=document.createElement("div");ti.className="sn-niz";ti.textContent=snNTA(n.created_at);ct.appendChild(tx);ct.appendChild(ti);it.appendChild(ic);it.appendChild(ct);el.appendChild(it);});var u=ns.filter(function(n){return !n.is_read;}).length;snNSB(u);}).catch(function(){});}window.snNO=function(){document.getElementById("sn-np").classList.add("open");document.getElementById("sn-nov").classList.add("on");snNL();};window.snNC=function(){document.getElementById("sn-np").classList.remove("open");document.getElementById("sn-nov").classList.remove("on");};window.snNMR=function(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/rpc/mark_notifications_read",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(){snNL();}).catch(function(){});};(function(){function init(){if(!window.sb){setTimeout(init,400);return;}window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;_NU=s.data.session.user.id;_NT=s.data.session.access_token;fetch(_NB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});if(!_NCh){_NCh=window.sb.channel("notif:"+_NU).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_NU},function(p){var n=p.new;if(!n)return;var b=document.getElementById("sn-nbc");var cur=parseInt((b&&b.textContent)||"0")||0;snNSB(cur+1);if(window.showToast)showToast(n.title||n.message||"Nueva notificaci\u00F3n");}).subscribe();}});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(init,600);});else setTimeout(init,600);})();
+<\/script>
 </body>
 </html>

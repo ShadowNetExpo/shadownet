@@ -395,6 +395,23 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-ppv-confirm-btn{width:100%;padding:14px;background:linear-gradient(135deg,#ffa500,#ff6b00);border:none;border-radius:12px;color:#fff;font-family:Rajdhani,sans-serif;font-weight:800;font-size:17px;cursor:pointer;letter-spacing:.04em}
 .sn-ppv-confirm-btn:disabled{opacity:.4;cursor:not-allowed}
 
+
+/* PPV FORM */
+.sn-ppv-toggle{display:flex;align-items:center;gap:10px;background:rgba(255,165,0,.05);border:1px solid rgba(255,165,0,.15);border-radius:10px;padding:10px 12px;margin-top:8px;cursor:pointer;transition:all .2s;user-select:none}
+.sn-ppv-toggle.active{background:rgba(255,165,0,.1);border-color:rgba(255,165,0,.35)}
+.sn-ppv-toggle-icon{font-size:18px}
+.sn-ppv-toggle-label{flex:1;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;color:#888}
+.sn-ppv-toggle.active .sn-ppv-toggle-label{color:#ffa500}
+.sn-ppv-switch{width:36px;height:20px;background:#1a1a2e;border-radius:10px;position:relative;transition:background .2s;flex-shrink:0}
+.sn-ppv-switch::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;background:#555;border-radius:50%;transition:all .2s}
+.sn-ppv-toggle.active .sn-ppv-switch{background:rgba(255,165,0,.3)}
+.sn-ppv-toggle.active .sn-ppv-switch::after{left:19px;background:#ffa500}
+.sn-ppv-price-wrap{display:none;margin-top:8px;gap:8px}
+.sn-ppv-price-wrap.show{display:flex;align-items:center}
+.sn-ppv-price-input{flex:1;background:#0d0d1a;border:1px solid rgba(255,165,0,.2);border-radius:8px;padding:8px 12px;color:#fff;font-size:14px;font-family:Rajdhani,sans-serif;font-weight:700;outline:none}
+.sn-ppv-price-input:focus{border-color:#ffa500}
+.sn-ppv-title-input{flex:2;background:#0d0d1a;border:1px solid rgba(255,165,0,.2);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-family:Inter,sans-serif;outline:none}
+
 </style>
 </head>
 <body>
@@ -418,7 +435,18 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
       <button class="toggle-location-btn" id="locationToggleBtn" onclick="toggleLocationInput()">&#128205; Ubicacion</button>
     <input class="location-inp" id="locationInp" placeholder="Ej: Barcelona, Espa&#241;a">
-    <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label><button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
+    <label class="premium-toggle" id="premiumToggle" style="display:none"><input type="checkbox" id="isPremiumCheck"> Exclusivo (solo suscriptores)</label>
+    <div class="sn-ppv-toggle" id="sn-ppv-toggle" onclick="snTogglePPV()">
+      <span class="sn-ppv-toggle-icon">&#128274;</span>
+      <span class="sn-ppv-toggle-label">Contenido PPV (pago por ver)</span>
+      <div class="sn-ppv-switch"></div>
+    </div>
+    <div class="sn-ppv-price-wrap" id="sn-ppv-price-wrap">
+      <input class="sn-ppv-price-input" id="sn-ppv-price-input" type="number" placeholder="50" min="1" max="9999" title="Precio en Almas">
+      <span style="color:#ffa500;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;flex-shrink:0">Almas</span>
+      <input class="sn-ppv-title-input" id="sn-ppv-title-input" type="text" placeholder="T&#237;tulo del contenido exclusivo..." maxlength="60">
+    </div>
+<button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
     </div>
   </div>
   <div class="tabs">
@@ -2247,6 +2275,28 @@ window.snPPVConfirm=async function(){
     lock.appendChild(icon);lock.appendChild(title);lock.appendChild(price);lock.appendChild(btn);
     el.style.position="relative";el.appendChild(lock);
     return el;
+  };
+})();
+</script>
+<script>
+window.snTogglePPV=function(){
+  var tog=document.getElementById("sn-ppv-toggle");
+  var pw=document.getElementById("sn-ppv-price-wrap");
+  if(!tog)return;
+  tog.classList.toggle("active");
+  if(pw)pw.classList.toggle("show",tog.classList.contains("active"));
+};
+// Patch submitPost to include PPV fields
+(function(){
+  var _orig=window.submitPost;
+  if(!_orig)return;
+  window.submitPost=async function(){
+    var tog=document.getElementById("sn-ppv-toggle");
+    var isPPV=tog&&tog.classList.contains("active");
+    var ppvPrice=isPPV?parseInt(document.getElementById("sn-ppv-price-input").value||0):0;
+    var ppvTitle=isPPV?(document.getElementById("sn-ppv-title-input").value||"").trim():"";
+    window._snPostPPV={is_ppv:isPPV,ppv_price:ppvPrice,ppv_title:ppvTitle};
+    return _orig();
   };
 })();
 </script>

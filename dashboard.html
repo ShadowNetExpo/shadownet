@@ -64,6 +64,17 @@ body{background:#0a0a0f;color:#ccc;font-family:Inter,sans-serif;font-size:14px;p
 .sn-lt2-btn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0}
 @keyframes sn-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
+
+/* TF */
+.sn-tf-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1a1a2e;cursor:pointer}
+.sn-tf-row:last-child{border-bottom:none}
+.sn-tf-rank{font-family:Rajdhani,sans-serif;font-weight:900;font-size:16px;width:22px;text-align:center;color:#333}
+.sn-tf-rank.r1{color:#ffd700}.sn-tf-rank.r2{color:#c0c0c0}.sn-tf-rank.r3{color:#cd7f32}
+.sn-tf-av{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #1a1a2e;flex-shrink:0}
+.sn-tf-name{flex:1;font-family:Rajdhani,sans-serif;font-weight:700;color:#ccc;font-size:14px}
+.sn-tf-badge{font-size:18px}
+.sn-tf-pts{font-size:11px;color:#555;font-family:Rajdhani,sans-serif}
+
 </style>
 
 <meta property="og:title" content="Dashboard Creador &mdash; SHADOWNET">
@@ -118,6 +129,13 @@ body{background:#0a0a0f;color:#ccc;font-family:Inter,sans-serif;font-size:14px;p
       </div>
     </div>
   </div>
+
+    <div class="sn-sec">
+      <div class="sn-sec-t">&#128081; Top Fans</div>
+      <div id="d-top-fans" style="background:#111;border:1px solid #1a1a2e;border-radius:14px;padding:14px">
+        <div style="color:#333;text-align:center;padding:12px;font-family:Rajdhani,sans-serif;font-size:13px">Cargando...</div>
+      </div>
+    </div>
 </div>
 <nav class="sn-bn">
   <a href="feed.html"><span class="sn-bn-ico">&#127968;</span>INICIO</a>
@@ -233,5 +251,50 @@ document.addEventListener("DOMContentLoaded",function(){
 });
 <\/script>
 <script>(function(){var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";s.onload=function(){if(!window.sb)window.sb=window.supabase.createClient("https://cdokplvoqivducsqrejt.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g");};document.head.appendChild(s);})();<\/script>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  var _orig=window.dRender;
+  if(_orig){window.dRender=function(d){_orig(d);setTimeout(snTopFans,300);};}
+});
+function snTopFans(){
+  if(typeof _uid==="undefined"||typeof _tok==="undefined")return;
+  fetch(_SB+"/rest/v1/rpc/get_creator_top_fans",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","apikey":_AK,"Authorization":"Bearer "+_tok},
+    body:JSON.stringify({p_creator_id:_uid,p_limit:10})
+  }).then(function(r){return r.json();})
+  .then(function(fans){
+    var el=document.getElementById("d-top-fans");
+    if(!el)return;
+    el.innerHTML="";
+    if(!fans||!fans.length){
+      var e=document.createElement("div");
+      e.style.cssText="color:#333;text-align:center;padding:12px;font-family:Rajdhani,sans-serif;font-size:13px";
+      e.textContent="A\u00FAn no tienes fans con puntos acumulados";
+      el.appendChild(e);
+      return;
+    }
+    fans.forEach(function(f,i){
+      var row=document.createElement("div");row.className="sn-tf-row";
+      row.onclick=function(){location.href="profile.html?u="+encodeURIComponent(f.username||"");};
+      var rn=document.createElement("div");
+      rn.className="sn-tf-rank"+(i===0?" r1":i===1?" r2":i===2?" r3":"");
+      rn.textContent=i+1;
+      var av=document.createElement("img");av.className="sn-tf-av";
+      av.src=f.avatar_url||("https://api.dicebear.com/7.x/personas/svg?seed="+(f.username||"u"));
+      var nm=document.createElement("div");nm.className="sn-tf-name";
+      nm.textContent=f.username||"?";
+      var bd=document.createElement("div");bd.className="sn-tf-badge";
+      bd.textContent=f.badge_emoji||"\u2B50";
+      var pt=document.createElement("div");pt.className="sn-tf-pts";
+      pt.textContent=(f.total_points||0)+" pts";
+      row.appendChild(rn);row.appendChild(av);row.appendChild(nm);
+      row.appendChild(bd);row.appendChild(pt);
+      el.appendChild(row);
+    });
+  }).catch(function(){});
+}
+<\/script>
 </body>
 </html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard &mdash; SHADOWNET</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#ccc;font-family:Inter,sans-serif;font-size:14px;padding-bottom:80px}
+.sn-top{background:#111;border-bottom:1px solid #1a1a2e;padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.sn-top-title{font-family:Rajdhani,sans-serif;font-weight:900;font-size:20px;color:#fff;flex:1}
+.wrap{max-width:680px;margin:0 auto;padding:20px 16px}
+.ptabs{display:flex;background:#111;border-radius:10px;padding:3px;gap:3px;margin-bottom:20px}
+.ptab{flex:1;padding:8px 0;text-align:center;border-radius:8px;border:none;background:none;color:#555;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
+.ptab.active{background:rgba(255,34,85,.15);color:#ff2255}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.kpi-card{background:#111;border:1px solid #1a1a2e;border-radius:14px;padding:16px}
+.kpi-lbl{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.08em;font-family:Rajdhani,sans-serif;font-weight:700;margin-bottom:6px}
+.kpi-val{font-size:28px;font-weight:900;font-family:Rajdhani,sans-serif;color:#fff;line-height:1}
+.kpi-sub{font-size:11px;color:#555;margin-top:4px}
+.kpi-ico{float:right;font-size:22px;opacity:.6}
+.chart-wrap{background:#111;border:1px solid #1a1a2e;border-radius:14px;padding:16px;margin-bottom:20px}
+.chart-bars{display:flex;align-items:flex-end;gap:4px;height:80px;margin-top:10px}
+.chart-bw{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.chart-b{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#ff2255,rgba(255,34,85,.3));min-height:2px;transition:height .4s}
+.chart-bl{font-size:9px;color:#444;font-family:Rajdhani,sans-serif}
+.sn-sec{margin-bottom:20px}
+.sn-sec-t{font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;border-left:3px solid #ff2255;padding-left:10px}
+.tp-row{display:flex;align-items:center;gap:12px;background:#111;border:1px solid #1a1a2e;border-radius:12px;padding:12px;margin-bottom:8px}
+.tp-rank{font-family:Rajdhani,sans-serif;font-weight:900;font-size:18px;color:#333;width:20px;text-align:center}
+.tp-thumb{width:44px;height:44px;border-radius:8px;background:#1a1a2e;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden}
+.tp-thumb img{width:100%;height:100%;object-fit:cover}
+.tp-info{flex:1;min-width:0}
+.tp-txt{color:#ccc;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-stats{font-size:11px;color:#555;margin-top:3px}
+.tp-earn{font-family:Rajdhani,sans-serif;font-weight:700;color:#ffa500;font-size:14px;flex-shrink:0}
+.sub-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sub-bg{flex:1;height:6px;background:#1a1a2e;border-radius:3px;overflow:hidden}
+.sub-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#ff2255,#ff6b35);transition:width .5s}
+.sub-lbl{font-size:11px;color:#555;width:30px;text-align:right;font-family:Rajdhani,sans-serif}
+.sub-val{font-size:11px;color:#888;width:20px;font-family:Rajdhani,sans-serif;font-weight:700}
+.wcard{background:linear-gradient(135deg,rgba(255,34,85,.08),rgba(255,107,53,.05));border:1px solid rgba(255,34,85,.2);border-radius:14px;padding:20px;text-align:center;margin-bottom:20px}
+.wbal{font-family:Rajdhani,sans-serif;font-weight:900;font-size:36px;color:#fff;margin-bottom:4px}
+.wbtn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:24px;padding:12px 32px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:16px;cursor:pointer;letter-spacing:.05em;margin-top:12px}
+.wbtn:disabled{opacity:.4;cursor:not-allowed}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a1a2e}
+.stat-row:last-child{border-bottom:none}
+.sn-loading{text-align:center;padding:40px 0;color:#333;font-family:Rajdhani,sans-serif;font-size:18px}
+.sn-spin{width:36px;height:36px;border:3px solid #1a1a2e;border-top-color:#ff2255;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sn-bn{position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0;justify-content:space-around;z-index:200}
+.sn-bn a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
+.sn-bn a:hover{color:#ff2255}
+.sn-bn-ico{font-size:22px;line-height:1}
+</style>
+</head>
+<body>
+<div class="sn-top">
+  <button onclick="history.back()" style="background:none;border:none;color:#555;cursor:pointer;font-size:20px;padding:4px 8px">&#8592;</button>
+  <div class="sn-top-title">&#128200; Dashboard</div>
+  <div id="d-plbl" style="font-size:12px;color:#555;font-family:Rajdhani,sans-serif"></div>
+</div>
+<div class="wrap">
+  <div id="d-load" class="sn-loading"><div class="sn-spin"></div>Cargando analytics...</div>
+  <div id="d-main" style="display:none">
+    <div class="ptabs">
+      <button class="ptab active" data-days="7" onclick="dP(7)">7 d&#237;as</button>
+      <button class="ptab" data-days="30" onclick="dP(30)">30 d&#237;as</button>
+      <button class="ptab" data-days="90" onclick="dP(90)">90 d&#237;as</button>
+      <button class="ptab" data-days="365" onclick="dP(365)">1 a&#241;o</button>
+    </div>
+    <div class="wcard">
+      <div style="font-size:11px;color:#888;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.06em;margin-bottom:4px">BALANCE DISPONIBLE</div>
+      <div class="wbal" id="d-bal">0 Almas</div>
+      <div style="font-size:11px;color:#555;margin-bottom:4px">Moneda virtual SHADOWNET</div>
+      <button class="wbtn" id="d-wbtn" disabled onclick="dW()">Solicitar Retiro</button>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-ico">&#128176;</div><div class="kpi-lbl">Ingresos</div><div class="kpi-val" id="k-e">0</div><div class="kpi-sub">Almas (90%)</div></div>
+      <div class="kpi-card"><div class="kpi-ico">&#128101;</div><div class="kpi-lbl">Nuevos Subs</div><div class="kpi-val" id="k-s">0</div><div class="kpi-sub" id="k-ss"></div></div>
+      <div class="kpi-card"><div class="kpi-ico">&#128065;</div><div class="kpi-lbl">Vistas</div><div class="kpi-val" id="k-v">0</div><div class="kpi-sub" id="k-vs"></div></div>
+      <div class="kpi-card"><div class="kpi-ico">&#10084;</div><div class="kpi-lbl">Likes</div><div class="kpi-val" id="k-l">0</div><div class="kpi-sub"></div></div>
+    </div>
+    <div class="chart-wrap">
+      <div style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;justify-content:space-between">
+        <span>&#128200; Ingresos por d&#237;a</span><span id="d-ct" style="color:#ff2255;font-size:16px"></span>
+      </div>
+      <div class="chart-bars" id="d-chart"></div>
+    </div>
+    <div class="sn-sec"><div class="sn-sec-t">&#128293; Top Posts</div><div id="d-tp"></div></div>
+    <div class="sn-sec"><div class="sn-sec-t">&#128101; Subs por semana</div><div id="d-st" style="background:#111;border:1px solid #1a1a2e;border-radius:14px;padding:16px"></div></div>
+    <div class="sn-sec">
+      <div class="sn-sec-t">&#128196; Estad&#237;sticas</div>
+      <div style="background:#111;border:1px solid #1a1a2e;border-radius:14px;padding:16px">
+        <div class="stat-row"><span style="color:#888">Total posts</span><span style="font-family:Rajdhani,sans-serif;font-weight:700;color:#fff" id="s-p">-</span></div>
+        <div class="stat-row"><span style="color:#888">Total suscriptores</span><span style="font-family:Rajdhani,sans-serif;font-weight:700;color:#fff" id="s-s">-</span></div>
+        <div class="stat-row"><span style="color:#888">Total vistas</span><span style="font-family:Rajdhani,sans-serif;font-weight:700;color:#fff" id="s-v">-</span></div>
+        <div class="stat-row"><span style="color:#888">Total likes</span><span style="font-family:Rajdhani,sans-serif;font-weight:700;color:#fff" id="s-l">-</span></div>
+        <div class="stat-row"><span style="color:#888">Lives realizados</span><span style="font-family:Rajdhani,sans-serif;font-weight:700;color:#fff" id="s-lv">-</span></div>
+        <div class="stat-row"><span style="color:#888">Comisi&#243;n plataforma</span><span style="font-family:Rajdhani,sans-serif;font-weight:700;color:#ff2255">10%</span></div>
+        <div class="stat-row"><span style="color:#888">Tu porcentaje</span><span style="font-family:Rajdhani,sans-serif;font-weight:700;color:#00c853">90%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<nav class="sn-bn">
+  <a href="feed.html"><span class="sn-bn-ico">&#127968;</span>INICIO</a>
+  <a href="search.html"><span class="sn-bn-ico">&#128269;</span>BUSCAR</a>
+  <a href="messages.html"><span class="sn-bn-ico">&#128172;</span>MSG</a>
+  <a href="profile.html"><span class="sn-bn-ico">&#128100;</span>PERFIL</a>
+</nav>
+<script>
+var _SB="https://cdokplvoqivducsqrejt.supabase.co";
+var _AK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g";
+var _uid=null,_tok=null,_days=7;
+function _fmt(n){n=Math.round(n||0);if(n>=1000000)return (n/1000000).toFixed(1)+"M";if(n>=1000)return (n/1000).toFixed(1)+"K";return String(n);}
+function _ago(d){var dt=new Date();dt.setDate(dt.getDate()-d);return dt.toISOString().slice(0,10);}
+function _H(){return {"apikey":_AK,"Authorization":"Bearer "+_tok};}
+function dP(d){_days=d;document.querySelectorAll(".ptab").forEach(function(b){b.classList.toggle("active",parseInt(b.dataset.days)===d);});document.getElementById("d-plbl").textContent="\u00DAltimos "+d+" d\u00EDas";dLoad();}
+function dW(){var btn=document.getElementById("d-wbtn");btn.textContent="Procesando...";btn.disabled=true;setTimeout(function(){btn.textContent="\u2705 Enviada";setTimeout(function(){btn.textContent="Solicitar Retiro";btn.disabled=false;},3000);},1200);}
+function dLoad(){
+  document.getElementById("d-load").style.display="block";
+  document.getElementById("d-main").style.display="none";
+  var H=_H(),since=_ago(_days)+"T00:00:00Z";
+  Promise.all([
+    fetch(_SB+"/rest/v1/profiles?id=eq."+_uid+"&select=coins_balance,posts_count,subscribers_count",{headers:H}).then(function(r){return r.json();}),
+    fetch(_SB+"/rest/v1/subscriptions?creator_id=eq."+_uid+"&created_at=gte."+since+"&select=id,created_at",{headers:H}).then(function(r){return r.json();}),
+    fetch(_SB+"/rest/v1/posts?user_id=eq."+_uid+"&select=id,content,media_url,like_count,comment_count,view_count,tip_total,created_at&order=like_count.desc&limit=5",{headers:H}).then(function(r){return r.json();}),
+    fetch(_SB+"/rest/v1/posts?user_id=eq."+_uid+"&select=like_count,view_count&limit=500",{headers:H}).then(function(r){return r.json();}),
+    fetch(_SB+"/rest/v1/live_streams?host_id=eq."+_uid+"&select=id&limit=100",{headers:H}).then(function(r){return r.json();}),
+    fetch(_SB+"/rest/v1/post_tips?creator_id=eq."+_uid+"&created_at=gte."+since+"&select=almas_amount,created_at",{headers:H}).then(function(r){return r.json();})
+  ]).then(function(res){
+    dRender({profile:res[0]&&res[0][0]||{},newSubs:res[1]||[],topPosts:res[2]||[],allPosts:res[3]||[],lives:res[4]||[],tips:res[5]||[]});
+  }).catch(function(){document.getElementById("d-load").innerHTML="<div style='color:#ff2255'>Error cargando datos</div>";});
+}
+function dRender(d){
+  var bal=d.profile.coins_balance||0;
+  document.getElementById("d-bal").textContent=_fmt(bal)+" Almas";
+  document.getElementById("d-wbtn").disabled=bal<100;
+  var earn=d.tips.reduce(function(s,t){return s+(t.almas_amount||0);},0)*0.9;
+  document.getElementById("k-e").textContent=_fmt(earn);
+  document.getElementById("k-s").textContent=_fmt(d.newSubs.length);
+  document.getElementById("k-ss").textContent=(d.profile.subscribers_count||0)+" total";
+  var tv=d.allPosts.reduce(function(s,p){return s+(p.view_count||0);},0);
+  var tl=d.allPosts.reduce(function(s,p){return s+(p.like_count||0);},0);
+  document.getElementById("k-v").textContent=_fmt(tv);
+  document.getElementById("k-vs").textContent=d.allPosts.length+" posts";
+  document.getElementById("k-l").textContent=_fmt(tl);
+  document.getElementById("s-p").textContent=d.profile.posts_count||d.allPosts.length||0;
+  document.getElementById("s-s").textContent=d.profile.subscribers_count||0;
+  document.getElementById("s-v").textContent=_fmt(tv);
+  document.getElementById("s-l").textContent=_fmt(tl);
+  document.getElementById("s-lv").textContent=d.lives.length;
+  dChart(d.tips);dTopPosts(d.topPosts);dSubTrend(d.newSubs);
+  document.getElementById("d-load").style.display="none";
+  document.getElementById("d-main").style.display="block";
+}
+function dChart(tips){
+  var c=document.getElementById("d-chart");if(!c)return;
+  var n=Math.min(_days,14),dm={},keys=[];
+  for(var i=n-1;i>=0;i--){var k=_ago(i);dm[k]=0;keys.push(k);}
+  tips.forEach(function(t){var day=t.created_at?t.created_at.slice(0,10):"";if(dm.hasOwnProperty(day))dm[day]+=(t.almas_amount||0)*0.9;});
+  var vals=keys.map(function(k){return dm[k];});
+  var mx=Math.max.apply(null,vals)||1;
+  var tot=vals.reduce(function(s,v){return s+v;},0);
+  document.getElementById("d-ct").textContent=_fmt(tot)+" Almas";
+  c.innerHTML="";
+  keys.forEach(function(k,i){
+    var h=Math.max(4,Math.round((vals[i]/mx)*72));
+    var w=document.createElement("div");w.className="chart-bw";
+    var b=document.createElement("div");b.className="chart-b";b.style.height=h+"px";b.title=_fmt(vals[i])+" el "+k;
+    var l=document.createElement("div");l.className="chart-bl";l.textContent=k.slice(5);
+    w.appendChild(b);w.appendChild(l);c.appendChild(w);
+  });
+}
+function dTopPosts(posts){
+  var el=document.getElementById("d-tp");if(!el)return;el.innerHTML="";
+  if(!posts||!posts.length){var e=document.createElement("div");e.style.cssText="color:#333;text-align:center;padding:20px;font-family:Rajdhani,sans-serif";e.textContent="A\u00FAn no tienes posts";el.appendChild(e);return;}
+  posts.forEach(function(p,i){
+    var row=document.createElement("div");row.className="tp-row";
+    var rank=document.createElement("div");rank.className="tp-rank";rank.textContent=i+1;
+    var thumb=document.createElement("div");thumb.className="tp-thumb";
+    if(p.media_url){var img=document.createElement("img");img.src=p.media_url;thumb.appendChild(img);}
+    else{thumb.textContent="#";}
+    var info=document.createElement("div");info.className="tp-info";
+    var txt=document.createElement("div");txt.className="tp-txt";
+    txt.textContent=p.content?(p.content.length>40?p.content.slice(0,40)+"...":p.content):"(Sin texto)";
+    var stats=document.createElement("div");stats.className="tp-stats";
+    stats.textContent="\u2764 "+(p.like_count||0)+"  vistas "+(p.view_count||0)+"  com "+(p.comment_count||0);
+    info.appendChild(txt);info.appendChild(stats);
+    var earn=document.createElement("div");earn.className="tp-earn";
+    earn.textContent=p.tip_total?_fmt(p.tip_total*0.9)+" Almas":"0";
+    row.appendChild(rank);row.appendChild(thumb);row.appendChild(info);row.appendChild(earn);el.appendChild(row);
+  });
+}
+function dSubTrend(ns){
+  var el=document.getElementById("d-st");if(!el)return;el.innerHTML="";
+  if(!ns||!ns.length){var e=document.createElement("div");e.style.cssText="color:#333;text-align:center;padding:8px;font-family:Rajdhani,sans-serif";e.textContent="Sin nuevos suscriptores en este per\u00EDodo";el.appendChild(e);return;}
+  var wk={};
+  ns.forEach(function(s){var d=new Date(s.created_at),ws=new Date(d);ws.setDate(d.getDate()-d.getDay());var k=ws.toISOString().slice(0,10);wk[k]=(wk[k]||0)+1;});
+  var keys=Object.keys(wk).sort().slice(-8);
+  var mx=Math.max.apply(null,keys.map(function(k){return wk[k];}));
+  keys.forEach(function(k){
+    var pct=Math.max(5,Math.round((wk[k]/mx)*100));
+    var row=document.createElement("div");row.className="sub-row";
+    var lbl=document.createElement("div");lbl.className="sub-lbl";lbl.textContent=k.slice(5).replace("-","/");
+    var bg=document.createElement("div");bg.className="sub-bg";
+    var fill=document.createElement("div");fill.className="sub-fill";fill.style.width=pct+"%";
+    bg.appendChild(fill);
+    var val=document.createElement("div");val.className="sub-val";val.textContent=wk[k];
+    row.appendChild(lbl);row.appendChild(bg);row.appendChild(val);el.appendChild(row);
+  });
+}
+document.addEventListener("DOMContentLoaded",function(){
+  var chk=setInterval(function(){if(window.sb){clearInterval(chk);window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session){location.replace("/");return;}_uid=s.data.session.user.id;_tok=s.data.session.access_token;dP(7);});}},200);
+  setTimeout(function(){clearInterval(chk);if(!_uid){document.getElementById("d-load").innerHTML="<div style='color:#ff2255;font-family:Rajdhani,sans-serif;font-size:18px'>Inicia sesi\u00F3n primero</div><br><a href='/' style='color:#ff2255'>Ir al inicio</a>";}},5000);
+});
+<\/script>
+<script>(function(){var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";s.onload=function(){if(!window.sb)window.sb=window.supabase.createClient("https://cdokplvoqivducsqrejt.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g");};document.head.appendChild(s);})();<\/script>
+</body>
+</html>

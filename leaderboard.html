@@ -3,217 +3,212 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET — Ranking</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#ff2255">
+<link rel="manifest" href="/manifest.json">
+<meta property="og:title" content="Leaderboard &mdash; SHADOWNET">
+<meta property="og:description" content="Los creadores y fans m&aacute;s activos de SHADOWNET">
+<meta name="description" content="Ranking de creadores y fans m&aacute;s activos de SHADOWNET">
+<title>SHADOWNET &mdash; Leaderboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh;padding-bottom:80px}
-header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,12,.97);border-bottom:1px solid #0d2744;display:flex;align-items:center;gap:12px}
-.logo{font-family:Orbitron,sans-serif;font-size:15px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
-.page-title{font-family:Orbitron,sans-serif;font-size:12px;color:#5a8aaa;letter-spacing:.1em}
-.wrap{max-width:700px;margin:0 auto;padding:20px 16px}
-.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:28px;padding:0 8px}
-.podium-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;max-width:130px}
-.podium-av{border-radius:50%;border:3px solid;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;overflow:hidden;cursor:pointer}
-.podium-av img{width:100%;height:100%;object-fit:cover}
-.p1 .podium-av{width:68px;height:68px;font-size:24px;border-color:#ffd700;background:linear-gradient(135deg,#ff2255,#800011)}
-.p2 .podium-av{width:56px;height:56px;font-size:20px;border-color:#c0c0c0;background:linear-gradient(135deg,#ff2255,#800011)}
-.p3 .podium-av{width:48px;height:48px;font-size:16px;border-color:#cd7f32;background:linear-gradient(135deg,#ff2255,#800011)}
-.podium-name{font-weight:700;font-size:12px;text-align:center;cursor:pointer;color:#e8f4ff}
-.podium-name:hover{color:#00e5ff}
-.podium-pts{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa}
-.podium-block{border-radius:8px 8px 0 0;width:100%}
-.p1 .podium-block{height:70px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3)}
-.p2 .podium-block{height:52px;background:rgba(192,192,192,.1);border:1px solid rgba(192,192,192,.2)}
-.p3 .podium-block{height:38px;background:rgba(205,127,50,.1);border:1px solid rgba(205,127,50,.2)}
-.medal{font-size:22px}
-.lb-list{background:rgba(7,15,30,.6);border:1px solid #0d2744;border-radius:12px;overflow:hidden;margin-bottom:20px}
-.lb-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid rgba(13,39,68,.4);cursor:pointer;transition:background .15s}
-.lb-item:hover{background:rgba(0,229,255,.04)}
-.lb-item.me{background:rgba(255,34,85,.06);border-left:3px solid #ff2255}
-.lb-pos{font-family:Orbitron,sans-serif;font-size:13px;color:#5a8aaa;width:26px;text-align:center;flex-shrink:0}
-.lb-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
-.lb-av img{width:100%;height:100%;object-fit:cover}
-.lb-info{flex:1;min-width:0}
-.lb-name{font-weight:700;font-size:14px;color:#e8f4ff}
-.lb-rank{font-size:11px;color:#5a8aaa;margin-top:1px}
-.lb-pts{font-family:Orbitron,sans-serif;font-size:14px;color:#ffaa00;flex-shrink:0}
-.lb-v{color:#00e5ff;font-size:12px;margin-left:3px}
-.my-rank-box{background:linear-gradient(135deg,rgba(255,34,85,.1),rgba(7,15,30,.6));border:1px solid rgba(255,34,85,.3);border-radius:12px;padding:16px;margin-bottom:20px;display:none}
-.my-rank-pos{font-family:Orbitron,sans-serif;font-size:32px;color:#ffaa00}
-.my-rank-bar{height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:10px}
-.my-rank-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ffaa00);border-radius:4px}
-.section-title{font-family:Orbitron,sans-serif;font-size:11px;color:#5a8aaa;letter-spacing:.12em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #0d2744}
-.empty{text-align:center;padding:32px;color:#5a8aaa}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(7,15,30,.95);border:1px solid #00ff88;color:#00ff88;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;display:none;white-space:nowrap}
-.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080e1a;color:#e0e8f0;font-family:Inter,sans-serif;min-height:100vh;padding-bottom:90px}
+.sn-hd{display:flex;align-items:center;padding:16px;background:#080e1a;border-bottom:1px solid #0d2744;position:sticky;top:0;z-index:100;gap:12px}
+.sn-hd-back{background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:8px}
+.sn-hd-title{font-family:Rajdhani,sans-serif;font-weight:900;font-size:20px;color:#fff;flex:1}
+.sn-tabs{display:flex;background:#0d0d1a;border-bottom:1px solid #1a1a2e;overflow-x:auto}
+.sn-tab{flex:1;padding:12px 8px;background:none;border:none;color:#555;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid transparent;min-width:80px}
+.sn-tab.active{color:#ff2255;border-bottom-color:#ff2255}
+.sn-section{display:none;padding:16px}
+.sn-section.active{display:block}
+.sn-card{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:16px;overflow:hidden;margin-bottom:12px}
+.sn-lb-top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:16px 16px 0;margin-bottom:8px}
+.sn-lb-podium{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.sn-lb-podium.p1{order:2}.sn-lb-podium.p2{order:1}.sn-lb-podium.p3{order:3}
+.sn-lb-av-wrap{position:relative}
+.sn-lb-av{width:60px;height:60px;border-radius:50%;object-fit:cover;border:3px solid #1a1a2e}
+.sn-lb-av.p1{width:76px;height:76px;border-color:#ffd700}
+.sn-lb-av.p2{border-color:#c0c0c0}
+.sn-lb-av.p3{border-color:#cd7f32}
+.sn-lb-crown{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:18px}
+.sn-lb-medal{font-size:16px}
+.sn-lb-pname{font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;color:#fff;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sn-lb-pval{font-size:11px;color:#888;font-family:Rajdhani,sans-serif}
+.sn-lb-list{padding:0 8px 8px}
+.sn-lb-row{display:flex;align-items:center;gap:12px;padding:10px 8px;border-bottom:1px solid #1a1a2e;cursor:pointer;transition:background .15s;border-radius:8px}
+.sn-lb-row:last-child{border-bottom:none}
+.sn-lb-row:hover{background:rgba(255,34,85,.04)}
+.sn-lb-num{font-family:Rajdhani,sans-serif;font-weight:900;font-size:16px;color:#333;width:24px;text-align:center}
+.sn-lb-av-sm{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #1a1a2e;flex-shrink:0}
+.sn-lb-info{flex:1;min-width:0}
+.sn-lb-name{font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:#ccc}
+.sn-lb-sub{font-size:11px;color:#555;font-family:Rajdhani,sans-serif}
+.sn-lb-val{font-family:Rajdhani,sans-serif;font-weight:800;color:#ff2255;font-size:15px}
+.sn-lb-badge{font-size:18px}
+.sn-loading{text-align:center;padding:40px;color:#333;font-family:Rajdhani,sans-serif;font-size:14px}
+/* NOTIF */
+.sn-nb{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:color .2s}.sn-nb:hover{color:#fff}.sn-nbc{position:absolute;top:2px;right:8px;background:#ff2255;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:900;display:none;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;border:1.5px solid #000}.sn-nbc.on{display:flex}.sn-np{position:fixed;top:0;right:0;width:min(360px,100vw);height:100vh;background:#111;z-index:9998;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;border-left:1px solid #1a1a2e}.sn-np.open{transform:translateX(0)}.sn-nov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9997;display:none}.sn-nov.on{display:block}.sn-nh{display:flex;align-items:center;padding:16px;border-bottom:1px solid #1a1a2e;flex-shrink:0}.sn-nht{flex:1;font-family:Rajdhani,sans-serif;font-weight:900;font-size:18px;color:#fff}.sn-nmr{background:none;border:1px solid #1a1a2e;color:#666;border-radius:8px;padding:4px 10px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;cursor:pointer}.sn-ncl{background:none;border:none;color:#555;font-size:22px;cursor:pointer;padding:0 4px;margin-left:8px}.sn-nl{flex:1;overflow-y:auto;padding:4px 0}.sn-ni{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #0d0d1a;cursor:pointer}.sn-ni.u{background:rgba(255,34,85,.04);border-left:3px solid #ff2255}.sn-nic{width:40px;height:40px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}.sn-nid{flex:1;min-width:0}.sn-nit{font-size:13px;color:#ccc;line-height:1.4}.sn-niz{font-size:11px;color:#555;font-family:Rajdhani,sans-serif}.sn-nem{text-align:center;padding:40px 20px;color:#333;font-family:Rajdhani,sans-serif}
+/* NAV */
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#0a0f1c;border-top:1px solid #0d2744;display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:900}
 .sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}
-.sn-bn-item:hover,.sn-bn-active,.sn-bn-active .sn-bn-icon,.sn-bn-active .sn-bn-lbl{color:#ff2255!important}
-.sn-bn-icon{font-size:22px;line-height:1}.sn-bn-lbl{font-size:9px}.sn-bn-plus{padding:4px 8px!important}
-.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
-.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800}
-.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-@media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none}}
+.sn-bn-item:hover,.sn-bn-item.active{color:#ff2255}
+.sn-bn-icon{font-size:22px;line-height:1}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 </style>
 </head>
 <body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
-  <span class="page-title">RANKING FANS</span>
-</header>
-<div class="wrap">
-  <div class="section-title">&#127942; TOP 3</div>
-  <div class="podium" id="podium"><div style="text-align:center;padding:30px;color:#5a8aaa;width:100%">Cargando...</div></div>
-  <div class="my-rank-box" id="myRankBox">
-    <div class="section-title" style="margin-bottom:10px">&#128100; TU POSICIÓN</div>
-    <div style="display:flex;align-items:center;gap:16px">
-      <div class="my-rank-pos" id="myPos">#-</div>
-      <div><div style="font-weight:700;font-size:15px;color:#e8f4ff" id="myRankName">Cargando...</div><div style="font-size:12px;color:#5a8aaa" id="myRankPts">0 puntos</div></div>
-    </div>
-    <div class="my-rank-bar"><div class="my-rank-fill" id="myRankFill" style="width:0%"></div></div>
-    <div style="font-size:11px;color:#5a8aaa;margin-top:6px" id="myRankNext"></div>
-  </div>
-  <div class="section-title">&#128101; RANKING COMPLETO</div>
-  <div class="lb-list" id="lbList"><div class="empty">Cargando...</div></div>
+<div class="sn-hd">
+  <button class="sn-hd-back" onclick="history.back()">&#8592;</button>
+  <div class="sn-hd-title">&#127942; Leaderboard</div>
 </div>
-<div class="toast" id="toast"></div>
-<nav class="sn-bottom-nav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+
+<div class="sn-tabs">
+  <button class="sn-tab active" onclick="snLBTab('creators',this)">Creadores</button>
+  <button class="sn-tab" onclick="snLBTab('fans',this)">Fans</button>
+  <button class="sn-tab" onclick="snLBTab('earners',this)">Ganancias</button>
+</div>
+
+<!-- CREATORS -->
+<div class="sn-section active" id="lb-creators">
+  <div class="sn-card">
+    <div class="sn-lb-top" id="lb-c-podium"><div class="sn-loading">Cargando...</div></div>
+    <div class="sn-lb-list" id="lb-c-list"></div>
+  </div>
+</div>
+
+<!-- FANS -->
+<div class="sn-section" id="lb-fans">
+  <div class="sn-card">
+    <div class="sn-lb-top" id="lb-f-podium"><div class="sn-loading">Cargando...</div></div>
+    <div class="sn-lb-list" id="lb-f-list"></div>
+  </div>
+</div>
+
+<!-- EARNERS -->
+<div class="sn-section" id="lb-earners">
+  <div class="sn-card">
+    <div class="sn-lb-top" id="lb-e-podium"><div class="sn-loading">Cargando...</div></div>
+    <div class="sn-lb-list" id="lb-e-list"></div>
+  </div>
+</div>
+
+<nav class="sn-bottom-nav" id="snBottomNav">
+  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-icon">&#127968;</span>Feed</a>
+  <a class="sn-bn-item" href="/search.html"><span class="sn-bn-icon">&#128269;</span>Buscar</a>
+  <a class="sn-bn-item active" href="/leaderboard.html"><span class="sn-bn-icon">&#127942;</span>Ranking</a>
+  <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span>Mensajes</a>
+  <a class="sn-bn-item" href="/profile.html"><span class="sn-bn-icon">&#128100;</span>Perfil</a>
+  <button class="sn-nb" id="sn-nb" onclick="snNO()"><span style="font-size:20px">&#128276;</span><div class="sn-nbc" id="sn-nbc"></div>NOTIF</button>
 </nav>
+
+<div class="sn-nov" id="sn-nov" onclick="snNC()"></div>
+<div class="sn-np" id="sn-np">
+  <div class="sn-nh"><div class="sn-nht">Notificaciones</div><button class="sn-nmr" onclick="snNMR()">Todo le&iacute;do</button><button class="sn-ncl" onclick="snNC()">&#10005;</button></div>
+  <div class="sn-nl" id="sn-nl"><div class="sn-nem">Cargando...</div></div>
+</div>
+
 <script>
-var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
-var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
-var currentUser=null;
-
-sb.auth.getSession().then(function(r){
-  if(r.data.session)currentUser=r.data.session.user;
-  loadLeaderboard();
-  initNav();
-});
-
-async function loadLeaderboard(){
-  var r=await sb.from('profiles')
-    .select('id,username,avatar_url,fan_points,fan_rank,fan_rank_name,verification_status')
-    .order('fan_points',{ascending:false}).limit(50);
-  if(r.error||!r.data){document.getElementById('lbList').innerHTML='<div class="empty">Error cargando ranking</div>';return;}
-  var data=r.data;
-  // Podium top 3
-  buildPodium(data.slice(0,3));
-  // My rank
-  if(currentUser){
-    var myIdx=data.findIndex(function(u){return u.id===currentUser.id;});
-    if(myIdx>-1) showMyRank(data[myIdx],myIdx+1);
-  }
-  // Full list
-  buildList(data);
-}
-
-function buildPodium(top){
-  var podium=document.getElementById('podium');
-  podium.innerHTML='';
-  if(!top.length){podium.innerHTML='<div style="text-align:center;padding:30px;color:#5a8aaa;width:100%">Sin datos aún</div>';return;}
-  var order=[1,0,2];
-  var medals=['🥈','🥇','🥉'];
-  var cls=['p2','p1','p3'];
-  order.forEach(function(idx){
-    if(!top[idx])return;
-    var u=top[idx];
-    var item=document.createElement('div');item.className='podium-item '+cls[order.indexOf(idx)];
-    var medal=document.createElement('div');medal.className='medal';medal.textContent=medals[idx];
-    var av=document.createElement('div');av.className='podium-av';
-    if(u.avatar_url){var img=document.createElement('img');img.src=u.avatar_url;av.appendChild(img);}
-    else av.textContent=(u.username||'?')[0].toUpperCase();
-    av.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
-    var name=document.createElement('div');name.className='podium-name';name.textContent='@'+u.username;
-    name.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
-    var pts=document.createElement('div');pts.className='podium-pts';pts.textContent=(u.fan_points||0)+' pts';
-    var block=document.createElement('div');block.className='podium-block';
-    item.appendChild(medal);item.appendChild(av);item.appendChild(name);item.appendChild(pts);item.appendChild(block);
-    podium.appendChild(item);
+var _SBL="https://cdokplvoqivducsqrejt.supabase.co",_AKL="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTk4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g",_NU=null,_NT=null,_NCh=null;
+// Tabs
+window.snLBTab=function(id,btn){
+  document.querySelectorAll(".sn-section").forEach(function(s){s.classList.remove("active");});
+  document.querySelectorAll(".sn-tab").forEach(function(b){b.classList.remove("active");});
+  document.getElementById("lb-"+id).classList.add("active");
+  btn.classList.add("active");
+  if(id==="creators"&&!window._lbC)snLBCreators();
+  if(id==="fans"&&!window._lbF)snLBFans();
+  if(id==="earners"&&!window._lbE)snLBEarners();
+};
+function snAvSrc(u){return u||("https://api.dicebear.com/7.x/personas/svg?seed="+(Math.random().toString(36).slice(2)));}
+function snPodium(podEl,listEl,items,valFn,subFn){
+  podEl.innerHTML="";
+  var top3=items.slice(0,3),rest=items.slice(3);
+  var medals=["\uD83E\uDD47","\uD83E\uDD48","\uD83E\uDD49"],crowns=["\uD83D\uDC51","",""],pClasses=["p1","p2","p3"];
+  top3.forEach(function(u,i){
+    var p=document.createElement("div");p.className="sn-lb-podium "+pClasses[i];
+    p.onclick=function(){if(u.username)location.href="profile.html?u="+encodeURIComponent(u.username);};
+    var aw=document.createElement("div");aw.className="sn-lb-av-wrap";
+    if(i===0){var cr=document.createElement("div");cr.className="sn-lb-crown";cr.textContent=crowns[0];aw.appendChild(cr);}
+    var av=document.createElement("img");av.className="sn-lb-av "+pClasses[i];
+    av.src=snAvSrc(u.avatar_url);aw.appendChild(av);
+    var md=document.createElement("div");md.className="sn-lb-medal";md.textContent=medals[i];
+    var nm=document.createElement("div");nm.className="sn-lb-pname";nm.textContent="@"+(u.username||"?");
+    var vl=document.createElement("div");vl.className="sn-lb-pval";vl.textContent=valFn(u);
+    p.appendChild(aw);p.appendChild(md);p.appendChild(nm);p.appendChild(vl);
+    podEl.appendChild(p);
+  });
+  listEl.innerHTML="";
+  rest.forEach(function(u,i){
+    var row=document.createElement("div");row.className="sn-lb-row";
+    row.onclick=function(){if(u.username)location.href="profile.html?u="+encodeURIComponent(u.username);};
+    var num=document.createElement("div");num.className="sn-lb-num";num.textContent=i+4;
+    var av=document.createElement("img");av.className="sn-lb-av-sm";av.src=snAvSrc(u.avatar_url);
+    var info=document.createElement("div");info.className="sn-lb-info";
+    var nm=document.createElement("div");nm.className="sn-lb-name";nm.textContent="@"+(u.username||"?");
+    var sb=document.createElement("div");sb.className="sn-lb-sub";sb.textContent=subFn(u);
+    info.appendChild(nm);info.appendChild(sb);
+    var vl=document.createElement("div");vl.className="sn-lb-val";vl.textContent=valFn(u);
+    row.appendChild(num);row.appendChild(av);row.appendChild(info);row.appendChild(vl);
+    listEl.appendChild(row);
   });
 }
-
-function buildList(data){
-  var list=document.getElementById('lbList');
-  list.innerHTML='';
-  if(!data.length){list.innerHTML='<div class="empty">Sin usuarios aún</div>';return;}
-  data.forEach(function(u,i){
-    var item=document.createElement('div');item.className='lb-item'+(currentUser&&u.id===currentUser.id?' me':'');
-    item.addEventListener('click',function(){window.location.href='/profile.html?u='+u.username;});
-    var pos=document.createElement('div');pos.className='lb-pos';pos.textContent='#'+(i+1);
-    var av=document.createElement('div');av.className='lb-av';
-    if(u.avatar_url){var img=document.createElement('img');img.src=u.avatar_url;av.appendChild(img);}
-    else av.textContent=(u.username||'?')[0].toUpperCase();
-    var info=document.createElement('div');info.className='lb-info';
-    var nm=document.createElement('div');nm.className='lb-name';nm.textContent='@'+u.username;
-    if(u.verification_status==='verified'){var vb=document.createElement('span');vb.className='lb-v';vb.textContent='✓';nm.appendChild(vb);}
-    var rk=document.createElement('div');rk.className='lb-rank';rk.textContent='⭐ Lv.'+(u.fan_rank||1)+' '+(u.fan_rank_name||'Sombra');
-    info.appendChild(nm);info.appendChild(rk);
-    var pts=document.createElement('div');pts.className='lb-pts';pts.textContent=(u.fan_points||0);
-    item.appendChild(pos);item.appendChild(av);item.appendChild(info);item.appendChild(pts);
-    list.appendChild(item);
-  });
+function snLBCreators(){
+  window._lbC=true;
+  var pod=document.getElementById("lb-c-podium"),lst=document.getElementById("lb-c-list");
+  fetch(_SBL+"/rest/v1/profiles?is_creator=eq.true&select=id,username,avatar_url,follower_count,subscriber_count&order=follower_count.desc&limit=15",{headers:{"apikey":_AKL}})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    d=d||[];
+    if(!d.length){pod.innerHTML='<div class="sn-loading">Sin datos a\u00FAn</div>';return;}
+    snPodium(pod,lst,d,function(u){return (u.follower_count||0)+" seguidores";},function(u){return (u.subscriber_count||0)+" subs";});
+  }).catch(function(){pod.innerHTML='<div class="sn-loading">Error cargando</div>';});
 }
-
-function showMyRank(u,pos){
-  var box=document.getElementById('myRankBox');box.style.display='block';
-  document.getElementById('myPos').textContent='#'+pos;
-  document.getElementById('myRankName').textContent='⭐ '+(u.fan_rank_name||'Sombra')+' Lv.'+(u.fan_rank||1);
-  document.getElementById('myRankPts').textContent=(u.fan_points||0)+' puntos';
-  var pct=Math.min(100,(u.fan_points||0)%100);
-  document.getElementById('myRankFill').style.width=pct+'%';
-  var next=Math.ceil(((u.fan_points||0)+1)/100)*100;
-  document.getElementById('myRankNext').textContent='Próximo nivel en '+(next-(u.fan_points||0))+' pts';
+function snLBFans(){
+  window._lbF=true;
+  var pod=document.getElementById("lb-f-podium"),lst=document.getElementById("lb-f-list");
+  // Top fans by total points across all creators
+  fetch(_SBL+"/rest/v1/fan_memberships?select=fan_id,points,profiles!fan_memberships_fan_id_fkey(id,username,avatar_url)&order=points.desc&limit=15",{headers:{"apikey":_AKL,"Accept":"application/vnd.pgrst.object+json"}})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    d=d||[];
+    var items=d.map(function(x){var p=x.profiles||{};return {username:p.username,avatar_url:p.avatar_url,points:x.points};});
+    if(!items.length){pod.innerHTML='<div class="sn-loading">Sin datos a\u00FAn</div>';return;}
+    snPodium(pod,lst,items,function(u){return (u.points||0)+" pts";},function(u){return "Fan activo";});
+  }).catch(function(){pod.innerHTML='<div class="sn-loading">Error cargando</div>';});
 }
-
-function showToast(msg,err){
-  var t=document.getElementById('toast');
-  t.textContent=msg;t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';
-  t.style.display='block';setTimeout(function(){t.style.display='none';},3000);
+function snLBEarners(){
+  window._lbE=true;
+  var pod=document.getElementById("lb-e-podium"),lst=document.getElementById("lb-e-list");
+  // Top earners by coins_balance (almas earned)
+  fetch(_SBL+"/rest/v1/profiles?is_creator=eq.true&select=id,username,avatar_url,coins_balance&order=coins_balance.desc&limit=15",{headers:{"apikey":_AKL}})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    d=d||[];
+    if(!d.length){pod.innerHTML='<div class="sn-loading">Sin datos a\u00FAn</div>';return;}
+    snPodium(pod,lst,d,function(u){return (u.coins_balance||0)+" Almas";},function(u){return "Creador";});
+  }).catch(function(){pod.innerHTML='<div class="sn-loading">Error cargando</div>';});
 }
-
-function initNav(){
-  var _s=window.sb||supabase.createClient(SB_URL,SB_KEY);
-  _s.auth.getSession().then(function(r){
-    var a=document.getElementById('snNavAv');if(!a||!r.data||!r.data.session)return;
-    _s.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){
-      if(!p.data)return;
-      if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-      else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();
-    });
-  });
-}
-</script>
-
-
-<!-- Auth guard v3 - uses shared sb client -->
-<script>
+// NOTIF
+var _NB="https://cdokplvoqivducsqrejt.supabase.co",_NK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTk4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g";
+function snNTA(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);return s<60?"ahora":s<3600?Math.floor(s/60)+"m":s<86400?Math.floor(s/3600)+"h":Math.floor(s/86400)+"d";}
+function snNSB(n){var b=document.getElementById("sn-nbc");if(!b)return;if(n>0){b.textContent=n>9?"9+":n;b.classList.add("on");}else{b.classList.remove("on");b.textContent="";}}
+function snNL(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/notifications?user_id=eq."+_NU+"&order=created_at.desc&limit=20",{headers:{"apikey":_NK,"Authorization":"Bearer "+_NT}}).then(function(r){return r.json();}).then(function(ns){ns=ns||[];var el=document.getElementById("sn-nl");if(!el)return;el.innerHTML="";if(!ns.length){var e=document.createElement("div");e.className="sn-nem";e.textContent="No hay notificaciones";el.appendChild(e);return;}ns.forEach(function(n){var it=document.createElement("div");it.className="sn-ni"+(n.is_read?"":" u");it.onclick=function(){if(n.from_username)location.href="profile.html?u="+encodeURIComponent(n.from_username);else snNC();};var ic=document.createElement("div");ic.className="sn-nic";ic.textContent="\uD83D\uDD14";var ct=document.createElement("div");ct.className="sn-nid";var tx=document.createElement("div");tx.className="sn-nit";tx.textContent=n.title||n.message||"";var ti=document.createElement("div");ti.className="sn-niz";ti.textContent=snNTA(n.created_at);ct.appendChild(tx);ct.appendChild(ti);it.appendChild(ic);it.appendChild(ct);el.appendChild(it);});var u=ns.filter(function(n){return !n.is_read;}).length;snNSB(u);}).catch(function(){});}
+window.snNO=function(){document.getElementById("sn-np").classList.add("open");document.getElementById("sn-nov").classList.add("on");snNL();};
+window.snNC=function(){document.getElementById("sn-np").classList.remove("open");document.getElementById("sn-nov").classList.remove("on");};
+window.snNMR=function(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/rpc/mark_notifications_read",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(){snNL();}).catch(function(){});};
 (function(){
-  function doCheck(){
-    var client = window.sb;
-    if(!client){ setTimeout(doCheck,200); return; }
-    client.auth.getSession().then(function(res){
-      if(res.data && res.data.session) return; // logged in, do nothing
-      // Not logged in yet - wait 800ms for token refresh before redirecting
-      setTimeout(function(){
-        client.auth.getSession().then(function(res2){
-          if(!res2.data || !res2.data.session) window.location.replace('/');
-        });
-      }, 800);
+  function init(){
+    if(!window.sb){setTimeout(init,400);return;}
+    window.sb.auth.getSession().then(function(s){
+      if(s.data&&s.data.session){_NU=s.data.session.user.id;_NT=s.data.session.access_token;fetch(_NB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});}
     });
   }
-  // Delay to ensure main scripts have run and window.sb is set
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){ setTimeout(doCheck,400); });
-  } else {
-    setTimeout(doCheck,400);
-  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(init,600);});else setTimeout(init,600);
+  // Load first tab
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){snLBCreators();});else snLBCreators();
 })();
-</script>
+<\/script>
 </body>
 </html>

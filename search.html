@@ -73,7 +73,23 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 /* SH */
 .sn-hr{display:flex;flex-direction:column;gap:12px;margin-top:8px}.sn-hrp{background:#111;border:1px solid #1a1a2e;border-radius:14px;padding:14px;cursor:pointer;transition:border-color .2s}.sn-hrp:hover{border-color:#ff2255}.sn-htxt{color:#aaa;font-size:13px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:6px}.sn-hpill{display:inline-flex;align-items:center;gap:5px;background:rgba(0,200,255,.08);border:1px solid rgba(0,200,255,.2);color:#00c8ff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;font-family:Rajdhani,sans-serif;cursor:pointer;margin:3px}.sn-stitle{font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px}.sn-stabs{display:flex;background:rgba(7,15,30,.5);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px}.sn-stab{flex:1;padding:7px 0;text-align:center;border-radius:8px;border:none;background:none;color:#555;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s}.sn-stab.active{background:rgba(255,34,85,.15);color:#ff2255}
 
+
+/* LT2 */
+.sn-live-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120px);z-index:99999;background:#111;border:1.5px solid #ff2255;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;min-width:280px;max-width:360px;box-shadow:0 8px 32px rgba(255,34,85,.25);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;opacity:0;pointer-events:none}
+.sn-live-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
+.sn-lt2-av{width:44px;height:44px;border-radius:50%;border:2px solid #ff2255;object-fit:cover;flex-shrink:0}
+.sn-lt2-dot{width:8px;height:8px;border-radius:50%;background:#ff2255;animation:sn-pulse 1.2s infinite;flex-shrink:0}
+.sn-lt2-info{flex:1;min-width:0}
+.sn-lt2-name{font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sn-lt2-msg{font-size:12px;color:#888;margin-top:2px}
+.sn-lt2-btn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;white-space:nowrap}
+@keyframes sn-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
 </style>
+
+<meta property="og:title" content="Buscar &mdash; SHADOWNET">
+<meta property="og:description" content="Busca creadores, posts y hashtags en SHADOWNET.">
+<meta name="description" content="Busca creadores, posts y hashtags en SHADOWNET.">
 </head>
 <body>
 <header>
@@ -319,6 +335,32 @@ function snSP(q){fetch(_SB+"/rest/v1/posts?content=ilike."+_W+encodeURIComponent
 function snLoadTrending(){fetch(_SB+"/rest/v1/hashtags?order=post_count.desc&limit=15&select=name,post_count",{headers:_H}).then(function(r){return r.json();}).then(function(d){var el=document.querySelector(".trending-tags,.tags-container");if(!el||!d||!d.length)return;var h="";d.forEach(function(x){h+="<div class=\"sn-hpill\" data-htag=\""+_e(x.name)+"\">#"+_e(x.name)+"<span style=\"color:#555;font-size:10px\">"+x.post_count+"</span></div>";});el.innerHTML=h;}).catch(function(){});}
 document.addEventListener("click",function(e){var p=e.target&&e.target.closest&&e.target.closest(".sn-hpill");if(p&&p.dataset&&p.dataset.htag){location.href="?q="+encodeURIComponent("#"+p.dataset.htag);return;}var card=e.target&&e.target.closest&&e.target.closest(".sn-hrp");if(card&&card.dataset.href){location.href=card.dataset.href;}});
 document.addEventListener("DOMContentLoaded",function(){var params=new URLSearchParams(location.search),q=params.get("q")||"";var inp=document.getElementById("searchInp");if(q&&inp){inp.value=q;setTimeout(function(){snDoSearch(q);},400);}snLoadTrending();if(inp){inp.addEventListener("input",function(){clearTimeout(_sT);var v=inp.value.trim();_sT=setTimeout(function(){if(v.length>1)snDoSearch(v);},450);});inp.addEventListener("keydown",function(ev){if(ev.key==="Enter"){clearTimeout(_sT);snDoSearch(inp.value.trim());}});}var wrap=document.querySelector(".wrap,main");if(wrap&&!document.getElementById("sn-stabs-el")){var tabs=document.createElement("div");tabs.id="sn-stabs-el";tabs.className="sn-stabs";var td=[["all","Todo"],["hashtags","# Hash"],["creators","Creadores"],["posts","Posts"]];tabs.innerHTML=td.map(function(t,i){return "<button class=\"sn-stab"+(i===0?" active":"")+"\" data-mode=\""+t[0]+"\" onclick=\"snSearchTab(this.dataset.mode)\">"+t[1]+"</button>";}).join("");var tr=document.querySelector(".trending-tags,.tabs");if(tr&&tr.parentNode)tr.parentNode.insertBefore(tabs,tr);else wrap.insertBefore(tabs,wrap.firstChild);}});
+</script>
+<script>
+(function(){
+  var SB="https://cdokplvoqivducsqrejt.supabase.co";
+  var AK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTg4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g";
+  var _q=[],_show=false,_cnt=0,_uid=null;
+  function _mk(){if(document.getElementById("sn-lt2"))return;var e=document.createElement("div");e.id="sn-lt2";e.className="sn-live-toast";var i=document.createElement("img");i.id="sn-lt2-av";i.className="sn-lt2-av";i.src="";var d=document.createElement("span");d.className="sn-lt2-dot";var inf=document.createElement("div");inf.className="sn-lt2-info";var nm=document.createElement("div");nm.id="sn-lt2-nm";nm.className="sn-lt2-name";var mg=document.createElement("div");mg.id="sn-lt2-mg";mg.className="sn-lt2-msg";mg.textContent="\u00A1\u00DAnete al live!";inf.appendChild(nm);inf.appendChild(mg);var btn=document.createElement("button");btn.className="sn-lt2-btn";btn.textContent="Ver live";btn.onclick=window.snJoinLT2;var cls=document.createElement("button");cls.style.cssText="position:absolute;top:6px;right:10px;background:none;border:none;color:#555;cursor:pointer;font-size:14px;padding:2px 4px";cls.textContent="\u00D7";cls.onclick=window.snDismissLT2;e.appendChild(i);e.appendChild(d);e.appendChild(inf);e.appendChild(btn);e.appendChild(cls);document.body.appendChild(e);}
+  function _showT(n){
+    _mk();
+    var e=document.getElementById("sn-lt2"),d=(n&&n.data)||{};
+    if(!e)return;
+    var av=document.getElementById("sn-lt2-av");
+    if(av)av.src=d.host_avatar||("https://api.dicebear.com/7.x/personas/svg?seed="+(d.host_username||"u"));
+    var nm=document.getElementById("sn-lt2-nm");
+    if(nm)nm.textContent=(d.host_username||"Alguien")+" est\u00E1 EN VIVO";
+    e._hi=d.host_id||"";e._ch=d.channel||d.host_id||"";
+    e.classList.add("show");_show=true;
+    clearTimeout(window._lt2t);window._lt2t=setTimeout(window.snDismissLT2,8000);
+  }
+  window.snDismissLT2=function(){var e=document.getElementById("sn-lt2");if(e)e.classList.remove("show");_show=false;clearTimeout(window._lt2t);if(_q.length)setTimeout(function(){_showT(_q.shift());},400);};
+  window.snJoinLT2=function(){var e=document.getElementById("sn-lt2");if(!e)return;snDismissLT2();location.href="live.html?mode=viewer&host="+(e._hi||"")+"&ch="+(e._ch||"");};
+  function _badge(n){_cnt=n;document.querySelectorAll("[data-page=notifications],[href*=notif],#notif-nav-btn,.nav-notif-btn").forEach(function(b){var ex=b.querySelector(".sn-ncb");if(n>0){b.style.position="relative";if(!ex){var d=document.createElement("span");d.className="sn-ncb";d.style.cssText="position:absolute;top:-4px;right:-4px;background:#ff2255;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;border:1.5px solid #0a0a0f;line-height:1";b.appendChild(d);ex=d;}ex.textContent=n>9?"9+":String(n);ex.style.display="flex";}else if(ex)ex.style.display="none";});}
+  function _init(){if(!window.sb)return;window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;_uid=s.data.session.user.id;var tok=s.data.session.access_token;fetch(SB+"/rest/v1/notifications?user_id=eq."+_uid+"&is_read=eq.false&select=id",{headers:{"apikey":AK,"Authorization":"Bearer "+tok,"Prefer":"count=exact","Range":"0-0"}}).then(function(r){_badge(parseInt((r.headers.get("Content-Range")||"0/0").split("/")[1]||"0",10)||0);}).catch(function(){});window.sb.channel("lt2-"+_uid).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_uid},function(p){var n=p.new;if(!n)return;_badge(_cnt+1);if(n.type==="live_started"){var dd=typeof n.data==="string"?JSON.parse(n.data||"{}"):(n.data||{});n.data=dd;if(_show)_q.push(n);else _showT(n);}}).subscribe();}).catch(function(){});}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(_init,600);});
+  else setTimeout(_init,600);
+})();
 </script>
 </body>
 </html>

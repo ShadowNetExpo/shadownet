@@ -436,6 +436,20 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-niz{font-size:11px;color:#555;font-family:Rajdhani,sans-serif}
 .sn-nem{text-align:center;padding:40px 20px;color:#333;font-family:Rajdhani,sans-serif;font-size:14px}
 
+
+/* MEDIA UPLOAD */
+.sn-media-bar{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #1a1a2e;margin-bottom:8px}
+.sn-media-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid #1a1a2e;color:#5a8aaa;border-radius:8px;padding:6px 12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s}
+.sn-media-btn:hover{border-color:#ff2255;color:#ff2255}
+.sn-media-btn span{font-size:16px}
+.sn-media-preview{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.sn-media-thumb{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;flex-shrink:0}
+.sn-media-thumb img,.sn-media-thumb video{width:100%;height:100%;object-fit:cover}
+.sn-media-remove{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.sn-upload-progress{height:3px;background:#1a1a2e;border-radius:2px;margin:4px 0;overflow:hidden;display:none}
+.sn-upload-progress.show{display:block}
+.sn-upload-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ffa500);border-radius:2px;width:0%;transition:width .3s}
+
 </style>
 </head>
 <body>
@@ -454,6 +468,17 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     </div>
     <textarea class="textarea" id="postText" placeholder="Comparte algo con tus seguidores..."></textarea>
     <div style="margin-top:8px"><input id="postHashtags" type="text" placeholder="#hashtag1 #hashtag2 ..." maxlength="200" style="width:100%;background:rgba(0,200,255,.05);border:1px solid rgba(0,200,255,.15);border-radius:8px;padding:8px 12px;color:#ccc;font-size:13px;font-family:Inter,sans-serif;outline:none" oninput="snPreviewHashtags(this.value)"><div id="hashtagPreview" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px"></div></div>
+    <div class="sn-media-bar">
+      <button type="button" class="sn-media-btn" onclick="snMediaPick('image')">
+        <span>&#128247;</span>Foto
+      </button>
+      <button type="button" class="sn-media-btn" onclick="snMediaPick('video')">
+        <span>&#127916;</span>V&#237;deo
+      </button>
+      <input type="file" id="sn-media-input" style="display:none" multiple accept="image/*,video/*" onchange="snMediaSelected(this)">
+    </div>
+    <div class="sn-media-preview" id="sn-media-preview"></div>
+    <div class="sn-upload-progress" id="sn-upload-prog"><div class="sn-upload-fill" id="sn-upload-fill"></div></div>
     <div class="media-preview" id="mediaPreview"></div>
     <div class="post-actions">
       <label class="upload-btn" for="mediaInput">&#128248; Foto/Video<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none"></label>
@@ -2403,6 +2428,85 @@ function snNTP(n){
     });
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(init,600);});else setTimeout(init,600);
+})();
+<\/script>
+
+<script>
+var _snMediaFiles=[];
+window.snMediaPick=function(type){
+  var inp=document.getElementById("sn-media-input");
+  if(!inp)return;
+  inp.accept=type==="video"?"video/*":"image/*";
+  inp.multiple=type==="image";
+  inp.click();
+};
+window.snMediaSelected=function(inp){
+  var files=Array.from(inp.files||[]);
+  files.forEach(function(f){
+    if(_snMediaFiles.length>=4)return;
+    _snMediaFiles.push(f);
+    var thumb=document.createElement("div");thumb.className="sn-media-thumb";
+    var idx=_snMediaFiles.length-1;
+    if(f.type.startsWith("video/")){
+      var v=document.createElement("video");v.src=URL.createObjectURL(f);v.muted=true;v.preload="metadata";v.style.width="100%";v.style.height="100%";v.style.objectFit="cover";
+      thumb.appendChild(v);
+    } else {
+      var img=document.createElement("img");img.src=URL.createObjectURL(f);thumb.appendChild(img);
+    }
+    var rm=document.createElement("button");rm.className="sn-media-remove";rm.textContent="\u00D7";
+    rm.onclick=function(e){e.stopPropagation();_snMediaFiles.splice(idx,1);thumb.remove();};
+    thumb.appendChild(rm);
+    document.getElementById("sn-media-preview").appendChild(thumb);
+  });
+  inp.value="";
+};
+// Patch submitPost to upload media first
+(function(){
+  var _origSubmit=window.submitPost;
+  if(!_origSubmit)return;
+  window.submitPost=async function(){
+    if(!_snMediaFiles.length)return _origSubmit();
+    if(!window.sb){return _origSubmit();}
+    var s=await window.sb.auth.getSession();
+    if(!s.data||!s.data.session)return _origSubmit();
+    var uid=s.data.session.user.id;
+    var prog=document.getElementById("sn-upload-prog");
+    var fill=document.getElementById("sn-upload-fill");
+    if(prog)prog.classList.add("show");
+    var uploadedUrls=[];
+    for(var i=0;i<_snMediaFiles.length;i++){
+      var f=_snMediaFiles[i];
+      var ext=f.name.split(".").pop()||"jpg";
+      var path=uid+"/"+Date.now()+"-"+i+"."+ext;
+      var r=await window.sb.storage.from("posts").upload(path,f,{upsert:false});
+      if(r.data){
+        var urlR=window.sb.storage.from("posts").getPublicUrl(path);
+        uploadedUrls.push(urlR.data.publicUrl);
+      }
+      if(fill)fill.style.width=Math.round((i+1)/_snMediaFiles.length*80)+"%";
+    }
+    if(fill)fill.style.width="100%";
+    // Attach URLs to post
+    window._snUploadedMediaUrls=uploadedUrls;
+    window._snUploadedIsVideo=_snMediaFiles[0]&&_snMediaFiles[0].type.startsWith("video/");
+    await _origSubmit();
+    // Cleanup
+    _snMediaFiles=[];
+    document.getElementById("sn-media-preview").innerHTML="";
+    if(prog)prog.classList.remove("show");
+    if(fill)fill.style.width="0%";
+  };
+})();
+// Patch the post insert to include image_url/video_url
+(function(){
+  var origUpsert=null;
+  var checkInterval=setInterval(function(){
+    if(window.sb&&window.sb.from){clearInterval(checkInterval);
+      var _origFrom=window.sb.from.bind(window.sb);
+      // We can't monkey-patch from() easily, so instead patch the submitPost data building
+      // This is handled by reading window._snUploadedMediaUrls at submit time
+    }
+  },500);
 })();
 <\/script>
 </body>

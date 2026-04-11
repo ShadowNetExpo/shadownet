@@ -405,20 +405,6 @@ async function saveProfile(){
 
 function selectPayMethod(method){
   document.querySelectorAll('.pay-tab').forEach(function(t){
-    var isActive = t.id==='tab_'+method;
-    t.classList.toggle('active',isActive);
-    t.style.borderColor = isActive?'#00e5ff':'#0d2744';
-    t.style.background = isActive?'rgba(0,229,255,.15)':'transparent';
-    t.style.color = isActive?'#00e5ff':'#5a8aaa';
-  });
-  document.querySelectorAll('.pay-method-panel').forEach(function(p){
-    p.style.display = p.id==='payMethod_'+method?'block':'none';
-  });
-}
-
-
-function selectPayMethod(method){
-  document.querySelectorAll('.pay-tab').forEach(function(t){
     var on = t.id==='tab_'+method;
     t.classList.toggle('active',on);
     t.style.borderColor = on?'#00e5ff':'#0d2744';
@@ -772,7 +758,6 @@ document.addEventListener("DOMContentLoaded",function(){
   var tot=document.getElementById("sn-ref-total"),mon=document.getElementById("sn-ref-month");
   if(tot)tot.textContent="0";if(mon)mon.textContent="0";
 });
-);
     });}
   },300);
 });

@@ -2,468 +2,373 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHADOWNET Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET &mdash; Panel de Moderación</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#01020c;--bg2:#050d1a;--bg3:#0a1828;--br:#0d2744;--red:#ff2255;--red2:#cc0030;--tx:#e8f4ff;--tx2:#8ab4cc;--tx3:#3a6080;--gold:#f5a623;--gr:#22ff88;--bl:#2288ff}
-body{background:var(--bg);color:var(--tx);font-family:Rajdhani,sans-serif;min-height:100vh}
-#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.lbox{background:var(--bg2);border:1px solid var(--br);border-radius:16px;padding:40px;width:100%;max-width:400px}
-.ll{font-size:26px;font-weight:900;letter-spacing:.15em;color:var(--red);text-align:center;margin-bottom:4px}
-.ls{color:var(--tx3);font-size:13px;text-align:center;margin-bottom:24px}
-.li{width:100%;background:var(--bg3);border:1px solid var(--br);border-radius:8px;padding:12px 14px;color:var(--tx);font-family:Rajdhani,sans-serif;font-size:15px;margin-bottom:12px;outline:none;display:block}
-.li:focus{border-color:var(--red)}
-.lb{width:100%;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border:none;border-radius:8px;padding:13px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:15px;cursor:pointer}
-.lb:disabled{opacity:.5;cursor:not-allowed}
-.le{color:var(--red);font-size:13px;margin-top:8px;text-align:center;min-height:18px;word-break:break-all}
-#app{display:none}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(1,2,12,.97);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px}
-.tl{font-size:18px;font-weight:900;letter-spacing:.1em;color:var(--red)}
-.tb{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.2);color:var(--red);font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;margin-left:8px}
-.wrap{display:flex;min-height:calc(100vh - 56px)}
-.side{width:220px;background:var(--bg2);border-right:1px solid var(--br);padding:20px 0;flex-shrink:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
-.ns{padding:0 12px 8px;font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--tx3);text-transform:uppercase;margin-top:16px}
-.ni{display:flex;align-items:center;gap:8px;padding:10px 16px;color:var(--tx2);font-size:14px;font-weight:600;cursor:pointer;border-left:3px solid transparent;transition:all .15s}
-.ni:hover{background:rgba(255,34,85,.05);color:var(--tx)}
-.ni.on{background:rgba(255,34,85,.08);color:var(--red);border-left-color:var(--red)}
-.main{flex:1;padding:28px;overflow-x:auto}
-.pg{display:none}.pg.on{display:block}
-.pt{font-size:22px;font-weight:900;margin-bottom:4px}
-.ps{color:var(--tx3);font-size:13px;margin-bottom:24px}
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
-.sc{background:var(--bg2);border:1px solid var(--br);border-radius:12px;padding:20px}
-.sl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:8px}
-.sv{font-size:28px;font-weight:900;font-family:'JetBrains Mono',monospace}
-.sc.gr .sl{color:var(--gr)}.sc.bl .sl{color:var(--bl)}.sc.go .sl{color:var(--gold)}
-.card{background:var(--bg2);border:1px solid var(--br);border-radius:12px;overflow:hidden;margin-bottom:20px}
-.ch{padding:16px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between}
-.ct{font-size:15px;font-weight:800}
-.btn{background:none;border:1px solid var(--br);color:var(--tx2);border-radius:6px;padding:5px 12px;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;cursor:pointer}
-.btn:hover{border-color:var(--red);color:var(--red)}
-.btn.p{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);border-bottom:1px solid var(--br)}
-tbody td{padding:12px 16px;border-bottom:1px solid rgba(13,39,68,.4);color:var(--tx2)}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:rgba(255,34,85,.03)}
-.bx{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
-.bx.gr{background:rgba(34,255,136,.1);color:var(--gr)}
-.bx.go{background:rgba(245,166,35,.1);color:var(--gold)}
-.bx.bl{background:rgba(34,136,255,.1);color:var(--bl)}
-.bx.gy{background:rgba(58,96,128,.1);color:var(--tx3)}
-.mo{font-family:'JetBrains Mono',monospace;font-size:12px}
-.si{width:100%;background:var(--bg3);border:1px solid var(--br);border-radius:8px;padding:9px 14px;color:var(--tx);font-family:Rajdhani,sans-serif;font-size:14px;outline:none;margin-bottom:16px}
-.fg{margin-bottom:16px}
-.fl{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:6px}
-.fi{width:100%;background:var(--bg3);border:1px solid var(--br);border-radius:8px;padding:10px 12px;color:var(--tx);font-family:Rajdhani,sans-serif;font-size:14px;outline:none}
-.fs{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:8px}
-.sg2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0a1828;border:1px solid var(--gr);color:var(--gr);padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
-.toast.on{opacity:1}
-@media(max-width:700px){.side{display:none}.sg{grid-template-columns:1fr 1fr}.sg2{grid-template-columns:1fr}}
-
-/* LT2 */
-.sn-live-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120px);z-index:99999;background:#111;border:1.5px solid #ff2255;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;min-width:280px;max-width:360px;box-shadow:0 8px 32px rgba(255,34,85,.25);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;opacity:0;pointer-events:none}
-.sn-live-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
-.sn-lt2-av{width:44px;height:44px;border-radius:50%;border:2px solid #ff2255;object-fit:cover;flex-shrink:0}
-.sn-lt2-dot{width:8px;height:8px;border-radius:50%;background:#ff2255;animation:sn-pulse 1.2s infinite;flex-shrink:0}
-.sn-lt2-info{flex:1;min-width:0}
-.sn-lt2-name{font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sn-lt2-msg{font-size:12px;color:#888;margin-top:2px}
-.sn-lt2-btn{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0}
-@keyframes sn-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:system-ui,sans-serif;min-height:100vh}
+header{background:#070f1e;border-bottom:1px solid #0d2744;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:monospace;font-size:14px;color:#ff2255;font-weight:700;letter-spacing:.1em}
+.admin-badge{background:rgba(255,34,85,.15);color:#ff6680;border:1px solid rgba(255,34,85,.3);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.logout-btn{padding:6px 14px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;border-radius:6px;font-size:12px;cursor:pointer}
+.logout-btn:hover{border-color:#ff2255;color:#ff6680}
+.tabs{display:flex;gap:0;border-bottom:1px solid #0d2744;background:#070f1e;padding:0 20px;position:sticky;top:57px;z-index:99;overflow-x:auto}
+.tab{padding:12px 18px;font-size:12px;font-weight:700;color:#5a8aaa;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
+.tab:hover{color:#e8f4ff}
+.tab.active{color:#ff2255;border-bottom-color:#ff2255}
+.badge{background:#ff2255;color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;font-weight:700}
+.content{max-width:1100px;margin:0 auto;padding:20px}
+.section{display:none}
+.section.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.stat-card{background:#070f1e;border:1px solid #0d2744;border-radius:10px;padding:14px;text-align:center}
+.stat-num{font-size:26px;font-weight:700;font-family:monospace}
+.stat-lbl{font-size:10px;color:#5a8aaa;margin-top:4px;text-transform:uppercase;letter-spacing:.06em}
+.card{background:#070f1e;border:1px solid #0d2744;border-radius:10px;margin-bottom:14px;overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-title{font-size:13px;font-weight:700;color:#e8f4ff}
+.card-sub{font-size:11px;color:#5a8aaa;margin-top:2px}
+.card-body{padding:14px}
+.user-row{display:flex;align-items:center;gap:10px;min-width:0}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:700;color:#e8f4ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-meta{font-size:11px;color:#5a8aaa;margin-top:1px}
+.actions{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+.btn{padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-transform:uppercase;letter-spacing:.04em;text-decoration:none;display:inline-flex;align-items:center}
+.btn-approve{background:rgba(0,200,83,.15);color:#00c853;border:1px solid rgba(0,200,83,.3)}
+.btn-approve:hover{background:rgba(0,200,83,.3)}
+.btn-reject{background:rgba(255,34,85,.1);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
+.btn-reject:hover{background:rgba(255,34,85,.25)}
+.btn-ban{background:rgba(255,68,68,.08);color:#ff4444;border:1px solid rgba(255,68,68,.25)}
+.btn-ban:hover{background:rgba(255,68,68,.2)}
+.btn-unban{background:rgba(0,229,255,.08);color:#00e5ff;border:1px solid rgba(0,229,255,.25)}
+.btn-unban:hover{background:rgba(0,229,255,.2)}
+.btn-view{background:transparent;color:#5a8aaa;border:1px solid #0d2744}
+.btn-view:hover{border-color:#00e5ff;color:#00e5ff}
+.btn-dismiss{background:transparent;color:#5a8aaa;border:1px solid #0d2744}
+.btn-del{background:rgba(255,34,85,.08);color:#ff6680;border:1px solid rgba(255,34,85,.25)}
+.btn-del:hover{background:rgba(255,34,85,.2)}
+.status-pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
+.s-pending{background:rgba(255,170,0,.12);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.s-verified{background:rgba(0,200,83,.1);color:#00c853;border:1px solid rgba(0,200,83,.25)}
+.s-rejected{background:rgba(255,34,85,.1);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
+.s-banned{background:rgba(255,68,68,.1);color:#ff4444;border:1px solid rgba(255,68,68,.3)}
+.s-active{background:rgba(0,229,255,.08);color:#00e5ff;border:1px solid rgba(0,229,255,.2)}
+.kyc-imgs{display:flex;gap:10px;margin-top:12px}
+.kyc-img-box{flex:1;min-width:0;background:#01020c;border:1px solid #0d2744;border-radius:8px;overflow:hidden;height:160px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.kyc-img-box img{width:100%;height:100%;object-fit:cover}
+.kyc-img-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.report-reason{background:#0a1020;border:1px solid #0d2744;border-radius:6px;padding:9px 12px;font-size:12px;color:#8a9bb0;margin:8px 0;line-height:1.5}
+.empty{text-align:center;padding:40px;color:#5a8aaa;font-size:13px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{background:#070f1e;border:1px solid #0d2744;border-radius:14px;padding:22px;width:100%;max-width:420px}
+.modal-title{font-size:14px;font-weight:700;color:#e8f4ff;margin-bottom:12px}
+.modal-input{width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:12px;outline:none;margin-bottom:12px;resize:vertical;min-height:70px}
+.modal-input:focus{border-color:#ff2255}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.search-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.search-input{flex:1;min-width:160px;padding:8px 12px;background:#070f1e;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:12px;outline:none}
+.search-input:focus{border-color:#00e5ff}
+.filter-select{padding:8px 10px;background:#070f1e;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:11px;outline:none;cursor:pointer}
+.toast{position:fixed;bottom:20px;right:20px;background:#070f1e;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;z-index:99999;display:none;border:1px solid #00ff88;color:#00ff88;max-width:280px}
+.toast.err{border-color:#ff2255;color:#ff6680}
+.section-heading{font-size:10px;font-weight:700;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid #0d2744}
+.post-media-thumb{max-height:120px;width:100%;object-fit:cover;border-radius:6px;margin-top:8px;cursor:pointer}
+.loading{text-align:center;padding:28px;color:#5a8aaa;font-size:12px}
 </style>
-
-<meta property="og:title" content="Panel Admin &mdash; SHADOWNET">
-<meta name="description" content="Panel de administración de SHADOWNET.">
 </head>
 <body>
-<div id="login"><div class="lbox">
-<div class="ll">SHADOWNET</div>
-<div class="ls">Panel de Administracion</div>
-<input class="li" type="email" id="em" placeholder="mikymiky2201l@gmail.com">
-<input class="li" type="password" id="pw" placeholder="Contrasena (Cerbero2024!)">
-<button class="lb" id="btn">ENTRAR AL PANEL</button>
-<div class="le" id="err"></div>
-</div></div>
-
-<div id="app">
-<div class="topbar">
-<div style="display:flex;align-items:center"><span class="tl">SHADOWNET</span><span class="tb">ADMIN</span></div>
-<div style="display:flex;align-items:center;gap:12px"><span style="font-size:13px;color:var(--tx2)" id="tusr"></span><button class="btn" id="logoutBtn">Salir</button></div>
+<header>
+  <span class="logo">SN ADMIN</span>
+  <span class="admin-badge">MODERACIÓN</span>
+  <button class="logout-btn" onclick="doLogout()">Salir</button>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('stats')" id="tab-stats">📊 Stats</button>
+  <button class="tab" onclick="switchTab('kyc')" id="tab-kyc">📋 KYC <span class="badge" id="kyc-badge">0</span></button>
+  <button class="tab" onclick="switchTab('reports')" id="tab-reports">⚠️ Reportes <span class="badge" id="rep-badge">0</span></button>
+  <button class="tab" onclick="switchTab('users')" id="tab-users">👥 Usuarios</button>
+  <button class="tab" onclick="switchTab('posts')" id="tab-posts">🖼 Posts</button>
 </div>
-<div class="wrap">
-<div class="side">
-<div class="ns">Principal</div>
-<div class="ni on" id="ni-db">&#x1F4CA; Dashboard</div>
-<div class="ni" id="ni-us">&#x1F465; Usuarios</div>
-<div class="ni" id="ni-po">&#x1F4F8; Posts</div>
-<div class="ns">Monetizacion</div>
-<div class="ni" id="ni-px">&#x1F4B3; Pagos</div>
-<div class="ni" id="ni-cr">&#x2B50; Creadores</div>
-<div class="ns">Sistema</div>
-<div class="ni" id="ni-st">&#x2699; Config</div>
-<div class="ni" id="ni-site">&#x1F310; Ver sitio</div>
-</div>
-<div class="main">
-<div class="pg on" id="pg-db">
-  <div class="pt">Dashboard</div><div class="ps">Resumen de la plataforma</div>
-  <div class="sg" id="sg"><div style="color:var(--tx3)">Cargando...</div></div>
-  <div class="card"><div class="ch"><span class="ct">Ultimas transacciones</span></div>
-  <table><thead><tr><th>Usuario</th><th>Tipo</th><th>Almas</th><th>USD</th><th>Estado</th><th>Fecha</th></tr></thead>
-  <tbody id="tbt"><tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">-</td></tr></tbody></table></div>
-</div>
-<div class="pg" id="pg-us">
-  <div class="pt">Usuarios</div><div class="ps">Gestionar cuentas</div>
-  <input class="si" type="text" id="usq" placeholder="Buscar usuario...">
-  <div class="card"><div class="ch"><span class="ct">Todos los usuarios</span><button class="btn" id="reloadUsersBtn">Actualizar</button></div>
-  <table><thead><tr><th>Usuario</th><th>Almas</th><th>Posts</th><th>Verificado</th><th>Desde</th><th></th></tr></thead>
-  <tbody id="ubt"></tbody></table></div>
-</div>
-<div class="pg" id="pg-po">
-  <div class="pt">Posts</div><div class="ps">Gestionar publicaciones</div>
-  <div class="card"><div class="ch"><span class="ct">Publicaciones</span><button class="btn" id="reloadPostsBtn">Actualizar</button></div>
-  <table><thead><tr><th>Usuario</th><th>Texto</th><th>Media</th><th>Premium</th><th>Likes</th><th>Fecha</th><th></th></tr></thead>
-  <tbody id="pbt"></tbody></table></div>
-</div>
-<div class="pg" id="pg-px">
-  <div class="pt">Pagos</div><div class="ps">Historial Stripe</div>
-  <div class="sg" id="psg"><div style="color:var(--tx3)">Cargando...</div></div>
-  <div class="card"><div class="ch"><span class="ct">Transacciones</span><button class="btn" id="reloadPayBtn">Actualizar</button></div>
-  <table><thead><tr><th>Usuario</th><th>Pack</th><th>Almas</th><th>USD</th><th>Stripe PI</th><th>Estado</th><th>Fecha</th></tr></thead>
-  <tbody id="xbt"></tbody></table></div>
-</div>
-<div class="pg" id="pg-cr">
-  <div class="pt">Creadores</div><div class="ps">Verificacion KYC</div>
-  <div class="card"><div class="ch"><span class="ct">Perfiles</span><button class="btn" id="reloadCreBtn">Actualizar</button></div>
-  <table><thead><tr><th>Usuario</th><th>Estado</th><th>Posts</th><th>Desde</th><th></th></tr></thead>
-  <tbody id="cbt"></tbody></table></div>
-</div>
-<div class="pg" id="pg-st">
-  <div class="pt">Configuracion</div><div class="ps">Ajustes globales</div>
-  <div class="card" style="padding:24px"><div class="sg2">
-    <div>
-      <div class="fg"><label class="fl">Comision (%)</label><input class="fi" type="number" id="cc" value="10" min="0" max="50"></div>
-      <div class="fg"><label class="fl">Moneda</label><input class="fi" type="text" id="cu" value="USD"></div>
-      <button class="fs" id="saveSetBtn">Guardar cambios</button>
+<div class="content">
+  <div class="section active" id="sec-stats">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="st-users">-</div><div class="stat-lbl">Usuarios</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-creators">-</div><div class="stat-lbl">Creadores</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-posts">-</div><div class="stat-lbl">Posts</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-verified">-</div><div class="stat-lbl">KYC verificados</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-pending" style="color:#ffaa00">-</div><div class="stat-lbl">KYC pendientes</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-banned" style="color:#ff4444">-</div><div class="stat-lbl">Baneados</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-reports" style="color:#ff6680">-</div><div class="stat-lbl">Reportes activos</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-subs" style="color:#00ff88">-</div><div class="stat-lbl">Suscripciones</div></div>
     </div>
-    <div>
-      <div class="fg"><label class="fl">Stripe</label>
-      <select class="fi" id="cs"><option value="true">Habilitado</option><option value="false">Deshabilitado</option></select></div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">🕒 Registros recientes</span></div>
+      <div class="card-body" id="recent-users"><div class="loading">Cargando...</div></div>
     </div>
-  </div></div>
+  </div>
+  <div class="section" id="sec-kyc">
+    <p class="section-heading">Solicitudes de verificación pendientes</p>
+    <div id="kyc-list"><div class="loading">Cargando...</div></div>
+  </div>
+  <div class="section" id="sec-reports">
+    <p class="section-heading">Contenido reportado</p>
+    <div id="reports-list"><div class="loading">Cargando...</div></div>
+  </div>
+  <div class="section" id="sec-users">
+    <div class="search-bar">
+      <input class="search-input" id="user-search" placeholder="Buscar usuario..." oninput="searchUsers()">
+      <select class="filter-select" id="user-filter" onchange="searchUsers()">
+        <option value="">Todos</option><option value="creator">Creadores</option><option value="viewer">Espectadores</option><option value="banned">Baneados</option><option value="pending">KYC pendiente</option>
+      </select>
+    </div>
+    <div id="users-list"><div class="loading">Cargando...</div></div>
+  </div>
+  <div class="section" id="sec-posts">
+    <div class="search-bar">
+      <input class="search-input" id="post-search" placeholder="Buscar posts..." oninput="searchPosts()">
+      <select class="filter-select" id="post-filter" onchange="searchPosts()">
+        <option value="">Todos</option><option value="ppv">PPV</option>
+      </select>
+    </div>
+    <div id="posts-list"><div class="loading">Cargando...</div></div>
+  </div>
 </div>
-</div></div></div>
+<div class="modal-overlay" id="banModal">
+  <div class="modal-box">
+    <p class="modal-title">🚫 Banear usuario</p>
+    <textarea class="modal-input" id="banReason" placeholder="Motivo del ban..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-dismiss" onclick="closeBanModal()">Cancelar</button>
+      <button class="btn btn-ban" onclick="confirmBan()">Confirmar ban</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal-box">
+    <p class="modal-title">❌ Rechazar KYC</p>
+    <textarea class="modal-input" id="rejectReason" placeholder="Motivo del rechazo..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-dismiss" onclick="closeRejectModal()">Cancelar</button>
+      <button class="btn btn-reject" onclick="confirmReject()">Rechazar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
-
 <script>
-var SU = 'https://cdokplvoqivducsqrejt.supabase.co';
-var SK = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-var AID = 'f8befa4f-08f8-4256-aa4e-1053d36a12c0';
-var TOKEN = '';
-var AU = [];
-var PM = {};
-
-function g(id) { return document.getElementById(id); }
-
-function toast(m) {
-  var t = g('toast');
-  t.textContent = m;
-  t.classList.add('on');
-  setTimeout(function() { t.classList.remove('on'); }, 3000);
-}
-
-function empty(id, cols, msg) {
-  g(id).innerHTML = '<tr><td colspan="' + cols + '" style="text-align:center;padding:20px;color:var(--tx3)">' + msg + '</td></tr>';
-}
-
-async function api(method, path, body) {
-  var h = { 'Content-Type': 'application/json', 'apikey': SK };
-  if (TOKEN) h['Authorization'] = 'Bearer ' + TOKEN;
-  var opts = { method: method, headers: h };
-  if (body) opts.body = JSON.stringify(body);
-  try {
-    var r = await fetch(SU + path, opts);
-    var d = await r.json().catch(function() { return {}; });
-    return { ok: r.ok, status: r.status, data: d };
-  } catch(e) {
-    return { ok: false, status: 0, data: { error: e.message } };
-  }
-}
-
-async function dbGet(table, sel, qs) {
-  var url = '/rest/v1/' + table + '?select=' + encodeURIComponent(sel || '*');
-  if (qs) url += '&' + qs;
-  var r = await api('GET', url);
-  return Array.isArray(r.data) ? r.data : [];
-}
-
-// ---- LOGIN ----
-g('btn').addEventListener('click', async function() {
-  var em = g('em').value.trim();
-  var pw = g('pw').value;
-  g('err').textContent = '';
-  if (!em || !pw) { g('err').textContent = 'Ingresa email y contrasena'; return; }
-  g('btn').disabled = true;
-  g('btn').textContent = 'Verificando...';
-  var r = await api('POST', '/auth/v1/token?grant_type=password', { email: em, password: pw });
-  if (!r.ok || !r.data.access_token) {
-    g('err').textContent = 'Error: ' + (r.data.error_description || r.data.msg || r.data.error || 'Credenciales invalidas');
-    g('btn').disabled = false;
-    g('btn').textContent = 'ENTRAR AL PANEL';
-    return;
-  }
-  if (r.data.user.id !== AID) {
-    g('err').textContent = 'Acceso denegado';
-    g('btn').disabled = false;
-    g('btn').textContent = 'ENTRAR AL PANEL';
-    return;
-  }
-  TOKEN = r.data.access_token;
-  g('login').style.display = 'none';
-  g('app').style.display = 'block';
-  g('tusr').textContent = r.data.user.email;
-  ldb();
-});
-
-document.addEventListener('keydown', function(e) { if (e.key === 'Enter') g('btn').click(); });
-
-g('logoutBtn').addEventListener('click', async function() {
-  await api('POST', '/auth/v1/logout');
-  TOKEN = '';
-  location.reload();
-});
-
-// ---- NAV ----
-function sp(n) {
-  document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('on'); });
-  document.querySelectorAll('.ni').forEach(function(x) { x.classList.remove('on'); });
-  var pg = g('pg-' + n), ni = g('ni-' + n);
-  if (pg) pg.classList.add('on');
-  if (ni) ni.classList.add('on');
-  var fns = { db: ldb, us: lusr, po: lpos, px: lpay, cr: lcre, st: lset };
-  if (fns[n]) fns[n]();
-}
-['db','us','po','px','cr','st'].forEach(function(n) {
-  var el = g('ni-' + n);
-  if (el) el.addEventListener('click', function() { sp(n); });
-});
-g('ni-site').addEventListener('click', function() { location.href = '/'; });
-g('reloadUsersBtn').addEventListener('click', lusr);
-g('reloadPostsBtn').addEventListener('click', lpos);
-g('reloadPayBtn').addEventListener('click', lpay);
-g('reloadCreBtn').addEventListener('click', lcre);
-g('saveSetBtn').addEventListener('click', sset);
-g('usq').addEventListener('input', fusr);
-
-// ---- DASHBOARD ----
-async function ldb() {
-  var p = await dbGet('profiles', 'coins_balance');
-  var po = await dbGet('posts', 'id');
-  var tx = await dbGet('transactions', 'amount,gross_amount,type,status,created_at,user_id', 'order=created_at.desc&limit=10');
-  var coins = p.reduce(function(a, x) { return a + (x.coins_balance || 0); }, 0);
-  var rev = tx.filter(function(x) { return x.status === 'completed'; }).reduce(function(a, x) { return a + (x.gross_amount || 0); }, 0);
-  g('sg').innerHTML =
-    '<div class="sc"><div class="sl">Usuarios</div><div class="sv">' + p.length + '</div></div>' +
-    '<div class="sc bl"><div class="sl">Posts</div><div class="sv">' + po.length + '</div></div>' +
-    '<div class="sc go"><div class="sl">Almas</div><div class="sv">' + coins + '</div></div>' +
-    '<div class="sc gr"><div class="sl">Ingresos</div><div class="sv">$' + rev.toFixed(2) + '</div></div>';
-  g('tbt').innerHTML = tx.length ? tx.map(function(x) {
-    return '<tr><td class="mo">' + x.user_id.slice(0, 8) + '...</td>' +
-      '<td><span class="bx ' + (x.type === 'purchase' ? 'gr' : 'bl') + '">' + x.type + '</span></td>' +
-      '<td>' + (x.amount || 0) + '</td>' +
-      '<td>$' + (x.gross_amount || 0).toFixed(2) + '</td>' +
-      '<td><span class="bx ' + (x.status === 'completed' ? 'gr' : 'go') + '">' + x.status + '</span></td>' +
-      '<td style="color:var(--tx3)">' + x.created_at.slice(0, 10) + '</td></tr>';
-  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">Sin transacciones</td></tr>';
-}
-
-// ---- USERS ----
-async function lusr() {
-  var r1 = await dbGet('profiles', 'id,username,avatar_url,coins_balance,verified,created_at', 'order=created_at.desc');
-  var r2 = await dbGet('posts', 'user_id');
-  var cm = {};
-  r2.forEach(function(p) { cm[p.user_id] = (cm[p.user_id] || 0) + 1; });
-  AU = r1;
-  rusr(AU, cm);
-}
-function rusr(list, cm) {
-  g('ubt').innerHTML = list.length ? list.map(function(u) {
-    return '<tr>' +
-      '<td>' + (u.username || '-') + '</td>' +
-      '<td class="mo">' + (u.coins_balance || 0) + '</td>' +
-      '<td class="mo">' + (cm[u.id] || 0) + '</td>' +
-      '<td>' + (u.verified ? '<span class="bx gr">Si</span>' : '<span class="bx gy">No</span>') + '</td>' +
-      '<td style="color:var(--tx3)">' + (u.created_at ? u.created_at.slice(0, 10) : '-') + '</td>' +
-      '<td><button class="btn give-btn" data-uid="' + u.id + '" data-uname="' + (u.username || '') + '">+Almas</button></td>' +
-      '</tr>';
-  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--tx3)">Sin usuarios</td></tr>';
-  document.querySelectorAll('.give-btn').forEach(function(b) {
-    b.addEventListener('click', function() { giveCoins(this.dataset.uid, this.dataset.uname); });
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co',SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su',ADMIN_ID='6841e290-ef34-4092-a543-d8a2abc20ac3';
+var sb=supabase.createClient(SB_URL,SB_KEY);
+window.sb=sb;
+var _banTarget=null,_rejectTarget=null;
+var _allUsers=[],_allPosts=[];
+sb.auth.getSession().then(function(r){
+  if(!r.data||!r.data.session){window.location.href='/';return;}
+  sb.from('profiles').select('is_admin').eq('id',r.data.session.user.id).single().then(function(p){
+    if(!p.data||!p.data.is_admin){alert('Acceso denegado.');window.location.href='/feed.html';return;}
+    loadStats();loadKYC();loadReports();loadUsers();
   });
+});
+function doLogout(){sb.auth.signOut().then(function(){window.location.href='/'});}
+function switchTab(n){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('tab-'+n).classList.add('active');
+  document.getElementById('sec-'+n).classList.add('active');
+  if(n==='posts') loadPosts();
 }
-function fusr() {
-  var q = g('usq').value.toLowerCase();
-  rusr(AU.filter(function(u) { return (u.username || '').toLowerCase().includes(q); }), {});
-}
-async function giveCoins(uid, uname) {
-  var n = prompt('Cuantas Almas dar a ' + uname + '?');
-  if (!n || isNaN(Number(n))) return;
-  var r = await api('POST', '/rest/v1/rpc/add_coins', { user_id: uid, amount: parseInt(n) });
-  if (!r.ok) { alert('Error'); return; }
-  toast('OK - ' + n + ' Almas a ' + uname);
-  lusr();
-}
-
-// ---- POSTS ----
-async function lpos() {
-  var r1 = await dbGet('posts', 'id,user_id,content,media_url,is_premium,likes_count,created_at', 'order=created_at.desc');
-  var r2 = await dbGet('profiles', 'id,username');
-  PM = {};
-  r2.forEach(function(p) { PM[p.id] = p.username; });
-  g('pbt').innerHTML = r1.length ? r1.map(function(p) {
-    var ml = p.media_url ? '<a href="' + p.media_url + '" target="_blank" style="color:var(--bl)">Ver</a>' : '-';
-    return '<tr>' +
-      '<td>' + (PM[p.user_id] || p.user_id.slice(0, 8)) + '</td>' +
-      '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx3)">' + (p.content || '-') + '</td>' +
-      '<td>' + ml + '</td>' +
-      '<td>' + (p.is_premium ? '<span class="bx go">Premium</span>' : '<span class="bx gy">Free</span>') + '</td>' +
-      '<td class="mo">' + (p.likes_count || 0) + '</td>' +
-      '<td style="color:var(--tx3)">' + (p.created_at ? p.created_at.slice(0, 10) : '-') + '</td>' +
-      '<td><button class="btn del-btn" data-pid="' + p.id + '" style="color:var(--red);border-color:var(--red)">X</button></td>' +
-      '</tr>';
-  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--tx3)">Sin posts</td></tr>';
-  document.querySelectorAll('.del-btn').forEach(function(b) {
-    b.addEventListener('click', function() { dpost(this.dataset.pid); });
-  });
-}
-async function dpost(id) {
-  if (!confirm('Borrar este post?')) return;
-  var r = await api('DELETE', '/rest/v1/posts?id=eq.' + id);
-  if (!r.ok) { alert('Error'); return; }
-  toast('Post eliminado');
-  lpos();
-}
-
-// ---- PAYMENTS ----
-async function lpay() {
-  var r1 = await dbGet('transactions', '*', 'type=eq.purchase&order=created_at.desc');
-  var r2 = await dbGet('profiles', 'id,username');
-  var pmap = {};
-  r2.forEach(function(p) { pmap[p.id] = p.username; });
-  var tot = r1.filter(function(x) { return x.status === 'completed'; }).reduce(function(a, x) { return a + (x.gross_amount || 0); }, 0);
-  g('psg').innerHTML =
-    '<div class="sc gr"><div class="sl">Ingresos</div><div class="sv">$' + tot.toFixed(2) + '</div></div>' +
-    '<div class="sc go"><div class="sl">Comision 10%</div><div class="sv">$' + (tot * 0.1).toFixed(2) + '</div></div>' +
-    '<div class="sc bl"><div class="sl">Transacciones</div><div class="sv">' + r1.length + '</div></div>';
-  g('xbt').innerHTML = r1.length ? r1.map(function(x) {
-    var pi = x.stripe_payment_intent_id ? x.stripe_payment_intent_id.slice(0, 16) + '...' : '-';
-    return '<tr>' +
-      '<td>' + (pmap[x.user_id] || x.user_id.slice(0, 8)) + '</td>' +
-      '<td>' + (x.reference_id || '-') + '</td>' +
-      '<td class="mo">' + (x.amount || 0) + '</td>' +
-      '<td class="mo">$' + (x.gross_amount || 0).toFixed(2) + '</td>' +
-      '<td class="mo" style="font-size:11px">' + pi + '</td>' +
-      '<td><span class="bx ' + (x.status === 'completed' ? 'gr' : 'go') + '">' + (x.status || '?') + '</span></td>' +
-      '<td style="color:var(--tx3)">' + (x.created_at ? x.created_at.slice(0, 10) : '-') + '</td>' +
-      '</tr>';
-  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--tx3)">Sin pagos</td></tr>';
-}
-
-// ---- CREATORS ----
-async function lcre() {
-  var r1 = await dbGet('profiles', 'id,username,verified,created_at', 'order=created_at.desc');
-  var r2 = await dbGet('posts', 'user_id');
-  var cm = {};
-  r2.forEach(function(p) { cm[p.user_id] = (cm[p.user_id] || 0) + 1; });
-  g('cbt').innerHTML = r1.map(function(p) {
-    return '<tr>' +
-      '<td>' + (p.username || '-') + '</td>' +
-      '<td>' + (p.verified ? '<span class="bx gr">Verificado</span>' : '<span class="bx gy">Pendiente</span>') + '</td>' +
-      '<td class="mo">' + (cm[p.id] || 0) + '</td>' +
-      '<td style="color:var(--tx3)">' + (p.created_at ? p.created_at.slice(0, 10) : '-') + '</td>' +
-      '<td>' + (p.verified ? '' : '<button class="btn p ver-btn" data-pid="' + p.id + '" data-pname="' + (p.username || '') + '">Verificar</button>') + '</td>' +
-      '</tr>';
+function showToast(m,e){var t=document.getElementById('toast');t.textContent=m;t.className='toast'+(e?' err':'');t.style.display='block';setTimeout(function(){t.style.display='none';},3000);}
+function tsAgo(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m';if(s<86400)return Math.floor(s/3600)+'h';return Math.floor(s/86400)+'d';}
+function escH(s){return s?(s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
+async function loadStats(){
+  var [u,c,p,v,pe,b,rep,s]=await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}),
+    sb.from('profiles').select('id',{count:'exact',head:true}).eq('role','creator'),
+    sb.from('posts').select('id',{count:'exact',head:true}),
+    sb.from('profiles').select('id',{count:'exact',head:true}).eq('verification_status','verified'),
+    sb.from('profiles').select('id',{count:'exact',head:true}).eq('verification_status','pending'),
+    sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_banned',true),
+    sb.from('reports').select('id',{count:'exact',head:true}).eq('status','pending'),
+    sb.from('subscriptions').select('id',{count:'exact',head:true}).eq('status','active'),
+  ]);
+  document.getElementById('st-users').textContent=u.count||0;
+  document.getElementById('st-creators').textContent=c.count||0;
+  document.getElementById('st-posts').textContent=p.count||0;
+  document.getElementById('st-verified').textContent=v.count||0;
+  document.getElementById('st-pending').textContent=pe.count||0;
+  document.getElementById('st-banned').textContent=b.count||0;
+  document.getElementById('st-reports').textContent=rep.count||0;
+  document.getElementById('st-subs').textContent=s.count||0;
+  document.getElementById('kyc-badge').textContent=pe.count||0;
+  document.getElementById('rep-badge').textContent=rep.count||0;
+  var rec=await sb.from('profiles').select('id,username,role,created_at,verification_status,avatar_url').order('created_at',{ascending:false}).limit(10);
+  var el=document.getElementById('recent-users');
+  if(!rec.data||!rec.data.length){el.innerHTML='<div class="empty">Sin registros</div>';return;}
+  el.innerHTML=rec.data.map(function(u){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #0d2744">'+
+      '<div class="avatar">'+(u.avatar_url?'<img src="'+u.avatar_url+'" alt="">':escH(u.username[0].toUpperCase()))+'</div>'+
+      '<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#e8f4ff">@'+escH(u.username)+'</div><div style="font-size:11px;color:#5a8aaa">'+u.role+' &middot; hace '+tsAgo(u.created_at)+'</div></div>'+
+      '<span class="status-pill '+(u.verification_status==='verified'?'s-verified':u.verification_status==='pending'?'s-pending':'s-active')+'">'+u.verification_status+'</span>'+
+    '</div>';
   }).join('');
-  document.querySelectorAll('.ver-btn').forEach(function(b) {
-    b.addEventListener('click', function() { vuser(this.dataset.pid, this.dataset.pname); });
-  });
 }
-async function vuser(id, u) {
-  if (!confirm('Verificar a ' + u + '?')) return;
-  var r = await api('PATCH', '/rest/v1/profiles?id=eq.' + id, { verified: true });
-  if (!r.ok) { alert('Error'); return; }
-  toast('Verificado: ' + u);
-  lcre();
+async function loadKYC(){
+  var r=await sb.from('profiles').select('id,username,avatar_url,doc_url,selfie_url,verification_submitted_at,role').eq('verification_status','pending').order('verification_submitted_at',{ascending:true});
+  var el=document.getElementById('kyc-list');
+  if(!r.data||!r.data.length){el.innerHTML='<div class="empty">✅ No hay KYC pendientes</div>';return;}
+  el.innerHTML=r.data.map(function(u){
+    return '<div class="card" id="kyc-'+u.id+'">'+
+      '<div class="card-header">'+
+        '<div class="user-row"><div class="avatar">'+(u.avatar_url?'<img src="'+u.avatar_url+'" alt="">':escH(u.username[0].toUpperCase()))+'</div>'+
+        '<div class="user-info"><div class="user-name">@'+escH(u.username)+'</div><div class="user-meta">'+u.role+(u.verification_submitted_at?' &middot; hace '+tsAgo(u.verification_submitted_at):'')+'</div></div></div>'+
+        '<div class="actions"><button class="btn btn-approve" onclick="approveKYC(''+u.id+'')">Aprobar</button><button class="btn btn-reject" onclick="openRejectModal(''+u.id+'')">Rechazar</button></div>'+
+      '</div>'+
+      '<div class="card-body"><div class="kyc-imgs">'+
+        '<div style="flex:1"><div class="kyc-img-label">Documento</div>'+
+        (u.doc_url?'<div class="kyc-img-box" onclick="window.open(''+u.doc_url+'','_blank')"><img src="'+u.doc_url+'" alt="Documento"></div>':'<div class="kyc-img-box"><span style="color:#5a8aaa;font-size:11px">Sin documento</span></div>')+'</div>'+
+        '<div style="flex:1"><div class="kyc-img-label">Selfie</div>'+
+        (u.selfie_url?'<div class="kyc-img-box" onclick="window.open(''+u.selfie_url+'','_blank')"><img src="'+u.selfie_url+'" alt="Selfie"></div>':'<div class="kyc-img-box"><span style="color:#5a8aaa;font-size:11px">Sin selfie</span></div>')+'</div>'+
+      '</div></div>'+
+    '</div>';
+  }).join('');
 }
-
-// ---- SETTINGS ----
-async function lset() {
-  var r = await dbGet('platform_settings', '*');
-  var s = {};
-  r.forEach(function(x) { s[x.key] = x.value; });
-  if (s.commission_pct) g('cc').value = s.commission_pct;
-  if (s.currency) g('cu').value = s.currency;
-  if (s.stripe_enabled) g('cs').value = s.stripe_enabled;
+async function approveKYC(uid){
+  var r=await sb.from('profiles').update({verification_status:'verified'}).eq('id',uid);
+  if(r.error){showToast('Error',true);return;}
+  await sb.from('notifications').insert({user_id:uid,type:'verification',message:'✅ Tu identidad fue verificada. Ya puedes hacer lives y monetizar.'});
+  document.getElementById('kyc-'+uid)?.remove();
+  showToast('✅ KYC aprobado');loadStats();
 }
-async function sset() {
-  var u = async function(k, v) {
-    await api('POST', '/rest/v1/platform_settings', { key: k, value: v });
-  };
-  await u('commission_pct', g('cc').value);
-  await u('currency', g('cu').value);
-  await u('stripe_enabled', g('cs').value);
-  toast('Configuracion guardada');
+function openRejectModal(uid){_rejectTarget=uid;document.getElementById('rejectReason').value='';document.getElementById('rejectModal').classList.add('open');}
+function closeRejectModal(){document.getElementById('rejectModal').classList.remove('open');_rejectTarget=null;}
+async function confirmReject(){
+  if(!_rejectTarget) return;
+  var reason=document.getElementById('rejectReason').value.trim()||'Documentos no válidos';
+  await sb.from('profiles').update({verification_status:'rejected',verification_rejection_reason:reason}).eq('id',_rejectTarget);
+  await sb.from('notifications').insert({user_id:_rejectTarget,type:'verification',message:'❌ Verificación rechazada: '+reason+'. Intenta de nuevo desde Configuración.'});
+  closeRejectModal();
+  document.getElementById('kyc-'+_rejectTarget)?.remove();
+  showToast('KYC rechazado');loadStats();
 }
-</script>
-
-<!-- Admin Auth Guard - restricts to admin user only -->
-<script>
-(function(){
-  var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
-  var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  var ADMIN_ID='f8befa4f-08f8-4256-aa4e-1053d36a12c0';
-  function check(){
-    var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(SB_URL,SB_KEY):null);
-    if(!sb){setTimeout(check,300);return;}
-    sb.auth.getSession().then(function(r){
-      if(!r.data||!r.data.session){window.location.replace('/');return;}
-      if(r.data.session.user.id!==ADMIN_ID){
-        document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#01020c;color:#ff2255;font-family:Orbitron,sans-serif;font-size:18px;letter-spacing:.1em">ACCESO DENEGADO</div>';
-        setTimeout(function(){window.location.replace('/');},2000);
-      }
-    });
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(check,400);});
-  else setTimeout(check,400);
-})();
-</script>
-
-<!-- Admin auth guard -->
-<script>
-(function(){
-  function doAdminCheck(){
-    var client=window.sb;
-    if(!client){setTimeout(doAdminCheck,200);return;}
-    client.auth.getSession().then(function(res){
-      if(!res.data||!res.data.session){window.location.replace('/');return;}
-      var uid=res.data.session.user.id;
-      client.from('profiles').select('username,role').eq('id',uid).single().then(function(r){
-        if(!r.data){window.location.replace('/');return;}
-        var isAdmin=(r.data.role==='admin'||r.data.username==='Cerbero');
-        if(!isAdmin){window.location.replace('/');}
-      });
-    });
-  }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){setTimeout(doAdminCheck,400);});
-  } else {
-    setTimeout(doAdminCheck,400);
-  }
-})();
+async function loadReports(){
+  var r=await sb.from('reports').select('*').eq('status','pending').order('created_at',{ascending:true}).limit(30);
+  var el=document.getElementById('reports-list');
+  if(!r.data||!r.data.length){el.innerHTML='<div class="empty">✅ No hay reportes pendientes</div>';return;}
+  var uids=[...new Set(r.data.flatMap(function(rep){return [rep.reporter_id,rep.reported_user_id].filter(Boolean);}))];
+  var um={};if(uids.length){var ur=await sb.from('profiles').select('id,username').in('id',uids);(ur.data||[]).forEach(function(u){um[u.id]=u.username;});}
+  el.innerHTML=r.data.map(function(rep){
+    return '<div class="card" id="rep-'+rep.id+'">'+
+      '<div class="card-header">'+
+        '<div><div class="card-title">⚠️ '+escH(rep.reason)+'</div>'+
+        '<div class="card-sub">Por @'+(um[rep.reporter_id]||'?')+' contra @'+(um[rep.reported_user_id]||'?')+' &middot; hace '+tsAgo(rep.created_at)+'</div></div>'+
+        '<span class="status-pill s-pending">Pendiente</span>'+
+      '</div>'+
+      '<div class="card-body">'+
+        (rep.description?'<div class="report-reason">'+escH(rep.description)+'</div>':'')+
+        '<div class="actions" style="margin-top:8px">'+
+          (rep.reported_user_id?'<button class="btn btn-ban" onclick="openBanModal(''+rep.reported_user_id+'')">Banear usuario</button>':'')+
+          (rep.post_id?'<button class="btn btn-del" onclick="deletePost(''+rep.post_id+'',''+rep.id+'')">Eliminar post</button>':'')+
+          '<button class="btn btn-dismiss" onclick="dismissReport(''+rep.id+'')">Desestimar</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+async function dismissReport(id){
+  await sb.from('reports').update({status:'dismissed',reviewed_by:ADMIN_ID,reviewed_at:new Date().toISOString()}).eq('id',id);
+  document.getElementById('rep-'+id)?.remove();showToast('Reporte desestimado');loadStats();
+}
+async function deletePost(postId,reportId){
+  if(!confirm('Eliminar este post?')) return;
+  await sb.from('posts').delete().eq('id',postId);
+  await sb.from('reports').update({status:'resolved',action_taken:'post_deleted',reviewed_by:ADMIN_ID,reviewed_at:new Date().toISOString()}).eq('id',reportId);
+  document.getElementById('rep-'+reportId)?.remove();showToast('🗑️ Post eliminado');loadStats();
+}
+async function loadUsers(){
+  var r=await sb.from('profiles').select('id,username,avatar_url,role,is_banned,ban_reason,verification_status,created_at,coins_balance').order('created_at',{ascending:false}).limit(60);
+  _allUsers=r.data||[];renderUsers(_allUsers);
+}
+function renderUsers(users){
+  var el=document.getElementById('users-list');
+  if(!users.length){el.innerHTML='<div class="empty">Sin resultados</div>';return;}
+  el.innerHTML=users.map(function(u){
+    var banned=u.is_banned;
+    return '<div class="card">'+
+      '<div class="card-header">'+
+        '<div class="user-row"><div class="avatar">'+(u.avatar_url?'<img src="'+u.avatar_url+'" alt="">':escH(u.username[0].toUpperCase()))+'</div>'+
+        '<div class="user-info"><div class="user-name">@'+escH(u.username)+'</div><div class="user-meta">'+u.role+' &middot; '+tsAgo(u.created_at)+' &middot; 💀 '+(u.coins_balance||0)+'</div></div></div>'+
+        '<div class="actions">'+
+          '<span class="status-pill '+(banned?'s-banned':u.verification_status==='verified'?'s-verified':u.verification_status==='pending'?'s-pending':'s-active')+'">'+(banned?'baneado':u.verification_status)+'</span>'+
+          (banned?'<button class="btn btn-unban" onclick="unbanUser(''+u.id+'')">Desbanear</button>':'<button class="btn btn-ban" onclick="openBanModal(''+u.id+'')">Banear</button>')+
+          '<a class="btn btn-view" href="/profile.html?id='+u.id+'" target="_blank">Perfil</a>'+
+        '</div>'+
+      '</div>'+
+      (banned&&u.ban_reason?'<div class="card-body"><div class="report-reason">'+escH(u.ban_reason)+'</div></div>':'')+
+    '</div>';
+  }).join('');
+}
+function searchUsers(){
+  var q=document.getElementById('user-search').value.toLowerCase();
+  var f=document.getElementById('user-filter').value;
+  renderUsers(_allUsers.filter(function(u){
+    return (!q||u.username.toLowerCase().includes(q))&&(!f||(f==='creator'&&u.role==='creator')||(f==='viewer'&&u.role==='viewer')||(f==='banned'&&u.is_banned)||(f==='pending'&&u.verification_status==='pending'));
+  }));
+}
+function openBanModal(uid){_banTarget=uid;document.getElementById('banReason').value='';document.getElementById('banModal').classList.add('open');}
+function closeBanModal(){document.getElementById('banModal').classList.remove('open');_banTarget=null;}
+async function confirmBan(){
+  if(!_banTarget) return;
+  var reason=document.getElementById('banReason').value.trim()||'Violación de términos';
+  var r=await sb.from('profiles').update({is_banned:true,ban_reason:reason}).eq('id',_banTarget);
+  if(r.error){showToast('Error: '+r.error.message,true);return;}
+  await sb.from('notifications').insert({user_id:_banTarget,type:'ban',message:'🚫 Tu cuenta fue suspendida: '+reason});
+  closeBanModal();showToast('🚫 Baneado');loadUsers();loadStats();
+}
+async function unbanUser(uid){
+  await sb.from('profiles').update({is_banned:false,ban_reason:null}).eq('id',uid);
+  showToast('✅ Desbaneado');loadUsers();loadStats();
+}
+async function loadPosts(){
+  var r=await sb.from('posts').select('id,user_id,content,media_url,media_type,created_at,likes_count,comments_count,is_subscriber_only').order('created_at',{ascending:false}).limit(40);
+  _allPosts=r.data||[];
+  var uids=[...new Set(_allPosts.map(function(p){return p.user_id;}))];
+  if(uids.length){var ur=await sb.from('profiles').select('id,username').in('id',uids);var um={};(ur.data||[]).forEach(function(u){um[u.id]=u.username;});_allPosts=_allPosts.map(function(p){return Object.assign({},p,{username:um[p.user_id]||'?'});});}
+  renderPosts(_allPosts);
+}
+function renderPosts(posts){
+  var el=document.getElementById('posts-list');
+  if(!posts.length){el.innerHTML='<div class="empty">Sin posts</div>';return;}
+  el.innerHTML=posts.map(function(p){
+    return '<div class="card">'+
+      '<div class="card-header">'+
+        '<div><div class="card-title">@'+escH(p.username)+(p.is_subscriber_only?' 🔒':'')+'</div>'+
+        '<div class="card-sub">hace '+tsAgo(p.created_at)+' &middot; ❤ '+p.likes_count+' &middot; 💬 '+p.comments_count+'</div></div>'+
+        '<button class="btn btn-del" onclick="deletePostAdmin(''+p.id+'')">Eliminar</button>'+
+      '</div>'+
+      (p.content||p.media_url?'<div class="card-body">'+
+        (p.content?'<div class="report-reason">'+escH(p.content.slice(0,200))+'</div>':'')+
+        (p.media_url&&p.media_type==='image'?'<img class="post-media-thumb" src="'+p.media_url+'" onclick="window.open(''+p.media_url+'','_blank')" alt="">':'')+
+        (p.media_url&&p.media_type==='video'?'<video class="post-media-thumb" src="'+p.media_url+'" controls muted></video>':'')+
+      '</div>':'')+
+    '</div>';
+  }).join('');
+}
+async function deletePostAdmin(id){
+  if(!confirm('Eliminar este post?')) return;
+  await sb.from('posts').delete().eq('id',id);
+  _allPosts=_allPosts.filter(function(p){return p.id!==id;});
+  renderPosts(_allPosts);showToast('🗑️ Eliminado');
+}
+function searchPosts(){
+  var q=document.getElementById('post-search').value.toLowerCase();
+  var f=document.getElementById('post-filter').value;
+  renderPosts(_allPosts.filter(function(p){
+    return (!q||(p.content&&p.content.toLowerCase().includes(q))||(p.username&&p.username.toLowerCase().includes(q)))&&(!f||(f==='ppv'&&p.is_subscriber_only));
+  }));
+}
 </script>
 </body>
 </html>

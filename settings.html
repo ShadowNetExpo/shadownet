@@ -325,7 +325,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 </div>
 
 <script>
-// ── KYC VERIFICATION ─────────────────────────────────────────────
+// \u2500\u2500 KYC VERIFICATION \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 var _kycDocFile = null, _kycSelfieFile = null;
 
 function kycPreview(type, input) {
@@ -355,7 +355,7 @@ async function submitKYC() {
   var btn = document.getElementById('kyc-submit-btn');
   if (!_kycDocFile) { showKycMsg('Sube la foto de tu documento', false); return; }
   if (!_kycSelfieFile) { showKycMsg('Sube la selfie sosteniendo el documento', false); return; }
-  if (!window.sb || !window._currentUser) { showKycMsg('Inicia sesión primero', false); return; }
+  if (!window.sb || !window._currentUser) { showKycMsg('Inicia sesi\u00F3n primero', false); return; }
 
   btn.disabled = true; btn.textContent = 'Subiendo...';
 
@@ -387,10 +387,10 @@ async function submitKYC() {
     // Actualizar UI
     document.getElementById('kyc-form').style.display = 'none';
     renderKycStatus('pending', null);
-    showKycMsg('✅ Solicitud enviada. Te avisaremos cuando sea revisada.', true);
+    showKycMsg('\u2705 Solicitud enviada. Te avisaremos cuando sea revisada.', true);
 
   } catch(e) {
-    btn.disabled = false; btn.textContent = '📋 Enviar verificación';
+    btn.disabled = false; btn.textContent = '\uD83D\uDCCB Enviar verificaci\u00F3n';
     showKycMsg('Error: ' + e.message, false);
   }
 }
@@ -412,10 +412,10 @@ function renderKycStatus(status, rejectionReason) {
   var form = document.getElementById('kyc-form');
 
   var cfg = {
-    unverified: { icon:'📋', label:'Sin verificar', sub:'Sube tu documento para desbloquear lives y monetización', color:'rgba(255,170,0,.08)', border:'rgba(255,170,0,.25)', labelColor:'#ffaa00', showForm:true },
-    pending:    { icon:'⏳', label:'En revisión', sub:'Tu solicitud fue recibida. Revisamos en 24-48h.', color:'rgba(0,229,255,.06)', border:'rgba(0,229,255,.2)', labelColor:'#00e5ff', showForm:false },
-    verified:   { icon:'✅', label:'Verificado', sub:'Identidad confirmada. Tienes acceso completo como creador.', color:'rgba(0,255,136,.06)', border:'rgba(0,255,136,.2)', labelColor:'#00ff88', showForm:false },
-    rejected:   { icon:'❌', label:'Rechazado', sub: rejectionReason || 'Tu verificación fue rechazada. Puedes intentarlo de nuevo.', color:'rgba(255,34,85,.08)', border:'rgba(255,34,85,.25)', labelColor:'#ff6680', showForm:true },
+    unverified: { icon:'\uD83D\uDCCB', label:'Sin verificar', sub:'Sube tu documento para desbloquear lives y monetizaci\u00F3n', color:'rgba(255,170,0,.08)', border:'rgba(255,170,0,.25)', labelColor:'#ffaa00', showForm:true },
+    pending:    { icon:'\u23F3', label:'En revisi\u00F3n', sub:'Tu solicitud fue recibida. Revisamos en 24-48h.', color:'rgba(0,229,255,.06)', border:'rgba(0,229,255,.2)', labelColor:'#00e5ff', showForm:false },
+    verified:   { icon:'\u2705', label:'Verificado', sub:'Identidad confirmada. Tienes acceso completo como creador.', color:'rgba(0,255,136,.06)', border:'rgba(0,255,136,.2)', labelColor:'#00ff88', showForm:false },
+    rejected:   { icon:'\u274C', label:'Rechazado', sub: rejectionReason || 'Tu verificaci\u00F3n fue rechazada. Puedes intentarlo de nuevo.', color:'rgba(255,34,85,.08)', border:'rgba(255,34,85,.25)', labelColor:'#ff6680', showForm:true },
   };
 
   var c = cfg[status] || cfg.unverified;

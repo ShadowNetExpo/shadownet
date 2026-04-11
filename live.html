@@ -454,7 +454,7 @@ document.addEventListener("DOMContentLoaded",function(){
     <div class="sn-viewer-offline" id="sn-viewer-offline">
       <div class="sn-viewer-offline-icon">&#128247;</div>
       <div class="sn-viewer-offline-text">El live ha terminado</div>
-      <div class="sn-viewer-offline-sub">Este creador ya no está transmitiendo</div>
+      <div class="sn-viewer-offline-sub">Este creador ya no estÃ¡ transmitiendo</div>
       <button onclick="location.href='/feed.html'" style="margin-top:24px;background:#ff2255;border:none;color:#fff;padding:12px 28px;border-radius:24px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:16px;cursor:pointer">Volver al feed</button>
     </div>
   </div>
@@ -717,10 +717,12 @@ document.addEventListener("DOMContentLoaded",function(){
   <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
   <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
-</nav>  <button class="sn-nb" id="sn-nb" onclick="snNO()">
+
+  <button class="sn-nb" id="sn-nb" onclick="snNO()">
     <span style="font-size:20px">&#128276;</span><div class="sn-nbc" id="sn-nbc"></div>
     NOTIF
   </button>
+</nav>
 
 <script>(function(){var U='https://cdokplvoqivducsqrejt.supabase.co',K='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';function go(){var sb=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient(U,K):null);if(!sb){setTimeout(go,400);return;}sb.auth.getSession().then(function(r){var a=document.getElementById('snNavAv');if(!a)return;if(!r.data||!r.data.session){a.innerHTML='&#128100;';return;}sb.from('profiles').select('username,avatar_url').eq('id',r.data.session.user.id).single().then(function(p){if(!p.data)return;if(p.data.avatar_url)a.innerHTML='<img src="'+p.data.avatar_url+'">';else if(p.data.username)a.textContent=p.data.username[0].toUpperCase();});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();</script>
 

@@ -509,8 +509,8 @@ async function submitApply(){
     document.getElementById('applyForm').style.display='none';
     document.getElementById('successBox').style.display='block';
   }catch(e){
-    btn.disabled=false;btn.textContent='⚡ Enviar solicitud de creador';
-    alert('Error al enviar. Inténtalo de nuevo.');
+    btn.disabled=false;btn.textContent='\u26A1 Enviar solicitud de creador';
+    alert('Error al enviar. Int\u00E9ntalo de nuevo.');
   }
 }
 

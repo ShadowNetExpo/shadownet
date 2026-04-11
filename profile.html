@@ -834,8 +834,9 @@ async function submitPost(){
     fill.style.width = '100%';
 
     // Update posts_count
-    await window.sb.from('profiles').update({posts_count: (profileData?.posts_count||0)+1}).eq('id',window.currentUser.id);
+    await window.sb.from('profiles').update({posts_count: (currentProfile?.posts_count||0)+1}).eq('id',window.currentUser.id);
 
+    if(currentProfile) currentProfile.posts_count = (currentProfile.posts_count||0)+1;
     setTimeout(function(){
       closeNewPost();
       loadPosts(window.currentUser.id);

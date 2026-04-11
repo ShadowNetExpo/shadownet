@@ -264,7 +264,195 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     </div>
   </div>
 
-  <!-- SEGURIDAD -->
+  <!-- VERIFICACION KYC -->
+<div class="section" id="kycSection" style="display:none;margin-top:16px">
+  <div class="section-head">
+    <span class="section-icon">📋</span>
+    <div>
+      <span class="section-title">VERIFICACIÓN DE IDENTIDAD</span>
+      <div class="section-subtitle">Requerida para activar lives y monetización</div>
+    </div>
+  </div>
+
+  <!-- Estado actual -->
+  <div id="kyc-status-block" style="margin:14px 0 0;padding:14px;border-radius:10px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.25)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="kyc-status-icon" style="font-size:22px">⏳</span>
+      <div>
+        <div id="kyc-status-label" style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:#ffaa00">Cargando...</div>
+        <div id="kyc-status-sub" style="font-size:11px;color:#5a8aaa;margin-top:2px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de verificacion (solo si no verificado) -->
+  <div id="kyc-form" style="display:none;margin-top:16px">
+    <div style="font-size:12px;color:#5a8aaa;margin-bottom:14px;line-height:1.6">
+      Sube una foto de tu <strong style="color:#e8f4ff">documento de identidad</strong> (DNI, pasaporte, cédula) y una <strong style="color:#e8f4ff">selfie sostenéndolo</strong>. Tu información es privada y solo la usa el equipo de moderación.
+    </div>
+
+    <!-- Documento de identidad -->
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🆔 Documento de identidad (frente)</label>
+      <div id="kyc-doc-zone" onclick="document.getElementById('kyc-doc-input').click()" style="border:2px dashed #0d2744;border-radius:10px;min-height:100px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(1,2,12,.4);transition:border-color .2s;position:relative;overflow:hidden">
+        <input type="file" id="kyc-doc-input" accept="image/*" style="display:none" onchange="kycPreview('doc',this)">
+        <div id="kyc-doc-placeholder" style="text-align:center;padding:16px">
+          <div style="font-size:28px">📷</div>
+          <div style="font-size:12px;color:#5a8aaa;margin-top:4px">Toca para seleccionar foto</div>
+        </div>
+        <img id="kyc-doc-preview" src="" alt="" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:8px">
+      </div>
+    </div>
+
+    <!-- Selfie -->
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🤳 Selfie sosteniendo el documento</label>
+      <div id="kyc-selfie-zone" onclick="document.getElementById('kyc-selfie-input').click()" style="border:2px dashed #0d2744;border-radius:10px;min-height:100px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(1,2,12,.4);transition:border-color .2s;position:relative;overflow:hidden">
+        <input type="file" id="kyc-selfie-input" accept="image/*" style="display:none" onchange="kycPreview('selfie',this)">
+        <div id="kyc-selfie-placeholder" style="text-align:center;padding:16px">
+          <div style="font-size:28px">🤳</div>
+          <div style="font-size:12px;color:#5a8aaa;margin-top:4px">Toca para seleccionar foto</div>
+        </div>
+        <img id="kyc-selfie-preview" src="" alt="" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:8px">
+      </div>
+    </div>
+
+    <div id="kyc-msg" style="display:none;font-size:12px;padding:8px 12px;border-radius:6px;margin-bottom:10px"></div>
+    <button onclick="submitKYC()" id="kyc-submit-btn" style="width:100%;padding:13px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">
+      📋 Enviar verificación
+    </button>
+  </div>
+</div>
+
+<script>
+// ── KYC VERIFICATION ─────────────────────────────────────────────
+var _kycDocFile = null, _kycSelfieFile = null;
+
+function kycPreview(type, input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    if (type === 'doc') {
+      _kycDocFile = file;
+      document.getElementById('kyc-doc-preview').src = e.target.result;
+      document.getElementById('kyc-doc-preview').style.display = 'block';
+      document.getElementById('kyc-doc-placeholder').style.display = 'none';
+      document.getElementById('kyc-doc-zone').style.borderColor = '#00e5ff';
+    } else {
+      _kycSelfieFile = file;
+      document.getElementById('kyc-selfie-preview').src = e.target.result;
+      document.getElementById('kyc-selfie-preview').style.display = 'block';
+      document.getElementById('kyc-selfie-placeholder').style.display = 'none';
+      document.getElementById('kyc-selfie-zone').style.borderColor = '#00e5ff';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitKYC() {
+  var msg = document.getElementById('kyc-msg');
+  var btn = document.getElementById('kyc-submit-btn');
+  if (!_kycDocFile) { showKycMsg('Sube la foto de tu documento', false); return; }
+  if (!_kycSelfieFile) { showKycMsg('Sube la selfie sosteniendo el documento', false); return; }
+  if (!window.sb || !window._currentUser) { showKycMsg('Inicia sesión primero', false); return; }
+
+  btn.disabled = true; btn.textContent = 'Subiendo...';
+
+  try {
+    var uid = window._currentUser.id;
+    // Subir documento
+    var docPath = 'kyc/' + uid + '/doc_' + Date.now() + '.' + _kycDocFile.name.split('.').pop();
+    var docUp = await window.sb.storage.from('media').upload(docPath, _kycDocFile, { upsert: true });
+    if (docUp.error) throw new Error('Error subiendo documento: ' + docUp.error.message);
+    var docUrl = window.sb.storage.from('media').getPublicUrl(docPath).data.publicUrl;
+
+    btn.textContent = 'Subiendo selfie...';
+    // Subir selfie
+    var selfiePath = 'kyc/' + uid + '/selfie_' + Date.now() + '.' + _kycSelfieFile.name.split('.').pop();
+    var selfieUp = await window.sb.storage.from('media').upload(selfiePath, _kycSelfieFile, { upsert: true });
+    if (selfieUp.error) throw new Error('Error subiendo selfie: ' + selfieUp.error.message);
+    var selfieUrl = window.sb.storage.from('media').getPublicUrl(selfiePath).data.publicUrl;
+
+    // Actualizar perfil
+    var upd = await window.sb.from('profiles').update({
+      doc_url: docUrl,
+      selfie_url: selfieUrl,
+      verification_status: 'pending',
+      verification_submitted_at: new Date().toISOString()
+    }).eq('id', uid);
+
+    if (upd.error) throw new Error(upd.error.message);
+
+    // Actualizar UI
+    document.getElementById('kyc-form').style.display = 'none';
+    renderKycStatus('pending', null);
+    showKycMsg('✅ Solicitud enviada. Te avisaremos cuando sea revisada.', true);
+
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '📋 Enviar verificación';
+    showKycMsg('Error: ' + e.message, false);
+  }
+}
+
+function showKycMsg(text, ok) {
+  var el = document.getElementById('kyc-msg');
+  el.textContent = text;
+  el.style.background = ok ? 'rgba(0,255,136,.1)' : 'rgba(255,34,85,.1)';
+  el.style.border = ok ? '1px solid rgba(0,255,136,.3)' : '1px solid rgba(255,34,85,.3)';
+  el.style.color = ok ? '#00ff88' : '#ff6680';
+  el.style.display = 'block';
+}
+
+function renderKycStatus(status, rejectionReason) {
+  var block = document.getElementById('kyc-status-block');
+  var icon = document.getElementById('kyc-status-icon');
+  var label = document.getElementById('kyc-status-label');
+  var sub = document.getElementById('kyc-status-sub');
+  var form = document.getElementById('kyc-form');
+
+  var cfg = {
+    unverified: { icon:'📋', label:'Sin verificar', sub:'Sube tu documento para desbloquear lives y monetización', color:'rgba(255,170,0,.08)', border:'rgba(255,170,0,.25)', labelColor:'#ffaa00', showForm:true },
+    pending:    { icon:'⏳', label:'En revisión', sub:'Tu solicitud fue recibida. Revisamos en 24-48h.', color:'rgba(0,229,255,.06)', border:'rgba(0,229,255,.2)', labelColor:'#00e5ff', showForm:false },
+    verified:   { icon:'✅', label:'Verificado', sub:'Identidad confirmada. Tienes acceso completo como creador.', color:'rgba(0,255,136,.06)', border:'rgba(0,255,136,.2)', labelColor:'#00ff88', showForm:false },
+    rejected:   { icon:'❌', label:'Rechazado', sub: rejectionReason || 'Tu verificación fue rechazada. Puedes intentarlo de nuevo.', color:'rgba(255,34,85,.08)', border:'rgba(255,34,85,.25)', labelColor:'#ff6680', showForm:true },
+  };
+
+  var c = cfg[status] || cfg.unverified;
+  block.style.background = c.color;
+  block.style.border = '1px solid ' + c.border;
+  icon.textContent = c.icon;
+  label.textContent = c.label;
+  label.style.color = c.labelColor;
+  sub.textContent = c.sub;
+  if (form) form.style.display = c.showForm ? 'block' : 'none';
+}
+
+// Cargar estado KYC cuando se cargue el perfil
+(function() {
+  function tryLoadKyc() {
+    if (!window.sb) { setTimeout(tryLoadKyc, 500); return; }
+    window.sb.auth.getSession().then(function(s) {
+      if (!s.data || !s.data.session) return;
+      window._currentUser = window._currentUser || s.data.session.user;
+      var uid = s.data.session.user.id;
+      window.sb.from('profiles').select('role,is_creator,verification_status,verification_rejection_reason').eq('id', uid).single().then(function(r) {
+        if (!r.data) return;
+        var isCreator = r.data.role === 'creator' || r.data.is_creator;
+        var kycEl = document.getElementById('kycSection');
+        if (isCreator && kycEl) {
+          kycEl.style.display = 'block';
+          renderKycStatus(r.data.verification_status || 'unverified', r.data.verification_rejection_reason);
+        }
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tryLoadKyc);
+  else tryLoadKyc();
+})();
+</script>
+
+<!-- SEGURIDAD -->
   <div class="section">
     <div class="section-head"><span class="section-icon"></span><span class="section-title">SEGURIDAD</span></div>
     <div class="section-body">

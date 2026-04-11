@@ -2810,5 +2810,63 @@ function selectSocPill(btn) {
   else{snShowCookieBanner();}
 })();
 </script>
+
+<script>
+// ---- GLOBAL ACTION FUNCTIONS (landing page) ----
+function _snGuest(){
+  document.getElementById('sn-auth-modal')&&document.getElementById('sn-auth-modal').classList.remove('hidden');
+}
+function viewProfile(userId){
+  if(!userId)return;
+  window.location.href='/profile.html?u='+userId;
+}
+function likePost(postId,el){
+  if(typeof _snSB==='undefined'||!_snSB)return _snGuest();
+  _snSB.auth.getUser().then(function(d){
+    if(!d.data.user)return _snGuest();
+    var uid=d.data.user.id;
+    _snSB.from('post_likes').select('id').eq('post_id',postId).eq('user_id',uid).single()
+      .then(function(x){
+        if(x.data){
+          _snSB.from('post_likes').delete().eq('post_id',postId).eq('user_id',uid).then(function(){
+            if(el){el.classList.remove('liked');var c=el.querySelector('.lc');if(c)c.textContent=Math.max(0,(parseInt(c.textContent)||0)-1);}
+          });
+        }else{
+          _snSB.from('post_likes').insert({post_id:postId,user_id:uid}).then(function(){
+            if(el){el.classList.add('liked');var c=el.querySelector('.lc');if(c)c.textContent=(parseInt(c.textContent)||0)+1;}
+          });
+        }
+      });
+  });
+}
+function sharePost(postId){
+  var url=window.location.origin+'/feed.html?post='+postId;
+  if(navigator.share){navigator.share({title:'SHADOWNET',url:url});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){alert('Enlace copiado!');});}
+  else{prompt('Copia este enlace:',url);}
+}
+function openComments(postId){
+  if(typeof _snSB==='undefined'||!_snSB)return _snGuest();
+  _snSB.auth.getUser().then(function(d){
+    if(!d.data.user)return _snGuest();
+    window.location.href='/feed.html?post='+postId+'&comments=1';
+  });
+}
+function subscribeTo(userId){
+  if(typeof _snSB==='undefined'||!_snSB)return _snGuest();
+  _snSB.auth.getUser().then(function(d){
+    if(!d.data.user)return _snGuest();
+    window.location.href='/profile.html?u='+userId+'&subscribe=1';
+  });
+}
+function showPostMenu(postId){
+  var el=document.getElementById('pm-'+postId);
+  if(el){el.classList.toggle('hidden');}
+  else{
+    // Fallback: share
+    sharePost(postId);
+  }
+}
+</script>
 </body>
 </html>

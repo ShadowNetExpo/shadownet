@@ -518,6 +518,7 @@ class="feed"><div class="loader">Cargando feed...</div></div>
 var SB_URL = "https://cdokplvoqivducsqrejt.supabase.co";
 var SB_KEY = "sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
 var sb = supabase.createClient(SB_URL, SB_KEY);
+var _ageVerified=false;var _showAdult=false;
 var currentUser = null;
 var currentProfile = null;
 var mediaFile = null;
@@ -622,6 +623,9 @@ async function loadFeed(tab) {
 }
 
 function buildPostCard(post, profile, liked, saved) {
+  // Guard: contenido adulto solo para age_verified
+  if((post&&post.is_adult)&&!_ageVerified){var _empty=document.createElement('div');_empty.style.display='none';return _empty;}
+
   var card=document.createElement("div"); card.className="card"; card.id="post-"+post.id;
   var uname=profile?profile.username:"usuario";
   var initials=uname[0].toUpperCase();
@@ -2211,8 +2215,7 @@ document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&
   window.snDismissLT2=function(){var e=document.getElementById('sn-lt2');if(e)e.classList.remove('show');showing=false;clearTimeout(window._lt2t);if(queue.length){setTimeout(function(){showT(queue.shift());},400);}};
   window.snJoinLT2=function(){var e=document.getElementById('sn-lt2');if(!e)return;snDismissLT2();location.href='live.html?mode=viewer&host='+(e._hi||'')+'&ch='+(e._ch||'');};
   function updBadge(n){cnt=n;document.querySelectorAll('[data-page="notifications"],[href*="notif"],#notif-nav-btn,.nav-notif-btn').forEach(function(b){var ex=b.querySelector('.sn-notif-count-badge');if(n>0){b.style.position='relative';if(!ex){var d=document.createElement('span');d.className='sn-notif-count-badge';b.appendChild(d);ex=d;}ex.textContent=n>9?'9+':String(n);ex.style.display='flex';}else if(ex){ex.style.display='none';}});}
-  function init(){if(!window.sb)return;window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;uid=s.data.session.user.id;var tok=s.data.session.access_token;fetch(SB+'/rest/v1/notifications?user_id=eq.'+uid+'&is_read=eq.false&select=id',{headers:{'apikey':AK,'Authorization':'Bearer '+tok,'Prefer':'count=exact','Range':'0-0'}}).then(function(r){updBadge(parseInt((r.headers.get('Content-Range')||'0/0').split('/')[1]||'0',10)||0);}).catch(function(){});window.sb.channel('notif-rt-feed-'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+uid},function(p){var n=p.new;if(!n)return;updBadge(cnt+1);if(n.type==='live_started'){var d=typeof n.data==='string'?JSON.parse(n.data||'{}'):(n.data||{});n.data=d;if(showing)queue.push(n);else showT(n);}}).subscribe();}).catch(function(){});}
-  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,600);});}else{setTimeout(init,600);}
+  });}else{setTimeout(init,600);}
 })();
 </script>
 

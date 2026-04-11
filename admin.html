@@ -218,7 +218,7 @@ async function loadStats(){
 async function loadKYC(){
   var r=await sb.from('profiles').select('id,username,avatar_url,doc_url,selfie_url,verification_submitted_at,role').eq('verification_status','pending').order('verification_submitted_at',{ascending:true});
   var el=document.getElementById('kyc-list');
-  if(!r.data||!r.data.length){el.innerHTML='<div class="empty">✅ No hay KYC pendientes</div>';return;}
+  if(!r.data||!r.data.length){el.innerHTML='<div class="empty">\u2705 No hay KYC pendientes</div>';return;}
   el.innerHTML=r.data.map(function(u){
     return '<div class="card" id="kyc-'+u.id+'">'+
       '<div class="card-header">'+
@@ -238,17 +238,17 @@ async function loadKYC(){
 async function approveKYC(uid){
   var r=await sb.from('profiles').update({verification_status:'verified'}).eq('id',uid);
   if(r.error){showToast('Error',true);return;}
-  await sb.from('notifications').insert({user_id:uid,type:'verification',message:'✅ Tu identidad fue verificada. Ya puedes hacer lives y monetizar.'});
+  await sb.from('notifications').insert({user_id:uid,type:'verification',message:'\u2705 Tu identidad fue verificada. Ya puedes hacer lives y monetizar.'});
   document.getElementById('kyc-'+uid)?.remove();
-  showToast('✅ KYC aprobado');loadStats();
+  showToast('\u2705 KYC aprobado');loadStats();
 }
 function openRejectModal(uid){_rejectTarget=uid;document.getElementById('rejectReason').value='';document.getElementById('rejectModal').classList.add('open');}
 function closeRejectModal(){document.getElementById('rejectModal').classList.remove('open');_rejectTarget=null;}
 async function confirmReject(){
   if(!_rejectTarget) return;
-  var reason=document.getElementById('rejectReason').value.trim()||'Documentos no válidos';
+  var reason=document.getElementById('rejectReason').value.trim()||'Documentos no v\u00E1lidos';
   await sb.from('profiles').update({verification_status:'rejected',verification_rejection_reason:reason}).eq('id',_rejectTarget);
-  await sb.from('notifications').insert({user_id:_rejectTarget,type:'verification',message:'❌ Verificación rechazada: '+reason+'. Intenta de nuevo desde Configuración.'});
+  await sb.from('notifications').insert({user_id:_rejectTarget,type:'verification',message:'\u274C Verificaci\u00F3n rechazada: '+reason+'. Intenta de nuevo desde Configuraci\u00F3n.'});
   closeRejectModal();
   document.getElementById('kyc-'+_rejectTarget)?.remove();
   showToast('KYC rechazado');loadStats();
@@ -256,13 +256,13 @@ async function confirmReject(){
 async function loadReports(){
   var r=await sb.from('reports').select('*').eq('status','pending').order('created_at',{ascending:true}).limit(30);
   var el=document.getElementById('reports-list');
-  if(!r.data||!r.data.length){el.innerHTML='<div class="empty">✅ No hay reportes pendientes</div>';return;}
+  if(!r.data||!r.data.length){el.innerHTML='<div class="empty">\u2705 No hay reportes pendientes</div>';return;}
   var uids=[...new Set(r.data.flatMap(function(rep){return [rep.reporter_id,rep.reported_user_id].filter(Boolean);}))];
   var um={};if(uids.length){var ur=await sb.from('profiles').select('id,username').in('id',uids);(ur.data||[]).forEach(function(u){um[u.id]=u.username;});}
   el.innerHTML=r.data.map(function(rep){
     return '<div class="card" id="rep-'+rep.id+'">'+
       '<div class="card-header">'+
-        '<div><div class="card-title">⚠️ '+escH(rep.reason)+'</div>'+
+        '<div><div class="card-title">\u26A0\uFE0F '+escH(rep.reason)+'</div>'+
         '<div class="card-sub">Por @'+(um[rep.reporter_id]||'?')+' contra @'+(um[rep.reported_user_id]||'?')+' &middot; hace '+tsAgo(rep.created_at)+'</div></div>'+
         '<span class="status-pill s-pending">Pendiente</span>'+
       '</div>'+
@@ -285,7 +285,7 @@ async function deletePost(postId,reportId){
   if(!confirm('Eliminar este post?')) return;
   await sb.from('posts').delete().eq('id',postId);
   await sb.from('reports').update({status:'resolved',action_taken:'post_deleted',reviewed_by:ADMIN_ID,reviewed_at:new Date().toISOString()}).eq('id',reportId);
-  document.getElementById('rep-'+reportId)?.remove();showToast('🗑️ Post eliminado');loadStats();
+  document.getElementById('rep-'+reportId)?.remove();showToast('\uD83D\uDDD1\uFE0F Post eliminado');loadStats();
 }
 async function loadUsers(){
   var r=await sb.from('profiles').select('id,username,avatar_url,role,is_banned,ban_reason,verification_status,created_at,coins_balance').order('created_at',{ascending:false}).limit(60);
@@ -299,7 +299,7 @@ function renderUsers(users){
     return '<div class="card">'+
       '<div class="card-header">'+
         '<div class="user-row"><div class="avatar">'+(u.avatar_url?'<img src="'+u.avatar_url+'" alt="">':escH(u.username[0].toUpperCase()))+'</div>'+
-        '<div class="user-info"><div class="user-name">@'+escH(u.username)+'</div><div class="user-meta">'+u.role+' &middot; '+tsAgo(u.created_at)+' &middot; 💀 '+(u.coins_balance||0)+'</div></div></div>'+
+        '<div class="user-info"><div class="user-name">@'+escH(u.username)+'</div><div class="user-meta">'+u.role+' &middot; '+tsAgo(u.created_at)+' &middot; \uD83D\uDC80 '+(u.coins_balance||0)+'</div></div></div>'+
         '<div class="actions">'+
           '<span class="status-pill '+(banned?'s-banned':u.verification_status==='verified'?'s-verified':u.verification_status==='pending'?'s-pending':'s-active')+'">'+(banned?'baneado':u.verification_status)+'</span>'+
           (banned?'<button class="btn btn-unban" onclick="unbanUser(''+u.id+'')">Desbanear</button>':'<button class="btn btn-ban" onclick="openBanModal(''+u.id+'')">Banear</button>')+
@@ -321,15 +321,15 @@ function openBanModal(uid){_banTarget=uid;document.getElementById('banReason').v
 function closeBanModal(){document.getElementById('banModal').classList.remove('open');_banTarget=null;}
 async function confirmBan(){
   if(!_banTarget) return;
-  var reason=document.getElementById('banReason').value.trim()||'Violación de términos';
+  var reason=document.getElementById('banReason').value.trim()||'Violaci\u00F3n de t\u00E9rminos';
   var r=await sb.from('profiles').update({is_banned:true,ban_reason:reason}).eq('id',_banTarget);
   if(r.error){showToast('Error: '+r.error.message,true);return;}
-  await sb.from('notifications').insert({user_id:_banTarget,type:'ban',message:'🚫 Tu cuenta fue suspendida: '+reason});
-  closeBanModal();showToast('🚫 Baneado');loadUsers();loadStats();
+  await sb.from('notifications').insert({user_id:_banTarget,type:'ban',message:'\uD83D\uDEAB Tu cuenta fue suspendida: '+reason});
+  closeBanModal();showToast('\uD83D\uDEAB Baneado');loadUsers();loadStats();
 }
 async function unbanUser(uid){
   await sb.from('profiles').update({is_banned:false,ban_reason:null}).eq('id',uid);
-  showToast('✅ Desbaneado');loadUsers();loadStats();
+  showToast('\u2705 Desbaneado');loadUsers();loadStats();
 }
 async function loadPosts(){
   var r=await sb.from('posts').select('id,user_id,content,media_url,media_type,created_at,likes_count,comments_count,is_subscriber_only').order('created_at',{ascending:false}).limit(40);
@@ -344,8 +344,8 @@ function renderPosts(posts){
   el.innerHTML=posts.map(function(p){
     return '<div class="card">'+
       '<div class="card-header">'+
-        '<div><div class="card-title">@'+escH(p.username)+(p.is_subscriber_only?' 🔒':'')+'</div>'+
-        '<div class="card-sub">hace '+tsAgo(p.created_at)+' &middot; ❤ '+p.likes_count+' &middot; 💬 '+p.comments_count+'</div></div>'+
+        '<div><div class="card-title">@'+escH(p.username)+(p.is_subscriber_only?' \uD83D\uDD12':'')+'</div>'+
+        '<div class="card-sub">hace '+tsAgo(p.created_at)+' &middot; \u2764 '+p.likes_count+' &middot; \uD83D\uDCAC '+p.comments_count+'</div></div>'+
         '<button class="btn btn-del" onclick="deletePostAdmin(''+p.id+'')">Eliminar</button>'+
       '</div>'+
       (p.content||p.media_url?'<div class="card-body">'+
@@ -360,7 +360,7 @@ async function deletePostAdmin(id){
   if(!confirm('Eliminar este post?')) return;
   await sb.from('posts').delete().eq('id',id);
   _allPosts=_allPosts.filter(function(p){return p.id!==id;});
-  renderPosts(_allPosts);showToast('🗑️ Eliminado');
+  renderPosts(_allPosts);showToast('\uD83D\uDDD1\uFE0F Eliminado');
 }
 function searchPosts(){
   var q=document.getElementById('post-search').value.toLowerCase();

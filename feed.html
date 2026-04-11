@@ -499,9 +499,9 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     </div>
   </div>
   <div class="tabs">
-    <button class="tab active" id="tabAll" onclick="loadFeed('all')">Global</button>
-    <button class="tab" id="tabFollowing" onclick="loadFeed('following')">Siguiendo</button>
-    <button class="tab" id="tabTrending" onclick="loadFeed('trending')">&#128293; Trending</button>
+    <button class="tab active" id="tabAll" onclick="var c=document.getElementById('postsContainer');if(c)c.innerHTML='';loadRankedFeed('all',c,0)">Global</button>
+    <button class="tab" id="tabFollowing" onclick="var c=document.getElementById('postsContainer');if(c)c.innerHTML='';loadRankedFeed('following',c,0)">Siguiendo</button>
+    <button class="tab" id="tabTrending" onclick="var c=document.getElementById('postsContainer');if(c)c.innerHTML='';loadRankedFeed('trending',c,0)">&#128293; Trending</button>
     <button class="tab" id="tabSaved" onclick="loadFeed('saved')">&#128278; Guardados</button>
   </div>
   <div class="sn-feed-tabs"><div class="sn-feed-tab active" id="tab-para-ti" onclick="switchFeedTab('para-ti')">&#9889; PARA TI</div><div class="sn-feed-tab" id="tab-sig" onclick="switchFeedTab('sig')">SIGUIENDO</div></div>
@@ -621,6 +621,86 @@ async function loadFeed(tab) {
     container.appendChild(card);
   });
 }
+
+// ── ALGORITMO DE FEED INTELIGENTE ────────────────────────────────────────────
+// Llama a la función PostgreSQL get_ranked_feed que rankea posts por:
+// interacciones * decay temporal * boost de seguidos * boost verificados
+async function loadRankedFeed(mode, container, offset) {
+  if(!window.sb||!window._currentUserId) return;
+  var uid = window._currentUserId;
+  var limit = 15;
+  var modeMap = {'all':'for_you','siguiendo':'following','trending':'trending'};
+  var dbMode = modeMap[mode] || 'for_you';
+  
+  try {
+    var r = await window.sb.rpc('get_ranked_feed', {
+      p_user_id: uid,
+      p_limit: limit,
+      p_offset: offset||0,
+      p_mode: dbMode
+    });
+    
+    if(r.error) {
+      // Fallback: usar loadFeed si la RPC falla
+      loadFeed(mode);
+      return;
+    }
+    
+    var posts = r.data || [];
+    
+    if(!posts.length && !(offset>0)) {
+      if(container) container.innerHTML = '<div class="empty-feed" style="text-align:center;padding:40px;color:#5a8aaa;font-size:14px">' +
+        (dbMode==='following'?'Sigue a creadores para ver su contenido aquí':'Aún no hay posts. ¡Sé el primero en publicar!') + '</div>';
+      return;
+    }
+    
+    // Normalizar formato para buildPostCard (que espera {id, user_id, ...})
+    var normalized = posts.map(function(p) {
+      return {
+        id: p.post_id,
+        user_id: p.post_user_id,
+        content: p.content,
+        media_url: p.media_url,
+        media_type: p.media_type,
+        media_urls: p.media_urls,
+        image_url: p.image_url,
+        video_url: p.video_url,
+        video_thumbnail: p.video_thumbnail,
+        is_subscriber_only: p.is_subscriber_only,
+        is_ppv: p.is_ppv,
+        ppv_price: p.ppv_price,
+        likes_count: p.likes_count,
+        comments_count: p.comments_count,
+        views_count: p.views_count,
+        shares_count: p.shares_count,
+        tips_total: p.tips_total,
+        created_at: p.created_at,
+        hashtags: p.hashtags,
+        // Perfil embebido
+        profiles: {
+          username: p.username,
+          display_name: p.display_name,
+          avatar_url: p.avatar_url,
+          verification_status: p.is_verified ? 'verified' : 'unverified'
+        }
+      };
+    });
+    
+    if(container) {
+      normalized.forEach(function(post) {
+        try {
+          var card = buildPostCard(post, post.profiles, false, false);
+          if(card) container.appendChild(card);
+        } catch(e) { console.warn('buildPostCard error', e); }
+      });
+    }
+  } catch(err) {
+    console.warn('[RankedFeed] Error, usando fallback:', err);
+    loadFeed(mode);
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 
 function buildPostCard(post, profile, liked, saved) {
   // Guard: contenido adulto solo para age_verified

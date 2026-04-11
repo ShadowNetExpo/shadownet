@@ -907,29 +907,7 @@ function showGreenScreenOverlay(){
 }
 
 // === EXTENDED BEAUTY FILTERS ===
-function updateBeautySlider(type, val){
-  var pct = val+'%';
-  var domMap = {smooth:'smoothVal',bright:'brightVal',contrast:'contrastVal',satur:'saturVal',warm:'warmVal'};
-  var el = document.getElementById(domMap[type]);
-  if(el) el.textContent=pct;
-  applyBeautyFilters();
-}
 
-function applyBeautyFilters(){
-  var smooth = document.getElementById('smoothSlider')?.value||0;
-  var bright = document.getElementById('brightSlider')?.value||50;
-  var contrast = document.getElementById('contrastSlider')?.value||50;
-  var satur = document.getElementById('saturSlider')?.value||50;
-  var warm = document.getElementById('warmSlider')?.value||50;
-  var vid = document.getElementById('liveVideo');
-  if(!vid) return;
-  var brightness = 0.7 + (bright/100)*0.7;
-  var contrastV = 0.7 + (contrast/100)*0.7;
-  var saturV = 0.7 + (satur/100)*0.7;
-  var blurV = (smooth/100)*3;
-  var warmFilter = warm > 50 ? 'sepia('+(warm-50)/100+')' : '';
-  vid.style.filter = 'brightness('+brightness+') contrast('+contrastV+') saturate('+saturV+') blur('+blurV+'px) '+warmFilter;
-}
 
 // === ANIMATED GIFTS SYSTEM ===
 var GIFTS = [
@@ -979,26 +957,6 @@ function sendGift(giftId){
   });
 }
 
-function animateGift(emoji,name,cost){
-  var overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden';
-  // Multiple copies of emoji floating up
-  for(var i=0;i<Math.min(8,1+Math.floor(cost/100));i++){
-    var el=document.createElement('div');
-    var x=10+Math.random()*80;
-    var delay=Math.random()*800;
-    el.style.cssText='position:absolute;bottom:20%;left:'+x+'%;font-size:'+Math.min(80,24+cost/500)+'px;animation:giftFloat 2.5s ease-out '+delay+'ms forwards';
-    el.textContent=emoji;
-    overlay.appendChild(el);
-  }
-  // Gift label
-  var label=document.createElement('div');
-  label.style.cssText='position:absolute;bottom:30%;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff2255,#ffaa00);color:#fff;padding:8px 20px;border-radius:20px;font-family:Orbitron,sans-serif;font-size:13px;animation:giftLabel 3s ease-out forwards;white-space:nowrap';
-  label.textContent=emoji+' '+name+' ('+cost+' monedas)';
-  overlay.appendChild(label);
-  document.body.appendChild(overlay);
-  setTimeout(function(){overlay.remove();},3500);
-}
 
 // Add CSS for gift animations
 (function(){
@@ -1196,18 +1154,7 @@ document.addEventListener('DOMContentLoaded',function(){
     }).subscribe();
   }
 
-  function addChatMessage(msg){
-    var chat = document.getElementById('sn-viewer-chat');
-    if(!chat) return;
-    var div = document.createElement('div');
-    div.className = 'sn-viewer-msg';
-    div.innerHTML = '<span class="sn-viewer-msg-user">'+escHtml(msg.username||'?')+'</span><span class="sn-viewer-msg-text">'+escHtml(msg.text||'')+'</span>';
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-    // Keep max 50 messages
-    while(chat.children.length > 50) chat.removeChild(chat.firstChild);
-  }
-
+  
   function escHtml(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 
   window.snViewerSendMsg = function(){

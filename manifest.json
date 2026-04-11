@@ -1,72 +1,65 @@
 {
   "name": "SHADOWNET",
-  "short_name": "SHADOWNET",
-  "description": "La red social para creadores adultos — Sin límites, Sin cadenas",
-  "start_url": "/",
+  "short_name": "SN",
+  "description": "La red social sin límites para creadores de contenido",
+  "start_url": "/feed.html",
   "display": "standalone",
   "background_color": "#01020c",
   "theme_color": "#ff2255",
   "orientation": "portrait-primary",
+  "scope": "/",
   "lang": "es",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
   "categories": [
     "social",
     "entertainment"
   ],
-  "icons": [
-    {
-      "src": "https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=192&bold=true&font-size=0.5",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=512&bold=true&font-size=0.5",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [],
   "shortcuts": [
     {
       "name": "Feed",
+      "short_name": "Feed",
       "url": "/feed.html",
       "icons": [
         {
-          "src": "https://ui-avatars.com/api/?name=F&background=00e5ff&color=000&size=96",
-          "sizes": "96x96"
+          "src": "/icon.svg",
+          "sizes": "any"
         }
       ]
     },
     {
-      "name": "Messages",
+      "name": "Mensajes",
+      "short_name": "DM",
       "url": "/messages.html",
       "icons": [
         {
-          "src": "https://ui-avatars.com/api/?name=M&background=ff2255&color=fff&size=96",
-          "sizes": "96x96"
+          "src": "/icon.svg",
+          "sizes": "any"
         }
       ]
     },
     {
-      "name": "Stories",
-      "url": "/stories.html",
+      "name": "Live",
+      "short_name": "Live",
+      "url": "/live.html",
       "icons": [
         {
-          "src": "https://ui-avatars.com/api/?name=S&background=ffaa00&color=000&size=96",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Ranking",
-      "url": "/leaderboard.html",
-      "icons": [
-        {
-          "src": "https://ui-avatars.com/api/?name=R&background=ffd700&color=000&size=96",
-          "sizes": "96x96"
+          "src": "/icon.svg",
+          "sizes": "any"
         }
       ]
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }

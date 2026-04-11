@@ -130,7 +130,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 /* New Post Modal */
 .new-post-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px}
 .new-post-modal.open{display:flex}
-.new-post-box{background:#070f1e;border:1px solid #0d2744;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.new-post-box{background:#070f1e;border:1px solid #0d2744;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding-bottom:16px}
 .new-post-hdr{padding:16px 20px;border-bottom:1px solid #0d2744;display:flex;align-items:center;justify-content:space-between}
 .new-post-title{font-family:Orbitron,sans-serif;font-size:13px;color:#e8f4ff;letter-spacing:.08em}
 .post-media-zone{margin:16px;border:2px dashed #0d2744;border-radius:10px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;position:relative;overflow:hidden;background:rgba(1,2,12,.4)}
@@ -147,7 +147,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .post-options{padding:0 16px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .post-option-label{font-size:12px;color:#5a8aaa;display:flex;align-items:center;gap:6px;cursor:pointer}
 .post-option-label input{cursor:pointer;accent-color:#ff2255}
-.post-submit-btn{width:calc(100% - 32px);margin:0 16px 16px;padding:13px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:opacity .2s}
+.post-submit-btn{width:calc(100% - 32px);margin:0 16px 0;padding:13px;position:sticky;bottom:0;z-index:10;background:linear-gradient(135deg,#ff2255,#aa0030);background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:opacity .2s}
 .post-submit-btn:disabled{opacity:.4;cursor:not-allowed}
 .post-progress{width:calc(100% - 32px);margin:0 16px 8px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;display:none}
 .post-progress-fill{height:100%;background:linear-gradient(90deg,#ff2255,#00e5ff);border-radius:2px;width:0;transition:width .3s}
@@ -944,7 +944,7 @@ function doLogout(){
 
 <!-- Tier Subscribe Modal -->
 <!-- Logout button - visible on own profile -->
-<button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:90px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)"> Cerrar sesi&#243;n</button>
+<button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:218px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)"> Cerrar sesi&#243;n</button>
 
 <!-- Highlight Create Modal -->
 <div class="highlight-modal" id="highlightModal">
@@ -1062,7 +1062,7 @@ else _go();
 })();
 </script>
 <!-- Almas link - floating button -->
-<a href="/almas.html" id="almasFloatBtn" style="display:none;position:fixed;bottom:80px;right:16px;z-index:201;background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(150,80,0,.1));border:1px solid rgba(255,170,0,.5);color:#ffaa00;padding:10px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;align-items:center;gap:6px">&#128128; <span id="profileAlmasCount">0</span> Almas</a>
+<a href="/almas.html" id="almasFloatBtn" style="display:none;position:fixed;bottom:148px;right:16px;z-index:201;background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(150,80,0,.1));border:1px solid rgba(255,170,0,.5);color:#ffaa00;padding:10px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;align-items:center;gap:6px">&#128128; <span id="profileAlmasCount">0</span> Almas</a>
 <script>
 (function(){
   var sb2=window.sb||(window.supabase&&window.supabase.createClient?window.supabase.createClient('https://cdokplvoqivducsqrejt.supabase.co','sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su'):null);

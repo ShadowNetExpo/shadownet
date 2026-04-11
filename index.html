@@ -768,7 +768,7 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
 <!-- SECTION: Botones para fans y creadores -->
 <div id="fanSection" style="display:none">
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
-    <button onclick="window.location.href='/explore.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
+    <button onclick="window.location.href='/search.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
     <button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,100,200,.1));border:1px solid rgba(0,229,255,.3);color:#00e5ff">&#128248; Feed</button>
     <button onclick="window.location.href='/messages.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(0,80,150,.08));border:1px solid rgba(0,229,255,.25);color:#00e5ff">&#128172; Mensajes</button>
     <button onclick="window.location.href='/stories.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.15),rgba(200,80,0,.08));border:1px solid rgba(255,170,0,.3);color:#ffaa00">&#9203; Stories</button>
@@ -895,7 +895,7 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
       <p style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:var(--c)">&#128640; Tu estudio</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn bp" onclick="openShop()" style="border-radius:6px;padding:8px 18px;font-size:12px">&#128128; Comprar Almas</button>
-<button onclick="window.location.href='/explore.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
+<button onclick="window.location.href='/search.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,170,0,.2),rgba(200,100,0,.1));border:1px solid rgba(255,170,0,.4);color:#ffaa00">&#128269; Explorar</button>
         <button onclick="window.location.href='/live.html'" style="background:linear-gradient(135deg,#ff2255,#cc0000);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">&#128308; Ir en vivo</button>
 <button onclick="window.location.href='/feed.html'" class="btn" style="background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(0,100,200,.15));border:1px solid rgba(0,229,255,.4);color:#00e5ff">&#128248; Feed</button>
 <button onclick="window.location.href='/profile.html'" class="btn" style="background:linear-gradient(135deg,rgba(255,34,85,.15),rgba(150,0,50,.1));border:1px solid rgba(255,34,85,.4);color:#ff6680">&#128100; Mi Perfil</button>
@@ -2069,7 +2069,7 @@ async function loadHomeFeed(append){
   if(!posts.length&&!append){
     feed.innerHTML='<div class="feed-empty"><div class="feed-empty-icon">&#128247;</div>'+
       '<div class="feed-empty-text">No hay publicaciones todavia.<br>'+
-      '<a href="/explore.html" style="color:#00e5ff">Explorar creadores</a></div></div>';
+      '<a href="/search.html" style="color:#00e5ff">Explorar creadores</a></div></div>';
     return;
   }
   posts.forEach(function(post){ feed.appendChild(buildFeedCard(post)); });
@@ -2364,7 +2364,7 @@ async function loadHomeStories(){
   <button class="bn-item bn-active" id="bnInicio" onclick="window.location.href='/'">
     <span class="bn-icon">&#127968;</span><span class="bn-lbl">Inicio</span>
   </button>
-  <button class="bn-item" onclick="window.location.href='/explore.html'">
+  <button class="bn-item" onclick="window.location.href='/search.html'">
     <span class="bn-icon">&#128269;</span><span class="bn-lbl">Explorar</span>
   </button>
   <button class="bn-item bn-plus" onclick="openQuickPost()">
@@ -2614,7 +2614,7 @@ async function startPay(){
 <!-- SHADOWNET-NAV-V1 -->
 <nav id="snLandingNav" style="display:none" class="sn-bottom-nav" id="snBottomNav">
   <a class="sn-bn-item sn-bn-active" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
+  <a class="sn-bn-item" href="/search.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
   <a class="sn-bn-item sn-bn-plus" href="#" onclick="openQuickPost();return false;"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item" href="/messages.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
   <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>

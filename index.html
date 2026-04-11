@@ -2629,8 +2629,6 @@ function renderPost(p,currentUserId){
     caption+
   '</div>';
 }
-function escHtml(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'):'';
-}
 function timeAgo(d){
   var diff=Date.now()-d.getTime(),s=Math.floor(diff/1000);
   if(s<60)return 'ahora';if(s<3600)return Math.floor(s/60)+'m';if(s<86400)return Math.floor(s/3600)+'h';

@@ -159,8 +159,8 @@ function buildCreatorCard(c){
   var body=document.createElement("div");body.className="creator-body";
   var name=document.createElement("div");name.className="creator-name";
   name.textContent="@"+c.username;
-  if(c.verification_status==="verified"){var vb=document.createElement("span");vb.className="v-badge";vb.textContent="✓";name.appendChild(vb);}
-  if(c.fan_rank_name&&c.fan_rank>1){var rb=document.createElement("span");rb.className="rank-badge";rb.textContent="⭐ "+c.fan_rank_name;name.appendChild(rb);}
+  if(c.verification_status==="verified"){var vb=document.createElement("span");vb.className="v-badge";vb.textContent="\u2713";name.appendChild(vb);}
+  if(c.fan_rank_name&&c.fan_rank>1){var rb=document.createElement("span");rb.className="rank-badge";rb.textContent="\u2B50 "+c.fan_rank_name;name.appendChild(rb);}
   var bio=document.createElement("div");bio.className="creator-bio";bio.textContent=c.bio||"Creador en SHADOWNET";
   var stats=document.createElement("div");stats.className="creator-stats";
   [{n:c.followers_count||0,l:"Seg."},{n:c.subscribers_count||0,l:"Subs"},{n:c.posts_count||0,l:"Posts"}].forEach(function(s){
@@ -171,7 +171,7 @@ function buildCreatorCard(c){
   });
   var price=document.createElement("div");price.className="creator-price";
   var p=parseFloat(c.subscription_price||0);
-  price.textContent=p>0?"🐍 Suscripción: $"+p.toFixed(2)+"/mes":"🔓 Contenido gratis";
+  price.textContent=p>0?"\uD83D\uDC0D Suscripci\u00F3n: $"+p.toFixed(2)+"/mes":"\uD83D\uDD13 Contenido gratis";
   var subbtn=document.createElement("button");
   subbtn.className="sub-btn"+(p===0?" free":"");
   subbtn.textContent=p===0?"Seguir gratis":"Suscribirse";

@@ -741,6 +741,12 @@ footer{background:#000;border-top:1px solid #111;padding:32px 20px;text-align:ce
       <div class="fg"><label class="fl">Correo</label><input class="fi" id="rEmail" type="email" placeholder="tu@correo.com"><p class="ferr" id="rEmailErr"></p></div>
       <div class="fg"><label class="fl">Contrasena</label><input class="fi" id="rPass" type="password" placeholder="Minimo 8 caracteres"><p class="ferr" id="rPassErr"></p></div>
       
+
+<div style="margin-bottom:14px">
+  <label class="fl" style="display:block;margin-bottom:6px">Fecha de nacimiento</label>
+  <input class="fi" id="rDob" type="date" style="width:100%;color:#e8f4ff;background:rgba(1,2,12,.8)">
+  <p class="ferr" id="rDobErr"></p>
+</div>
 <div style="margin-bottom:14px">
   <label class="fl" style="margin-bottom:8px;display:block">Tipo de cuenta</label>
   <div style="display:flex;gap:8px">
@@ -1100,7 +1106,13 @@ function selectRole(r){
   c.style.border=r==='creator'?'2px solid #ff2255':'2px solid #0d2744';
   c.style.background=r==='creator'?'rgba(255,34,85,.1)':'transparent';
 }
+function calcAge(dob){if(!dob)return 0;var b=new Date(dob),n=new Date();var age=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))age--;return age;}
 function selectContent(c){
+  if(c==='adult'){
+    var dob=document.getElementById('rDob')&&document.getElementById('rDob').value;
+    if(!dob){var e=document.getElementById('rDobErr');if(e)e.textContent='Ingresa tu fecha de nacimiento primero';return;}
+    if(calcAge(dob)<18){var e2=document.getElementById('rDobErr');if(e2)e2.textContent='Debes tener 18 anos o mas para acceder a contenido adulto';return;}
+  }
   _regContent=c;
   var g=document.getElementById('contentGeneral'),a=document.getElementById('contentAdult'),w=document.getElementById('adultWarning');
   if(!g||!a)return;
@@ -1110,7 +1122,7 @@ function selectContent(c){
   a.style.background=c==='adult'?'rgba(255,34,85,.1)':'transparent';
   if(w)w.style.display=c==='adult'?'block':'none';
 }
-function doRegister(){clearErrs();var u=document.getElementById('rUser').value.trim().replace(/[^a-zA-Z0-9_.]/g,'');var e=document.getElementById('rEmail').value.trim();var p=document.getElementById('rPass').value;var ok=true;if(!u||u.length<3){document.getElementById('rUserErr').textContent='Minimo 3 caracteres';ok=false;}if(!e||!e.includes('@')){document.getElementById('rEmailErr').textContent='Correo invalido';ok=false;}if(!p||p.length<8){document.getElementById('rPassErr').textContent='Minimo 8 caracteres';ok=false;}if(!ok)return;setLoad('rBtn',true);sb.auth.signUp({email:e,password:p,options:{data:{username:u,role:_regRole,show_adult_content:_regContent==='adult'}}}).then(function(r){setLoad('rBtn',false);if(r.error){document.getElementById('rEmailErr').textContent=r.error.message.includes('already')?'Correo ya registrado':r.error.message;return;}if(r.data.session){setUser(r.data.user);}else{var ok=document.getElementById('authOk');ok.textContent='Cuenta creada! Verifica tu email.';ok.style.display='block';}});}
+function doRegister(){clearErrs();var u=document.getElementById('rUser').value.trim().replace(/[^a-zA-Z0-9_.]/g,'');var e=document.getElementById('rEmail').value.trim();var p=document.getElementById('rPass').value;var dob=document.getElementById('rDob')&&document.getElementById('rDob').value;var ok=true;if(!u||u.length<3){document.getElementById('rUserErr').textContent='Minimo 3 caracteres';ok=false;}if(!e||!e.includes('@')){document.getElementById('rEmailErr').textContent='Correo invalido';ok=false;}if(!p||p.length<8){document.getElementById('rPassErr').textContent='Minimo 8 caracteres';ok=false;}if(!dob){var de=document.getElementById('rDobErr');if(de)de.textContent='La fecha de nacimiento es obligatoria';ok=false;}else{var age=calcAge(dob);if(age<13){var de2=document.getElementById('rDobErr');if(de2)de2.textContent='Debes tener al menos 13 anos';ok=false;}else if(age<18&&_regContent==='adult'){var de3=document.getElementById('rDobErr');if(de3)de3.textContent='Debes tener 18 anos para seleccionar contenido adulto';_regContent='general';ok=false;}}if(!ok)return;setLoad('rBtn',true);sb.auth.signUp({email:e,password:p,options:{data:{username:u,role:_regRole,show_adult_content:_regContent==='adult',birth_date:dob}}}).then(function(r){setLoad('rBtn',false);if(r.error){document.getElementById('rEmailErr').textContent=r.error.message.includes('already')?'Correo ya registrado':r.error.message;return;}if(r.data.session){setUser(r.data.user);}else{var ok=document.getElementById('authOk');ok.textContent='Cuenta creada! Verifica tu email.';ok.style.display='block';}});}
 function doLogin(){clearErrs();var e=document.getElementById('lEmail').value.trim();var p=document.getElementById('lPass').value;if(!e||!p){document.getElementById('lErr').textContent='Completa todos los campos';return;}setLoad('lBtn',true);sb.auth.signInWithPassword({email:e,password:p}).then(function(r){setLoad('lBtn',false);if(r.error){var errMsg=r.error.message;if(errMsg.includes('confirm')||errMsg.includes('verified')){errMsg='Verifica tu email antes de entrar (revisa tu bandeja)';}else if(errMsg.includes('Invalid')){errMsg='Correo o contrasena incorrectos';}document.getElementById('lErr').textContent=errMsg;return;}setUser(r.data.user);});}
 function doLogout(){sb.auth.signOut();}
 
@@ -1760,7 +1772,7 @@ function applyRoleDashboard(role){
   } else {
     if(creatorSection) creatorSection.style.display="none";
     if(!homeFeedActive && fanSection) fanSection.style.display="block";
-    if(!homeFeedActive && applyCreatorBtn) applyCreatorBtn.style.display="block";
+    // applyCreatorBtn removed - role chosen at registration
   }
 }
 

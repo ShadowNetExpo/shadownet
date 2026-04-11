@@ -622,8 +622,8 @@ async function loadFeed(tab) {
   });
 }
 
-// ── ALGORITMO DE FEED INTELIGENTE ────────────────────────────────────────────
-// Llama a la función PostgreSQL get_ranked_feed que rankea posts por:
+// == ALGORITMO DE FEED INTELIGENTE ==
+// Llama a la funcion PostgreSQL get_ranked_feed que rankea posts por:
 // interacciones * decay temporal * boost de seguidos * boost verificados
 async function loadRankedFeed(mode, container, offset) {
   if(!window.sb||!window._currentUserId) return;
@@ -650,7 +650,7 @@ async function loadRankedFeed(mode, container, offset) {
     
     if(!posts.length && !(offset>0)) {
       if(container) container.innerHTML = '<div class="empty-feed" style="text-align:center;padding:40px;color:#5a8aaa;font-size:14px">' +
-        (dbMode==='following'?'Sigue a creadores para ver su contenido aquí':'Aún no hay posts. ¡Sé el primero en publicar!') + '</div>';
+        (dbMode==='following'?'Sigue a creadores para ver su contenido aqu\u00ed':'A\u00fan no hay posts. \u00a1S\u00e9 el primero en publicar!') + '</div>';
       return;
     }
     
@@ -699,7 +699,7 @@ async function loadRankedFeed(mode, container, offset) {
     loadFeed(mode);
   }
 }
-// ─────────────────────────────────────────────────────────────────────────────
+// ====================================================================
 
 
 function buildPostCard(post, profile, liked, saved) {

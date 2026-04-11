@@ -524,6 +524,8 @@ var currentProfile = null;
 var mediaFile = null;
 var curTab = "all";
 
+window._showNsfw = false;
+
 sb.auth.getSession().then(function(r) {
   if (r.data.session) initUser(r.data.session.user);
   else loadFeed("all");
@@ -633,11 +635,11 @@ async function loadRankedFeed(mode, container, offset) {
   var dbMode = modeMap[mode] || 'for_you';
   
   try {
-    var r = await window.sb.rpc('get_ranked_feed', {
+    var r = await window.sb.rpc('get_for_you_feed', {
       p_user_id: uid,
       p_limit: limit,
       p_offset: offset||0,
-      p_mode: dbMode
+      p_show_nsfw: window._showNsfw||false
     });
     
     if(r.error) {
@@ -848,6 +850,8 @@ function buildPostCard(post, profile, liked, saved) {
   footer.appendChild(saveBtn);
   // Delete (own posts)
   if(isOwn){var delBtn=document.createElement("button");delBtn.className="action-btn";delBtn.textContent="\uD83D\uDDD1";delBtn.style.color="#ff2255";delBtn.dataset.postId=post.id;delBtn.addEventListener("click",function(){deletePost(this.dataset.postId);});footer.appendChild(delBtn);}
+var _ni=document.createElement('div');_ni.className='post-menu-item';_ni.textContent='\u26D4 No me interesa';_ni.onclick=function(){markNotInterested(post.id);footer.remove();};footer.appendChild(_ni);
+
   // Report button (for others' posts)
   if(!isOwn&&currentUser){var repBtn=document.createElement("button");repBtn.className="action-btn";repBtn.innerHTML="&#8942;";repBtn.title="Reportar";repBtn.style.color="#5a8aaa";repBtn.dataset.postId=post.id;repBtn.dataset.userId=post.user_id;repBtn.addEventListener("click",function(){openReport(this.dataset.postId,"post",this.dataset.userId);});footer.appendChild(repBtn);}
   card.appendChild(footer);
@@ -2594,6 +2598,62 @@ window.snMediaSelected=function(inp){
   },500);
 })();
 <\/script>
-<script src="/push.js"></script>
+<script src="/push.js">
+
+// == WATCH TIME TRACKING ==
+window._watchTimers = {};
+function startWatchTimer(postId) {
+  if(!postId || window._watchTimers[postId]) return;
+  window._watchTimers[postId] = { start: Date.now(), postId: postId };
+}
+function endWatchTimer(postId) {
+  var t = window._watchTimers[postId];
+  if(!t || !window._currentUserId) return;
+  var ms = Date.now() - t.start;
+  delete window._watchTimers[postId];
+  if(ms < 500) return;
+  window.sb.rpc('record_watch_time', {
+    p_user_id: window._currentUserId,
+    p_post_id: postId,
+    p_watch_ms: ms,
+    p_total_ms: 0,
+    p_looped: false
+  }).catch(function(){});
+}
+
+// == NOT INTERESTED ==
+function markNotInterested(postId) {
+  if(!window._currentUserId) return;
+  window.sb.from('content_signals').upsert({
+    user_id: window._currentUserId,
+    post_id: postId,
+    signal_type: 'not_interested'
+  }, {onConflict: 'user_id,post_id,signal_type'}).then(function(){
+    var el = document.querySelector('[data-post-id="'+postId+'"]');
+    if(el) { el.style.opacity='0'; setTimeout(function(){ el.remove(); }, 300); }
+    showToast('\u2713 No ver\u00e1s contenido similar');
+  });
+  // Update interest negatively
+  window.sb.rpc('update_user_interest', {
+    p_user_id: window._currentUserId,
+    p_category: 'entertainment',
+    p_action: 'not_interested'
+  }).catch(function(){});
+}
+
+// == INTEREST UPDATE ON ACTIONS ==
+function trackInterest(postId, action) {
+  if(!window._currentUserId) return;
+  window.sb.from('posts').select('category').eq('id', postId).single().then(function(r){
+    if(r.data && r.data.category){
+      window.sb.rpc('update_user_interest', {
+        p_user_id: window._currentUserId,
+        p_category: r.data.category,
+        p_action: action
+      }).catch(function(){});
+    }
+  });
+}
+</script>
 </body>
 </html>

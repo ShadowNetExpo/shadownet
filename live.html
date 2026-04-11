@@ -366,7 +366,7 @@ function subscribeLiveChannel(){
 
 // \u2500\u2500 TIMER \u2500\u2500
 function startLiveTimer(){
-  // ── GUARD: solo creadores verificados pueden iniciar live ──────────
+  // \u2500\u2500 GUARD: solo creadores verificados pueden iniciar live \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   if(window._currentProfile){
     var _role = window._currentProfile.role;
     var _verif = window._currentProfile.verification_status;
@@ -403,7 +403,7 @@ function startLiveTimer(){
       }
     }
   }
-  // ── FIN GUARD ───────────────────────────────────────────────────────
+  // \u2500\u2500 FIN GUARD \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 liveTimer=setInterval(function(){if(!liveStartTime)return;var e=Math.floor((Date.now()-liveStartTime)/1000),m=Math.floor(e/60),s=e%60;(document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO \u2022 "+(m>0?m+"m ":"")+s+"s";},1000);}
 
 // \u2500\u2500 ACTION BAR (host) \u2500\u2500

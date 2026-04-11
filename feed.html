@@ -450,6 +450,10 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-upload-progress.show{display:block}
 .sn-upload-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ffa500);border-radius:2px;width:0%;transition:width .3s}
 
+
+.nsfw-toggle{display:none;padding:4px 10px;border-radius:14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:10px;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;text-transform:uppercase;letter-spacing:.04em;transition:all .2s}
+.nsfw-toggle.on{background:rgba(255,34,85,.15);border-color:#ff2255;color:#ff2255}
+.nsfw-toggle.visible{display:inline-block}
 </style>
 </head>
 <body>
@@ -459,7 +463,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <button class="nbtn" onclick="window.location.href='/search.html'">&#128269;</button>
     <button class="nbtn" id="logoutNavBtn" style="display:none" onclick="doLogout()">Salir</button>
   </div>
-</header>
+<button class="nsfw-toggle" id="nsfwToggle" onclick="toggleNSFW()" title="Mostrar contenido +18">+18</button></header>
 <div class="wrap">
   <div id="postBox" class="post-box" style="display:none">
     <div class="post-box-header">
@@ -527,7 +531,7 @@ var curTab = "all";
 window._showNsfw = false;
 
 sb.auth.getSession().then(function(r) {
-  if (r.data.session) initUser(r.data.session.user);
+  if (r.data.session) { initUser(r.data.session.user); } else { window._isAnon=true; loadPublicFeed(); }
   else loadFeed("all");
 });
 sb.auth.onAuthStateChange(function(e, s) {
@@ -877,6 +881,7 @@ async function checkFollowing(userId, btn) {
 }
 
 async function toggleFollow(btn) {
+  if(requireLogin()) return;
   if (!currentUser) { window.location.href = "/"; return; }
   var uid = btn.dataset.uid;
   var isFollowing = btn.dataset.following === "1";
@@ -892,6 +897,7 @@ async function toggleFollow(btn) {
 }
 
 async function toggleLike(btn) {
+  if(requireLogin()) return;
   if (!currentUser) { window.location.href = "/"; return; }
   var postId = btn.dataset.postId;
   var liked = btn.dataset.liked === "1";
@@ -947,7 +953,7 @@ async function submitPost() {
     }
     var isPremium=document.getElementById("isPremiumCheck")&&document.getElementById("isPremiumCheck").checked;
     var loc=(document.getElementById("locationInp")?.value||"").trim()||null;
-    var r = await sb.from("posts").insert({ user_id: currentUser.id, content: text || null, media_url: mediaUrl, media_type: mediaType, is_premium: isPremium, location: loc });
+    var r = await sb.from("posts").insert({ user_id: currentUser.id, content: text || null, media_url: mediaUrl, media_type: mediaType, is_premium: isPremium, location: loc, category: document.getElementById('postCategory') ? document.getElementById('postCategory').value || null : null, content_rating: isPremium ? 'nsfw' : 'sfw' });
     if (r.error) throw new Error(r.error.message);
     document.getElementById("postText").value = "";
     mediaFile = null;
@@ -2035,7 +2041,7 @@ function goLiveNow(){
       // Not logged in yet - wait 800ms for token refresh before redirecting
       setTimeout(function(){
         client.auth.getSession().then(function(res2){
-          if(!res2.data || !res2.data.session) window.location.replace('/');
+          if(!res2.data || !res2.data.session) window._isAnon=true;loadPublicFeed();
         });
       }, 800);
     });
@@ -2654,6 +2660,63 @@ function trackInterest(postId, action) {
     }
   });
 }
+
+
+// == PUBLIC FEED (no login required) ==
+window._isAnon = false;
+function loadPublicFeed() {
+  window._isAnon = true;
+  // Show login banner
+  var banner = document.createElement('div');
+  banner.id = 'anonBanner';
+  banner.style.cssText = 'position:sticky;top:48px;z-index:90;background:linear-gradient(135deg,rgba(255,34,85,.12),rgba(7,15,30,.95));border-bottom:1px solid rgba(255,34,85,.3);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#e8f4ff;';
+  banner.innerHTML = '<span style="flex:1">Reg\u00edstrate para interactuar, seguir creadores y desbloquear contenido exclusivo</span><button onclick="window.location.href=\'/'+'\''+'" style="padding:6px 16px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ENTRAR</button>';
+  var header = document.querySelector('header');
+  if(header) header.after(banner);
+  // Load public SFW feed via the algorithm
+  window.sb.rpc('get_for_you_feed', {
+    p_user_id: null,
+    p_limit: 20,
+    p_offset: 0,
+    p_show_nsfw: false
+  }).then(function(r) {
+    if(r.error || !r.data || !r.data.length) return;
+    var container = document.getElementById('feed') || document.querySelector('.feed');
+    if(!container) return;
+    container.innerHTML = '';
+    r.data.forEach(function(post) {
+      var profile = {username:post.username,display_name:post.display_name,avatar_url:post.avatar_url,verification_status:post.verification_status};
+      var card = buildPostCard(post, profile, false, false);
+      container.appendChild(card);
+    });
+  }).catch(function(e){ console.log('Public feed error:', e); });
+}
+
+// == LOGIN PROMPT for anon actions ==
+function requireLogin() {
+  if(!window._isAnon) return false;
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = '<div style="background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:32px;text-align:center;max-width:360px;margin:0 16px"><div style="font-family:Orbitron,sans-serif;font-size:18px;color:#ff2255;margin-bottom:12px">SHADOWNET</div><p style="color:#c8d8e8;font-size:14px;margin-bottom:20px">Crea tu cuenta para dar like, comentar, seguir creadores y m\u00e1s</p><button onclick="window.location.href=\'/'+'\''+'" style="width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:8px">CREAR CUENTA</button><button onclick="this.closest(\'div[style]\').parentElement.remove()" style="width:100%;padding:8px;background:none;border:1px solid #0d2744;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer">Seguir viendo</button></div>';
+  document.body.appendChild(modal);
+  return true;
+}
+
+// == NSFW TOGGLE ==
+function toggleNSFW() {
+  if(window._isAnon) { requireLogin(); return; }
+  window._showNsfw = !window._showNsfw;
+  var btn = document.getElementById('nsfwToggle');
+  if(btn) btn.classList.toggle('on', window._showNsfw);
+  // Reload feed with new setting
+  if(typeof loadRankedFeed === 'function') loadRankedFeed('all', document.getElementById('feed') || document.querySelector('.feed'), 0);
+}
+function showNsfwToggle() {
+  var btn = document.getElementById('nsfwToggle');
+  if(btn && !window._isAnon) btn.classList.add('visible');
+}
+// Show toggle after user init
+setTimeout(showNsfwToggle, 2000);
 </script>
 </body>
 </html>

@@ -79,6 +79,24 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 @media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none;}}
 body{padding-bottom:72px;}
+
+.explore-section{padding:16px}
+.explore-section-title{font-family:Orbitron,sans-serif;font-size:12px;color:#ff2255;letter-spacing:.1em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.explore-section-title a{font-family:Rajdhani,sans-serif;font-size:11px;color:#5a8aaa;text-decoration:none;font-weight:700}
+.sounds-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.sounds-scroll::-webkit-scrollbar{display:none}
+.sound-chip{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(13,39,68,.4);border:1px solid #0d2744;border-radius:12px;cursor:pointer;transition:border-color .2s;min-width:160px}
+.sound-chip:hover{border-color:#ff2255}
+.sound-chip-disc{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0d2744,#01020c);border:2px solid #ff2255;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sound-chip-info{min-width:0}
+.sound-chip-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sound-chip-uses{font-size:10px;color:#5a8aaa}
+.shops-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.shops-scroll::-webkit-scrollbar{display:none}
+.shop-chip{flex-shrink:0;width:120px;padding:12px;background:rgba(13,39,68,.4);border:1px solid #0d2744;border-radius:12px;text-align:center;cursor:pointer;transition:border-color .2s}
+.shop-chip:hover{border-color:#ff2255}
+.shop-chip-icon{font-size:28px;margin-bottom:6px}
+.shop-chip-name{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -191,6 +209,15 @@ function showToast(msg,err){
 }
 </script>
 
+
+<div class="explore-section" id="trendingSoundsSection" style="display:none">
+  <div class="explore-section-title">TRENDING SOUNDS <a href="/sound.html">Ver todos</a></div>
+  <div class="sounds-scroll" id="trendingSounds"></div>
+</div>
+<div class="explore-section" id="shopSection" style="display:none">
+  <div class="explore-section-title">MARKETPLACE <a href="/shop.html">Ver todo</a></div>
+  <div class="shops-scroll" id="trendingShops"></div>
+</div>
 <nav class="sn-bottom-nav" id="snBottomNav"><a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a><a class="sn-bn-item sn-bn-active" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a><a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a><a class="sn-bn-item" href="/reels.html"><span class="sn-bn-icon">&#9654;</span><span class="sn-bn-lbl">Reels</span></a><a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a></nav>
 <script>
 (function(){
@@ -224,6 +251,36 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     setTimeout(doCheck,400);
   }
 })();
+
+
+// == TRENDING SOUNDS + SHOPS ==
+setTimeout(function(){
+  if(!window.sb) return;
+  // Load trending sounds
+  window.sb.rpc('get_trending_sounds',{p_limit:10}).then(function(r){
+    if(!r.data||!r.data.length) return;
+    var container=document.getElementById('trendingSounds');
+    document.getElementById('trendingSoundsSection').style.display='block';
+    r.data.forEach(function(s){
+      var chip=document.createElement('div');chip.className='sound-chip';
+      chip.onclick=function(){location.href='/sound.html?id='+s.sound_id;};
+      chip.innerHTML='<div class="sound-chip-disc">\uD83C\uDFB5</div><div class="sound-chip-info"><div class="sound-chip-name">'+(s.name||'Sonido')+'</div><div class="sound-chip-uses">'+(s.uses_count||0)+' videos</div></div>';
+      container.appendChild(chip);
+    });
+  }).catch(function(){});
+  // Load trending products as shops
+  window.sb.rpc('get_trending_products',{p_limit:8}).then(function(r){
+    if(!r.data||!r.data.length) return;
+    var container=document.getElementById('trendingShops');
+    document.getElementById('shopSection').style.display='block';
+    r.data.forEach(function(p){
+      var chip=document.createElement('div');chip.className='shop-chip';
+      chip.onclick=function(){location.href='/shop.html?u='+(p.seller_username||'');};
+      chip.innerHTML='<div class="shop-chip-icon">\uD83D\uDED2</div><div class="shop-chip-name">'+(p.name||'Producto')+'</div>';
+      container.appendChild(chip);
+    });
+  }).catch(function(){});
+},2000);
 </script>
 </body>
 </html>

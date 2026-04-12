@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SHADOWNET \u2014 Sound</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/sn-design.css">
 <style>
@@ -137,6 +137,6 @@ function toggleAudio(){
 }
 function updatePlayBtns(){var icon=_playing?'\u23F8':'\u25B6';document.getElementById('playBtn').innerHTML=icon+' '+(_playing?'Pausar':'Reproducir');document.getElementById('abPlayBtn').innerHTML=icon;document.getElementById('soundDisc').classList.toggle('paused',!_playing);}
 function useSound(){location.href='/editor.html?sound='+encodeURIComponent(_soundData?_soundData.name:'');}
-<\/script>
+</script>
 </body>
 </html>

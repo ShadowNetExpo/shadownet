@@ -344,6 +344,7 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
   <div class="profile-tabs" id="profileTabs">
     <div class="profile-tab active" data-tab="posts" onclick="switchTab('posts')"><span class="profile-tab-icon"></span>Posts</div>
     <div class="profile-tab" data-tab="reels" onclick="switchTab('reels')"><span class="profile-tab-icon"></span>Reels</div>
+    <div class="profile-tab" data-tab="shop" onclick="switchTab('shop')"><span class="profile-tab-icon"></span>Shop</div>
     <div class="profile-tab" data-tab="saved" onclick="switchTab('saved')" id="savedTab" style="display:none"><span class="profile-tab-icon"></span>Guardados</div>
     <div class="profile-tab" data-tab="tagged" onclick="switchTab('tagged')"><span class="profile-tab-icon"></span>Etiquetados</div>
   </div>
@@ -668,7 +669,25 @@ async function loadTabContent(tab, userId) {
       grid.innerHTML = '<div class="tab-empty"><div class="tab-empty-icon">\u25B6\uFE0F</div><div class="tab-empty-text">Sin reels todavia</div></div>';
     } else renderPostsGrid(rr.data);
 
-  } else if(tab === 'saved'){
+  }
+  } else if(tab === 'shop'){
+    sb.from('shops').select('id,shop_name').eq('owner_id',profileUserId).single().then(function(r){
+      if(r.data){
+        sb.rpc('get_shop_products',{p_shop_id:r.data.id,p_limit:20}).then(function(pr){
+          if(pr.data&&pr.data.length){
+            grid.innerHTML=pr.data.map(function(p){
+              var imgs=p.images;if(typeof imgs==='string')try{imgs=JSON.parse(imgs);}catch(e){imgs=[];}
+              var imgUrl=(imgs&&imgs.length)?imgs[0]:'';
+              return '<div style="cursor:pointer" onclick="location.href=\'shop.html?u='+encodeURIComponent(profileUsername)+'\'">'+(imgUrl?'<img src="'+imgUrl+'" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px">':'<div style="width:100%;aspect-ratio:1;background:#0d2744;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:.3">&#128230;</div>')+'<div style="font-size:12px;font-weight:700;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.name+'</div><div style="font-size:11px;color:#ff2255;font-family:Orbitron,sans-serif">'+(p.price_cents/100).toFixed(2)+' EUR</div></div>';
+            }).join('');
+          } else {
+            grid.innerHTML='<div class="tab-empty"><div class="tab-empty-icon">&#128722;</div><div class="tab-empty-text">Sin productos en la tienda</div></div>';
+          }
+        });
+      } else {
+        grid.innerHTML='<div class="tab-empty"><div class="tab-empty-icon">&#128722;</div><div class="tab-empty-text">Sin tienda</div></div>';
+      }
+    }); else if(tab === 'saved'){
     if(!currentUser||currentUser.id!==userId){grid.innerHTML='<div class="tab-empty"><div class="tab-empty-text">Solo tu puedes ver tus guardados</div></div>';return;}
     var rs = await (window.sb||sb).from('bookmarks').select('post_id, posts(*)').eq('user_id', userId).limit(30);
     var posts2 = (rs.data||[]).map(function(b){return b.posts;}).filter(Boolean);

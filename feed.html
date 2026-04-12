@@ -557,6 +557,8 @@ window._showNsfw = false;
 
 
 function loadPublicFeed() {
+  if(document.getElementById('anonBanner')) return; // prevent duplicate banner
+
   window._isAnon = true;
   // Show login banner
   var banner = document.createElement('div');

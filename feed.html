@@ -454,6 +454,20 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .nsfw-toggle{display:none;padding:4px 10px;border-radius:14px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:10px;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;text-transform:uppercase;letter-spacing:.04em;transition:all .2s}
 .nsfw-toggle.on{background:rgba(255,34,85,.15);border-color:#ff2255;color:#ff2255}
 .nsfw-toggle.visible{display:inline-block}
+
+.onboard-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px}
+.onboard-overlay.open{display:flex}
+.onboard-box{background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:28px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.onboard-title{font-family:Orbitron,sans-serif;font-size:16px;color:#ff2255;letter-spacing:.1em;margin-bottom:6px;text-align:center}
+.onboard-sub{font-size:13px;color:#5a8aaa;text-align:center;margin-bottom:20px}
+.onboard-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px}
+.onboard-chip{padding:10px 18px;border-radius:20px;border:1px solid #0d2744;background:transparent;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;user-select:none}
+.onboard-chip.selected{background:rgba(255,34,85,.15);border-color:#ff2255;color:#ff2255}
+.onboard-chip:hover{border-color:#5a8aaa}
+.onboard-count{text-align:center;font-size:12px;color:#5a8aaa;margin-bottom:14px}
+.onboard-go{width:100%;padding:14px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:15px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:opacity .2s}
+.onboard-go:disabled{opacity:.3;cursor:not-allowed}
+.onboard-skip{width:100%;margin-top:8px;padding:8px;background:none;border:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -2719,6 +2733,101 @@ function showNsfwToggle() {
 }
 // Show toggle after user init
 setTimeout(showNsfwToggle, 2000);
+
+
+// == INTEREST ONBOARDING ==
+var _onboardCategories = [
+  {slug:'entertainment',label:'Entretenimiento',icon:'\uD83C\uDFAC'},
+  {slug:'comedy',label:'Comedia',icon:'\uD83D\uDE02'},
+  {slug:'music',label:'M\u00FAsica',icon:'\uD83C\uDFB5'},
+  {slug:'dance',label:'Baile',icon:'\uD83D\uDC83'},
+  {slug:'sports',label:'Deportes',icon:'\u26BD'},
+  {slug:'gaming',label:'Gaming',icon:'\uD83C\uDFAE'},
+  {slug:'food',label:'Comida',icon:'\uD83C\uDF55'},
+  {slug:'fashion',label:'Moda',icon:'\uD83D\uDC57'},
+  {slug:'beauty',label:'Belleza',icon:'\uD83D\uDC84'},
+  {slug:'education',label:'Educaci\u00F3n',icon:'\uD83D\uDCDA'},
+  {slug:'tech',label:'Tecnolog\u00EDa',icon:'\uD83D\uDCBB'},
+  {slug:'travel',label:'Viajes',icon:'\u2708\uFE0F'},
+  {slug:'fitness',label:'Fitness',icon:'\uD83D\uDCAA'},
+  {slug:'art',label:'Arte',icon:'\uD83C\uDFA8'},
+  {slug:'pets',label:'Mascotas',icon:'\uD83D\uDC36'},
+  {slug:'lifestyle',label:'Lifestyle',icon:'\u2728'},
+  {slug:'cosplay',label:'Cosplay',icon:'\uD83C\uDFAD'},
+  {slug:'news',label:'Noticias',icon:'\uD83D\uDCF0'}
+];
+var _onboardSelected = [];
+
+function checkOnboarding(){
+  if(!currentUser || window._isAnon) return;
+  window.sb.from('profiles').select('onboarded_interests').eq('id',currentUser.id).single().then(function(r){
+    if(r.data && !r.data.onboarded_interests){
+      showOnboarding();
+    }
+  });
+}
+
+function showOnboarding(){
+  var grid = document.getElementById('onboardGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  _onboardSelected = [];
+  _onboardCategories.forEach(function(cat){
+    var chip = document.createElement('button');
+    chip.className = 'onboard-chip';
+    chip.textContent = cat.icon + ' ' + cat.label;
+    chip.dataset.slug = cat.slug;
+    chip.addEventListener('click', function(){
+      this.classList.toggle('selected');
+      if(this.classList.contains('selected')){
+        _onboardSelected.push(cat.slug);
+      } else {
+        _onboardSelected = _onboardSelected.filter(function(s){return s !== cat.slug;});
+      }
+      var cnt = _onboardSelected.length;
+      document.getElementById('onboardCount').textContent = cnt + ' seleccionados' + (cnt < 3 ? ' (m\u00EDnimo 3)' : '');
+      document.getElementById('onboardGo').disabled = cnt < 3;
+    });
+    grid.appendChild(chip);
+  });
+  document.getElementById('onboardModal').classList.add('open');
+}
+
+function saveOnboarding(){
+  if(_onboardSelected.length < 3 || !currentUser) return;
+  var promises = _onboardSelected.map(function(cat){
+    return window.sb.from('user_interests').upsert({
+      user_id: currentUser.id,
+      category: cat,
+      weight: 2.0,
+      source: 'onboarding'
+    }, {onConflict: 'user_id,category'});
+  });
+  Promise.all(promises).then(function(){
+    window.sb.from('profiles').update({onboarded_interests: true}).eq('id', currentUser.id);
+    document.getElementById('onboardModal').classList.remove('open');
+    if(typeof showToast === 'function') showToast('\u2713 Feed personalizado');
+    if(typeof loadRankedFeed === 'function') loadRankedFeed('all', document.getElementById('feed') || document.querySelector('.feed'), 0);
+  });
+}
+
+function skipOnboarding(){
+  window.sb.from('profiles').update({onboarded_interests: true}).eq('id', currentUser.id);
+  document.getElementById('onboardModal').classList.remove('open');
+}
+
+// Trigger onboarding check 2s after user init
+setTimeout(function(){ if(typeof checkOnboarding === 'function') checkOnboarding(); }, 2000);
 </script>
+<div class="onboard-overlay" id="onboardModal">
+  <div class="onboard-box">
+    <div class="onboard-title">ELIGE TUS INTERESES</div>
+    <div class="onboard-sub">Selecciona 3 o m\u00e1s para personalizar tu feed</div>
+    <div class="onboard-grid" id="onboardGrid"></div>
+    <div class="onboard-count" id="onboardCount">0 seleccionados (m\u00ednimo 3)</div>
+    <button class="onboard-go" id="onboardGo" disabled onclick="saveOnboarding()">CONTINUAR</button>
+    <button class="onboard-skip" onclick="skipOnboarding()">Saltar por ahora</button>
+  </div>
+</div>
 </body>
 </html>

@@ -42,6 +42,15 @@
 .footer-links a:hover{color:var(--sn-fire)}
 .footer-copy{font-size:11px;color:var(--sn-text-dim)}
 @media(max-width:480px){.hero-stats{flex-wrap:wrap}.hero-stat{flex:1;min-width:80px}.features-grid{grid-template-columns:repeat(2,1fr)}}
+
+.social-login{display:flex;flex-direction:column;gap:10px;margin-top:16px;max-width:320px;margin-left:auto;margin-right:auto;animation:sn-slide-up .6s var(--sn-ease) .35s both}
+.social-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 20px;border-radius:var(--sn-radius-pill);font-family:var(--sn-font-body);font-weight:700;font-size:14px;cursor:pointer;border:1px solid var(--sn-border);transition:all .2s var(--sn-ease);text-decoration:none}
+.social-btn-google{background:#fff;color:#333;border-color:rgba(255,255,255,.2)}
+.social-btn-google:hover{background:#f0f0f0;transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,255,255,.1)}
+.social-btn-email{background:var(--sn-surface);color:var(--sn-text);border-color:var(--sn-border)}
+.social-btn-email:hover{border-color:var(--sn-fire);color:var(--sn-fire)}
+.divider-or{display:flex;align-items:center;gap:12px;color:var(--sn-text-dim);font-size:12px;margin:8px 0}
+.divider-or::before,.divider-or::after{content:'';flex:1;height:1px;background:var(--sn-border)}
 </style>
 </head>
 <body>
@@ -61,7 +70,11 @@
     <p class="hero-sub">Reels, lives con regalos, tienda de creadores, mensajes privados y mas. Tu contenido, tus reglas, tu dinero.</p>
     <div class="hero-cta">
       <a href="/feed.html" class="sn-btn sn-btn-fire" style="padding:12px 28px;font-size:15px">Explorar ahora</a>
-      <a href="/feed.html" class="sn-btn sn-btn-ghost" style="padding:12px 28px;font-size:15px">Crear cuenta gratis</a>
+    </div>
+    <div class="social-login">
+      <button class="social-btn social-btn-google" onclick="loginWithGoogle()">G  Continuar con Google</button>
+      <div class="divider-or">o</div>
+      <a href="/feed.html" class="social-btn social-btn-email">Crear cuenta con email</a>
     </div>
     <div class="hero-stats" id="heroStats">
       <div class="hero-stat"><div class="hero-stat-val" id="statUsers">-</div><div class="hero-stat-label">Creadores</div></div>
@@ -107,6 +120,15 @@ sb.from('profiles').select('id',{count:'exact',head:true}).then(function(r){
 sb.from('posts').select('id',{count:'exact',head:true}).then(function(r){
   if(r.count!=null) document.getElementById('statPosts').textContent=r.count;
 });
+
+// == P1: GOOGLE LOGIN ==
+async function loginWithGoogle(){
+  var r=await sb.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:location.origin+'/feed.html'}
+  });
+  if(r.error) alert('Error: '+r.error.message);
+}
 </script>
 </body>
 </html>

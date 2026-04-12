@@ -6,6 +6,7 @@
 <title>SHADOWNET — Mis Stats</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/sn-design.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh;padding-bottom:80px}
@@ -93,9 +94,9 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 </style>
 </head>
 <body>
-<header>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
-  <span class="page-title">MIS STATS</span>
+<header class="sn-header">
+  <button class="sn-header-btn" onclick="history.back()">&#8592;</button>
+  <span class="sn-header-logo">STATS</span>
 </header>
 <div class="wrap" id="mainWrap">
   <div style="text-align:center;padding:40px;color:#5a8aaa">Cargando...</div>
@@ -120,12 +121,12 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     </div>
   </div>
 </div>
-<nav class="sn-bottom-nav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item" href="/reels.html"><span class="sn-bn-icon">&#9654;</span><span class="sn-bn-lbl">Reels</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
+<nav class="sn-nav">
+  <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
+  <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">&#128269;</span>Explorar</a>
+  <a class="sn-nav-item" href="/editor.html"><span class="sn-nav-create">&#43;</span></a>
+  <a class="sn-nav-item" href="/reels.html"><span class="sn-nav-icon">&#9654;</span>Reels</a>
+  <a class="sn-nav-item" href="/profile.html"><div class="sn-nav-avatar">&#128100;</div>Perfil</a>
 </nav>
 <script>
 var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';

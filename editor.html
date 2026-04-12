@@ -1,5 +1,53 @@
 
 
+// == AUDIO LIBRARY BROWSER ==
+var _allSounds=[];var _selectedSound=null;var _previewAudio=null;
+async function loadSounds(){
+  var r=await sb.rpc('get_trending_sounds',{p_limit:50});
+  if(r.data&&r.data.length){
+    _allSounds=r.data;
+    renderSoundList(r.data);
+  } else {
+    // Also try direct query
+    var r2=await sb.from('sounds').select('id,name,artist,audio_url,uses_count').order('uses_count',{ascending:false}).limit(50);
+    if(r2.data&&r2.data.length){_allSounds=r2.data.map(function(s){return{sound_id:s.id,name:s.name,artist:s.artist,audio_url:s.audio_url,uses_count:s.uses_count};});renderSoundList(_allSounds);}
+    else{document.getElementById('audioList').innerHTML='<div style="padding:12px;text-align:center;color:#5a8aaa;font-size:12px">Sin sonidos disponibles</div>';}
+  }
+}
+function renderSoundList(sounds){
+  var list=document.getElementById('audioList');list.innerHTML='';
+  sounds.forEach(function(s){
+    var item=document.createElement('div');item.className='audio-item';
+    item.innerHTML='<button class="ai-play" onclick="event.stopPropagation();previewSound(\''+s.sound_id+'\')" id="play-'+s.sound_id+'">\u25B6</button><div class="ai-info"><div class="ai-name">'+(s.name||'Sin nombre')+'</div><div class="ai-artist">'+(s.artist||'Original')+'</div></div><div class="ai-uses">'+(s.uses_count||0)+' usos</div>';
+    item.onclick=function(){selectSound(s);};
+    list.appendChild(item);
+  });
+}
+function searchSounds(q){
+  if(!q){renderSoundList(_allSounds);return;}
+  var filtered=_allSounds.filter(function(s){return (s.name||'').toLowerCase().includes(q.toLowerCase())||(s.artist||'').toLowerCase().includes(q.toLowerCase());});
+  renderSoundList(filtered);
+}
+function selectSound(s){
+  _selectedSound=s;
+  document.querySelectorAll('.audio-item').forEach(function(el){el.classList.remove('selected');});
+  event.currentTarget.classList.add('selected');
+}
+function previewSound(id){
+  var s=_allSounds.find(function(x){return x.sound_id===id;});
+  if(!s||!s.audio_url) return;
+  if(_previewAudio){_previewAudio.pause();_previewAudio=null;document.querySelectorAll('.ai-play').forEach(function(b){b.textContent='\u25B6';});}
+  _previewAudio=new Audio(s.audio_url);
+  _previewAudio.play();
+  var btn=document.getElementById('play-'+id);if(btn)btn.textContent='\u23F8';
+  _previewAudio.addEventListener('ended',function(){if(btn)btn.textContent='\u25B6';_previewAudio=null;});
+}
+// Load sounds when editor opens
+setTimeout(loadSounds,1500);
+
+// Patch: include audio track in post data
+
+
 // == COLLAB MODE (Duet/Stitch/Remix) ==
 var _collabType=null;var _originalPostId=null;
 async function loadCollabMode(postId,type){
@@ -81,6 +129,21 @@ input[type=file]{display:none}
 .collab-banner-type{font-family:Orbitron,sans-serif;font-size:10px;color:#ff2255;letter-spacing:.06em}
 .collab-preview{position:absolute;bottom:8px;left:8px;width:80px;height:120px;border-radius:8px;overflow:hidden;border:2px solid #ff2255;z-index:5}
 .collab-preview video{width:100%;height:100%;object-fit:cover}
+
+.audio-section{margin-top:4px}
+.audio-search{display:flex;gap:6px;margin-bottom:8px}
+.audio-search input{flex:1;padding:7px 12px;background:rgba(13,39,68,.4);border:1px solid #0d2744;border-radius:8px;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:13px}
+.audio-search input::placeholder{color:#5a8aaa}
+.audio-list{max-height:180px;overflow-y:auto;border:1px solid #0d2744;border-radius:8px}
+.audio-item{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(13,39,68,.3)}
+.audio-item:last-child{border-bottom:none}
+.audio-item:hover,.audio-item.selected{background:rgba(255,34,85,.08)}
+.audio-item.selected{border-left:2px solid #ff2255}
+.ai-play{width:28px;height:28px;border-radius:50%;background:rgba(255,34,85,.15);border:1px solid #ff2255;color:#ff2255;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-info{flex:1;min-width:0}
+.ai-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-artist{font-size:10px;color:#5a8aaa}
+.ai-uses{font-size:10px;color:#5a8aaa;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -103,6 +166,11 @@ input[type=file]{display:none}
     <div class="tool-section"><div class="tool-label">Velocidad</div><div class="speed-row" id="speedRow"></div></div>
     <div class="tool-section"><div class="tool-label">Recortar</div><div class="trim-wrap"><span class="trim-val" id="trimStartVal">0:00</span><input type="range" id="trimStart" min="0" max="100" value="0" step="0.1"><input type="range" id="trimEnd" min="0" max="100" value="100" step="0.1"><span class="trim-val" id="trimEndVal">0:00</span></div></div>
     <div class="tool-section"><div class="tool-label">Texto</div><div class="text-input-row"><input type="text" id="textInput" placeholder="Escribe texto..." maxlength="60"><button onclick="addTextOverlay()">Agregar</button></div></div>
+    <div class="tool-section audio-section">
+      <div class="tool-label">Musica / Sonido</div>
+      <div class="audio-search"><input type="text" id="audioSearch" placeholder="Buscar sonidos..." oninput="searchSounds(this.value)"></div>
+      <div class="audio-list" id="audioList"><div style="padding:12px;text-align:center;color:#5a8aaa;font-size:12px">Cargando sonidos...</div></div>
+    </div>
     <div class="caption-area">
       <div class="tool-label">Descripcion</div>
       <textarea id="captionText" placeholder="Escribe una descripcion..." maxlength="300"></textarea>
@@ -235,6 +303,7 @@ async function publishReel(){
       is_reel:isReel,is_premium:isNsfw,content_rating:isNsfw?'nsfw':'sfw',category:category,
       video_duration_ms:trimEndMs-trimStartMs,video_filter:_filter==='none'?null:_filter,
       video_speed:_speed,text_overlays:_textOverlays.length?JSON.stringify(_textOverlays):null,
+      audio_track:_selectedSound?_selectedSound.name:null,
       collab_type:_collabType||null,
       original_post_id:_originalPostId||null};
     var ins=await sb.from('posts').insert(postData).select('id').single();

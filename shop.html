@@ -1,3 +1,14 @@
+
+// Check for checkout result
+var _sp=new URLSearchParams(location.search);
+if(_sp.get('success')==='1'){
+  setTimeout(function(){alert('\u2713 Pago completado! Tu pedido esta en camino.');},500);
+  history.replaceState(null,'','/shop.html');
+}
+if(_sp.get('cancelled')==='1'){
+  setTimeout(function(){alert('Pago cancelado.');},500);
+  history.replaceState(null,'','/shop.html');
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -152,9 +163,34 @@ async function buyProduct(){
   if(!currentUser){location.href='/';return;}if(!_selectedProduct)return;
   var btn=document.getElementById('pdBuy');btn.disabled=true;btn.textContent='Procesando...';
   try{
-    var r=await sb.from('orders').insert({buyer_id:currentUser.id,seller_id:_selectedProduct.seller_id||null,product_id:_selectedProduct.id||_selectedProduct.product_id,quantity:1,total_cents:_selectedProduct.price_cents,currency:_selectedProduct.currency||'EUR',status:'pending'}).select('id').single();
-    if(r.error)throw r.error;
-    btn.textContent='\u2713 Pedido creado';setTimeout(closeDetail,1500);
+    // 1. Create order
+    var order=await sb.from('orders').insert({buyer_id:currentUser.id,seller_id:_selectedProduct.seller_id||null,product_id:_selectedProduct.id||_selectedProduct.product_id,quantity:1,total_cents:_selectedProduct.price_cents,currency:_selectedProduct.currency||'EUR',status:'pending'}).select('id').single();
+    if(order.error) throw order.error;
+    // 2. Call Stripe payment edge function
+    var sess=await sb.auth.getSession();
+    var tok=sess.data.session?sess.data.session.access_token:'';
+    var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/stripe-payment',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
+      body:JSON.stringify({
+        action:'create_checkout',
+        order_id:order.data.id,
+        product_name:_selectedProduct.name,
+        amount:_selectedProduct.price_cents,
+        currency:(_selectedProduct.currency||'EUR').toLowerCase(),
+        success_url:location.origin+'/shop.html?success=1',
+        cancel_url:location.origin+'/shop.html?cancelled=1'
+      })
+    });
+    var data=await r.json();
+    if(data.url){
+      window.location.href=data.url;
+    } else if(data.error){
+      throw new Error(data.error);
+    } else {
+      btn.textContent='\u2713 Pedido #'+order.data.id.substring(0,8);
+      setTimeout(closeDetail,2000);
+    }
   }catch(err){btn.disabled=false;btn.textContent='COMPRAR';alert('Error: '+(err.message||err));}
 }
 <\/script>

@@ -532,7 +532,6 @@ window._showNsfw = false;
 
 sb.auth.getSession().then(function(r) {
   if (r.data.session) { initUser(r.data.session.user); } else { window._isAnon=true; loadPublicFeed(); }
-  else loadFeed("all");
 });
 sb.auth.onAuthStateChange(function(e, s) {
   if (e === "SIGNED_IN" && s) initUser(s.user);
@@ -2305,7 +2304,7 @@ document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&
   window.snDismissLT2=function(){var e=document.getElementById('sn-lt2');if(e)e.classList.remove('show');showing=false;clearTimeout(window._lt2t);if(queue.length){setTimeout(function(){showT(queue.shift());},400);}};
   window.snJoinLT2=function(){var e=document.getElementById('sn-lt2');if(!e)return;snDismissLT2();location.href='live.html?mode=viewer&host='+(e._hi||'')+'&ch='+(e._ch||'');};
   function updBadge(n){cnt=n;document.querySelectorAll('[data-page="notifications"],[href*="notif"],#notif-nav-btn,.nav-notif-btn').forEach(function(b){var ex=b.querySelector('.sn-notif-count-badge');if(n>0){b.style.position='relative';if(!ex){var d=document.createElement('span');d.className='sn-notif-count-badge';b.appendChild(d);ex=d;}ex.textContent=n>9?'9+':String(n);ex.style.display='flex';}else if(ex){ex.style.display='none';}});}
-  });}else{setTimeout(init,600);}
+
 })();
 </script>
 

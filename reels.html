@@ -8,6 +8,7 @@
 <title>SHADOWNET — Reels</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/sn-design.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;overflow:hidden;height:100vh;height:100dvh}
@@ -63,12 +64,12 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;overflow:hidden;
   <div class="reel-loading" id="reelLoading">Cargando reels...</div>
 </div>
 <button class="create-reel-fab" onclick="location.href='/editor.html'" title="Crear Reel">&#127909;</button>
-<nav class="sn-bottom-nav">
-  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span>Inicio</a>
-  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span>Explorar</a>
-  <a class="sn-bn-item" href="/editor.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/reels.html"><span class="sn-bn-icon">&#9654;</span>Reels</a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div>Perfil</a>
+<nav class="sn-nav">
+  <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
+  <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">&#128269;</span>Explorar</a>
+  <a class="sn-nav-item" href="/editor.html"><span class="sn-nav-create">&#43;</span></a>
+  <a class="sn-nav-item active" href="/reels.html"><span class="sn-nav-icon">&#9654;</span>Reels</a>
+  <a class="sn-nav-item" href="/profile.html"><div class="sn-nav-avatar">&#128100;</div>Perfil</a>
 </nav>
 <script>
 var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';

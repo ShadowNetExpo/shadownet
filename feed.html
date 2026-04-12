@@ -14,6 +14,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/sn-design.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
@@ -482,20 +483,20 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 </style>
 </head>
 <body>
-<header><button id="notifBell" onclick="toggleNotifPanel()" style="margin-left:auto;background:none;border:none;color:#c8d8e8;font-size:22px;cursor:pointer;position:relative;padding:4px 8px" title="Notificaciones">&#128276;<span id="notifDot" style="display:none;position:absolute;top:2px;right:6px;width:9px;height:9px;background:#ff2255;border-radius:50%;border:2px solid #01020c"></span></button>
-  <span class="logo" onclick="window.location.href='/'">SHADOWNET</span>
-  <div class="nav-btns">
-    <button class="nbtn" onclick="window.location.href='/search.html'">&#128269;</button>
-    <button class="nbtn" id="logoutNavBtn" style="display:none" onclick="doLogout()">Salir</button>
+<header class="sn-header">
+  <span class="sn-header-logo">SHADOWNET</span>
+  <div class="sn-header-actions">
+    <button class="sn-header-btn" onclick="location.href='/search.html'">&#128269;</button>
+    <button class="sn-header-btn" id="notifBtn">&#128276;</button>
   </div>
-<button class="nsfw-toggle" id="nsfwToggle" onclick="toggleNSFW()" title="Mostrar contenido +18">+18</button></header>
-<div class="quick-actions">
-  <a class="qa-btn primary" href="/editor.html">&#127909; Crear Reel</a>
-  <a class="qa-btn" href="/reels.html">&#9654; Reels</a>
-  <a class="qa-btn" href="/explore.html">&#128269; Explorar</a>
-  <a class="qa-btn" href="/shop.html">&#128722; Shop</a>
-  <a class="qa-btn" href="/live.html">&#128308; En vivo</a>
-  <a class="qa-btn" href="/sound.html">&#127925; Sounds</a>
+</header>
+<div class="sn-pills">
+  <a class="sn-pill active" href="/editor.html">&#127909; Crear Reel</a>
+  <a class="sn-pill" href="/reels.html">&#9654; Reels</a>
+  <a class="sn-pill" href="/explore.html">&#128269; Explorar</a>
+  <a class="sn-pill" href="/shop.html">&#128722; Shop</a>
+  <a class="sn-pill" href="/live.html">&#128308; En vivo</a>
+  <a class="sn-pill" href="/sound.html">&#127925; Sounds</a>
 </div>
 
 <div class="wrap">
@@ -1983,18 +1984,12 @@ async function sendTip(){
   </div>
 </div>
 
-<nav class="sn-bottom-nav" id="snBottomNav">
-  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/search.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <button class="sn-bn-item sn-bn-plus" onclick="openCreateSheet()" style="border:none;background:none;cursor:pointer"><span class="sn-bn-plus-inner">&#43;</span></button>
-  <a class="sn-bn-item" href="/reels.html"><span class="sn-bn-icon">&#128172;</span><span class="sn-bn-lbl">Mensajes</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
-
-  <button class="sn-nb" id="sn-nb" onclick="snNO()" aria-label="Notificaciones">
-    <span style="font-size:20px">&#128276;</span>
-    <div class="sn-nbc" id="sn-nbc"></div>
-    NOTIF
-  </button>
+<nav class="sn-nav">
+  <a class="sn-nav-item active" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
+  <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">&#128269;</span>Explorar</a>
+  <a class="sn-nav-item" href="/editor.html"><span class="sn-nav-create">&#43;</span></a>
+  <a class="sn-nav-item" href="/reels.html"><span class="sn-nav-icon">&#9654;</span>Reels</a>
+  <a class="sn-nav-item" href="/profile.html"><div class="sn-nav-avatar" id="snNavAv">&#128100;</div>Perfil</a>
 </nav>
 
 <script>

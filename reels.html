@@ -47,6 +47,10 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;overflow:hidden;
 .reel-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,.4)}
 .reel-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,.4)}
 .reel-empty-icon{font-size:48px}
+
+.create-reel-fab{position:fixed;bottom:76px;right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;font-size:24px;cursor:pointer;z-index:150;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(255,34,85,.4);transition:transform .2s}
+.create-reel-fab:hover{transform:scale(1.1)}
+.reel-action-icon.duet{font-size:14px}
 </style>
 </head>
 <body>
@@ -58,10 +62,11 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;overflow:hidden;
 <div class="reels-container" id="reelsContainer">
   <div class="reel-loading" id="reelLoading">Cargando reels...</div>
 </div>
+<button class="create-reel-fab" onclick="location.href='/editor.html'" title="Crear Reel">&#127909;</button>
 <nav class="sn-bottom-nav">
   <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span>Inicio</a>
   <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span>Explorar</a>
-  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item" href="/editor.html"><span class="sn-bn-plus-inner">&#43;</span></a>
   <a class="sn-bn-item sn-bn-active" href="/reels.html"><span class="sn-bn-icon">&#9654;</span>Reels</a>
   <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div>Perfil</a>
 </nav>
@@ -140,7 +145,16 @@ function renderReel(idx){
   actions.appendChild(createAction('\u2764\uFE0F',reel.likes_count||0,function(icon){toggleReelLike(reel.post_id,icon);}));
   actions.appendChild(createAction('\uD83D\uDCAC',reel.comments_count||0,function(){location.href='feed.html#post-'+reel.post_id;}));
   actions.appendChild(createAction('\uD83D\uDD17',reel.shares_count||0,function(){
-    if(navigator.share){navigator.share({title:'SHADOWNET',url:location.origin+'/feed.html#post-'+reel.post_id}).catch(function(){});}
+    if(navigator.share){navigator.share({title:'SHADOWNET',url:location.origin+'/feed.html#post-'+reel.post_id}).catch(function(){});
+  // Duet + Stitch buttons
+  var duetBtn=createAction('\uD83C\uDFAC',0,function(){location.href='/editor.html?duet='+reel.post_id;});
+  duetBtn.querySelector('.reel-action-icon').classList.add('duet');
+  duetBtn.querySelector('.reel-action-count').textContent='Duet';
+  actions.appendChild(duetBtn);
+  var stitchBtn=createAction('\u2702\uFE0F',0,function(){location.href='/editor.html?stitch='+reel.post_id;});
+  stitchBtn.querySelector('.reel-action-icon').classList.add('duet');
+  stitchBtn.querySelector('.reel-action-count').textContent='Stitch';
+  actions.appendChild(stitchBtn);}
     else{navigator.clipboard.writeText(location.origin+'/feed.html#post-'+reel.post_id);}
   }));
   slide.appendChild(actions);container.appendChild(slide);

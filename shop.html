@@ -1,14 +1,3 @@
-
-// Check for checkout result
-var _sp=new URLSearchParams(location.search);
-if(_sp.get('success')==='1'){
-  setTimeout(function(){alert('\u2713 Pago completado! Tu pedido esta en camino.');},500);
-  history.replaceState(null,'','/shop.html');
-}
-if(_sp.get('cancelled')==='1'){
-  setTimeout(function(){alert('Pago cancelado.');},500);
-  history.replaceState(null,'','/shop.html');
-}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -193,6 +182,17 @@ async function buyProduct(){
       setTimeout(closeDetail,2000);
     }
   }catch(err){btn.disabled=false;btn.textContent='COMPRAR';alert('Error: '+(err.message||err));}
+}
+
+// Check for checkout result
+var _sp=new URLSearchParams(location.search);
+if(_sp.get('success')==='1'){
+  setTimeout(function(){alert('\u2713 Pago completado! Tu pedido esta en camino.');},500);
+  history.replaceState(null,'','/shop.html');
+}
+if(_sp.get('cancelled')==='1'){
+  setTimeout(function(){alert('Pago cancelado.');},500);
+  history.replaceState(null,'','/shop.html');
 }
 </script>
 </body>

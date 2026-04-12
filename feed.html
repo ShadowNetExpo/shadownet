@@ -473,6 +473,12 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .audio-link{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:11px;color:#5a8aaa;background:rgba(13,39,68,.4);border:1px solid #0d2744;cursor:pointer;transition:border-color .2s;margin-top:6px;text-decoration:none}
 .audio-link:hover{border-color:#ff2255;color:#ff2255}
 .category-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(0,229,255,.08);color:#00e5ff;margin-top:4px}
+
+.quick-actions{display:flex;gap:8px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #0d2744}
+.quick-actions::-webkit-scrollbar{display:none}
+.qa-btn{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;transition:all .2s;text-decoration:none}
+.qa-btn:hover{border-color:#ff2255;color:#ff2255}
+.qa-btn.primary{background:linear-gradient(135deg,#ff2255,#aa0030);border-color:#ff2255;color:#fff}
 </style>
 </head>
 <body>
@@ -483,6 +489,15 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <button class="nbtn" id="logoutNavBtn" style="display:none" onclick="doLogout()">Salir</button>
   </div>
 <button class="nsfw-toggle" id="nsfwToggle" onclick="toggleNSFW()" title="Mostrar contenido +18">+18</button></header>
+<div class="quick-actions">
+  <a class="qa-btn primary" href="/editor.html">&#127909; Crear Reel</a>
+  <a class="qa-btn" href="/reels.html">&#9654; Reels</a>
+  <a class="qa-btn" href="/explore.html">&#128269; Explorar</a>
+  <a class="qa-btn" href="/shop.html">&#128722; Shop</a>
+  <a class="qa-btn" href="/live.html">&#128308; En vivo</a>
+  <a class="qa-btn" href="/sound.html">&#127925; Sounds</a>
+</div>
+
 <div class="wrap">
   <div id="postBox" class="post-box" style="display:none">
     <div class="post-box-header">

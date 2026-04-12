@@ -915,23 +915,16 @@ function showGreenScreenOverlay(){
 // === EXTENDED BEAUTY FILTERS ===
 
 
-// === ANIMATED GIFTS SYSTEM ===
-var GIFTS = [
-  {id:'rose',emoji:'\uD83C\uDF39',name:'Rosa',cost:1,anim:'float'},
-  {id:'heart',emoji:'\u2764\uFE0F',name:'Coraz\u00F3n',cost:5,anim:'pulse'},
-  {id:'star',emoji:'\u2B50',name:'Estrella',cost:10,anim:'spin'},
-  {id:'fire',emoji:'\uD83D\uDD25',name:'Fuego',cost:25,anim:'shake'},
-  {id:'crown',emoji:'\uD83D\uDC51',name:'Corona',cost:50,anim:'bounce'},
-  {id:'diamond',emoji:'\uD83D\uDC8E',name:'Diamante',cost:100,anim:'float'},
-  {id:'rocket',emoji:'\uD83D\uDE80',name:'Cohete',cost:200,anim:'rocket'},
-  {id:'unicorn',emoji:'\uD83E\uDD84',name:'Unicornio',cost:500,anim:'rainbow'},
-  {id:'castle',emoji:'\uD83C\uDFF0',name:'Castillo',cost:1000,anim:'explode'},
-  {id:'yacht',emoji:'\u26F5',name:'Yate',cost:5000,anim:'wave'},
-  {id:'jet',emoji:'\u2708\uFE0F',name:'Jet privado',cost:10000,anim:'fly'},
-  {id:'planet',emoji:'\uD83E\uDE90',name:'Planeta',cost:50000,anim:'orbit'},
-  {id:'galaxy',emoji:'\uD83C\uDF0C',name:'Galaxia',cost:100000,anim:'nova'},
-  {id:'god',emoji:'\u26A1',name:'Dios',cost:999999999,anim:'thunder'}
-];
+// === ANIMATED GIFTS SYSTEM (DB-powered) ===
+var GIFTS=[];
+async function loadGiftCatalog(){
+  var r=await window.sb.from('gift_catalog').select('*').order('sort_order');
+  if(r.data&&r.data.length){
+    GIFTS=r.data.map(function(g){return{id:g.id,emoji:g.icon,name:g.name,cost:g.almas_cost,anim:g.animation_type||'float',category:g.category};});
+  }
+  renderGiftGrid();
+}
+setTimeout(function(){if(window.sb)loadGiftCatalog();},1500);
 
 function renderGiftGrid(){
   var grid=document.getElementById('giftGrid');
@@ -947,18 +940,27 @@ function renderGiftGrid(){
 }
 
 function sendGift(giftId){
-  var g=GIFTS.find(function(x){return x.id===giftId;});
+  var g=GIFTS.find(function(x){return x.id===giftId||x.name===giftId;});
   if(!g){return;}
   if(!window.currentUser||!window.sb){showToastMsg('Inicia sesi\u00F3n para enviar regalos',true);return;}
-  // Check user coins (Almas)
-  window.sb.from('profiles').select('almas').eq('id',window.currentUser.id).single().then(function(r){
-    if(!r.data||r.data.almas<g.cost){showToastMsg('No tienes suficientes monedas \uD83D\uDC8E',true);return;}
-    // Deduct coins
-    window.sb.from('profiles').update({almas:r.data.almas-g.cost}).eq('id',window.currentUser.id).then(function(){
-      // Broadcast gift
-      if(_liveChannel) _liveChannel.send({type:'broadcast',event:'gift',payload:{emoji:g.emoji,name:g.name,cost:g.cost,from:window.currentProfile?.username||'Usuario'}});
+  var hostId=window._hostId||window.hostUserId;
+  if(!hostId){showToastMsg('Error: no se encontr\u00F3 el host',true);return;}
+  window.sb.rpc('send_live_gift',{
+    p_from:window.currentUser.id,
+    p_to:hostId,
+    p_gift:g.name,
+    p_cost:g.cost,
+    p_qty:1,
+    p_stream:window._streamId||null
+  }).then(function(r){
+    if(r.data&&r.data.ok){
+      if(_liveChannel)_liveChannel.send({type:'broadcast',event:'gift',payload:{emoji:g.emoji,name:g.name,cost:g.cost,from:window.currentProfile?.username||'Usuario'}});
       animateGift(g.emoji,g.name,g.cost);
-      (document.getElementById('userCoinsDisplay')||{}).textContent =r.data.almas-g.cost;
+      showToastMsg(g.emoji+' '+g.name+' enviado!');
+    }else{
+      showToastMsg(r.data?.error||'Error al enviar regalo',true);
+    }
+  }).catch(function(e){showToastMsg('Error: '+e.message,true);});
     });
   });
 }

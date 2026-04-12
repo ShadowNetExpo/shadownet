@@ -18,6 +18,7 @@
 <title>SHADOWNET &mdash; Mensajes</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/sn-design.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;height:100vh;display:flex;flex-direction:column}
@@ -172,10 +173,9 @@ body{padding-bottom:72px}
 <meta name="description" content="Mensajes directos y conversaciones privadas en SHADOWNET.">
 </head>
 <body>
-<header>
-  <button onclick="history.length>1?history.back():window.location.href='/'" style="background:none;border:none;color:#e8f4ff;font-size:22px;cursor:pointer;padding:0 8px 0 0;line-height:1;font-family:Rajdhani,sans-serif">&#8592;</button>
-  <span class="logo" onclick="window.location.href='/'">SN</span>
-  <span class="page-title">MENSAJES</span>
+<header class="sn-header">
+  <span class="sn-header-logo">MENSAJES</span>
+  <div class="sn-header-actions"><button class="sn-header-btn">&#9998;</button></div>
 </header>
 <div id="loginWall" class="layout" style="display:none">
   <div class="login-wall"><p>Inicia sesion para ver tus mensajes</p><a href="/">Ir al inicio</a></div>
@@ -279,17 +279,12 @@ body{padding-bottom:72px}
 
 <div class="toast" id="toast"></div>
 
-<nav class="sn-bottom-nav">
-  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-icon">&#127968;</span><span class="sn-bn-lbl">Inicio</span></a>
-  <a class="sn-bn-item" href="/search.html"><span class="sn-bn-icon">&#128269;</span><span class="sn-bn-lbl">Explorar</span></a>
-  <a class="sn-bn-item sn-bn-plus" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
-  <a class="sn-bn-item sn-bn-active" href="/reels.html"><span class="sn-bn-icon">&#9654;</span><span class="sn-bn-lbl">Reels</span></a>
-  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div><span class="sn-bn-lbl">Perfil</span></a>
-
-  <button class="sn-nb" id="sn-nb" onclick="snNO()">
-    <span style="font-size:20px">&#128276;</span><div class="sn-nbc" id="sn-nbc"></div>
-    NOTIF
-  </button>
+<nav class="sn-nav">
+  <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
+  <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">&#128269;</span>Explorar</a>
+  <a class="sn-nav-item" href="/editor.html"><span class="sn-nav-create">&#43;</span></a>
+  <a class="sn-nav-item" href="/reels.html"><span class="sn-nav-icon">&#9654;</span>Reels</a>
+  <a class="sn-nav-item" href="/profile.html"><div class="sn-nav-avatar">&#128100;</div>Perfil</a>
 </nav>
 
 

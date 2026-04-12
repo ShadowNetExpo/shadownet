@@ -143,6 +143,25 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;height:100vh;ove
 .end-stat-num{font-family:Orbitron,sans-serif;font-size:36px;color:#ff2255}
 .end-stat-label{font-size:13px;color:#5a8aaa;margin-top:4px}
 .end-share-btn{padding:12px 28px;background:linear-gradient(135deg,#ff2255,#aa0030);border:none;color:#fff;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase}
+
+.guest-slots{display:grid;gap:2px;position:absolute;inset:0;z-index:2}
+.guest-slots.layout-single{grid-template-columns:1fr}
+.guest-slots.layout-split{grid-template-columns:1fr 1fr}
+.guest-slots.layout-grid{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.guest-slot{background:#000;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.guest-slot video{width:100%;height:100%;object-fit:cover}
+.guest-slot-name{position:absolute;bottom:6px;left:8px;font-size:11px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);font-weight:700}
+.guest-slot-empty{color:rgba(255,255,255,.2);font-size:32px}
+.invite-guest-panel{position:absolute;bottom:100px;right:60px;background:rgba(7,15,30,.95);border:1px solid #0d2744;border-radius:12px;padding:12px;width:240px;z-index:80;display:none}
+.invite-guest-panel.show{display:block}
+.igp-title{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:700}
+.igp-input{width:100%;padding:6px 10px;background:rgba(13,39,68,.4);border:1px solid #0d2744;border-radius:6px;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:13px;margin-bottom:6px}
+.igp-input::placeholder{color:#5a8aaa}
+.igp-btn{width:100%;padding:7px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+.igp-guests{margin-top:8px}
+.igp-guest{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:12px}
+.igp-guest-name{flex:1;color:#e8f4ff}
+.igp-kick{background:none;border:none;color:#ff2255;cursor:pointer;font-size:10px;font-weight:700}
 </style>
 <script>
 // \u2500\u2500 HOST MODE \u2500\u2500
@@ -224,7 +243,7 @@ async function initViewer(){
 
 function buildViewerActionBar(){
   var bar=document.getElementById("actionBar");
-  var actions=[{icon:"\uD83C\uDF81",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"\uD83D\uDCAC",label:"Chat",fn:"document.getElementById('chatInp').focus()"},{icon:"\uD83D\uDD17",label:"Compartir",fn:"shareLive()"},{icon:"\uD83D\uDEAA",label:"Salir",fn:"window.location.href='/'",style:"background:rgba(255,34,85,.2)"}];
+  var actions=[{icon:"\uD83C\uDF81",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"\uD83D\uDCAC",label:"Chat",fn:"document.getElementById('chatInp').focus()"},{icon:"\uD83D\uDD17",label:"Compartir",fn:"shareLive()"},{icon:"\uD83D\uDEAA",label:"Salir",fn:"window.location.href='/'",style:"background:rgba(255,34,85,.2)"},{icon:"\uD83D\uDC65",label:"Invitar",fn:"toggleGuestPanel()"}];
   bar.innerHTML="";
   actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});
 }
@@ -1210,6 +1229,43 @@ document.addEventListener('DOMContentLoaded',function(){
 <script>
 var _NB="https://cdokplvoqivducsqrejt.supabase.co",_NK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTk4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g",_NU=null,_NT=null,_NCh=null;function snNTA(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);return s<60?"ahora":s<3600?Math.floor(s/60)+"m":s<86400?Math.floor(s/3600)+"h":Math.floor(s/86400)+"d";}function snNIC(t){return{like:"\u2764\uFE0F",comment:"\uD83D\uDCAC",follow:"\uD83D\uDC65",tip:"\uD83D\uDCB0",ppv_purchase:"\uD83D\uDD13",new_message:"\uD83D\uDCEC",live_start:"\uD83D\uDCF9",subscription:"\u2B50"}[t]||"\uD83D\uDD14";}function snNSB(n){var b=document.getElementById("sn-nbc");if(!b)return;if(n>0){b.textContent=n>9?"9+":n;b.classList.add("on");}else{b.classList.remove("on");b.textContent="";}}function snNL(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/notifications?user_id=eq."+_NU+"&order=created_at.desc&limit=30",{headers:{"apikey":_NK,"Authorization":"Bearer "+_NT}}).then(function(r){return r.json();}).then(function(ns){ns=ns||[];var el=document.getElementById("sn-nl");if(!el)return;el.innerHTML="";if(!ns.length){var e=document.createElement("div");e.className="sn-nem";e.textContent="No hay notificaciones";el.appendChild(e);return;}ns.forEach(function(n){var it=document.createElement("div");it.className="sn-ni"+(n.is_read?"":" u");it.onclick=function(){snNTP(n);};var ic=document.createElement("div");ic.className="sn-nic";ic.textContent=snNIC(n.type);var ct=document.createElement("div");ct.className="sn-nid";var tx=document.createElement("div");tx.className="sn-nit";tx.textContent=n.title||n.message||"";var ti=document.createElement("div");ti.className="sn-niz";ti.textContent=snNTA(n.created_at);ct.appendChild(tx);ct.appendChild(ti);it.appendChild(ic);it.appendChild(ct);el.appendChild(it);});var u=ns.filter(function(n){return !n.is_read;}).length;snNSB(u);}).catch(function(){});}window.snNO=function(){document.getElementById("sn-np").classList.add("open");document.getElementById("sn-nov").classList.add("on");snNL();};window.snNC=function(){document.getElementById("sn-np").classList.remove("open");document.getElementById("sn-nov").classList.remove("on");};window.snNMR=function(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/rpc/mark_notifications_read",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(){snNL();}).catch(function(){});};function snNTP(n){fetch(_NB+"/rest/v1/notifications?id=eq."+n.id,{method:"PATCH",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({is_read:true})}).catch(function(){});var d=n.data||{};if(d.conversation_id)location.href="messages.html";else if(n.from_username)location.href="profile.html?u="+encodeURIComponent(n.from_username);else snNC();}(function(){function init(){if(!window.sb){setTimeout(init,400);return;}window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;_NU=s.data.session.user.id;_NT=s.data.session.access_token;fetch(_NB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});if(!_NCh){_NCh=window.sb.channel("notif:"+_NU).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_NU},function(p){var n=p.new;if(!n)return;var b=document.getElementById("sn-nbc");var cur=parseInt((b&&b.textContent)||"0")||0;snNSB(cur+1);if(window.showToast)showToast(n.title||n.message||"Nueva notificaci\u00F3n");}).subscribe();}});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(init,600);});else setTimeout(init,600);})();
 <\/script>
-<script src="/push.js"></script>
+<script src="/push.js">
+
+// == MULTI-GUEST LIVES ==
+var _guestPanel=null;var _activeGuests=[];
+function toggleGuestPanel(){
+  if(!_guestPanel){
+    _guestPanel=document.createElement('div');_guestPanel.className='invite-guest-panel';
+    _guestPanel.innerHTML='<div class="igp-title">Invitar al live</div><input class="igp-input" id="guestSearchInp" placeholder="Username del invitado..."><button class="igp-btn" onclick="sendGuestInvite()">Enviar invitacion</button><div class="igp-guests" id="guestList"></div>';
+    document.getElementById('liveContainer').appendChild(_guestPanel);
+  }
+  _guestPanel.classList.toggle('show');
+  loadActiveGuests();
+}
+async function sendGuestInvite(){
+  var username=document.getElementById('guestSearchInp').value.trim();
+  if(!username||!window.currentUser) return;
+  var pr=await window.sb.from('profiles').select('id').eq('username',username).single();
+  if(!pr.data){showToastMsg('Usuario no encontrado',true);return;}
+  var r=await window.sb.rpc('invite_live_guest',{p_stream_id:window._streamId||'',p_host_id:window.currentUser.id,p_guest_id:pr.data.id,p_slot:_activeGuests.length+1});
+  if(r.data&&r.data.ok){showToastMsg('Invitacion enviada a @'+username);document.getElementById('guestSearchInp').value='';loadActiveGuests();}
+  else{showToastMsg(r.data?.error||'Error',true);}
+}
+async function loadActiveGuests(){
+  if(!window._streamId) return;
+  var r=await window.sb.from('live_guests').select('id,guest_username,status,slot').eq('stream_id',window._streamId).in('status',['invited','active']);
+  _activeGuests=r.data||[];
+  var list=document.getElementById('guestList');
+  if(!list) return;
+  list.innerHTML=_activeGuests.map(function(g){
+    return '<div class="igp-guest"><span class="igp-guest-name">@'+g.guest_username+' <small style="color:#5a8aaa">('+g.status+')</small></span><button class="igp-kick" onclick="kickGuest(\''+g.id+'\',\''+g.guest_username+'\')">[X]</button></div>';
+  }).join('');
+}
+async function kickGuest(guestId,username){
+  await window.sb.from('live_guests').update({status:'ended'}).eq('id',guestId);
+  showToastMsg('@'+username+' removido del live');
+  loadActiveGuests();
+}
+</script>
 </body>
 </html>

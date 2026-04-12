@@ -1,5 +1,37 @@
 
 
+// == PRODUCT TAGGING ==
+var _taggedProducts=[];
+async function loadMyProducts(){
+  if(!currentUser) return;
+  var shopR=await sb.from('shops').select('id').eq('owner_id',currentUser.id).single();
+  if(!shopR.data){document.getElementById('productTagList').innerHTML='<div style="padding:10px;text-align:center;color:#5a8aaa;font-size:11px"><a href="/shop.html" style="color:#ff2255">Crea tu tienda</a> para etiquetar productos</div>';return;}
+  var r=await sb.rpc('get_shop_products',{p_shop_id:shopR.data.id,p_limit:20});
+  if(!r.data||!r.data.length){document.getElementById('productTagList').innerHTML='<div style="padding:10px;text-align:center;color:#5a8aaa;font-size:11px">Sin productos. <a href="/shop.html" style="color:#ff2255">Agrega productos</a></div>';return;}
+  var list=document.getElementById('productTagList');list.innerHTML='';
+  r.data.forEach(function(p){
+    var item=document.createElement('div');item.className='pt-item';item.dataset.pid=p.product_id;
+    var imgs=p.images;if(typeof imgs==='string')try{imgs=JSON.parse(imgs);}catch(e){imgs=[];}
+    var imgUrl=(imgs&&imgs.length)?imgs[0]:'';
+    item.innerHTML='<div class="pt-img">'+(imgUrl?'<img src="'+imgUrl+'">':'')+'</div><span class="pt-name">'+p.name+'</span><span class="pt-price">'+(p.price_cents/100).toFixed(2)+'</span>';
+    item.onclick=function(){
+      var isSelected=item.classList.contains('selected');
+      document.querySelectorAll('.pt-item').forEach(function(el){el.classList.remove('selected');});
+      if(!isSelected){
+        item.classList.add('selected');
+        _taggedProducts=[{product_id:p.product_id,x_position:50,y_position:50}];
+        document.getElementById('selectedProductBadge').innerHTML='<div class="pt-badge">\uD83D\uDED2 '+p.name+' etiquetado</div>';
+      }else{
+        _taggedProducts=[];
+        document.getElementById('selectedProductBadge').innerHTML='';
+      }
+    };
+    list.appendChild(item);
+  });
+}
+setTimeout(loadMyProducts,2000);
+
+
 // == AUDIO LIBRARY BROWSER ==
 var _allSounds=[];var _selectedSound=null;var _previewAudio=null;
 async function loadSounds(){
@@ -144,6 +176,17 @@ input[type=file]{display:none}
 .ai-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ai-artist{font-size:10px;color:#5a8aaa}
 .ai-uses{font-size:10px;color:#5a8aaa;flex-shrink:0}
+
+.product-tag-section{margin-top:4px}
+.product-tag-list{max-height:120px;overflow-y:auto;border:1px solid #0d2744;border-radius:8px}
+.pt-item{display:flex;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(13,39,68,.3);font-size:12px}
+.pt-item:hover,.pt-item.selected{background:rgba(255,34,85,.08)}
+.pt-item.selected{border-left:2px solid #ff2255}
+.pt-img{width:32px;height:32px;border-radius:6px;background:#0d2744;overflow:hidden;flex-shrink:0}
+.pt-img img{width:100%;height:100%;object-fit:cover}
+.pt-name{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pt-price{color:#ff2255;font-family:Orbitron,sans-serif;font-size:10px;flex-shrink:0}
+.pt-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:11px;background:rgba(255,34,85,.08);border:1px solid rgba(255,34,85,.2);color:#ff9999;margin-top:6px}
 </style>
 </head>
 <body>
@@ -178,6 +221,11 @@ input[type=file]{display:none}
       <div class="toggle-row"><label>Marcar como Reel</label><button class="toggle-sm on" id="togReel" onclick="this.classList.toggle('on')"></button></div>
       <div class="toggle-row"><label>Contenido premium (+18)</label><button class="toggle-sm" id="togNsfw" onclick="this.classList.toggle('on')"></button></div>
     </div>
+      <div class="tool-section product-tag-section">
+        <div class="tool-label">Etiquetar producto</div>
+        <div class="product-tag-list" id="productTagList"><div style="padding:10px;text-align:center;color:#5a8aaa;font-size:11px">Cargando tus productos...</div></div>
+        <div id="selectedProductBadge"></div>
+      </div>
   </div>
 </div>
 <script>
@@ -307,7 +355,13 @@ async function publishReel(){
       collab_type:_collabType||null,
       original_post_id:_originalPostId||null};
     var ins=await sb.from('posts').insert(postData).select('id').single();
-    if(ins.error) throw ins.error;
+    if(ins.error) throw ins.error
+    // Save product tags
+    if(_taggedProducts.length&&ins.data&&ins.data.id){
+      for(var ti=0;ti<_taggedProducts.length;ti++){
+        await sb.from('post_product_tags').insert({post_id:ins.data.id,product_id:_taggedProducts[ti].product_id,x_position:_taggedProducts[ti].x_position,y_position:_taggedProducts[ti].y_position});
+      }
+    };
     fill.style.width='100%';
     setTimeout(function(){location.href=isReel?'/reels.html':'/feed.html';},500);
   }catch(err){

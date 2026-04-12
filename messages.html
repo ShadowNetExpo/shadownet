@@ -167,6 +167,16 @@ body{padding-bottom:72px}
 /* NOTIF */
 .sn-nb{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:color .2s}.sn-nb:hover{color:#fff}.sn-nbc{position:absolute;top:2px;right:8px;background:#ff2255;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:900;display:none;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;border:1.5px solid #000}.sn-nbc.on{display:flex}.sn-np{position:fixed;top:0;right:0;width:min(360px,100vw);height:100vh;background:#111;z-index:9998;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;border-left:1px solid #1a1a2e;box-shadow:-4px 0 20px rgba(0,0,0,.5)}.sn-np.open{transform:translateX(0)}.sn-nov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9997;display:none}.sn-nov.on{display:block}.sn-nh{display:flex;align-items:center;padding:16px;border-bottom:1px solid #1a1a2e;flex-shrink:0}.sn-nht{flex:1;font-family:Rajdhani,sans-serif;font-weight:900;font-size:18px;color:#fff}.sn-nmr{background:none;border:1px solid #1a1a2e;color:#666;border-radius:8px;padding:4px 10px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;cursor:pointer}.sn-ncl{background:none;border:none;color:#555;font-size:22px;cursor:pointer;padding:0 4px;margin-left:8px}.sn-nl{flex:1;overflow-y:auto;padding:4px 0}.sn-ni{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #0d0d1a;cursor:pointer;transition:background .15s}.sn-ni:hover{background:rgba(255,255,255,.03)}.sn-ni.u{background:rgba(255,34,85,.04);border-left:3px solid #ff2255}.sn-nic{width:40px;height:40px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}.sn-nid{flex:1;min-width:0}.sn-nit{font-size:13px;color:#ccc;line-height:1.4;margin-bottom:2px}.sn-niz{font-size:11px;color:#555;font-family:Rajdhani,sans-serif}.sn-nem{text-align:center;padding:40px 20px;color:#333;font-family:Rajdhani,sans-serif;font-size:14px}
 
+
+.voice-btn{width:36px;height:36px;border-radius:50%;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.voice-btn.idle{background:rgba(13,39,68,.6);color:#5a8aaa}
+.voice-btn.recording{background:#ff2255;color:#fff;animation:voice-pulse 1s infinite}
+@keyframes voice-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.voice-msg{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(13,39,68,.4);border-radius:12px;min-width:140px}
+.voice-play{width:28px;height:28px;border-radius:50%;background:#ff2255;border:none;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.voice-wave{flex:1;height:20px;display:flex;align-items:center;gap:1px}
+.voice-bar{width:3px;border-radius:1px;background:#5a8aaa;transition:height .1s}
+.voice-dur{font-size:11px;color:#5a8aaa;flex-shrink:0}
 </style>
 
 <meta property="og:title" content="Mensajes &mdash; SHADOWNET">
@@ -798,6 +808,62 @@ function showToast(msg,err){
 <script>
 var _NB="https://cdokplvoqivducsqrejt.supabase.co",_NK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkb2twbHZvcWl2ZHVjc3FyZWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTk4NjksImV4cCI6MjA5MDI3NDg2OX0.aFXuBGq5MPReDdkzHlG-lRNKwFeuapLVBJs2Y5n1L0g",_NU=null,_NT=null,_NCh=null;function snNTA(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);return s<60?"ahora":s<3600?Math.floor(s/60)+"m":s<86400?Math.floor(s/3600)+"h":Math.floor(s/86400)+"d";}function snNIC(t){return{like:"\u2764\uFE0F",comment:"\uD83D\uDCAC",follow:"\uD83D\uDC65",tip:"\uD83D\uDCB0",ppv_purchase:"\uD83D\uDD13",new_message:"\uD83D\uDCEC",live_start:"\uD83D\uDCF9",subscription:"\u2B50"}[t]||"\uD83D\uDD14";}function snNSB(n){var b=document.getElementById("sn-nbc");if(!b)return;if(n>0){b.textContent=n>9?"9+":n;b.classList.add("on");}else{b.classList.remove("on");b.textContent="";}}function snNL(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/notifications?user_id=eq."+_NU+"&order=created_at.desc&limit=30",{headers:{"apikey":_NK,"Authorization":"Bearer "+_NT}}).then(function(r){return r.json();}).then(function(ns){ns=ns||[];var el=document.getElementById("sn-nl");if(!el)return;el.innerHTML="";if(!ns.length){var e=document.createElement("div");e.className="sn-nem";e.textContent="No hay notificaciones";el.appendChild(e);return;}ns.forEach(function(n){var it=document.createElement("div");it.className="sn-ni"+(n.is_read?"":" u");it.onclick=function(){snNTP(n);};var ic=document.createElement("div");ic.className="sn-nic";ic.textContent=snNIC(n.type);var ct=document.createElement("div");ct.className="sn-nid";var tx=document.createElement("div");tx.className="sn-nit";tx.textContent=n.title||n.message||"";var ti=document.createElement("div");ti.className="sn-niz";ti.textContent=snNTA(n.created_at);ct.appendChild(tx);ct.appendChild(ti);it.appendChild(ic);it.appendChild(ct);el.appendChild(it);});var u=ns.filter(function(n){return !n.is_read;}).length;snNSB(u);}).catch(function(){});}window.snNO=function(){document.getElementById("sn-np").classList.add("open");document.getElementById("sn-nov").classList.add("on");snNL();};window.snNC=function(){document.getElementById("sn-np").classList.remove("open");document.getElementById("sn-nov").classList.remove("on");};window.snNMR=function(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/rpc/mark_notifications_read",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(){snNL();}).catch(function(){});};function snNTP(n){fetch(_NB+"/rest/v1/notifications?id=eq."+n.id,{method:"PATCH",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({is_read:true})}).catch(function(){});var d=n.data||{};if(d.conversation_id)location.href="messages.html";else if(n.from_username)location.href="profile.html?u="+encodeURIComponent(n.from_username);else snNC();}(function(){function init(){if(!window.sb){setTimeout(init,400);return;}window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;_NU=s.data.session.user.id;_NT=s.data.session.access_token;fetch(_NB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});if(!_NCh){_NCh=window.sb.channel("notif:"+_NU).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_NU},function(p){var n=p.new;if(!n)return;var b=document.getElementById("sn-nbc");var cur=parseInt((b&&b.textContent)||"0")||0;snNSB(cur+1);if(window.showToast)showToast(n.title||n.message||"Nueva notificaci\u00F3n");}).subscribe();}});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(init,600);});else setTimeout(init,600);})();
 </script>
-<script src="/push.js"></script>
+<script src="/push.js">
+
+// == P1: VOICE MESSAGES ==
+var _mediaRec=null;var _audioChunks=[];var _isRecording=false;
+function toggleVoiceRecord(btn){
+  if(!currentUser) return;
+  if(_isRecording){stopVoiceRecord(btn);}
+  else{startVoiceRecord(btn);}
+}
+async function startVoiceRecord(btn){
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    _mediaRec=new MediaRecorder(stream,{mimeType:'audio/webm'});
+    _audioChunks=[];
+    _mediaRec.ondataavailable=function(e){if(e.data.size>0)_audioChunks.push(e.data);};
+    _mediaRec.onstop=function(){stream.getTracks().forEach(function(t){t.stop();});uploadVoice();};
+    _mediaRec.start();
+    _isRecording=true;
+    btn.classList.remove('idle');btn.classList.add('recording');
+    btn.textContent='\u23F9';
+  }catch(e){alert('No se pudo acceder al microfono');}
+}
+function stopVoiceRecord(btn){
+  if(_mediaRec&&_mediaRec.state==='recording') _mediaRec.stop();
+  _isRecording=false;
+  btn.classList.remove('recording');btn.classList.add('idle');
+  btn.textContent='\uD83C\uDFA4';
+}
+async function uploadVoice(){
+  if(!_audioChunks.length) return;
+  var blob=new Blob(_audioChunks,{type:'audio/webm'});
+  var fname='voice_'+Date.now()+'.webm';
+  var r=await sb.storage.from('messages').upload(fname,blob,{contentType:'audio/webm'});
+  if(r.error){alert('Error subiendo audio');return;}
+  var url=sb.storage.from('messages').getPublicUrl(fname).data.publicUrl;
+  // Send as voice message
+  if(window.sendVoiceMessage) sendVoiceMessage(url,Math.round(blob.size/16));
+  else{
+    // Fallback: insert directly
+    var convId=window._activeConversation;
+    if(convId){
+      await sb.from('direct_messages').insert({conversation_id:convId,sender_id:currentUser.id,content:'[Audio]',voice_url:url,voice_duration_ms:Math.round(blob.size/16),message_type:'voice'});
+    }
+  }
+}
+function renderVoiceMsg(msg){
+  if(!msg.voice_url) return '';
+  var dur=msg.voice_duration_ms?Math.round(msg.voice_duration_ms/1000):0;
+  return '<div class="voice-msg"><button class="voice-play" onclick="playVoice(this,\''+msg.voice_url+'\')">'+'\u25B6</button><div class="voice-wave" id="wave-'+msg.id+'"></div><span class="voice-dur">'+dur+'s</span></div>';
+}
+function playVoice(btn,url){
+  var a=new Audio(url);
+  btn.textContent='\u23F8';
+  a.play();
+  a.onended=function(){btn.textContent='\u25B6';};
+}
+</script>
 </body>
 </html>

@@ -292,6 +292,10 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .sn-nid{flex:1;min-width:0}.sn-nit{font-size:13px;color:#ccc;line-height:1.4;margin-bottom:2px}.sn-niz{font-size:11px;color:#555;font-family:Rajdhani,sans-serif}
 .sn-nem{text-align:center;padding:40px 20px;color:#333;font-family:Rajdhani,sans-serif;font-size:14px}
 
+
+.pin-indicator{position:absolute;top:6px;right:6px;background:rgba(0,229,255,.85);color:#01020c;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;z-index:2}
+.pin-action{cursor:pointer;padding:6px 12px;font-size:13px;color:#5a8aaa;transition:color .15s}
+.pin-action:hover{color:#00e5ff}
 </style>
 
 <meta property="og:title" content="Perfil &mdash; SHADOWNET">
@@ -661,7 +665,7 @@ async function loadTabContent(tab, userId) {
   grid.innerHTML = '<div class="empty-posts">Cargando...</div>';
 
   if(tab === 'posts'){
-    var r = await (window.sb||sb).from('posts').select('*').eq('user_id', userId).order('created_at',{ascending:false}).limit(30);
+    var r = await (window.sb||sb).from('posts').select('*').eq('user_id', userId).order('is_pinned',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(30);
     if(r.error){grid.innerHTML='<div class="empty-posts">Error cargando posts: '+r.error.message+'</div>';return;}
     renderPostsGrid(r.data||[]);
 
@@ -1491,6 +1495,19 @@ window.snNMR=function(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/rpc/mark_notifi
 function snNTP(n){fetch(_NB+"/rest/v1/notifications?id=eq."+n.id,{method:"PATCH",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({is_read:true})}).catch(function(){});var d=n.data||{};if(d.conversation_id)location.href="messages.html";else if(n.from_username)location.href="profile.html?u="+encodeURIComponent(n.from_username);else snNC();}
 (function(){function init(){if(!window.sb){setTimeout(init,400);return;}window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;_NU=s.data.session.user.id;_NT=s.data.session.access_token;fetch(_NB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});if(!_NCh){_NCh=window.sb.channel("notif:"+_NU).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_NU},function(p){var n=p.new;if(!n)return;var b=document.getElementById("sn-nbc");var cur=parseInt((b&&b.textContent)||"0")||0;snNSB(cur+1);if(window.showToast)showToast(n.title||n.message||"Nueva notificaci\u00F3n");}).subscribe();}});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(init,600);});else setTimeout(init,600);})();
 </script>
-<script src="/push.js"></script>
+<script src="/push.js">
+
+// == P1: PINNED POSTS ==
+async function pinPost(postId){
+  if(!currentUser) return;
+  var r=await sb.rpc('toggle_pin_post',{p_user_id:currentUser.id,p_post_id:postId});
+  if(r.data&&r.data.ok){
+    showToast(r.data.pinned?'Post fijado':'Post desfijado');
+    switchTab('posts'); // Reload grid
+  }else{
+    showToast(r.data?.error||'Error',true);
+  }
+}
+</script>
 </body>
 </html>

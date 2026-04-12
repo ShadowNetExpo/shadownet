@@ -470,6 +470,29 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 
 
 .anon-banner+.anon-banner,.anon-bar+.anon-bar{display:none!important}
+
+.pinned-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(0,229,255,.08);color:#00e5ff;margin-bottom:4px}
+.repost-btn{cursor:pointer;transition:color .15s}
+.repost-btn:hover,.repost-btn.active{color:#00e5ff}
+.repost-banner{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:11px;color:#5a8aaa;border-bottom:1px solid rgba(255,255,255,.04)}
+.poll-container{padding:10px 14px;margin-top:6px}
+.poll-option{display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:6px;background:rgba(13,39,68,.4);border:1px solid #0d2744;border-radius:8px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.poll-option:hover{border-color:rgba(255,34,85,.3)}
+.poll-option.voted{border-color:#ff2255}
+.poll-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(255,34,85,.1);border-radius:7px;transition:width .4s}
+.poll-text{position:relative;z-index:1;font-size:13px;flex:1}
+.poll-pct{position:relative;z-index:1;font-size:12px;font-weight:700;color:#ff2255}
+.poll-meta{font-size:11px;color:#5a8aaa;margin-top:4px}
+.carousel{position:relative;overflow:hidden}
+.carousel-track{display:flex;transition:transform .3s ease;width:100%}
+.carousel-slide{min-width:100%;flex-shrink:0}
+.carousel-slide img{width:100%;display:block}
+.carousel-dots{display:flex;justify-content:center;gap:4px;padding:8px 0}
+.carousel-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer}
+.carousel-dot.active{background:#ff2255}
+.carousel-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:#fff;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:2}
+.carousel-prev{left:6px}
+.carousel-next{right:6px}
 </style>
 </head>
 <body>
@@ -906,6 +929,31 @@ function buildPostCard(post, profile, liked, saved) {
       var ct=document.createElement('span');ct.className='category-tag';ct.textContent=post.category;
       card.appendChild(ct);
     }
+
+    // == P1: PINNED BADGE ==
+    if(post.is_pinned){
+      var pin=document.createElement('div');pin.className='pinned-badge';pin.textContent='\uD83D\uDCCC Fijado';card.appendChild(pin);
+    }
+    // == P1: CAROUSEL ==
+    var mediaUrls=post.media_urls;
+    if(typeof mediaUrls==='string')try{mediaUrls=JSON.parse(mediaUrls);}catch(e){mediaUrls=null;}
+    if(mediaUrls&&mediaUrls.length>1){
+      var carouselDiv=card.querySelector('.post-media')||card.querySelector('img')?.parentElement;
+      if(carouselDiv) buildCarousel(mediaUrls,carouselDiv);
+    }
+    // == P1: POLL ==
+    if(post.id) renderPoll(post.id,card);
+
+    // == P1: REPOST BUTTON (in footer) ==
+    setTimeout(function(){
+      var footer=card.querySelector('.post-footer')||card.querySelector('[class*=footer]');
+      if(footer){
+        var rb=document.createElement('span');rb.className='repost-btn';rb.style.cssText='cursor:pointer;margin-left:10px;font-size:13px';
+        rb.innerHTML='\uD83D\uDD01 '+(post.reposts_count||0);
+        rb.onclick=function(){toggleRepost(post.id,rb);};
+        footer.appendChild(rb);
+      }
+    },100);
 var footer=document.createElement("div");footer.className="card-footer";
   // Like
   var likeBtn=document.createElement("button");likeBtn.className="action-btn"+(liked?" liked":"");
@@ -2845,6 +2893,73 @@ function skipOnboarding(){
 
 // Trigger onboarding check 2s after user init
 setTimeout(function(){ if(typeof checkOnboarding === 'function') checkOnboarding(); }, 2000);
+
+
+// == P1: REPOST ==
+async function toggleRepost(postId,btn){
+  if(!currentUser){requireLogin();return;}
+  var existing=await sb.from('reposts').select('id').eq('user_id',currentUser.id).eq('post_id',postId).single();
+  if(existing.data){
+    await sb.from('reposts').delete().eq('id',existing.data.id);
+    btn.classList.remove('active');showToast('Repost eliminado');
+  }else{
+    await sb.from('reposts').insert({user_id:currentUser.id,post_id:postId});
+    btn.classList.add('active');showToast('Reposteado!');
+  }
+}
+
+// == P1: POLLS ==
+async function renderPoll(postId,container){
+  var r=await sb.from('polls').select('*').eq('post_id',postId).single();
+  if(!r.data) return;
+  var poll=r.data;var opts=poll.options||[];
+  var myVotes=[];
+  if(currentUser){
+    var vr=await sb.from('poll_votes').select('option_index').eq('poll_id',poll.id).eq('user_id',currentUser.id);
+    if(vr.data) myVotes=vr.data.map(function(v){return v.option_index;});
+  }
+  var hasVoted=myVotes.length>0;
+  var html='<div class="poll-container">';
+  opts.forEach(function(opt,i){
+    var votes=opt.votes||0;var pct=poll.total_votes>0?Math.round(votes/poll.total_votes*100):0;
+    var voted=myVotes.includes(i);
+    html+='<div class="poll-option'+(voted?' voted':'')+'" onclick="votePoll(\''+poll.id+'\','+i+',this)">';
+    if(hasVoted) html+='<div class="poll-fill" style="width:'+pct+'%"></div>';
+    html+='<span class="poll-text">'+(opt.text||opt)+'</span>';
+    if(hasVoted) html+='<span class="poll-pct">'+pct+'%</span>';
+    html+='</div>';
+  });
+  html+='<div class="poll-meta">'+poll.total_votes+' votos</div></div>';
+  container.innerHTML+=html;
+}
+async function votePoll(pollId,optIdx,el){
+  if(!currentUser){requireLogin();return;}
+  var r=await sb.rpc('vote_poll',{p_poll_id:pollId,p_option_index:optIdx});
+  if(r.data&&r.data.ok){el.closest('.poll-container').parentElement.querySelector('.poll-container').remove();renderPoll(el.closest('[id^="post-"]')?.id?.replace('post-','')||'',el.closest('.poll-container').parentElement);}
+}
+
+// == P1: CAROUSEL ==
+function buildCarousel(urls,container){
+  if(!urls||urls.length<=1) return;
+  var wrap=document.createElement('div');wrap.className='carousel';
+  var track=document.createElement('div');track.className='carousel-track';
+  urls.forEach(function(u){var s=document.createElement('div');s.className='carousel-slide';var img=document.createElement('img');img.src=u;s.appendChild(img);track.appendChild(s);});
+  wrap.appendChild(track);
+  var prev=document.createElement('button');prev.className='carousel-nav carousel-prev';prev.textContent='\u2039';
+  var next=document.createElement('button');next.className='carousel-nav carousel-next';next.textContent='\u203A';
+  wrap.appendChild(prev);wrap.appendChild(next);
+  var dots=document.createElement('div');dots.className='carousel-dots';
+  urls.forEach(function(_,i){var d=document.createElement('div');d.className='carousel-dot'+(i===0?' active':'');d.dataset.idx=i;dots.appendChild(d);});
+  wrap.appendChild(dots);
+  var idx=0;
+  function goTo(n){idx=Math.max(0,Math.min(n,urls.length-1));track.style.transform='translateX(-'+idx*100+'%)';dots.querySelectorAll('.carousel-dot').forEach(function(d,i){d.classList.toggle('active',i===idx);});}
+  prev.onclick=function(){goTo(idx-1);};next.onclick=function(){goTo(idx+1);};
+  dots.querySelectorAll('.carousel-dot').forEach(function(d){d.onclick=function(){goTo(parseInt(d.dataset.idx));};});
+  // Touch swipe
+  var sx=0;wrap.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;});
+  wrap.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-sx;if(dx>40)goTo(idx-1);if(dx<-40)goTo(idx+1);});
+  container.innerHTML='';container.appendChild(wrap);
+}
 </script>
 <div class="onboard-overlay" id="onboardModal">
   <div class="onboard-box">

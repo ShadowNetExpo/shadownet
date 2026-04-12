@@ -892,7 +892,6 @@ function buildPostCard(post, profile, liked, saved) {
   footer.appendChild(saveBtn);
   // Delete (own posts)
   if(isOwn){var delBtn=document.createElement("button");delBtn.className="action-btn";delBtn.textContent="\uD83D\uDDD1";delBtn.style.color="#ff2255";delBtn.dataset.postId=post.id;delBtn.addEventListener("click",function(){deletePost(this.dataset.postId);});footer.appendChild(delBtn);}
-var _ni=document.createElement('div');_ni.className='post-menu-item';_ni.textContent='\u26D4 No me interesa';_ni.onclick=function(){markNotInterested(post.id);footer.remove();};footer.appendChild(_ni);
 
   // Report button (for others' posts)
   if(!isOwn&&currentUser){var repBtn=document.createElement("button");repBtn.className="action-btn";repBtn.innerHTML="&#8942;";repBtn.title="Reportar";repBtn.style.color="#5a8aaa";repBtn.dataset.postId=post.id;repBtn.dataset.userId=post.user_id;repBtn.addEventListener("click",function(){openReport(this.dataset.postId,"post",this.dataset.userId);});footer.appendChild(repBtn);}
@@ -1370,6 +1369,10 @@ function openPostMenu(btn){
   var isOwn=currentUser&&postUser===currentUser.id;
   var menu=document.createElement("div");menu.className="post-menu";
   if(!isOwn){
+    var niItem=document.createElement("div");niItem.className="post-menu-item";
+    niItem.innerHTML="\u26D4 No me interesa";
+    niItem.addEventListener("click",function(){menu.remove();markNotInterested(postId);});
+    menu.appendChild(niItem);
     var reportItem=document.createElement("div");reportItem.className="post-menu-item";
     reportItem.innerHTML="\u26A0\uFE0F Reportar";
     reportItem.addEventListener("click",function(){menu.remove();openReport(postId,postUser);});

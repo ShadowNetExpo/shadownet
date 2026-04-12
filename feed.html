@@ -468,6 +468,11 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .onboard-go{width:100%;padding:14px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:15px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:opacity .2s}
 .onboard-go:disabled{opacity:.3;cursor:not-allowed}
 .onboard-skip{width:100%;margin-top:8px;padding:8px;background:none;border:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer}
+
+.collab-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(255,34,85,.12);color:#ff2255;margin-bottom:6px}
+.audio-link{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:11px;color:#5a8aaa;background:rgba(13,39,68,.4);border:1px solid #0d2744;cursor:pointer;transition:border-color .2s;margin-top:6px;text-decoration:none}
+.audio-link:hover{border-color:#ff2255;color:#ff2255}
+.category-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(0,229,255,.08);color:#00e5ff;margin-top:4px}
 </style>
 </head>
 <body>
@@ -873,7 +878,27 @@ function buildPostCard(post, profile, liked, saved) {
     card.appendChild(audioBar);
   }
   // Footer with like + comment + share + save
-  var footer=document.createElement("div");footer.className="card-footer";
+  
+    // == ENRICHMENTS: collab badge, audio link, category ==
+    if(post.collab_type){
+      var cb=document.createElement('div');cb.className='collab-badge';
+      var icons={duet:'\uD83C\uDFAC',stitch:'\u2702\uFE0F',remix:'\uD83D\uDD04',greenscreen:'\uD83D\uDFE9'};
+      cb.textContent=(icons[post.collab_type]||'')+' '+post.collab_type.charAt(0).toUpperCase()+post.collab_type.slice(1);
+      cb.style.cursor='pointer';
+      if(post.original_post_id) cb.onclick=function(){location.href='feed.html#post-'+post.original_post_id;};
+      card.appendChild(cb);
+    }
+    if(post.audio_track){
+      var al=document.createElement('a');al.className='audio-link';
+      al.href='/sound.html?name='+encodeURIComponent(post.audio_track);
+      al.innerHTML='\uD83C\uDFB5 '+post.audio_track;
+      card.appendChild(al);
+    }
+    if(post.category){
+      var ct=document.createElement('span');ct.className='category-tag';ct.textContent=post.category;
+      card.appendChild(ct);
+    }
+var footer=document.createElement("div");footer.className="card-footer";
   // Like
   var likeBtn=document.createElement("button");likeBtn.className="action-btn"+(liked?" liked":"");
   likeBtn.innerHTML='<span class="heart">&#10084;</span> <span class="like-count">'+(post.likes_count||0)+"</span>";

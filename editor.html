@@ -106,6 +106,7 @@ async function loadCollabMode(postId,type){
 <title>SHADOWNET \u2014 Editor</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"><\/script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/sn-design.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;min-height:100vh}
@@ -191,10 +192,10 @@ input[type=file]{display:none}
 </head>
 <body>
 <div class="progress-bar" id="uploadProgress"><div class="fill" id="uploadFill"></div></div>
-<header>
-  <span class="logo" onclick="location.href='/'">SN</span>
-  <span class="hdr-title">EDITOR DE VIDEO</span>
-  <button class="btn-post" id="btnPost" disabled onclick="publishReel()">PUBLICAR</button>
+<header class="sn-header">
+  <button class="sn-header-btn" onclick="history.back()">&#8592;</button>
+  <span class="sn-header-logo" id="hdrTitle">EDITOR</span>
+  <div class="sn-header-actions"></div>
 </header>
 <div class="editor-wrap">
   <div class="preview-area" id="previewArea">

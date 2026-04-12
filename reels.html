@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000">
+<title>SHADOWNET — Reels</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;overflow:hidden;height:100vh;height:100dvh}
+.reels-container{height:100vh;height:100dvh;overflow:hidden;position:relative}
+.reel-slide{height:100vh;height:100dvh;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
+.reel-slide video{width:100%;height:100%;object-fit:cover}
+.reel-overlay{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:flex-end}
+.reel-info{padding:12px 80px 100px 16px;pointer-events:auto}
+.reel-username{font-family:Orbitron,sans-serif;font-size:13px;color:#fff;letter-spacing:.06em;cursor:pointer;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.reel-username:hover{color:#ff2255}
+.reel-caption{font-size:14px;color:rgba(255,255,255,.9);margin-top:6px;line-height:1.5;max-height:60px;overflow:hidden;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.reel-audio{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:rgba(255,255,255,.7)}
+.reel-category{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);margin-top:6px}
+.reel-actions{position:absolute;right:10px;bottom:120px;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10}
+.reel-action{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.reel-action-icon{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .2s;border:1px solid rgba(255,255,255,.1)}
+.reel-action-icon:hover{background:rgba(255,255,255,.25)}
+.reel-action-icon.liked{background:rgba(255,34,85,.3);border-color:rgba(255,34,85,.5)}
+.reel-action-count{font-size:11px;color:rgba(255,255,255,.7);font-weight:700}
+.reel-avatar{width:44px;height:44px;border-radius:50%;border:2px solid #ff2255;overflow:hidden;cursor:pointer;margin-bottom:8px}
+.reel-avatar img{width:100%;height:100%;object-fit:cover}
+.reels-top{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:12px 16px;gap:12px;background:linear-gradient(to bottom,rgba(0,0,0,.6),transparent)}
+.reels-logo{font-family:Orbitron,sans-serif;font-size:14px;color:#ff2255;letter-spacing:.12em;cursor:pointer}
+.reels-tab{padding:6px 14px;border-radius:16px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.04em;transition:all .2s}
+.reels-tab.active{color:#fff;background:rgba(255,255,255,.15)}
+.reel-progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.1);z-index:20}
+.reel-progress-fill{height:100%;background:#ff2255;width:0;transition:width .1s linear}
+.reel-play-indicator{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px;color:rgba(255,255,255,.8);opacity:0;transition:opacity .3s;pointer-events:none}
+.reel-play-indicator.show{opacity:1}
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(0,0,0,.85);border-top:1px solid rgba(255,255,255,.1);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:rgba(255,255,255,.5);font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}
+.sn-bn-item:hover,.sn-bn-active{color:#fff!important}
+.sn-bn-icon{font-size:22px;line-height:1}
+.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid rgba(255,255,255,.2);color:#fff;font-weight:800}
+.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.reel-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,.4)}
+.reel-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,.4)}
+.reel-empty-icon{font-size:48px}
+</style>
+</head>
+<body>
+<div class="reels-top">
+  <span class="reels-logo" onclick="location.href='/'">SN</span>
+  <button class="reels-tab active" id="tabForYou" onclick="switchReelTab('foryou')">Para ti</button>
+  <button class="reels-tab" id="tabFollowing" onclick="switchReelTab('following')">Siguiendo</button>
+</div>
+<div class="reels-container" id="reelsContainer">
+  <div class="reel-loading" id="reelLoading">Cargando reels...</div>
+</div>
+<nav class="sn-bottom-nav">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span>Inicio</a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span>Explorar</a>
+  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item sn-bn-active" href="/reels.html"><span class="sn-bn-icon">&#9654;</span>Reels</a>
+  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div>Perfil</a>
+</nav>
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
+var currentUser=null;var _reels=[];var _reelIdx=0;var _reelMode='foryou';var _touchStartY=0;var _swiping=false;var _showNsfw=false;
+
+sb.auth.getSession().then(function(r){
+  if(r.data.session){
+    currentUser=r.data.session.user;
+    window._currentUserId=currentUser.id;
+    sb.from('profiles').select('show_nsfw').eq('id',currentUser.id).single().then(function(p){
+      if(p.data) _showNsfw=p.data.show_nsfw||false;
+    });
+  }
+  loadReels();
+  initNav();
+});
+
+function switchReelTab(mode){
+  _reelMode=mode;
+  document.getElementById('tabForYou').classList.toggle('active',mode==='foryou');
+  document.getElementById('tabFollowing').classList.toggle('active',mode==='following');
+  _reels=[];_reelIdx=0;loadReels();
+}
+
+async function loadReels(){
+  var uid=currentUser?currentUser.id:null;
+  var r=await sb.rpc('get_reels_feed',{p_user_id:uid,p_limit:15,p_offset:0,p_show_nsfw:_showNsfw});
+  if(r.error||!r.data||!r.data.length){
+    document.getElementById('reelLoading').innerHTML='<div class="reel-empty"><div class="reel-empty-icon">&#9654;</div><div>No hay reels disponibles</div><div style="font-size:12px">Sube el primer video desde el feed</div></div>';
+    return;
+  }
+  _reels=r.data;_reelIdx=0;renderReel(0);
+}
+
+function renderReel(idx){
+  if(idx<0||idx>=_reels.length) return;
+  var reel=_reels[idx];
+  var container=document.getElementById('reelsContainer');
+  container.innerHTML='';
+  var slide=document.createElement('div');slide.className='reel-slide';
+  var vid=document.createElement('video');
+  vid.src=reel.media_url;vid.autoplay=true;vid.loop=true;vid.muted=false;vid.playsInline=true;
+  vid.setAttribute('playsinline','');vid.setAttribute('webkit-playsinline','');
+  vid.addEventListener('click',function(){
+    if(vid.paused){vid.play();indicator.classList.remove('show');}
+    else{vid.pause();indicator.classList.add('show');}
+  });
+  slide.appendChild(vid);
+  var indicator=document.createElement('div');indicator.className='reel-play-indicator';indicator.textContent='\u25B6\uFE0F';
+  slide.appendChild(indicator);
+  var progress=document.createElement('div');progress.className='reel-progress';
+  var progressFill=document.createElement('div');progressFill.className='reel-progress-fill';
+  progress.appendChild(progressFill);slide.appendChild(progress);
+  vid.addEventListener('timeupdate',function(){
+    if(vid.duration){progressFill.style.width=(vid.currentTime/vid.duration*100)+'%';}
+  });
+  var overlay=document.createElement('div');overlay.className='reel-overlay';
+  var info=document.createElement('div');info.className='reel-info';
+  var un=document.createElement('div');un.className='reel-username';
+  un.textContent='@'+(reel.username||'usuario');
+  un.onclick=function(){location.href='profile.html?u='+encodeURIComponent(reel.username||'');};
+  info.appendChild(un);
+  if(reel.content){var cap=document.createElement('div');cap.className='reel-caption';cap.textContent=reel.content;info.appendChild(cap);}
+  if(reel.category){var cat=document.createElement('span');cat.className='reel-category';cat.textContent=reel.category;info.appendChild(cat);}
+  if(reel.audio_track){var aud=document.createElement('div');aud.className='reel-audio';aud.innerHTML='\uD83C\uDFB5 '+reel.audio_track;info.appendChild(aud);}
+  overlay.appendChild(info);slide.appendChild(overlay);
+  var actions=document.createElement('div');actions.className='reel-actions';
+  var av=document.createElement('div');av.className='reel-avatar';
+  av.innerHTML='<img src="'+(reel.avatar_url||('https://api.dicebear.com/7.x/personas/svg?seed='+(reel.username||'u')))+'">';
+  av.onclick=function(){location.href='profile.html?u='+encodeURIComponent(reel.username||'');};
+  actions.appendChild(av);
+  actions.appendChild(createAction('\u2764\uFE0F',reel.likes_count||0,function(icon){toggleReelLike(reel.post_id,icon);}));
+  actions.appendChild(createAction('\uD83D\uDCAC',reel.comments_count||0,function(){location.href='feed.html#post-'+reel.post_id;}));
+  actions.appendChild(createAction('\uD83D\uDD17',reel.shares_count||0,function(){
+    if(navigator.share){navigator.share({title:'SHADOWNET',url:location.origin+'/feed.html#post-'+reel.post_id}).catch(function(){});}
+    else{navigator.clipboard.writeText(location.origin+'/feed.html#post-'+reel.post_id);}
+  }));
+  slide.appendChild(actions);container.appendChild(slide);
+  if(currentUser){sb.rpc('record_watch_time',{p_user_id:currentUser.id,p_post_id:reel.post_id,p_watch_ms:3000,p_total_ms:0,p_looped:false}).catch(function(){});}
+  if(idx+1<_reels.length){var pl=document.createElement('link');pl.rel='preload';pl.as='video';pl.href=_reels[idx+1].media_url;document.head.appendChild(pl);}
+}
+
+function createAction(icon,count,onClick){
+  var wrap=document.createElement('div');wrap.className='reel-action';
+  var iconEl=document.createElement('div');iconEl.className='reel-action-icon';iconEl.textContent=icon;
+  iconEl.addEventListener('click',function(){onClick(iconEl);});
+  var countEl=document.createElement('div');countEl.className='reel-action-count';
+  countEl.textContent=count>999?(count/1000).toFixed(1)+'K':count;
+  wrap.appendChild(iconEl);wrap.appendChild(countEl);return wrap;
+}
+
+async function toggleReelLike(postId,iconEl){
+  if(!currentUser){location.href='/';return;}
+  var uid=currentUser.id;
+  var chk=await sb.from('post_likes').select('id').eq('post_id',postId).eq('user_id',uid);
+  if(chk.data&&chk.data.length){
+    await sb.from('post_likes').delete().eq('post_id',postId).eq('user_id',uid);
+    iconEl.classList.remove('liked');
+  }else{
+    await sb.from('post_likes').insert({post_id:postId,user_id:uid});
+    iconEl.classList.add('liked');
+  }
+}
+
+document.addEventListener('touchstart',function(e){_touchStartY=e.touches[0].clientY;_swiping=true;},{passive:true});
+document.addEventListener('touchend',function(e){
+  if(!_swiping) return;
+  var dy=e.changedTouches[0].clientY-_touchStartY;
+  _swiping=false;
+  if(Math.abs(dy)<50) return;
+  if(dy<0&&_reelIdx<_reels.length-1){_reelIdx++;renderReel(_reelIdx);}
+  else if(dy>0&&_reelIdx>0){_reelIdx--;renderReel(_reelIdx);}
+  else if(dy<0&&_reelIdx>=_reels.length-1){loadMoreReels();}
+},{passive:true});
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'&&_reelIdx<_reels.length-1){_reelIdx++;renderReel(_reelIdx);}
+  else if(e.key==='ArrowUp'&&_reelIdx>0){_reelIdx--;renderReel(_reelIdx);}
+  else if(e.key===' '){
+    var vid=document.querySelector('.reel-slide video');
+    if(vid){if(vid.paused)vid.play();else vid.pause();}
+    e.preventDefault();
+  }
+});
+
+async function loadMoreReels(){
+  var uid=currentUser?currentUser.id:null;
+  var r=await sb.rpc('get_reels_feed',{p_user_id:uid,p_limit:10,p_offset:_reels.length,p_show_nsfw:_showNsfw});
+  if(r.data&&r.data.length){_reels=_reels.concat(r.data);_reelIdx++;renderReel(_reelIdx);}
+}
+
+function initNav(){
+  if(!currentUser) return;
+  sb.from('profiles').select('username,avatar_url').eq('id',currentUser.id).single().then(function(p){
+    var a=document.getElementById('snNavAv');
+    if(!a||!p.data) return;
+    if(p.data.avatar_url) a.innerHTML='<img src="'+p.data.avatar_url+'">';
+    else if(p.data.username) a.textContent=p.data.username[0].toUpperCase();
+  });
+}
+</script>
+<script src="/push.js"></script>
+</body>
+</html>

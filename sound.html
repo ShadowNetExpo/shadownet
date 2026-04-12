@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET \u2014 Sound</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"><\/script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;padding-bottom:80px}
+header{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #0d2744;position:sticky;top:0;z-index:100;background:rgba(1,2,12,.97)}
+.back-btn{background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer;padding:4px}
+.hdr-title{font-size:13px;font-weight:700;letter-spacing:.04em;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sound-hero{padding:20px 16px;display:flex;gap:16px;align-items:center;border-bottom:1px solid #0d2744}
+.sound-disc{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0d2744,#01020c);border:3px solid #ff2255;display:flex;align-items:center;justify-content:center;font-size:32px;animation:spin 3s linear infinite;flex-shrink:0}
+.sound-disc.paused{animation-play-state:paused}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sound-info{flex:1;min-width:0}
+.sound-name{font-family:Orbitron,sans-serif;font-size:15px;color:#fff;letter-spacing:.04em;margin-bottom:4px}
+.sound-artist{font-size:13px;color:#5a8aaa;margin-bottom:6px}
+.sound-stats{display:flex;gap:16px;font-size:12px;color:#5a8aaa}
+.sound-stat-val{color:#ff2255;font-weight:700}
+.sound-actions{display:flex;gap:8px;margin-top:10px}
+.sa-btn{padding:8px 16px;border-radius:20px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;border:1px solid #0d2744;background:transparent;color:#5a8aaa;transition:all .2s}
+.sa-btn.primary{background:linear-gradient(135deg,#ff2255,#aa0030);border-color:#ff2255;color:#fff}
+.section-title{padding:16px 16px 10px;font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.videos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:0 2px}
+.video-thumb{position:relative;aspect-ratio:9/16;background:#0d2744;overflow:hidden;cursor:pointer}
+.video-thumb video{width:100%;height:100%;object-fit:cover}
+.video-views{position:absolute;bottom:4px;left:6px;font-size:11px;color:#fff;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.8);display:flex;align-items:center;gap:3px}
+.empty-state{text-align:center;padding:60px 20px;color:#5a8aaa}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(1,2,12,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:color .2s}
+.sn-bn-item:hover{color:#ff2255!important}
+.sn-bn-icon{font-size:22px;line-height:1}
+.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid rgba(255,255,255,.2);color:#fff;font-weight:800}
+.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.audio-bar{position:fixed;bottom:64px;left:0;right:0;background:rgba(1,2,12,.95);border-top:1px solid #0d2744;padding:8px 16px;display:none;align-items:center;gap:10px;z-index:150}
+.audio-bar.show{display:flex}
+.ab-play{width:32px;height:32px;border-radius:50%;background:#ff2255;border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ab-info{flex:1;min-width:0}
+.ab-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-artist{font-size:10px;color:#5a8aaa}
+.ab-progress{height:2px;background:#0d2744;border-radius:1px;margin-top:4px}
+.ab-fill{height:100%;background:#ff2255;width:0;border-radius:1px;transition:width .2s}
+</style>
+</head>
+<body>
+<header>
+  <button class="back-btn" onclick="history.back()">&#8592;</button>
+  <span class="hdr-title" id="hdrTitle">Sonido</span>
+</header>
+<div class="sound-hero" id="soundHero">
+  <div class="sound-disc" id="soundDisc">&#127925;</div>
+  <div class="sound-info">
+    <div class="sound-name" id="soundName">Cargando...</div>
+    <div class="sound-artist" id="soundArtist"></div>
+    <div class="sound-stats"><span><span class="sound-stat-val" id="usesCount">0</span> videos</span></div>
+    <div class="sound-actions">
+      <button class="sa-btn primary" onclick="useSound()">&#127909; Usar sonido</button>
+      <button class="sa-btn" onclick="toggleAudio()" id="playBtn">&#9654; Reproducir</button>
+    </div>
+  </div>
+</div>
+<div class="section-title">VIDEOS CON ESTE SONIDO</div>
+<div class="videos-grid" id="videosGrid"></div>
+<div class="audio-bar" id="audioBar">
+  <button class="ab-play" onclick="toggleAudio()" id="abPlayBtn">&#9654;</button>
+  <div class="ab-info"><div class="ab-name" id="abName"></div><div class="ab-artist" id="abArtist"></div><div class="ab-progress"><div class="ab-fill" id="abFill"></div></div></div>
+</div>
+<nav class="sn-bottom-nav">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span>Inicio</a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span>Explorar</a>
+  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item" href="/reels.html"><span class="sn-bn-icon">&#9654;</span>Reels</a>
+  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div>Perfil</a>
+</nav>
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
+var _audio=null;var _playing=false;var _soundData=null;
+var params=new URLSearchParams(location.search);
+var soundId=params.get('id');var soundName=params.get('name');
+if(soundId){loadSoundById(soundId);}else if(soundName){loadSoundByName(soundName);}else{document.getElementById('soundName').textContent='Sonido no encontrado';}
+
+async function loadSoundById(id){
+  var r=await sb.from('sounds').select('*').eq('id',id).single();
+  if(r.data){renderSound(r.data);loadVideos(r.data);}
+}
+async function loadSoundByName(name){
+  var r=await sb.from('sounds').select('*').eq('name',decodeURIComponent(name)).single();
+  if(r.data){renderSound(r.data);}
+  loadVideosByTrack(decodeURIComponent(name));
+}
+function renderSound(sound){
+  _soundData=sound;
+  document.getElementById('soundName').textContent=sound.name;
+  document.getElementById('soundArtist').textContent=sound.artist||'Sonido original';
+  document.getElementById('usesCount').textContent=sound.uses_count||0;
+  document.getElementById('hdrTitle').textContent=sound.name;
+  document.getElementById('abName').textContent=sound.name;
+  document.getElementById('abArtist').textContent=sound.artist||'';
+}
+async function loadVideos(sound){
+  var r=await sb.rpc('get_sound_page',{p_sound_id:sound.id,p_limit:30});
+  if(r.data&&r.data.length) renderVideoGrid(r.data); else showEmpty();
+}
+async function loadVideosByTrack(track){
+  var r=await sb.from('posts').select('id,media_url,views_count').eq('media_type','video').eq('audio_track',track).order('views_count',{ascending:false}).limit(30);
+  if(r.data&&r.data.length) renderVideoGrid(r.data.map(function(p){return{post_id:p.id,media_url:p.media_url,views_count:p.views_count||0};})); else showEmpty();
+}
+function renderVideoGrid(videos){
+  var grid=document.getElementById('videosGrid');grid.innerHTML='';
+  videos.forEach(function(v){
+    var thumb=document.createElement('div');thumb.className='video-thumb';
+    thumb.onclick=function(){location.href='/reels.html?post='+v.post_id;};
+    var vid=document.createElement('video');vid.src=v.media_url;vid.muted=true;vid.preload='metadata';vid.loop=true;
+    vid.addEventListener('mouseenter',function(){vid.play();});
+    vid.addEventListener('mouseleave',function(){vid.pause();vid.currentTime=0;});
+    thumb.appendChild(vid);
+    var views=document.createElement('div');views.className='video-views';
+    views.innerHTML='&#9654; '+(v.views_count>999?Math.round(v.views_count/100)/10+'K':v.views_count);
+    thumb.appendChild(views);grid.appendChild(thumb);
+  });
+}
+function showEmpty(){document.getElementById('videosGrid').innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">&#127925;</div><div>No hay videos con este sonido todavia</div></div>';}
+function toggleAudio(){
+  if(!_soundData||!_soundData.audio_url){var fv=document.querySelector('.video-thumb video');if(fv){if(fv.paused)fv.play();else fv.pause();}return;}
+  if(!_audio){_audio=new Audio(_soundData.audio_url);_audio.addEventListener('timeupdate',function(){if(_audio.duration)document.getElementById('abFill').style.width=(_audio.currentTime/_audio.duration*100)+'%';});_audio.addEventListener('ended',function(){_playing=false;updatePlayBtns();});}
+  if(_playing){_audio.pause();_playing=false;}else{_audio.play();_playing=true;document.getElementById('audioBar').classList.add('show');}
+  updatePlayBtns();
+}
+function updatePlayBtns(){var icon=_playing?'\u23F8':'\u25B6';document.getElementById('playBtn').innerHTML=icon+' '+(_playing?'Pausar':'Reproducir');document.getElementById('abPlayBtn').innerHTML=icon;document.getElementById('soundDisc').classList.toggle('paused',!_playing);}
+function useSound(){location.href='/editor.html?sound='+encodeURIComponent(_soundData?_soundData.name:'');}
+<\/script>
+</body>
+</html>

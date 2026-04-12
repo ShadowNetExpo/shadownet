@@ -530,6 +530,45 @@ var curTab = "all";
 
 window._showNsfw = false;
 
+
+function loadPublicFeed() {
+  window._isAnon = true;
+  // Show login banner
+  var banner = document.createElement('div');
+  banner.id = 'anonBanner';
+  banner.style.cssText = 'position:sticky;top:48px;z-index:90;background:linear-gradient(135deg,rgba(255,34,85,.12),rgba(7,15,30,.95));border-bottom:1px solid rgba(255,34,85,.3);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#e8f4ff;';
+  banner.innerHTML = '<span style="flex:1">Reg\u00edstrate para interactuar, seguir creadores y desbloquear contenido exclusivo</span><button onclick="window.location.href=\'/'+'\''+'" style="padding:6px 16px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ENTRAR</button>';
+  var header = document.querySelector('header');
+  if(header) header.after(banner);
+  // Load public SFW feed via the algorithm
+  window.sb.rpc('get_for_you_feed', {
+    p_user_id: null,
+    p_limit: 20,
+    p_offset: 0,
+    p_show_nsfw: false
+  }).then(function(r) {
+    if(r.error || !r.data || !r.data.length) return;
+    var container = document.getElementById('feed') || document.querySelector('.feed');
+    if(!container) return;
+    container.innerHTML = '';
+    r.data.forEach(function(post) {
+      var profile = {username:post.username,display_name:post.display_name,avatar_url:post.avatar_url,verification_status:post.verification_status};
+      var card = buildPostCard(post, profile, false, false);
+      container.appendChild(card);
+    });
+  }).catch(function(e){ console.log('Public feed error:', e); });
+}
+
+function requireLogin() {
+  if(!window._isAnon) return false;
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = '<div style="background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:32px;text-align:center;max-width:360px;margin:0 16px"><div style="font-family:Orbitron,sans-serif;font-size:18px;color:#ff2255;margin-bottom:12px">SHADOWNET</div><p style="color:#c8d8e8;font-size:14px;margin-bottom:20px">Crea tu cuenta para dar like, comentar, seguir creadores y m\u00e1s</p><button onclick="window.location.href=\'/'+'\''+'" style="width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:8px">CREAR CUENTA</button><button onclick="this.closest(\'div[style]\').parentElement.remove()" style="width:100%;padding:8px;background:none;border:1px solid #0d2744;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer">Seguir viendo</button></div>';
+  document.body.appendChild(modal);
+  return true;
+}
+
+
 sb.auth.getSession().then(function(r) {
   if (r.data.session) { initUser(r.data.session.user); } else { window._isAnon=true; loadPublicFeed(); }
 });
@@ -2040,7 +2079,7 @@ function goLiveNow(){
       // Not logged in yet - wait 800ms for token refresh before redirecting
       setTimeout(function(){
         client.auth.getSession().then(function(res2){
-          if(!res2.data || !res2.data.session) window._isAnon=true;loadPublicFeed();
+          if(!res2.data || !res2.data.session){ window._isAnon=true;loadPublicFeed(); }
         });
       }, 800);
     });
@@ -2662,46 +2701,7 @@ function trackInterest(postId, action) {
 
 
 // == PUBLIC FEED (no login required) ==
-window._isAnon = false;
-function loadPublicFeed() {
-  window._isAnon = true;
-  // Show login banner
-  var banner = document.createElement('div');
-  banner.id = 'anonBanner';
-  banner.style.cssText = 'position:sticky;top:48px;z-index:90;background:linear-gradient(135deg,rgba(255,34,85,.12),rgba(7,15,30,.95));border-bottom:1px solid rgba(255,34,85,.3);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#e8f4ff;';
-  banner.innerHTML = '<span style="flex:1">Reg\u00edstrate para interactuar, seguir creadores y desbloquear contenido exclusivo</span><button onclick="window.location.href=\'/'+'\''+'" style="padding:6px 16px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ENTRAR</button>';
-  var header = document.querySelector('header');
-  if(header) header.after(banner);
-  // Load public SFW feed via the algorithm
-  window.sb.rpc('get_for_you_feed', {
-    p_user_id: null,
-    p_limit: 20,
-    p_offset: 0,
-    p_show_nsfw: false
-  }).then(function(r) {
-    if(r.error || !r.data || !r.data.length) return;
-    var container = document.getElementById('feed') || document.querySelector('.feed');
-    if(!container) return;
-    container.innerHTML = '';
-    r.data.forEach(function(post) {
-      var profile = {username:post.username,display_name:post.display_name,avatar_url:post.avatar_url,verification_status:post.verification_status};
-      var card = buildPostCard(post, profile, false, false);
-      container.appendChild(card);
-    });
-  }).catch(function(e){ console.log('Public feed error:', e); });
-}
-
-// == LOGIN PROMPT for anon actions ==
-function requireLogin() {
-  if(!window._isAnon) return false;
-  var modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  modal.innerHTML = '<div style="background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:32px;text-align:center;max-width:360px;margin:0 16px"><div style="font-family:Orbitron,sans-serif;font-size:18px;color:#ff2255;margin-bottom:12px">SHADOWNET</div><p style="color:#c8d8e8;font-size:14px;margin-bottom:20px">Crea tu cuenta para dar like, comentar, seguir creadores y m\u00e1s</p><button onclick="window.location.href=\'/'+'\''+'" style="width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:8px">CREAR CUENTA</button><button onclick="this.closest(\'div[style]\').parentElement.remove()" style="width:100%;padding:8px;background:none;border:1px solid #0d2744;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer">Seguir viendo</button></div>';
-  document.body.appendChild(modal);
-  return true;
-}
-
-// == NSFW TOGGLE ==
+window._isAnon = false;// == LOGIN PROMPT for anon actions ==// == NSFW TOGGLE ==
 function toggleNSFW() {
   if(window._isAnon) { requireLogin(); return; }
   window._showNsfw = !window._showNsfw;

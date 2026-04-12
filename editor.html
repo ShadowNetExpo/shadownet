@@ -43,7 +43,19 @@ async function loadSounds(){
     // Also try direct query
     var r2=await sb.from('sounds').select('id,name,artist,audio_url,uses_count').order('uses_count',{ascending:false}).limit(50);
     if(r2.data&&r2.data.length){_allSounds=r2.data.map(function(s){return{sound_id:s.id,name:s.name,artist:s.artist,audio_url:s.audio_url,uses_count:s.uses_count};});renderSoundList(_allSounds);}
-    else{document.getElementById('audioList').innerHTML='<div style="padding:12px;text-align:center;color:#5a8aaa;font-size:12px">Sin sonidos disponibles</div>';}
+    else{document.getElementById('audioList').innerHTML='<div style="padding:12px;text-align:center;color:#5a8aaa;font-size:12px">Sin sonidos disponibles</div>
+      <div class="tool-section schedule-section">
+        <div class="tool-label">Programar publicacion</div>
+        <div class="schedule-row">
+          <input type="datetime-local" class="schedule-input" id="scheduleInput">
+          <button class="sn-btn" style="padding:6px 12px;font-size:11px" onclick="clearSchedule()">Ahora</button>
+        </div>
+      </div>
+      <div class="tool-section poll-section">
+        <div class="tool-label">Encuesta</div>
+        <div class="poll-options" id="pollOptions"></div>
+        <div class="poll-add" onclick="addPollOption()">+ Agregar opcion</div>
+      </div>';}
   }
 }
 function renderSoundList(sounds){
@@ -188,6 +200,17 @@ input[type=file]{display:none}
 .pt-name{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pt-price{color:#ff2255;font-family:Orbitron,sans-serif;font-size:10px;flex-shrink:0}
 .pt-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:11px;background:rgba(255,34,85,.08);border:1px solid rgba(255,34,85,.2);color:#ff9999;margin-top:6px}
+
+.schedule-section,.poll-section{margin-top:4px}
+.schedule-row{display:flex;gap:8px;align-items:center}
+.schedule-input{flex:1;padding:7px 10px;background:rgba(13,39,68,.4);border:1px solid #0d2744;border-radius:8px;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:13px}
+.poll-options{margin-bottom:8px}
+.poll-opt-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.poll-opt-input{flex:1;padding:7px 10px;background:rgba(13,39,68,.4);border:1px solid #0d2744;border-radius:8px;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:13px}
+.poll-opt-input::placeholder{color:#5a8aaa}
+.poll-remove{background:none;border:none;color:#ff2255;font-size:16px;cursor:pointer;padding:4px}
+.poll-add{background:none;border:1px dashed #0d2744;border-radius:8px;padding:6px;text-align:center;color:#5a8aaa;font-size:12px;cursor:pointer;transition:border-color .15s}
+.poll-add:hover{border-color:#ff2255;color:#ff2255}
 </style>
 </head>
 <body>
@@ -353,13 +376,48 @@ async function publishReel(){
       video_duration_ms:trimEndMs-trimStartMs,video_filter:_filter==='none'?null:_filter,
       video_speed:_speed,text_overlays:_textOverlays.length?JSON.stringify(_textOverlays):null,
       audio_track:_selectedSound?_selectedSound.name:null,
+      ,
+      scheduled_at:document.getElementById('scheduleInput')?.value?new Date(document.getElementById('scheduleInput').value).toISOString():null,
+      is_published:!document.getElementById('scheduleInput')?.value,
       collab_type:_collabType||null,
       original_post_id:_originalPostId||null};
     var ins=await sb.from('posts').insert(postData).select('id').single();
     if(ins.error) throw ins.error
-    // Save product tags
+    
+    // Save poll if options exist
+    if(_pollOptions.length>=2&&ins.data&&ins.data.id){
+      var validOpts=_pollOptions.filter(function(o){return o.trim();});
+      if(validOpts.length>=2){
+        await sb.from('polls').insert({post_id:ins.data.id,question:'',options:validOpts.map(function(o){return{text:o,votes:0};}),total_votes:0});
+      }
+    }
+// Save product tags
     if(_taggedProducts.length&&ins.data&&ins.data.id){
-      for(var ti=0;ti<_taggedProducts.length;ti++){
+      for(var ti=0;ti<_taggedProducts.l
+
+// == P1: SCHEDULE ==
+function clearSchedule(){document.getElementById('scheduleInput').value='';}
+
+// == P1: POLL CREATOR ==
+var _pollOptions=[];
+function addPollOption(){
+  if(_pollOptions.length>=4) return;
+  _pollOptions.push('');
+  renderPollInputs();
+}
+function removePollOption(i){
+  _pollOptions.splice(i,1);
+  renderPollInputs();
+}
+function renderPollInputs(){
+  var c=document.getElementById('pollOptions');c.innerHTML='';
+  _pollOptions.forEach(function(opt,i){
+    var row=document.createElement('div');row.className='poll-opt-row';
+    row.innerHTML='<input class="poll-opt-input" placeholder="Opcion '+(i+1)+'" value="'+opt+'" oninput="_pollOptions['+i+']=this.value"><button class="poll-remove" onclick="removePollOption('+i+')">\u2715</button>';
+    c.appendChild(row);
+  });
+}
+ength;ti++){
         await sb.from('post_product_tags').insert({post_id:ins.data.id,product_id:_taggedProducts[ti].product_id,x_position:_taggedProducts[ti].x_position,y_position:_taggedProducts[ti].y_position});
       }
     };

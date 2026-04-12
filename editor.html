@@ -1,3 +1,23 @@
+
+
+// == COLLAB MODE (Duet/Stitch/Remix) ==
+var _collabType=null;var _originalPostId=null;
+async function loadCollabMode(postId,type){
+  _collabType=type;_originalPostId=postId;
+  var r=await sb.from('posts').select('media_url,content,user_id,profiles(username)').eq('id',postId).single();
+  if(!r.data) return;
+  // Show collab banner
+  var banner=document.createElement('div');banner.className='collab-banner';
+  banner.innerHTML='<span class="collab-banner-icon">'+(type==='duet'?'\uD83C\uDFAC':type==='stitch'?'\u2702\uFE0F':'\uD83D\uDD04')+'</span><div><div class="collab-banner-type">'+type.toUpperCase()+'</div><div class="collab-banner-text">Con @'+(r.data.profiles?.username||'usuario')+'</div></div>';
+  document.querySelector('header').after(banner);
+  // Show original video preview in the preview area
+  var area=document.getElementById('previewArea');
+  var preview=document.createElement('div');preview.className='collab-preview';
+  var vid=document.createElement('video');vid.src=r.data.media_url;vid.muted=true;vid.loop=true;vid.autoplay=true;vid.playsInline=true;
+  preview.appendChild(vid);area.appendChild(preview);
+  // Update title
+  document.querySelector('.hdr-title').textContent=type.toUpperCase()+' \u2014 Editor';
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -54,6 +74,13 @@ input[type=file]{display:none}
 .toggle-sm.on::after{left:18px}
 .progress-bar{position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:999}
 .progress-bar .fill{height:100%;background:#ff2255;width:0;transition:width .3s}
+
+.collab-banner{padding:10px 16px;background:rgba(255,34,85,.08);border-bottom:1px solid rgba(255,34,85,.2);display:flex;align-items:center;gap:10px;font-size:12px}
+.collab-banner-icon{font-size:20px}
+.collab-banner-text{flex:1;color:#ff9999}
+.collab-banner-type{font-family:Orbitron,sans-serif;font-size:10px;color:#ff2255;letter-spacing:.06em}
+.collab-preview{position:absolute;bottom:8px;left:8px;width:80px;height:120px;border-radius:8px;overflow:hidden;border:2px solid #ff2255;z-index:5}
+.collab-preview video{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 <body>
@@ -104,6 +131,14 @@ var SPEEDS=[0.5,0.75,1,1.5,2,3];
 sb.auth.getSession().then(function(r){
   if(!r.data.session){location.href='/';return;}
   currentUser=r.data.session.user;initEditor();
+    // Check for duet/stitch/remix params
+    var _params=new URLSearchParams(location.search);
+    var _duetId=_params.get('duet');
+    var _stitchId=_params.get('stitch');
+    var _remixId=_params.get('remix');
+    var _soundParam=_params.get('sound');
+    if(_duetId||_stitchId||_remixId) loadCollabMode(_duetId||_stitchId||_remixId, _duetId?'duet':_stitchId?'stitch':'remix');
+
 });
 
 function initEditor(){
@@ -199,7 +234,9 @@ async function publishReel(){
     var postData={user_id:currentUser.id,content:caption||null,media_url:mediaUrl,media_type:'video',
       is_reel:isReel,is_premium:isNsfw,content_rating:isNsfw?'nsfw':'sfw',category:category,
       video_duration_ms:trimEndMs-trimStartMs,video_filter:_filter==='none'?null:_filter,
-      video_speed:_speed,text_overlays:_textOverlays.length?JSON.stringify(_textOverlays):null};
+      video_speed:_speed,text_overlays:_textOverlays.length?JSON.stringify(_textOverlays):null,
+      collab_type:_collabType||null,
+      original_post_id:_originalPostId||null};
     var ins=await sb.from('posts').insert(postData).select('id').single();
     if(ins.error) throw ins.error;
     fill.style.width='100%';

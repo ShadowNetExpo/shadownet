@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SHADOWNET \u2014 Shop</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"><\/script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;padding-bottom:80px}
+header{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #0d2744;position:sticky;top:0;z-index:100;background:rgba(1,2,12,.97)}
+.back-btn{background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer;padding:4px}
+.hdr-title{font-family:Orbitron,sans-serif;font-size:13px;color:#ff2255;letter-spacing:.1em;flex:1}
+.shop-banner{height:120px;background:linear-gradient(135deg,#0d2744,#01020c);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.shop-banner img{width:100%;height:100%;object-fit:cover}
+.shop-info{padding:16px;border-bottom:1px solid #0d2744}
+.shop-name{font-family:Orbitron,sans-serif;font-size:16px;color:#fff;letter-spacing:.06em;margin-bottom:4px}
+.shop-owner{font-size:13px;color:#5a8aaa;margin-bottom:8px}
+.shop-desc{font-size:13px;color:#c8d8e8;line-height:1.5}
+.tabs{display:flex;border-bottom:1px solid #0d2744;padding:0 16px}
+.tab{padding:10px 16px;font-size:12px;font-weight:700;color:#5a8aaa;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.06em}
+.tab.active{color:#ff2255;border-bottom-color:#ff2255}
+.products-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px}
+@media(min-width:600px){.products-grid{grid-template-columns:repeat(3,1fr)}}
+.product-card{background:rgba(13,39,68,.3);border:1px solid #0d2744;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.product-card:hover{border-color:#ff2255}
+.product-img{aspect-ratio:1;background:#0d2744;overflow:hidden}
+.product-img img{width:100%;height:100%;object-fit:cover}
+.product-body{padding:10px}
+.product-name{font-size:13px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.product-price{font-family:Orbitron,sans-serif;font-size:14px;color:#ff2255;font-weight:900}
+.product-stats{display:flex;gap:10px;margin-top:6px;font-size:11px;color:#5a8aaa}
+.product-rating{color:#ffaa00}
+.empty-shop{text-align:center;padding:60px 20px;color:#5a8aaa}
+.empty-shop-icon{font-size:48px;margin-bottom:12px;opacity:.4}
+.product-detail{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:999;overflow-y:auto}
+.product-detail.open{display:block}
+.pd-close{position:absolute;top:12px;right:12px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;z-index:10}
+.pd-images{width:100%;max-height:400px;overflow:hidden}
+.pd-images img{width:100%;object-fit:cover}
+.pd-body{padding:20px}
+.pd-name{font-family:Orbitron,sans-serif;font-size:18px;color:#fff;margin-bottom:6px}
+.pd-price{font-family:Orbitron,sans-serif;font-size:22px;color:#ff2255;margin-bottom:12px}
+.pd-desc{font-size:14px;color:#c8d8e8;line-height:1.6;margin-bottom:16px}
+.pd-buy{width:100%;padding:14px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:15px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
+.pd-buy:disabled{opacity:.4}
+.sn-bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(1,2,12,.97);border-top:1px solid #0d2744;display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+.sn-bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-weight:700;font-size:9px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
+.sn-bn-item:hover{color:#ff2255!important}
+.sn-bn-icon{font-size:22px;line-height:1}
+.sn-bn-plus-inner{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid rgba(255,255,255,.2);color:#fff;font-weight:800}
+.sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+</style>
+</head>
+<body>
+<header>
+  <button class="back-btn" onclick="history.back()">&#8592;</button>
+  <span class="hdr-title">SHOP</span>
+</header>
+<div id="shopContent"></div>
+<div class="product-detail" id="productDetail">
+  <button class="pd-close" onclick="closeDetail()">&#10005;</button>
+  <div class="pd-images" id="pdImages"></div>
+  <div class="pd-body">
+    <div class="pd-name" id="pdName"></div>
+    <div class="pd-price" id="pdPrice"></div>
+    <div class="pd-desc" id="pdDesc"></div>
+    <button class="pd-buy" id="pdBuy" onclick="buyProduct()">COMPRAR</button>
+  </div>
+</div>
+<nav class="sn-bottom-nav">
+  <a class="sn-bn-item" href="/"><span class="sn-bn-icon">&#127968;</span>Inicio</a>
+  <a class="sn-bn-item" href="/explore.html"><span class="sn-bn-icon">&#128269;</span>Explorar</a>
+  <a class="sn-bn-item" href="/feed.html"><span class="sn-bn-plus-inner">&#43;</span></a>
+  <a class="sn-bn-item" href="/reels.html"><span class="sn-bn-icon">&#9654;</span>Reels</a>
+  <a class="sn-bn-item" href="/profile.html"><div class="sn-bn-avatar" id="snNavAv">&#128100;</div>Perfil</a>
+</nav>
+<script>
+var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
+var currentUser=null;var _selectedProduct=null;
+var params=new URLSearchParams(location.search);
+var shopUser=params.get('u');var shopId=params.get('id');
+sb.auth.getSession().then(function(r){if(r.data.session)currentUser=r.data.session.user;});
+if(shopId){loadShopById(shopId);}else if(shopUser){loadShopByUser(shopUser);}else{loadTrending();}
+
+async function loadShopById(id){
+  var r=await sb.from('shops').select('*,profiles(username,avatar_url,display_name)').eq('id',id).single();
+  if(r.data){renderShop(r.data);loadProducts(r.data.id);}
+}
+async function loadShopByUser(username){
+  var pr=await sb.from('profiles').select('id').eq('username',username).single();
+  if(!pr.data)return;
+  var r=await sb.from('shops').select('*,profiles(username,avatar_url,display_name)').eq('owner_id',pr.data.id).single();
+  if(r.data){renderShop(r.data);loadProducts(r.data.id);}
+  else{document.getElementById('shopContent').innerHTML='<div class="empty-shop"><div class="empty-shop-icon">&#128722;</div><div>Este creador no tiene tienda</div></div>';}
+}
+async function loadTrending(){
+  document.querySelector('.hdr-title').textContent='MARKETPLACE';
+  var r=await sb.rpc('get_trending_products',{p_limit:20});
+  if(r.data&&r.data.length){
+    document.getElementById('shopContent').innerHTML='<div class="tabs"><div class="tab active">Trending</div></div><div class="products-grid" id="productsGrid"></div>';
+    renderProducts(r.data.map(function(p){return{id:p.product_id,name:p.name,price_cents:p.price_cents,currency:p.currency,images:p.images,sales_count:p.sales_count,rating_avg:p.rating_avg};}));
+  }else{
+    document.getElementById('shopContent').innerHTML='<div class="empty-shop"><div class="empty-shop-icon">&#128722;</div><div>No hay productos todavia</div><div style="font-size:12px;margin-top:6px">Se el primero en abrir una tienda</div></div>';
+  }
+}
+function renderShop(shop){
+  var p=shop.profiles||{};var html='';
+  if(shop.banner_url)html+='<div class="shop-banner"><img src="'+shop.banner_url+'"></div>';
+  else html+='<div class="shop-banner"></div>';
+  html+='<div class="shop-info"><div class="shop-name">'+shop.shop_name+'</div>';
+  html+='<div class="shop-owner">@'+(p.username||'creador')+'</div>';
+  if(shop.description)html+='<div class="shop-desc">'+shop.description+'</div>';
+  html+='</div><div class="tabs"><div class="tab active">Productos</div></div><div class="products-grid" id="productsGrid"></div>';
+  document.getElementById('shopContent').innerHTML=html;
+}
+async function loadProducts(sid){
+  var r=await sb.rpc('get_shop_products',{p_shop_id:sid,p_limit:30});
+  if(r.data&&r.data.length)renderProducts(r.data);
+  else{var g=document.getElementById('productsGrid');if(g)g.innerHTML='<div class="empty-shop" style="grid-column:1/-1"><div class="empty-shop-icon">&#128230;</div><div>Sin productos</div></div>';}
+}
+function renderProducts(products){
+  var grid=document.getElementById('productsGrid');if(!grid)return;grid.innerHTML='';
+  products.forEach(function(p){
+    var card=document.createElement('div');card.className='product-card';
+    card.onclick=function(){openDetail(p);};
+    var imgs=p.images;if(typeof imgs==='string')try{imgs=JSON.parse(imgs);}catch(e){imgs=[];}
+    var imgUrl=(imgs&&imgs.length)?imgs[0]:'';
+    card.innerHTML='<div class="product-img">'+(imgUrl?'<img src="'+imgUrl+'">':'<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:.3">&#128230;</div>')+'</div>'
+      +'<div class="product-body"><div class="product-name">'+p.name+'</div>'
+      +'<div class="product-price">'+fmtPrice(p.price_cents,p.currency)+'</div>'
+      +'<div class="product-stats">'+(p.sales_count?'<span>'+p.sales_count+' vendidos</span>':'')+(p.rating_avg?'<span class="product-rating">\u2605 '+Number(p.rating_avg).toFixed(1)+'</span>':'')+'</div></div>';
+    grid.appendChild(card);
+  });
+}
+function fmtPrice(c,cur){return new Intl.NumberFormat('es-ES',{style:'currency',currency:cur||'EUR'}).format(c/100);}
+function openDetail(p){
+  _selectedProduct=p;
+  var imgs=p.images;if(typeof imgs==='string')try{imgs=JSON.parse(imgs);}catch(e){imgs=[];}
+  document.getElementById('pdImages').innerHTML=(imgs&&imgs.length)?'<img src="'+imgs[0]+'">':'';
+  document.getElementById('pdName').textContent=p.name;
+  document.getElementById('pdPrice').textContent=fmtPrice(p.price_cents,p.currency);
+  document.getElementById('pdDesc').textContent=p.description||'';
+  document.getElementById('productDetail').classList.add('open');
+}
+function closeDetail(){document.getElementById('productDetail').classList.remove('open');_selectedProduct=null;}
+async function buyProduct(){
+  if(!currentUser){location.href='/';return;}if(!_selectedProduct)return;
+  var btn=document.getElementById('pdBuy');btn.disabled=true;btn.textContent='Procesando...';
+  try{
+    var r=await sb.from('orders').insert({buyer_id:currentUser.id,seller_id:_selectedProduct.seller_id||null,product_id:_selectedProduct.id||_selectedProduct.product_id,quantity:1,total_cents:_selectedProduct.price_cents,currency:_selectedProduct.currency||'EUR',status:'pending'}).select('id').single();
+    if(r.error)throw r.error;
+    btn.textContent='\u2713 Pedido creado';setTimeout(closeDetail,1500);
+  }catch(err){btn.disabled=false;btn.textContent='COMPRAR';alert('Error: '+(err.message||err));}
+}
+<\/script>
+</body>
+</html>

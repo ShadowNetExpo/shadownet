@@ -212,6 +212,10 @@ input[type=file]{display:none}
 .poll-add{background:none;border:1px dashed #0d2744;border-radius:8px;padding:6px;text-align:center;color:#5a8aaa;font-size:12px;cursor:pointer;transition:border-color .15s}
 .poll-add:hover{border-color:#ff2255;color:#ff2255}
 </style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2255">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icon.svg">
 </head>
 <body>
 <div class="progress-bar" id="uploadProgress"><div class="fill" id="uploadFill"></div></div>
@@ -430,5 +434,7 @@ ength;ti++){
 }
 function fmtTime(s){var m=Math.floor(s/60);var sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
 </script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 </body>
 </html>

@@ -380,7 +380,6 @@ async function publishReel(){
       video_duration_ms:trimEndMs-trimStartMs,video_filter:_filter==='none'?null:_filter,
       video_speed:_speed,text_overlays:_textOverlays.length?JSON.stringify(_textOverlays):null,
       audio_track:_selectedSound?_selectedSound.name:null,
-      ,
       scheduled_at:document.getElementById('scheduleInput')?.value?new Date(document.getElementById('scheduleInput').value).toISOString():null,
       is_published:!document.getElementById('scheduleInput')?.value,
       collab_type:_collabType||null,

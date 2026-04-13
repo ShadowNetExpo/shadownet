@@ -186,6 +186,7 @@ async function submitAuth(){
     }
   }catch(e){showAuthError(e.message||"Error desconocido");btn.disabled=false;btn.textContent=_authMode==="signup"?"CREAR CUENTA":"ENTRAR";}
 }
+async function forgotPassword(){var email=document.getElementById("authEmail").value.trim();if(!email){showAuthError("Ingresa tu email para restablecer la contraseña");return;}document.getElementById("authError").style.display="none";try{var r=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+"/feed.html"});if(r.error){showAuthError(r.error.message);}else{var e=document.getElementById("authError");e.textContent="✅ Revisa tu email para restablecer tu contraseña";e.style.display="block";e.style.background="rgba(0,200,83,.1)";e.style.borderColor="rgba(0,200,83,.3)";e.style.color="#00c853";}}catch(err){showAuthError(err.message);}}
 </script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>

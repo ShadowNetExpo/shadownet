@@ -396,7 +396,8 @@ async function publishReel(){
     }
 // Save product tags
     if(_taggedProducts.length&&ins.data&&ins.data.id){
-      for(var ti=0;ti<_taggedProducts.l
+      for(var ti=0;ti<_taggedProducts.length;ti++){await sb.from('post_product_tags').insert({post_id:ins.data.id,product_id:_taggedProducts[ti].id});}
+    }
 
 // == P1: SCHEDULE ==
 function clearSchedule(){document.getElementById('scheduleInput').value='';}

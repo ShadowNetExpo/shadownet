@@ -675,7 +675,6 @@ async function loadTabContent(tab, userId) {
       grid.innerHTML = '<div class="tab-empty"><div class="tab-empty-icon">\u25B6\uFE0F</div><div class="tab-empty-text">Sin reels todavia</div></div>';
     } else renderPostsGrid(rr.data);
 
-  }
   } else if(tab === 'shop'){
     sb.from('shops').select('id,shop_name').eq('owner_id',profileUserId).single().then(function(r){
       if(r.data){

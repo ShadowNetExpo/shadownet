@@ -63,8 +63,8 @@
   <header class="sn-header">
     <span class="sn-header-logo">SHADOWNET</span>
     <div class="sn-header-actions">
-      <a href="/feed.html" class="sn-btn sn-btn-ghost" style="font-size:12px;padding:6px 14px">Entrar</a>
-      <a href="/feed.html" class="sn-btn sn-btn-fire" style="font-size:12px;padding:6px 14px">Registrarse</a>
+      <button class="sn-btn sn-btn-ghost" style="font-size:12px;padding:6px 14px" onclick="openAuth('login')">Entrar</button>
+      <button class="sn-btn sn-btn-fire" style="font-size:12px;padding:6px 14px" onclick="openAuth('signup')">Registrarse</button>
     </div>
   </header>
   <div class="hero-content">
@@ -79,7 +79,7 @@
     <div class="social-login">
       <button class="social-btn social-btn-google" onclick="loginWithGoogle()">G  Continuar con Google</button>
       <div class="divider-or">o</div>
-      <a href="/feed.html" class="social-btn social-btn-email">Crear cuenta con email</a>
+      <button class="social-btn social-btn-email" onclick="openAuth('signup')">Crear cuenta con email</button>
     </div>
     <div class="hero-stats" id="heroStats">
       <div class="hero-stat"><div class="hero-stat-val" id="statUsers">-</div><div class="hero-stat-label">Creadores</div></div>
@@ -134,8 +134,87 @@ async function loginWithGoogle(){
   });
   if(r.error) alert('Error: '+r.error.message);
 }
+
+var _authMode="login";
+function openAuth(mode){
+  _authMode=mode||"login";
+  document.getElementById("authOverlay").style.display="flex";
+  document.getElementById("authError").style.display="none";
+  document.getElementById("authEmail").value="";
+  document.getElementById("authPassword").value="";
+  document.getElementById("authUsername").value="";
+  if(_authMode==="signup"){
+    document.getElementById("signupFields").style.display="block";
+    document.getElementById("authTitle").textContent="Crea tu cuenta";
+    document.getElementById("authSubmit").textContent="CREAR CUENTA";
+    document.getElementById("authToggleText").textContent="Ya tienes cuenta?";
+    document.getElementById("authToggleLink").textContent="Iniciar sesion";
+  } else {
+    document.getElementById("signupFields").style.display="none";
+    document.getElementById("authTitle").textContent="Inicia sesion";
+    document.getElementById("authSubmit").textContent="ENTRAR";
+    document.getElementById("authToggleText").textContent="No tienes cuenta?";
+    document.getElementById("authToggleLink").textContent="Registrarse";
+  }
+}
+function closeAuth(){document.getElementById("authOverlay").style.display="none";}
+function toggleAuthMode(){openAuth(_authMode==="login"?"signup":"login");}
+function showAuthError(msg){var e=document.getElementById("authError");e.textContent=msg;e.style.display="block";}
+async function submitAuth(){
+  var email=document.getElementById("authEmail").value.trim();
+  var pass=document.getElementById("authPassword").value;
+  var btn=document.getElementById("authSubmit");
+  if(!email||!pass){showAuthError("Completa todos los campos");return;}
+  if(pass.length<6){showAuthError("La contrasena debe tener al menos 6 caracteres");return;}
+  btn.disabled=true;btn.textContent="Cargando...";
+  document.getElementById("authError").style.display="none";
+  try{
+    if(_authMode==="signup"){
+      var username=document.getElementById("authUsername").value.trim();
+      if(!username){showAuthError("Elige un nombre de usuario");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
+      if(username.length<3){showAuthError("El nombre debe tener al menos 3 caracteres");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
+      var taken=await sb.from("profiles").select("id").eq("username",username).maybeSingle();
+      if(taken&&taken.data){showAuthError("Ese nombre de usuario ya existe");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
+      var r=await sb.auth.signUp({email:email,password:pass,options:{data:{username:username}}});
+      if(r.error){showAuthError(r.error.message);btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
+      if(r.data&&r.data.user&&!r.data.session){showAuthError("Revisa tu email para confirmar tu cuenta");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
+      location.href="/feed.html";
+    } else {
+      var r=await sb.auth.signInWithPassword({email:email,password:pass});
+      if(r.error){showAuthError(r.error.message==="Invalid login credentials"?"Email o contrasena incorrectos":r.error.message);btn.disabled=false;btn.textContent="ENTRAR";return;}
+      location.href="/feed.html";
+    }
+  }catch(e){showAuthError(e.message||"Error desconocido");btn.disabled=false;btn.textContent=_authMode==="signup"?"CREAR CUENTA":"ENTRAR";}
+}
 </script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+
+<!-- AUTH MODAL -->
+<div id="authOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">
+<div style="background:#070f1e;border:1px solid #1a3050;border-radius:16px;padding:28px;width:100%;max-width:380px;position:relative">
+<button onclick="closeAuth()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer">&times;</button>
+<div style="text-align:center;margin-bottom:20px">
+<div style="font-family:Orbitron,monospace;font-size:18px;font-weight:900;color:#ff2255">SHADOWNET</div>
+<div id="authTitle" style="font-size:13px;color:#8a9bb0;margin-top:4px">Inicia sesion</div>
+</div>
+<div id="authError" style="display:none;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);border-radius:8px;padding:8px 12px;font-size:11px;color:#ff6680;margin-bottom:12px;text-align:center"></div>
+<div id="signupFields" style="display:none;margin-bottom:10px">
+<input id="authUsername" type="text" placeholder="Nombre de usuario" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" autocomplete="username">
+</div>
+<div style="margin-bottom:10px">
+<input id="authEmail" type="email" placeholder="Email" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" autocomplete="email">
+</div>
+<div style="margin-bottom:14px">
+<input id="authPassword" type="password" placeholder="Contrase\u00F1a (min 6 caracteres)" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" autocomplete="current-password">
+</div>
+<button id="authSubmit" onclick="submitAuth()" style="width:100%;padding:11px;background:linear-gradient(135deg,#ff2255,#ff0044);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Orbitron,monospace;letter-spacing:.05em">ENTRAR</button>
+<div style="text-align:center;margin:14px 0;font-size:11px;color:#5a8aaa">\u2014 o \u2014</div>
+<button onclick="loginWithGoogle()" style="width:100%;padding:10px;background:#fff;color:#333;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">G Continuar con Google</button>
+<div style="text-align:center;margin-top:14px;font-size:12px;color:#5a8aaa">
+<span id="authToggleText">No tienes cuenta?</span> <a href="#" onclick="toggleAuthMode();return false" style="color:#ff2255;text-decoration:none;font-weight:700" id="authToggleLink">Registrarse</a>
+</div>
+</div>
+</div>
 </body>
 </html>

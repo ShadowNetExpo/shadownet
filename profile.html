@@ -692,7 +692,8 @@ async function loadTabContent(tab, userId) {
       } else {
         grid.innerHTML='<div class="tab-empty"><div class="tab-empty-icon">&#128722;</div><div class="tab-empty-text">Sin tienda</div></div>';
       }
-    }); else if(tab === 'saved'){
+    });
+  } else if(tab === 'saved'){
     if(!currentUser||currentUser.id!==userId){grid.innerHTML='<div class="tab-empty"><div class="tab-empty-text">Solo tu puedes ver tus guardados</div></div>';return;}
     var rs = await (window.sb||sb).from('bookmarks').select('post_id, posts(*)').eq('user_id', userId).limit(30);
     var posts2 = (rs.data||[]).map(function(b){return b.posts;}).filter(Boolean);

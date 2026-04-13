@@ -271,7 +271,15 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 </div>
 
   <!-- VERIFICACION KYC -->
-<div class="section" id="kycSection" style="display:none;margin-top:16px">
+<div class="section" id="becomeCreatorSection" style="margin-top:16px">
+<div class="section-head"><span class="section-icon">⭐</span><span class="section-title">SER CREADOR</span></div>
+<div class="section-body" style="text-align:center;padding:20px">
+<p style="font-size:13px;color:#8a9bb0;margin-bottom:14px">Conviértete en creador para monetizar tu contenido, abrir tu tienda y hacer lives.</p>
+<button id="becomeCreatorBtn" onclick="becomeCreator()" style="padding:12px 24px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">⭐ Activar modo creador</button>
+<p style="font-size:11px;color:#5a8aaa;margin-top:10px">Requisitos: Verificar identidad (KYC) + ser mayor de 18 años</p>
+</div>
+</div>
+<div class="section" id="kycSection" style="margin-top:16px">
   <div class="section-head">
     <span class="section-icon">📋</span>
     <div>
@@ -460,6 +468,16 @@ function renderKycStatus(status, rejectionReason) {
 
 
   </div>
+<div class="section" id="shopSection" style="margin-top:16px">
+<div class="section-head"><span class="section-icon">🛒</span><span class="section-title">MI TIENDA</span></div>
+<div class="section-body" id="shopSectionBody">
+<p style="font-size:13px;color:#8a9bb0;margin-bottom:12px">Abre tu tienda para vender productos, contenido exclusivo y merch.</p>
+<div style="margin-bottom:10px"><label class="field-label">Nombre de la tienda</label><input class="field-input" id="shopNameInput" placeholder="Mi Tienda"></div>
+<div style="margin-bottom:14px"><label class="field-label">Descripción</label><textarea class="field-input" id="shopDescInput" placeholder="Describe tu tienda..." rows="2" style="resize:vertical"></textarea></div>
+<button onclick="createShop()" style="width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">🛒 Crear tienda</button>
+</div>
+</div>
+
 
 <!-- SEGURIDAD -->
   <div class="section">
@@ -991,6 +1009,21 @@ var _NB="https://cdokplvoqivducsqrejt.supabase.co",_NK="eyJhbGciOiJIUzI1NiIsInR5
 </script>
 <script src="/push.js"></script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}async function becomeCreator(){
+  var btn=document.getElementById("becomeCreatorBtn");
+  btn.disabled=true;btn.textContent="Activando...";
+  var r=await sb.from("profiles").update({role:"creator",is_creator:true}).eq("id",currentUser.id);
+  if(r.error){alert("Error: "+r.error.message);btn.disabled=false;btn.textContent="\u2B50 Activar modo creador";return;}
+  alert("\u2705 Modo creador activado! Ahora puedes monetizar.");location.reload();
+}
+async function createShop(){
+  var name=document.getElementById("shopNameInput").value.trim();
+  var desc=document.getElementById("shopDescInput").value.trim();
+  if(!name){alert("Ingresa un nombre para tu tienda");return;}
+  var r=await sb.from("shops").insert({owner_id:currentUser.id,shop_name:name,description:desc||null}).select("id").single();
+  if(r.error){if(r.error.message.includes("duplicate"))alert("Ya tienes una tienda.");else alert("Error: "+r.error.message);return;}
+  alert("\uD83D\uDED2 Tienda creada! Ve a Shop para administrarla.");location.href="/shop.html";
+}
+</script>
 </body>
 </html>

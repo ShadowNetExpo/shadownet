@@ -52,6 +52,11 @@
 .divider-or{display:flex;align-items:center;gap:12px;color:var(--sn-text-dim);font-size:12px;margin:8px 0}
 .divider-or::before,.divider-or::after{content:'';flex:1;height:1px;background:var(--sn-border)}
 </style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2255">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icon.svg">
 </head>
 <body>
 <div class="landing-hero">
@@ -130,5 +135,7 @@ async function loginWithGoogle(){
   if(r.error) alert('Error: '+r.error.message);
 }
 </script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 </body>
 </html>

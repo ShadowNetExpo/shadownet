@@ -587,7 +587,7 @@ function loadPublicFeed() {
   var banner = document.createElement('div');
   banner.id = 'anonBanner';
   banner.style.cssText = 'position:sticky;top:48px;z-index:90;background:linear-gradient(135deg,rgba(255,34,85,.12),rgba(7,15,30,.95));border-bottom:1px solid rgba(255,34,85,.3);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#e8f4ff;';
-  banner.innerHTML = '<span style="flex:1">Reg\u00edstrate para interactuar, seguir creadores y desbloquear contenido exclusivo</span><button onclick="window.location.href=\'/'+'\''+'" style="padding:6px 16px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ENTRAR</button>';
+  banner.innerHTML = '<span style="flex:1">Reg\u00edstrate para interactuar, seguir creadores y desbloquear contenido exclusivo</span><button onclick="openAuth('login')" style="padding:6px 16px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ENTRAR</button>';
   var header = document.querySelector('header');
   if(header) header.after(banner);
   // Load public SFW feed via the algorithm

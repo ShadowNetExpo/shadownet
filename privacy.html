@@ -28,6 +28,10 @@ a:hover{text-decoration:underline}
 .footer{text-align:center;color:#444;font-size:13px;margin-top:60px;padding-top:24px;border-top:1px solid #1a1a1a}
 </style>
 <link rel="stylesheet" href="/sn-design.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2255">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icon.svg">
 </head>
 <body>
 <div class="header">
@@ -121,5 +125,7 @@ a:hover{text-decoration:underline}
     <p style="margin-top:8px"><a href="/terms.html">T&eacute;rminos</a> &middot; <a href="/dmca.html">DMCA</a> &middot; <a href="/cookies.html">Cookies</a></p>
   </div>
 </div>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 </body>
 </html>

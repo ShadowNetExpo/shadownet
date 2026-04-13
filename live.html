@@ -410,7 +410,7 @@ function startLiveTimer(){
   } else {
     // Si no hay perfil cargado, verificar async
     var _sbCheck = window.sb;
-    if(_sbCheck){
+    if(_sbCheck){(async function(){
       var _sess = await _sbCheck.auth.getSession();
       if(_sess.data && _sess.data.session){
         var _uid = _sess.data.session.user.id;
@@ -981,7 +981,6 @@ function sendGift(giftId){
       showToastMsg(r.data?.error||'Error al enviar regalo',true);
     }
   }).catch(function(e){showToastMsg('Error: '+e.message,true);});
-    });
   });
 }
 

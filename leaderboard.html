@@ -211,5 +211,7 @@ window.snNMR=function(){if(!_NU||!_NT)return;fetch(_NB+"/rest/v1/rpc/mark_notifi
 })();
 </script>
 <script src="/push.js"></script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 </body>
 </html>

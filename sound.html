@@ -48,6 +48,10 @@ header{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:
 .ab-progress{height:2px;background:#0d2744;border-radius:1px;margin-top:4px}
 .ab-fill{height:100%;background:#ff2255;width:0;border-radius:1px;transition:width .2s}
 </style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2255">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icon.svg">
 </head>
 <body>
 <header class="sn-header">
@@ -138,5 +142,7 @@ function toggleAudio(){
 function updatePlayBtns(){var icon=_playing?'\u23F8':'\u25B6';document.getElementById('playBtn').innerHTML=icon+' '+(_playing?'Pausar':'Reproducir');document.getElementById('abPlayBtn').innerHTML=icon;document.getElementById('soundDisc').classList.toggle('paused',!_playing);}
 function useSound(){location.href='/editor.html?sound='+encodeURIComponent(_soundData?_soundData.name:'');}
 </script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 </body>
 </html>

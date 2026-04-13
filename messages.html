@@ -865,5 +865,7 @@ function playVoice(btn,url){
   a.onended=function(){btn.textContent='\u25B6';};
 }
 </script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 </body>
 </html>

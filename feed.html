@@ -504,7 +504,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <button class="sn-header-btn" onclick="location.href='/search.html'">&#128269;</button>
     <button class="sn-header-btn" id="notifBtn">&#128276;</button>
   </div>
-<div class="sn-ppv-toggle" id="sn-nsfw-toggle" onclick="document.getElementById('sn-nsfw-toggle').classList.toggle('active')" style="margin-top:8px"><span class="sn-ppv-toggle-icon">&#128286;</span><span class="sn-ppv-toggle-label">Contenido +18 (solo suscriptores)</span><div class="sn-ppv-switch"></div></div>
+</div>
 </header>
 <div class="sn-pills">
   <a class="sn-pill active" href="/editor.html">&#127909; Crear Reel</a>
@@ -543,7 +543,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <div class="sn-ppv-toggle" id="sn-ppv-toggle" onclick="snTogglePPV()">
       <span class="sn-ppv-toggle-icon">&#128274;</span>
       <span class="sn-ppv-toggle-label">Contenido PPV (pago por ver)</span>
-      <div class="sn-ppv-switch"></div>
+      <div class="sn-ppv-switch"></div><div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,34,85,.08);border:1px solid rgba(255,34,85,.2);border-radius:8px;cursor:pointer" id="sn-nsfw-toggle" onclick="this.classList.toggle('active');this.style.background=this.classList.contains('active')?'rgba(255,34,85,.25)':'rgba(255,34,85,.08)'"><span style="font-size:14px">&#128286;</span><span style="font-size:11px;font-family:Rajdhani,sans-serif;font-weight:700;color:#ff9999">+18</span></div>
     </div>
     <div class="sn-ppv-price-wrap" id="sn-ppv-price-wrap">
       <input class="sn-ppv-price-input" id="sn-ppv-price-input" type="number" placeholder="50" min="1" max="9999" title="Precio en Almas">

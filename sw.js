@@ -1,33 +1,44 @@
-// SHADOWNET SW v5 - auto-clear all caches and unregister
-self.addEventListener('install', e => {
+var CACHE='shadownet-v2';
+var URLS=['/','/feed.html','/explore.html','/reels.html','/profile.html','/sn-design.css','/manifest.json'];
+
+self.addEventListener('install', function(e) {
+  e.waitUntil(
+    caches.open(CACHE).then(function(cache) {
+      return cache.addAll(URLS);
+    })
+  );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
+self.addEventListener('activate', function(e) {
   e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.map(k => caches.delete(k))))
-      .then(() => self.clients.matchAll({type:'window',includeUncontrolled:true}))
-      .then(clients => { clients.forEach(c => c.navigate(c.url)); })
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys.filter(function(k) { return k !== CACHE; })
+            .map(function(k) { return caches.delete(k); })
+      );
+    })
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', e => {
-  // No caching - always go to network
-});
-
-self.addEventListener('push', e => {
-  const data = e.data ? e.data.json() : {};
-  e.waitUntil(self.registration.showNotification(data.title || 'SHADOWNET', {
-    body: data.body || 'Nueva notificacion',
-    icon: 'https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=192',
-    badge: 'https://ui-avatars.com/api/?name=SN&background=ff2255&color=fff&size=72',
-    data: { url: data.url || '/' }
-  }));
-});
-
-self.addEventListener('notificationclick', e => {
-  e.notification.close();
-  e.waitUntil(clients.openWindow(e.notification.data.url || '/'));
+self.addEventListener('fetch', function(e) {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request)
+      .then(function(response) {
+        if(response.ok){
+          var clone = response.clone();
+          caches.open(CACHE).then(function(cache) {
+            cache.put(e.request, clone);
+          });
+        }
+        return response;
+      })
+      .catch(function() {
+        return caches.match(e.request).then(function(r) {
+          return r || caches.match('/feed.html');
+        });
+      })
+  );
 });

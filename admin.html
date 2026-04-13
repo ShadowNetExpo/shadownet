@@ -228,13 +228,13 @@ async function loadKYC(){
       '<div class="card-header">'+
         '<div class="user-row"><div class="avatar">'+(u.avatar_url?'<img src="'+u.avatar_url+'" alt="">':escH(u.username[0].toUpperCase()))+'</div>'+
         '<div class="user-info"><div class="user-name">@'+escH(u.username)+'</div><div class="user-meta">'+u.role+(u.verification_submitted_at?' &middot; hace '+tsAgo(u.verification_submitted_at):'')+'</div></div></div>'+
-        '<div class="actions"><button class="btn btn-approve" onclick="approveKYC(''+u.id+'')">Aprobar</button><button class="btn btn-reject" onclick="openRejectModal(''+u.id+'')">Rechazar</button></div>'+
+        '<div class="actions"><button class="btn btn-approve" onclick="approveKYC(&apos;'+u.id+'&apos;)">Aprobar</button><button class="btn btn-reject" onclick="openRejectModal(&apos;'+u.id+'&apos;)">Rechazar</button></div>'+
       '</div>'+
       '<div class="card-body"><div class="kyc-imgs">'+
         '<div style="flex:1"><div class="kyc-img-label">Documento</div>'+
-        (u.doc_url?'<div class="kyc-img-box" onclick="window.open(''+u.doc_url+'','_blank')"><img src="'+u.doc_url+'" alt="Documento"></div>':'<div class="kyc-img-box"><span style="color:#5a8aaa;font-size:11px">Sin documento</span></div>')+'</div>'+
+        (u.doc_url?'<div class="kyc-img-box" onclick="window.open(&apos;'+u.doc_url+'&apos;,&apos;_blank&apos;)"><img src="'+u.doc_url+'" alt="Documento"></div>':'<div class="kyc-img-box"><span style="color:#5a8aaa;font-size:11px">Sin documento</span></div>')+'</div>'+
         '<div style="flex:1"><div class="kyc-img-label">Selfie</div>'+
-        (u.selfie_url?'<div class="kyc-img-box" onclick="window.open(''+u.selfie_url+'','_blank')"><img src="'+u.selfie_url+'" alt="Selfie"></div>':'<div class="kyc-img-box"><span style="color:#5a8aaa;font-size:11px">Sin selfie</span></div>')+'</div>'+
+        (u.selfie_url?'<div class="kyc-img-box" onclick="window.open(&apos;'+u.selfie_url+'&apos;,&apos;_blank&apos;)"><img src="'+u.selfie_url+'" alt="Selfie"></div>':'<div class="kyc-img-box"><span style="color:#5a8aaa;font-size:11px">Sin selfie</span></div>')+'</div>'+
       '</div></div>'+
     '</div>';
   }).join('');

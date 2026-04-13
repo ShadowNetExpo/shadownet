@@ -218,5 +218,19 @@ async function forgotPassword(){var email=document.getElementById("authEmail").v
 </div>
 </div>
 </div>
+
+<!-- COOKIE BANNER GDPR -->
+<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)">
+<div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. Al continuar navegando, aceptas nuestra <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a> y el uso de cookies.</div>
+<div style="display:flex;gap:8px;flex-shrink:0">
+<button onclick="acceptCookies()" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button>
+<button onclick="denyCookies()" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button>
+</div></div></div>
+<script>
+function acceptCookies(){localStorage.setItem("sn_cookies","all");document.getElementById("snCookieBanner").style.display="none";}
+function denyCookies(){localStorage.setItem("sn_cookies","essential");document.getElementById("snCookieBanner").style.display="none";}
+if(!localStorage.getItem("sn_cookies")){document.getElementById("snCookieBanner").style.display="block";}
+</script>
 </body>
 </html>

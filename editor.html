@@ -284,6 +284,8 @@ async function publishReel(){
     }
 // Save product tags
     if(_taggedProducts.length&&ins.data&&ins.data.id){
+      for(var ti=0;ti<_taggedProducts.length;ti++){await sb.from('post_product_tags').insert({post_id:ins.data.id,product_id:_taggedProducts[ti].id});}
+    }
     fill.style.width='100%';
     setTimeout(function(){location.href=isReel?'/reels.html':'/feed.html';},500);
   }catch(err){
@@ -363,16 +365,7 @@ async function loadSounds(){
     var r2=await sb.from('sounds').select('id,name,artist,audio_url,uses_count').order('uses_count',{ascending:false}).limit(50);
     if(r2.data&&r2.data.length){_allSounds=r2.data.map(function(s){return{sound_id:s.id,name:s.name,artist:s.artist,audio_url:s.audio_url,uses_count:s.uses_count};});renderSoundList(_allSounds);}
     else{document.getElementById('audioList').innerHTML='<div style="padding:12px;text-align:center;color:#5a8aaa;font-size:12px">Sin sonidos disponibles</div>
-      <div class="tool-section schedule-section">
-        <div class="tool-label">Programar publicacion</div>
-        <div class="schedule-row">
-          <input type="datetime-local" class="schedule-input" id="scheduleInput">
-          <button class="sn-btn" style="padding:6px 12px;font-size:11px" onclick="clearSchedule()">Ahora</button>
-        </div>
-      </div>
-      <div class="tool-section poll-section">
-        <div class="tool-label">Encuesta</div>
-        <div class="poll-options" id="pollOptions"></div>
+              <div class="poll-options" id="pollOptions"></div>
         <div class="poll-add" onclick="addPollOption()">+ Agregar opcion</div>
       </div>';}
   }

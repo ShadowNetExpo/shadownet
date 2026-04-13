@@ -272,6 +272,8 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 </div>
 
   <!-- VERIFICACION KYC -->
+
+<div class="section" style="margin-top:16px"><div class="section-head"><span class="section-icon">&#128274;</span><span class="section-title">PRIVACIDAD</span></div><div class="section-body"><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0d2744"><div><div style="font-size:14px;color:#e8f4ff;font-weight:700">Cuenta privada</div><div style="font-size:11px;color:#5a8aaa;margin-top:2px">Solo tus seguidores aprobados pueden ver tu contenido</div></div><button class="toggle" id="privateToggle" onclick="togglePrivate()" style="flex-shrink:0"></button></div><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0d2744"><div><div style="font-size:14px;color:#e8f4ff;font-weight:700">Ocultar actividad</div><div style="font-size:11px;color:#5a8aaa;margin-top:2px">No mostrar cuando estás en línea</div></div><button class="toggle" id="hideActivityToggle" onclick="toggleHideActivity()"></button></div><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0"><div><div style="font-size:14px;color:#e8f4ff;font-weight:700">Permitir mensajes de desconocidos</div><div style="font-size:11px;color:#5a8aaa;margin-top:2px">Recibir DMs de personas que no sigues</div></div><button class="toggle active" id="dmToggle" onclick="toggleDM()"></button></div></div></div>
 <div class="section" id="becomeCreatorSection" style="margin-top:16px">
 <div class="section-head"><span class="section-icon">⭐</span><span class="section-title">SER CREADOR</span></div>
 <div class="section-body" style="text-align:center;padding:20px">
@@ -1018,6 +1020,12 @@ async function createShop(){
   if(r.error){if(r.error.message.includes("duplicate"))alert("Ya tienes una tienda.");else alert("Error: "+r.error.message);return;}
   alert("\uD83D\uDED2 Tienda creada! Ve a Shop para administrarla.");location.href="/shop.html";
 }
+
+async function togglePrivate(){var t=document.getElementById("privateToggle");t.classList.toggle("active");var priv=t.classList.contains("active");var s=await sb.auth.getSession();if(s.data.session){await sb.from("profiles").update({is_private:priv}).eq("id",s.data.session.user.id);showToast(priv?"Cuenta privada activada":"Cuenta pública activada");}}
+function toggleHideActivity(){var t=document.getElementById("hideActivityToggle");t.classList.toggle("active");showToast("Preferencia guardada");}
+function toggleDM(){var t=document.getElementById("dmToggle");t.classList.toggle("active");showToast("Preferencia guardada");}
+async function loadPrivacySettings(){var s=await sb.auth.getSession();if(s.data.session){var r=await sb.from("profiles").select("is_private").eq("id",s.data.session.user.id).single();if(r.data&&r.data.is_private){document.getElementById("privateToggle").classList.add("active");}}}
+loadPrivacySettings();
 </script>
 </body>
 </html>

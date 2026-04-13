@@ -104,7 +104,7 @@ async function loadShopByUser(username){
   else{document.getElementById('shopContent').innerHTML='<div class="empty-shop"><div class="empty-shop-icon">&#128722;</div><div>Este creador no tiene tienda</div></div>';}
 }
 async function loadTrending(){
-  document.querySelector('.hdr-title').textContent='MARKETPLACE';
+  var _ht=document.querySelector('.hdr-title');if(_ht)_ht.textContent='MARKETPLACE';
   var r=await sb.rpc('get_trending_products',{p_limit:20});
   if(r.data&&r.data.length){
     document.getElementById('shopContent').innerHTML='<div class="tabs"><div class="tab active">Trending</div></div><div class="products-grid" id="productsGrid"></div>';

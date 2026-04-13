@@ -2971,5 +2971,7 @@ function buildCarousel(urls,container){
     <button class="onboard-skip" onclick="skipOnboarding()">Saltar por ahora</button>
   </div>
 </div>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 </body>
 </html>

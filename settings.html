@@ -140,7 +140,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 
 <meta property="og:title" content="Configuraci&#243;n &mdash; SHADOWNET">
 <meta name="description" content="Ajusta tu cuenta y preferencias en SHADOWNET.">
-</head>
+<style>.section-outside{max-width:640px;margin:0 auto 16px;padding:0 16px}</style></head>
 <body>
 <header class="sn-header">
   <button class="sn-header-btn" onclick="history.back()">&#8592;</button>
@@ -155,7 +155,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     <div class="section-body">
       <div class="avatar-row">
         <div class="av-preview" id="avPreview" onclick="document.getElementById('avatarInp').click()">?</div>
-        <div class="av-info"><p>Foto de perfil<br><span style="color:#3a5060">JPG/PNG  Mximo 5MB</span></p><button class="outline-btn" style="margin-top:8px;padding:7px 16px;width:auto;font-size:11px" onclick="document.getElementById('avatarInp').click()">Cambiar foto</button></div>
+        <div class="av-info"><p>Foto de perfil<br><span style="color:#3a5060">JPG/PNG  Máximo 5MB</span></p><button class="outline-btn" style="margin-top:8px;padding:7px 16px;width:auto;font-size:11px" onclick="document.getElementById('avatarInp').click()">Cambiar foto</button></div>
       </div>
       <input type="file" class="upload-inp" id="avatarInp" accept="image/*">
       <div class="cover-wrap" id="coverPreview" onclick="document.getElementById('coverInp').click()">
@@ -167,15 +167,15 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
         <input type="text" class="field-input" id="usernameInp" placeholder="@tu_usuario" maxlength="30">
       </div>
       <div class="field">
-        <label class="field-label">Biografa <span id="bioCount" style="float:right;color:#3a5060">0/160 caracteres</span></label>
-        <textarea class="field-input field-textarea" id="bioInp" placeholder="Cuntanos sobre ti..." maxlength="160"></textarea>
+        <label class="field-label">Biografía <span id="bioCount" style="float:right;color:#3a5060">0/160 caracteres</span></label>
+        <textarea class="field-input field-textarea" id="bioInp" placeholder="Cuéntanos sobre ti..." maxlength="160"></textarea>
       </div>
       <button class="save-btn" id="saveProfileBtn" onclick="saveProfile()"> Guardar Perfil</button>
     </div>
   </div>
 
   <!-- CREADOR -->
-  <div class="section" id="creatorSection" style="display:none">
+  <div class="section" id="creatorSection">
     <div class="section-head"><span class="section-icon"></span><span class="section-title">CONFIGURACI&#211;N DE CREADOR</span>
     <!-- TIERS SECTION -->
     </div>
@@ -485,15 +485,15 @@ function renderKycStatus(status, rejectionReason) {
     <div class="section-body">
       <div class="field-row">
         <div class="field">
-          <label class="field-label">Nueva contrasea</label>
+          <label class="field-label">Nueva contraseña</label>
           <input type="password" class="field-input" id="pwInp" placeholder="Mnimo 8 caracteres">
         </div>
         <div class="field">
-          <label class="field-label">Confirmar contrasea</label>
-          <input type="password" class="field-input" id="pw2Inp" placeholder="Repite la contrasea">
+          <label class="field-label">Confirmar contraseña</label>
+          <input type="password" class="field-input" id="pw2Inp" placeholder="Repite la contraseña">
         </div>
       </div>
-      <button class="save-btn" onclick="changePassword()"> Cambiar contrasea</button>
+      <button class="save-btn" onclick="changePassword()"> Cambiar contraseña</button>
     </div>
   </div>
 
@@ -637,11 +637,11 @@ async function saveCreatorSettings(){
 async function changePassword(){
   var pw=document.getElementById('pwInp').value;
   var pw2=document.getElementById('pw2Inp').value;
-  if(!pw){showToast('Ingresa una nueva contrasea',true);return;}
+  if(!pw){showToast('Ingresa una nueva contraseña',true);return;}
   if(pw.length<8){showToast('Mnimo 8 caracteres',true);return;}
-  if(pw!==pw2){showToast('Las contraseas no coinciden',true);return;}
+  if(pw!==pw2){showToast('Las contraseñas no coinciden',true);return;}
   var r=await sb.auth.updateUser({password:pw});
-  if(r.error){showToast('Error: '+r.error.message,true);}else{showToast(' Contrasea cambiada!');document.getElementById('pwInp').value='';document.getElementById('pw2Inp').value='';}
+  if(r.error){showToast('Error: '+r.error.message,true);}else{showToast(' Contraseña cambiada!');document.getElementById('pwInp').value='';document.getElementById('pw2Inp').value='';}
 }
 
 async function saveNotifPrefs(){

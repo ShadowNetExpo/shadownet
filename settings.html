@@ -508,7 +508,7 @@ function renderKycStatus(status, rejectionReason) {
     <div class="section-head"><span class="section-icon"></span><span class="section-title">CUENTA</span></div>
     <div class="section-body">
       <div style="font-size:13px;color:#5a8aaa;margin-bottom:14px">Sesión iniciada como <strong id="sessionEmail" style="color:#c8d8e8">...</strong></div>
-      <button class="outline-btn" onclick="confirmLogout()" style="margin-top:0"> Cerrar sesin</button>
+      <button class="outline-btn" onclick="confirmLogout()" style="margin-top:0"> Cerrar sesión</button>
       <button class="danger-btn" onclick="confirmDelete()"> Eliminar cuenta</button>
     </div>
   </div>
@@ -710,7 +710,7 @@ async function requestWithdraw(){
 }
 
 function confirmLogout(){
-  if(confirm('Cerrar sesin?')){sb.auth.signOut().then(function(){window.location.href='/';});}
+  if(confirm('Cerrar sesión?')){sb.auth.signOut().then(function(){window.location.href='/';});}
 }
 
 function confirmDelete(){
@@ -994,7 +994,7 @@ window.snShareRef=function(){
 
 <div class="sn-nov" id="sn-nov" onclick="snNC()"></div>
 <div class="sn-np" id="sn-np">
-  <div class="sn-nh"><div class="sn-nht">Notificaciones</div><button class="sn-nmr" onclick="snNMR()">Todo le&iacute;do</button><button class="sn-ncl" onclick="snNC()">&#10005;</button></div>
+  <div class="sn-nh"><div class="sn-nht">Notificaciónes</div><button class="sn-nmr" onclick="snNMR()">Todo le&iacute;do</button><button class="sn-ncl" onclick="snNC()">&#10005;</button></div>
   <div class="sn-nl" id="sn-nl"><div class="sn-nem">Cargando...</div></div>
 </div>
 

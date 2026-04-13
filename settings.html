@@ -196,7 +196,8 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       </div>
     </div>
     <!-- REFERRAL -->
-    <div class="section" style="margin-top:16px">
+    <div class="section" style="margin-top:16px" id="subRequestsSection"><div class="section-head"><span class="section-icon">&#128101;</span><div><span class="section-title">SOLICITUDES DE SUSCRIPCIÓN</span><div style="font-size:11px;color:#5a8aaa">Aprueba o niega solicitudes de acceso a tu contenido +18</div></div></div><div class="section-body"><div id="subRequestsList" style="min-height:40px"><div style="text-align:center;color:#5a8aaa;font-size:12px;padding:16px">Cargando solicitudes...</div></div></div></div>
+<div class="section" style="margin-top:16px">
       <div class="section-head"><span class="section-icon">&#128279;</span><div><div class="section-title">Programa de referidos</div><div class="section-subtitle">Comparte tu link y gana cuando traes nuevos usuarios</div></div></div>
       <div class="sn-ref-box">
         <div style="font-size:12px;color:#888;margin-bottom:4px">Tu link de referido:</div>
@@ -1026,6 +1027,35 @@ function toggleHideActivity(){var t=document.getElementById("hideActivityToggle"
 function toggleDM(){var t=document.getElementById("dmToggle");t.classList.toggle("active");showToast("Preferencia guardada");}
 async function loadPrivacySettings(){var s=await sb.auth.getSession();if(s.data.session){var r=await sb.from("profiles").select("is_private").eq("id",s.data.session.user.id).single();if(r.data&&r.data.is_private){document.getElementById("privateToggle").classList.add("active");}}}
 loadPrivacySettings();
+
+async function loadSubRequests(){
+  var s=await sb.auth.getSession();if(!s.data.session)return;
+  var uid=s.data.session.user.id;
+  var r=await sb.from("subscription_requests").select("id,requester_id,status,created_at,profiles!subscription_requests_requester_id_fkey(username,avatar_url)").eq("creator_id",uid).order("created_at",{ascending:false});
+  var list=document.getElementById("subRequestsList");
+  if(!list)return;
+  if(!r.data||r.data.length===0){list.innerHTML='<div style="text-align:center;color:#5a8aaa;font-size:12px;padding:16px">No tienes solicitudes pendientes</div>';return;}
+  list.innerHTML=r.data.map(function(req){
+    var p=req.profiles||{};
+    var statusBadge=req.status==="pending"?'<span style="color:#ffa500;font-size:10px;font-weight:700">PENDIENTE</span>':req.status==="approved"?'<span style="color:#00c853;font-size:10px;font-weight:700">APROBADO</span>':'<span style="color:#ff2255;font-size:10px;font-weight:700">RECHAZADO</span>';
+    var actions=req.status==="pending"?'<div style="display:flex;gap:6px;margin-top:6px"><button onclick="reviewSubRequest(\''+req.id+'\',\'approved\')" style="flex:1;padding:6px;background:rgba(0,200,83,.15);color:#00c853;border:1px solid rgba(0,200,83,.3);border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer">\u2705 APROBAR</button><button onclick="reviewSubRequest(\''+req.id+'\',\'denied\')" style="flex:1;padding:6px;background:rgba(255,34,85,.1);color:#ff2255;border:1px solid rgba(255,34,85,.3);border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;cursor:pointer">\u274C NEGAR</button></div>':"";
+    return'<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #0d2744"><div style="width:36px;height:36px;border-radius:50%;background:#1a0030;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;overflow:hidden">'+(p.avatar_url?'<img src="'+p.avatar_url+'" style="width:100%;height:100%;object-fit:cover">':((p.username||"?")[0].toUpperCase()))+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700;color:#e8f4ff">@'+(p.username||"usuario")+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:2px">'+statusBadge+'<span style="font-size:10px;color:#3a5060">'+new Date(req.created_at).toLocaleDateString("es")+'</span></div>'+actions+'</div></div>';
+  }).join("");
+}
+async function reviewSubRequest(reqId,status){
+  var r=await sb.from("subscription_requests").update({status:status,reviewed_at:new Date().toISOString()}).eq("id",reqId);
+  if(r.error){alert("Error: "+r.error.message);return;}
+  if(status==="approved"){
+    // Get the request to create subscription
+    var req=await sb.from("subscription_requests").select("requester_id,creator_id").eq("id",reqId).single();
+    if(req.data){
+      await sb.from("subscriptions").insert({subscriber_id:req.data.requester_id,creator_id:req.data.creator_id,status:"active",active:true});
+    }
+    showToast("Solicitud aprobada");
+  } else showToast("Solicitud rechazada");
+  loadSubRequests();
+}
+setTimeout(loadSubRequests,2000);
 </script>
 </body>
 </html>

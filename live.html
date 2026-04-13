@@ -427,7 +427,7 @@ function startLiveTimer(){
           }
         }
       }
-    }
+    })();}
   }
   // \u2500\u2500 FIN GUARD \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 liveTimer=setInterval(function(){if(!liveStartTime)return;var e=Math.floor((Date.now()-liveStartTime)/1000),m=Math.floor(e/60),s=e%60;(document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO \u2022 "+(m>0?m+"m ":"")+s+"s";},1000);}
@@ -981,7 +981,6 @@ function sendGift(giftId){
       showToastMsg(r.data?.error||'Error al enviar regalo',true);
     }
   }).catch(function(e){showToastMsg('Error: '+e.message,true);});
-  });
 }
 
 

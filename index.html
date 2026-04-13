@@ -148,10 +148,10 @@ function openAuth(mode){
     document.getElementById("authTitle").textContent="Crea tu cuenta";
     document.getElementById("authSubmit").textContent="CREAR CUENTA";
     document.getElementById("authToggleText").textContent="Ya tienes cuenta?";
-    document.getElementById("authToggleLink").textContent="Iniciar sesion";
+    document.getElementById("authToggleLink").textContent="Iniciar sesión";
   } else {
     document.getElementById("signupFields").style.display="none";
-    document.getElementById("authTitle").textContent="Inicia sesion";
+    document.getElementById("authTitle").textContent="Inicia sesión";
     document.getElementById("authSubmit").textContent="ENTRAR";
     document.getElementById("authToggleText").textContent="No tienes cuenta?";
     document.getElementById("authToggleLink").textContent="Registrarse";
@@ -165,7 +165,7 @@ async function submitAuth(){
   var pass=document.getElementById("authPassword").value;
   var btn=document.getElementById("authSubmit");
   if(!email||!pass){showAuthError("Completa todos los campos");return;}
-  if(pass.length<6){showAuthError("La contrasena debe tener al menos 6 caracteres");return;}
+  if(pass.length<6){showAuthError("La contraseña debe tener al menos 6 caracteres");return;}
   btn.disabled=true;btn.textContent="Cargando...";
   document.getElementById("authError").style.display="none";
   try{
@@ -181,7 +181,7 @@ async function submitAuth(){
       location.href="/feed.html";
     } else {
       var r=await sb.auth.signInWithPassword({email:email,password:pass});
-      if(r.error){showAuthError(r.error.message==="Invalid login credentials"?"Email o contrasena incorrectos":r.error.message);btn.disabled=false;btn.textContent="ENTRAR";return;}
+      if(r.error){showAuthError(r.error.message==="Invalid login credentials"?"Email o contraseña incorrectos":r.error.message);btn.disabled=false;btn.textContent="ENTRAR";return;}
       location.href="/feed.html";
     }
   }catch(e){showAuthError(e.message||"Error desconocido");btn.disabled=false;btn.textContent=_authMode==="signup"?"CREAR CUENTA":"ENTRAR";}
@@ -196,7 +196,7 @@ async function submitAuth(){
 <button onclick="closeAuth()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer">&times;</button>
 <div style="text-align:center;margin-bottom:20px">
 <div style="font-family:Orbitron,monospace;font-size:18px;font-weight:900;color:#ff2255">SHADOWNET</div>
-<div id="authTitle" style="font-size:13px;color:#8a9bb0;margin-top:4px">Inicia sesion</div>
+<div id="authTitle" style="font-size:13px;color:#8a9bb0;margin-top:4px">Inicia sesión</div>
 </div>
 <div id="authError" style="display:none;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);border-radius:8px;padding:8px 12px;font-size:11px;color:#ff6680;margin-bottom:12px;text-align:center"></div>
 <div id="signupFields" style="display:none;margin-bottom:10px">
@@ -206,10 +206,10 @@ async function submitAuth(){
 <input id="authEmail" type="email" placeholder="Email" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" autocomplete="email">
 </div>
 <div style="margin-bottom:14px">
-<input id="authPassword" type="password" placeholder="Contrase\u00F1a (min 6 caracteres)" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" autocomplete="current-password">
+<input id="authPassword" type="password" placeholder="Contraseña (min 6 caracteres)" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" autocomplete="current-password">
 </div>
 <button id="authSubmit" onclick="submitAuth()" style="width:100%;padding:11px;background:linear-gradient(135deg,#ff2255,#ff0044);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Orbitron,monospace;letter-spacing:.05em">ENTRAR</button>
-<div style="text-align:center;margin:14px 0;font-size:11px;color:#5a8aaa">\u2014 o \u2014</div>
+<div style="text-align:center;margin:14px 0;font-size:11px;color:#5a8aaa">— o —</div>
 <button onclick="loginWithGoogle()" style="width:100%;padding:10px;background:#fff;color:#333;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">G Continuar con Google</button>
 <div style="text-align:center;margin-top:14px;font-size:12px;color:#5a8aaa">
 <span id="authToggleText">No tienes cuenta?</span> <a href="#" onclick="toggleAuthMode();return false" style="color:#ff2255;text-decoration:none;font-weight:700" id="authToggleLink">Registrarse</a>

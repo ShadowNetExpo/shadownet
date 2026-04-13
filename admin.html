@@ -186,7 +186,7 @@ function switchTab(n){
 }
 function showToast(m,e){var t=document.getElementById('toast');t.textContent=m;t.className='toast'+(e?' err':'');t.style.display='block';setTimeout(function(){t.style.display='none';},3000);}
 function tsAgo(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m';if(s<86400)return Math.floor(s/3600)+'h';return Math.floor(s/86400)+'d';}
-function escH(s){return s?(s+&apos;).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
+function escH(s){return s?(s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
 async function loadStats(){
   var [u,c,p,v,pe,b,rep,s]=await Promise.all([
     sb.from('profiles').select('id',{count:'exact',head:true}),

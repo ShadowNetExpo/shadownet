@@ -81,6 +81,10 @@ header{background:#070f1e;border-bottom:1px solid #0d2744;padding:12px 20px;disp
 .loading{text-align:center;padding:28px;color:#5a8aaa;font-size:12px}
 </style>
 <link rel="stylesheet" href="/sn-design.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2255">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icon.svg">
 </head>
 <body>
 <header class="sn-header">
@@ -370,5 +374,7 @@ function searchPosts(){
   }));
 }
 </script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 </body>
 </html>

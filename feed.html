@@ -1088,7 +1088,7 @@ async function submitPost() {
     }
     var isPremium=document.getElementById("isPremiumCheck")&&document.getElementById("isPremiumCheck").checked;
     var loc=(document.getElementById("locationInp")?.value||"").trim()||null;
-    var r = await sb.from("posts").insert({ user_id: currentUser.id, content: text || null, media_url: mediaUrl, media_type: mediaType, is_premium: isPremium, location: loc, category: document.getElementById('postCategory') ? document.getElementById('postCategory').value || null : null, content_rating: isPremium ? 'nsfw' : 'sfw' });
+    var r = await sb.from("posts").insert({ user_id: currentUser.id, content: text || null, image_url: mediaType==="image"?mediaUrl:null, video_url: mediaType==="video"?mediaUrl:null, media_type: mediaType, is_premium: isPremium, location: loc, category: document.getElementById('postCategory') ? document.getElementById('postCategory').value || null : null, content_rating: (document.getElementById('sn-nsfw-toggle')&&document.getElementById('sn-nsfw-toggle').classList.contains('active')) ? 'nsfw' : 'sfw' });
     if (r.error) throw new Error(r.error.message);
     document.getElementById("postText").value = "";
     mediaFile = null;

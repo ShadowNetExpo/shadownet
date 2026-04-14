@@ -180,7 +180,7 @@ body{padding-bottom:72px}
 </style>
 
 <meta property="og:title" content="Mensajes &mdash; SHADOWNET">
-<meta name="description" content="Mensajes directos y conversaciones privadas en SHADOWNET.">
+<meta name="description" content="Mensajes directos y conversaciónes privadas en SHADOWNET.">
 </head>
 <body>
 <header class="sn-header">
@@ -193,7 +193,7 @@ body{padding-bottom:72px}
 <div class="layout" id="mainLayout" style="display:none">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-title">CONVERSACIONES</span>
+      <span class="sidebar-title">conversaciónES</span>
       <button class="new-chat-btn" onclick="openNewChat()">+ Nuevo</button>
     </div>
     <div id="massMessageBtnWrap" style="padding:10px 16px;border-bottom:1px solid rgba(13,39,68,.4);display:none">
@@ -218,12 +218,12 @@ body{padding-bottom:72px}
       </div>
       <span style="color:#5a8aaa;font-size:16px">&#8250;</span>
     </div>
-    <div class="conv-list" id="convList"><div style="padding:20px;color:#5a8aaa;font-size:13px">Sin conversaciones</div></div>
+    <div class="conv-list" id="convList"><div style="padding:20px;color:#5a8aaa;font-size:13px">Sin conversaciónes</div></div>
   </div>
   <div class="chat-area" id="chatArea">
     <div class="empty-chat" id="emptyChat">
       <div class="empty-chat-icon">&#128172;</div>
-      <p>Selecciona una conversacion</p>
+      <p>Selecciona una conversación</p>
     </div>
     <div id="activeChatHeader" style="display:none" class="chat-header">
       <div class="conv-avatar" id="chatAvatar"></div>
@@ -338,7 +338,7 @@ function updateNavAvatar(){
 async function loadConversations(){
   var list=document.getElementById("convList");
   var r=await sb.from("conversations").select("*").or("user1_id.eq."+currentUser.id+",user2_id.eq."+currentUser.id).order("last_message_at",{ascending:false}).limit(30);
-  if(!r.data||r.data.length===0){list.innerHTML="<div style=\"padding:20px;color:#5a8aaa;font-size:13px\">Sin conversaciones aun</div>";return;}
+  if(!r.data||r.data.length===0){list.innerHTML="<div style=\"padding:20px;color:#5a8aaa;font-size:13px\">Sin conversaciónes aún</div>";return;}
   var peerIds=[...new Set(r.data.map(function(c){return c.user1_id===currentUser.id?c.user2_id:c.user1_id;}))];
   var profiles=await sb.from("profiles").select("id,username,avatar_url").in("id",peerIds);
   var pm={}; (profiles.data||[]).forEach(function(p){pm[p.id]=p;});

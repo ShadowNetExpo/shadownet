@@ -1084,6 +1084,84 @@ window.appendMsg=function(m){
   }
   _origAppendMsg(m);
 };
+
+// === DM MEDIA ATTACH ===
+var _dmMediaFile=null,_dmMediaUrl=null,_dmMediaType=null;
+(function(){
+  var fileInput=document.getElementById("dmFileInput")||document.querySelector('input[type="file"]');
+  if(!fileInput){
+    // Create hidden file input
+    fileInput=document.createElement("input");
+    fileInput.type="file";
+    fileInput.id="dmFileInput";
+    fileInput.accept="image/*,video/*";
+    fileInput.style.display="none";
+    document.body.appendChild(fileInput);
+  }
+  fileInput.addEventListener("change",function(){
+    var file=fileInput.files[0];if(!file)return;
+    _dmMediaFile=file;
+    _dmMediaType=file.type.startsWith("video")?"video":"image";
+    // Show preview
+    var preview=document.getElementById("attachPreview")||document.querySelector(".media-preview,.attach-preview");
+    if(!preview){
+      preview=document.createElement("div");
+      preview.id="attachPreview";
+      preview.style.cssText="padding:8px 12px;background:rgba(255,34,85,.05);border:1px solid rgba(255,34,85,.15);border-radius:8px;margin:6px 12px;display:flex;align-items:center;gap:8px";
+      var inputArea=document.querySelector(".chat-input")||document.querySelector(".msg-input-area");
+      if(inputArea)inputArea.parentNode.insertBefore(preview,inputArea);
+    }
+    preview.style.display="flex";
+    var reader=new FileReader();
+    reader.onload=function(e){
+      if(_dmMediaType==="video"){
+        preview.innerHTML='<video src="'+e.target.result+'" style="max-height:60px;border-radius:6px" muted></video><div style="flex:1;font-size:12px;color:#8a9bb0">'+file.name+'</div><button onclick="clearDmMedia()" style="background:none;border:none;color:#ff2255;cursor:pointer;font-size:16px">&times;</button>';
+      } else {
+        preview.innerHTML='<img src="'+e.target.result+'" style="max-height:60px;border-radius:6px"><div style="flex:1;font-size:12px;color:#8a9bb0">'+file.name+'</div><button onclick="clearDmMedia()" style="background:none;border:none;color:#ff2255;cursor:pointer;font-size:16px">&times;</button>';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  // Wire up attach button
+  var attachBtns=document.querySelectorAll(".attach-btn,[data-attach]");
+  attachBtns.forEach(function(btn){
+    btn.addEventListener("click",function(e){
+      e.preventDefault();e.stopPropagation();
+      fileInput.click();
+    });
+  });
+})();
+
+function clearDmMedia(){
+  _dmMediaFile=null;_dmMediaUrl=null;_dmMediaType=null;
+  var preview=document.getElementById("attachPreview")||document.querySelector(".media-preview,.attach-preview");
+  if(preview)preview.style.display="none";
+  var fi=document.getElementById("dmFileInput");if(fi)fi.value="";
+}
+
+// Override sendDM to include media
+(function(){
+  var origSend=window.sendDM;
+  if(!origSend)return;
+  window.sendDM=async function(){
+    if(_dmMediaFile&&window.sb&&window.currentUser){
+      try{
+        var ext=_dmMediaFile.name.split(".").pop();
+        var path="dm-media/"+window.currentUser.id+"/"+Date.now()+"."+ext;
+        var r=await window.sb.storage.from("media").upload(path,_dmMediaFile,{upsert:true});
+        if(!r.error){
+          _dmMediaUrl=window.sb.storage.from("media").getPublicUrl(path).data.publicUrl;
+        }
+      }catch(e){console.warn("DM media upload:",e);}
+    }
+    // Call original with media data available
+    if(_dmMediaUrl){window._pendingMediaUrl=_dmMediaUrl;window._pendingMediaType=_dmMediaType;}
+    var result=origSend.apply(this,arguments);
+    clearDmMedia();
+    return result;
+  };
+})();
+
 </script>
 </body>
 </html>

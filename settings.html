@@ -193,6 +193,23 @@ input[type="checkbox"]{transition:all .2s}
 .sn-nav-item.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#ff2255;box-shadow:0 0 8px rgba(255,34,85,.5)}
 .sn-nav-item{transition:all .2s}
 .sn-nav-item:active{transform:scale(.9)}
+
+/* === REFERRAL SYSTEM === */
+.referral-section{margin:16px;padding:20px;background:rgba(13,27,44,.6);border:1px solid #0d2744;border-radius:12px;position:relative;overflow:hidden}
+.referral-section::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff2255,#ffd700,#00e5ff)}
+.referral-title{font-family:Orbitron,monospace;font-size:14px;font-weight:900;color:#ffd700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.referral-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.ref-stat{text-align:center;padding:12px 8px;background:rgba(1,2,12,.4);border-radius:8px;border:1px solid #0d2744}
+.ref-stat-val{font-family:Orbitron,monospace;font-size:18px;font-weight:900;color:#e8f4ff}
+.ref-stat-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.referral-link-box{display:flex;gap:8px;margin-bottom:12px}
+.referral-link-input{flex:1;padding:10px 12px;background:#01020c;border:1px solid #0d2744;border-radius:8px;color:#00e5ff;font-family:Rajdhani,sans-serif;font-size:13px;outline:none}
+.referral-copy-btn{padding:10px 16px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.referral-copy-btn:hover{transform:scale(1.05)}
+.referral-copy-btn:active{transform:scale(.95)}
+.referral-info{font-size:12px;color:#5a8aaa;line-height:1.5}
+.referral-info strong{color:#ffd700}
+.ref-bonus{color:#00e5ff;font-weight:700}
 </style></head>
 <body>
 <header class="sn-header">
@@ -572,6 +589,23 @@ function renderKycStatus(status, rejectionReason) {
 
 <div class="toast" id="toast"></div>
 
+</div>
+
+<!-- REFERRAL SYSTEM -->
+<div class="referral-section" id="referralSection">
+  <div class="referral-title">&#127873; Programa de Referidos</div>
+  <div class="referral-stats">
+    <div class="ref-stat"><div class="ref-stat-val" id="refCount">0</div><div class="ref-stat-label">Referidos</div></div>
+    <div class="ref-stat"><div class="ref-stat-val" id="refEarnings">0</div><div class="ref-stat-label">Almas ganadas</div></div>
+    <div class="ref-stat"><div class="ref-stat-val ref-bonus">50</div><div class="ref-stat-label">Bonus por referido</div></div>
+  </div>
+  <div class="referral-link-box">
+    <input class="referral-link-input" id="refLinkInput" readonly>
+    <button class="referral-copy-btn" onclick="copyRefLink()">&#128203; Copiar</button>
+  </div>
+  <div class="referral-info">
+    Comparte tu enlace y gana <strong>50 Almas</strong> por cada nuevo creador que se registre. Tu referido también recibe <strong>25 Almas</strong> de bienvenida.
+  </div>
 </div>
 <nav class="sn-nav">
   <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
@@ -1110,6 +1144,43 @@ async function reviewSubRequest(reqId,status){
 }
 setTimeout(loadSubRequests,2000);
 </script>
-<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";</script>
+<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";
+// === REFERRAL SYSTEM ===
+async function loadReferralData(){
+  if(!window.sb||!window.currentUser)return;
+  try{
+    var r=await window.sb.from("profiles").select("referral_code,referral_count,referral_earnings").eq("id",window.currentUser.id).single();
+    if(!r.data)return;
+    var code=r.data.referral_code;
+    // Auto-generate code if empty
+    if(!code){
+      code=window.currentUser.id.substring(0,8).toUpperCase();
+      await window.sb.from("profiles").update({referral_code:code}).eq("id",window.currentUser.id);
+    }
+    // Update UI
+    var linkInput=document.getElementById("refLinkInput");
+    if(linkInput)linkInput.value="https://shadownet-xi.vercel.app/?ref="+code;
+    var countEl=document.getElementById("refCount");
+    if(countEl)countEl.textContent=r.data.referral_count||0;
+    var earningsEl=document.getElementById("refEarnings");
+    if(earningsEl)earningsEl.textContent=r.data.referral_earnings||0;
+  }catch(e){console.warn("Referral:",e);}
+}
+function copyRefLink(){
+  var input=document.getElementById("refLinkInput");
+  if(!input||!input.value)return;
+  navigator.clipboard.writeText(input.value).then(function(){
+    var btn=document.querySelector(".referral-copy-btn");
+    if(btn){btn.textContent="\u2705 Copiado!";setTimeout(function(){btn.textContent="\uD83D\uDCCB Copiar";},2000);}
+    if(window.showToast)showToast("Enlace copiado al portapapeles");
+  }).catch(function(){
+    input.select();document.execCommand("copy");
+    if(window.showToast)showToast("Enlace copiado");
+  });
+}
+// Load on page ready
+setTimeout(function(){loadReferralData();},2000);
+
+</script>
 </body>
 </html>

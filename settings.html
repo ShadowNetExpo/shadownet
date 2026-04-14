@@ -345,14 +345,14 @@ function kycPreview(type, input) {
     if (type === 'doc') {
       _kycDocFile = file;
       document.getElementById('kyc-doc-preview').src = e.target.result;
-      document.getElementById('kyc-doc-preview').style.display = 'block';
-      document.getElementById('kyc-doc-placeholder').style.display = 'none';
-      document.getElementById('kyc-doc-zone').style.borderColor = '#00e5ff';
+      var _kdp=document.getElementById('kyc-doc-preview');if(_kdp)_kdp.style.display='block';
+      var _kdph=document.getElementById('kyc-doc-placeholder');if(_kdph)_kdph.style.display='none';
+      var _kdz=document.getElementById('kyc-doc-zone');if(_kdz)_kdz.style.borderColor='#00e5ff';
     } else {
       _kycSelfieFile = file;
       document.getElementById('kyc-selfie-preview').src = e.target.result;
-      document.getElementById('kyc-selfie-preview').style.display = 'block';
-      document.getElementById('kyc-selfie-placeholder').style.display = 'none';
+      var _ksp=document.getElementById('kyc-selfie-preview');if(_ksp)_ksp.style.display='block';
+      var _ksph=document.getElementById('kyc-selfie-placeholder');if(_ksph)_ksph.style.display='none';
       document.getElementById('kyc-selfie-zone').style.borderColor = '#00e5ff';
     }
   };

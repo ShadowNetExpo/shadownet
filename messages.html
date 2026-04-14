@@ -683,7 +683,7 @@ async function sendMassMessage(){
   if(isPPV&&ppvPrice<1){showToast("Precio PPV minimo: $1",true);return;}
   var r=await sb.from("subscriptions").select("subscriber_id").eq("creator_id",currentUser.id).eq("status","active");
   var subs=r.data||[];
-  if(!subs.length){showToast("No tienes suscriptores todavia",true);return;}
+  if(!subs.length){showToast("No tienes suscriptores todavía",true);return;}
   await sb.from("mass_messages").insert({creator_id:currentUser.id,content:content,is_ppv:isPPV,ppv_price:ppvPrice,sent_count:subs.length});
   var sent=0;
   for(var i=0;i<Math.min(subs.length,50);i++){

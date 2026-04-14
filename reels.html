@@ -61,6 +61,67 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;overflow:hidden;
 .sn-nav-item:active{transform:scale(.9)}
 .sn-nav-create{transition:all .3s;box-shadow:0 2px 12px rgba(255,34,85,.3)}
 .sn-nav-create:hover{transform:scale(1.1)}
+
+/* === REELS ENHANCEMENTS === */
+/* Sound bar - TikTok style */
+.reel-sound-bar{position:absolute;bottom:70px;left:12px;right:80px;display:flex;align-items:center;gap:8px;z-index:5}
+.sound-disc{width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:2px solid #333;display:flex;align-items:center;justify-content:center;animation:discSpin 3s linear infinite;overflow:hidden;flex-shrink:0}
+.sound-disc img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+@keyframes discSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.sound-name{font-size:12px;color:#fff;overflow:hidden;white-space:nowrap;max-width:200px}
+.sound-name span{display:inline-block;animation:marquee 8s linear infinite}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.sound-icon{font-size:14px;margin-right:4px}
+
+/* Double-tap heart animation */
+.double-tap-heart{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:80px;z-index:20;pointer-events:none;filter:drop-shadow(0 0 12px rgba(255,34,85,.5))}
+.double-tap-heart.show{animation:heartPop .8s ease forwards}
+@keyframes heartPop{0%{transform:translate(-50%,-50%) scale(0);opacity:1}50%{transform:translate(-50%,-50%) scale(1.2);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+/* Video progress bar */
+.reel-progress{position:absolute;top:0;left:0;right:0;height:2px;z-index:10}
+.reel-progress-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ff6680);width:0;transition:width .1s linear}
+
+/* Comment drawer */
+.comment-drawer{position:fixed;bottom:0;left:0;right:0;height:60vh;background:rgba(7,15,30,.98);border-radius:16px 16px 0 0;z-index:100;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(16px)}
+.comment-drawer.open{transform:translateY(0)}
+.cd-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #0d2744}
+.cd-title{font-family:Orbitron,monospace;font-size:13px;font-weight:700}
+.cd-close{background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer}
+.cd-list{flex:1;overflow-y:auto;padding:8px 16px;max-height:calc(60vh - 120px)}
+.cd-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(13,39,68,.3)}
+.cd-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;overflow:hidden}
+.cd-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.cd-body{flex:1}
+.cd-user{font-size:12px;font-weight:700;color:#00e5ff}
+.cd-text{font-size:13px;color:#c8d8e8;margin-top:2px}
+.cd-time{font-size:10px;color:#5a8aaa;margin-top:2px}
+.cd-input-row{display:flex;gap:8px;padding:12px 16px;border-top:1px solid #0d2744}
+.cd-input{flex:1;padding:10px 14px;background:#01020c;border:1px solid #0d2744;border-radius:20px;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:13px;outline:none}
+.cd-input:focus{border-color:rgba(255,34,85,.4)}
+.cd-send{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer;transition:transform .2s}
+.cd-send:active{transform:scale(.9)}
+
+/* Share sheet */
+.share-sheet{position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.98);border-radius:16px 16px 0 0;z-index:100;transform:translateY(100%);transition:transform .3s;padding:20px;backdrop-filter:blur(16px)}
+.share-sheet.open{transform:translateY(0)}
+.share-options{display:flex;gap:16px;justify-content:center;padding:16px 0}
+.share-opt{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.share-opt-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .2s}
+.share-opt-icon:active{transform:scale(.9)}
+.share-opt-label{font-size:10px;color:#8a9bb0}
+
+/* Creator info overlay */
+.reel-creator{position:absolute;bottom:90px;left:12px;z-index:5}
+.reel-creator-name{font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8);display:flex;align-items:center;gap:6px}
+.reel-creator-name .verified{color:#00e5ff;font-size:11px}
+.reel-caption{font-size:12px;color:rgba(255,255,255,.8);margin-top:4px;max-width:240px;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.reel-hashtags{margin-top:4px}
+.reel-hashtags span{color:#00e5ff;font-size:12px;cursor:pointer;margin-right:6px}
+
+/* Overlay for drawer background */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;display:none}
+.drawer-overlay.open{display:block}
 </style>
 </head>
 <body>
@@ -73,6 +134,27 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;overflow:hidden;
   <div class="reel-loading" id="reelLoading">Cargando reels...</div>
 </div>
 <button class="create-reel-fab" onclick="location.href='/editor.html'" title="Crear Reel">&#127909;</button>
+
+<!-- COMMENT DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawers()"></div>
+<div class="comment-drawer" id="commentDrawer">
+  <div class="cd-header"><div class="cd-title">Comentarios</div><button class="cd-close" onclick="closeDrawers()">&times;</button></div>
+  <div class="cd-list" id="cdList"></div>
+  <div class="cd-input-row">
+    <input class="cd-input" id="cdInput" placeholder="Escribe un comentario...">
+    <button class="cd-send" onclick="postReelComment()">&#10148;</button>
+  </div>
+</div>
+<!-- SHARE SHEET -->
+<div class="share-sheet" id="shareSheet">
+  <div class="cd-header"><div class="cd-title">Compartir</div><button class="cd-close" onclick="closeDrawers()">&times;</button></div>
+  <div class="share-options">
+    <div class="share-opt" onclick="shareAction('copy')"><div class="share-opt-icon" style="background:rgba(0,229,255,.1)">&#128279;</div><div class="share-opt-label">Copiar link</div></div>
+    <div class="share-opt" onclick="shareAction('whatsapp')"><div class="share-opt-icon" style="background:rgba(37,211,102,.1)">&#128172;</div><div class="share-opt-label">WhatsApp</div></div>
+    <div class="share-opt" onclick="shareAction('twitter')"><div class="share-opt-icon" style="background:rgba(29,155,240,.1)">&#120143;</div><div class="share-opt-label">X</div></div>
+    <div class="share-opt" onclick="shareAction('telegram')"><div class="share-opt-icon" style="background:rgba(0,136,204,.1)">&#9993;</div><div class="share-opt-label">Telegram</div></div>
+  </div>
+</div>
 <nav class="sn-nav">
   <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
   <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">&#128269;</span>Explorar</a>
@@ -253,6 +335,132 @@ window.snFollowFromReel=async function(uid,btn){
   if(chk.data&&chk.data.length){await sb.from('follows').delete().eq('follower_id',me).eq('following_id',uid);btn.textContent='Seguir';btn.style.color='#ff2255';btn.style.background='none';}
   else{await sb.from('follows').insert({follower_id:me,following_id:uid});btn.textContent='Siguiendo';btn.style.color='#fff';btn.style.background='#ff2255';btn.style.borderColor='#ff2255';}
 };
+
+// === REELS ENHANCEMENTS ===
+var _currentReelId=null,_currentReelUserId=null;
+
+// Double-tap to like
+document.addEventListener("dblclick",function(e){
+  var reel=e.target.closest(".reel-container,.reel-item,.reel-card");
+  if(!reel)return;
+  var postId=reel.getAttribute("data-id")||reel.getAttribute("data-post-id");
+  if(postId){
+    toggleReelLike(postId);
+    // Show heart animation
+    var heart=document.createElement("div");heart.className="double-tap-heart";heart.textContent="\u2764\uFE0F";
+    reel.style.position="relative";reel.appendChild(heart);
+    requestAnimationFrame(function(){heart.classList.add("show");});
+    setTimeout(function(){heart.remove();},900);
+  }
+});
+
+// Video progress bar
+function initVideoProgress(video,container){
+  if(!video||!container)return;
+  var bar=document.createElement("div");bar.className="reel-progress";
+  var fill=document.createElement("div");fill.className="reel-progress-fill";
+  bar.appendChild(fill);container.appendChild(bar);
+  video.addEventListener("timeupdate",function(){
+    if(video.duration){fill.style.width=(video.currentTime/video.duration*100)+"%";}
+  });
+}
+
+// Sound bar renderer
+function renderSoundBar(reel,container){
+  if(!reel||!container)return;
+  var sound=reel.sound_name||reel.audio_name||"Sonido original";
+  var artist=reel.sound_artist||reel.username||"";
+  var bar=document.createElement("div");bar.className="reel-sound-bar";
+  bar.innerHTML='<div class="sound-disc"><span>&#127925;</span></div><div class="sound-name"><span class="sound-icon">&#127925;</span> <span>'+sound+(artist?" - "+artist:"")+'</span></div>';
+  container.appendChild(bar);
+}
+
+// Creator info overlay
+function renderCreatorInfo(reel,container){
+  if(!reel||!container)return;
+  var prof=reel.profiles||reel;
+  var username=prof.username||"";
+  var caption=reel.content||reel.caption||"";
+  var info=document.createElement("div");info.className="reel-creator";
+  var nameHTML='<div class="reel-creator-name">@'+username+(prof.is_verified?' <span class="verified">\u2713</span>':'')+'</div>';
+  var captionHTML=caption?'<div class="reel-caption">'+caption.substring(0,120)+'</div>':"";
+  // Extract hashtags
+  var tags=(caption.match(/#[\w]+/g)||[]);
+  var tagsHTML="";
+  if(tags.length){tagsHTML='<div class="reel-hashtags">'+tags.map(function(t){return '<span onclick="location.href=\'search.html?q='+encodeURIComponent(t)+'\'">'+t+'</span>';}).join("")+'</div>';}
+  info.innerHTML=nameHTML+captionHTML+tagsHTML;
+  container.appendChild(info);
+}
+
+// Comment drawer
+function openComments(postId){
+  _currentReelId=postId;
+  document.getElementById("drawerOverlay").classList.add("open");
+  document.getElementById("commentDrawer").classList.add("open");
+  loadReelComments(postId);
+}
+async function loadReelComments(postId){
+  var list=document.getElementById("cdList");if(!list)return;
+  list.innerHTML='<div style="text-align:center;padding:30px;color:#5a8aaa">Cargando...</div>';
+  if(!window.sb)return;
+  var r=await window.sb.from("comments").select("*,profiles:user_id(username,avatar_url)").eq("post_id",postId).order("created_at",{ascending:true}).limit(50);
+  if(!r.data||!r.data.length){list.innerHTML='<div style="text-align:center;padding:40px;color:#5a8aaa">Sin comentarios a\u00FAn. \u00A1S\u00E9 el primero!</div>';return;}
+  list.innerHTML="";
+  r.data.forEach(function(c){
+    var prof=c.profiles||{};
+    var av=prof.avatar_url?'<img src="'+prof.avatar_url+'">':((prof.username||"?")[0].toUpperCase());
+    var ago=Math.floor((Date.now()-new Date(c.created_at))/60000);
+    var time=ago<60?ago+"m":ago<1440?Math.floor(ago/60)+"h":Math.floor(ago/1440)+"d";
+    var item=document.createElement("div");item.className="cd-item";
+    item.innerHTML='<div class="cd-avatar">'+av+'</div><div class="cd-body"><div class="cd-user">@'+(prof.username||"")+'</div><div class="cd-text">'+c.content+'</div><div class="cd-time">'+time+'</div></div>';
+    list.appendChild(item);
+  });
+  list.scrollTop=list.scrollHeight;
+}
+async function postReelComment(){
+  var input=document.getElementById("cdInput");if(!input||!input.value.trim()||!_currentReelId||!window.sb||!window.currentUser)return;
+  var content=input.value.trim();input.value="";
+  await window.sb.from("comments").insert({post_id:_currentReelId,user_id:window.currentUser.id,content:content});
+  loadReelComments(_currentReelId);
+}
+
+// Share sheet
+function openShare(postId){
+  _currentReelId=postId;
+  document.getElementById("drawerOverlay").classList.add("open");
+  document.getElementById("shareSheet").classList.add("open");
+}
+function shareAction(type){
+  var url="https://shadownet-xi.vercel.app/reels.html#"+_currentReelId;
+  if(type==="copy"){navigator.clipboard.writeText(url);if(window.showToast)showToast("Link copiado");}
+  else if(type==="whatsapp")window.open("https://wa.me/?text="+encodeURIComponent("Mira este reel en SHADOWNET "+url));
+  else if(type==="twitter")window.open("https://twitter.com/intent/tweet?url="+encodeURIComponent(url)+"&text="+encodeURIComponent("Mira esto en SHADOWNET"));
+  else if(type==="telegram")window.open("https://t.me/share/url?url="+encodeURIComponent(url));
+  closeDrawers();
+}
+
+function closeDrawers(){
+  document.getElementById("drawerOverlay").classList.remove("open");
+  document.getElementById("commentDrawer").classList.remove("open");
+  document.getElementById("shareSheet").classList.remove("open");
+}
+
+// Hook into renderReel to add enhancements
+(function(){
+  var origRender=window.renderReel;
+  if(!origRender)return;
+  window.renderReel=function(reel){
+    var el=origRender.apply(this,arguments);
+    if(el){
+      var video=el.querySelector("video");
+      if(video)initVideoProgress(video,el);
+      renderSoundBar(reel,el);
+      renderCreatorInfo(reel,el);
+    }
+    return el;
+  };
+})();
+
 </script>
 </body>
 </html>

@@ -1,16 +1,24 @@
 User-agent: *
 Allow: /
 Allow: /index.html
+Allow: /explore.html
+Allow: /reels.html
+Allow: /shop.html
+Allow: /sounds.html
+Allow: /search.html
 Allow: /terms.html
 Allow: /privacy.html
 Allow: /cookies.html
 Allow: /legal18.html
 
-Disallow: /admin/
+Disallow: /admin.html
+Disallow: /settings.html
+Disallow: /messages.html
+Disallow: /stats.html
 Disallow: /api/
 Disallow: /functions/
 
 Sitemap: https://shadownet-xi.vercel.app/sitemap.xml
 
-# SHADOWNET - Adult content platform (+18)
-# Contact: legal@shadownet.app
+# SHADOWNET - Plataforma de creadores (+18)
+# Contacto: info80806@gmail.com

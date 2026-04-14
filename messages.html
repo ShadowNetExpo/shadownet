@@ -316,7 +316,7 @@ sb.auth.getSession().then(function(r){
   currentUser=r.data.session.user;
   sb.from("profiles").select("id,username,avatar_url").eq("id",currentUser.id).single().then(function(p){
     currentProfile=p.data;
-    document.getElementById("mainLayout").style.display="flex";
+    var _mainL=document.getElementById("mainLayout");if(_mainL)_mainL.style.display="flex";
     loadConversations();
     subscribeToNewMessages();
     loadNotes();
@@ -368,14 +368,14 @@ async function openConversation(convId,peerId,peer){
   activeConvId=convId;activePeerId=peerId;activePeerProfile=peer;
   document.querySelectorAll(".conv-item").forEach(function(el){el.classList.remove("active");});
   var el=document.querySelector("[data-conv-id=\""+convId+"\"]");if(el)el.classList.add("active");
-  document.getElementById("emptyChat").style.display="none";
+  var _empty=document.getElementById("emptyChat");if(_empty)_empty.style.display="none";
   var hdr=document.getElementById("activeChatHeader");hdr.style.display="flex";
   var av=document.getElementById("chatAvatar");av.innerHTML="";
   if(peer.avatar_url){var img=document.createElement("img");img.src=peer.avatar_url;av.appendChild(img);}else av.textContent=(peer.username||"?")[0].toUpperCase();
-  document.getElementById("chatUserName").textContent="@"+(peer.username||"usuario");
+  var _chatU=document.getElementById("chatUserName");if(_chatU)_chatU.textContent="@"+(peer.username||"usuario");
   document.getElementById("chatUserName").dataset.username=peer.username||"";
-  document.getElementById("chatMsgsArea").style.display="flex";
-  document.getElementById("chatInputArea").style.display="flex";
+  var _chatM=document.getElementById("chatMsgsArea");if(_chatM)_chatM.style.display="flex";
+  var _chatI=document.getElementById("chatInputArea");if(_chatI)_chatI.style.display="flex";
   await loadMessages(convId);
   subscribeToMessages(convId);
   // Mark as read
@@ -473,9 +473,9 @@ async function openChatWith(username){
 }
 
 function openNewChat(){
-  document.getElementById("newChatModal").classList.add("open");
-  document.getElementById("searchUserInp").value="";
-  document.getElementById("searchResults").innerHTML="";
+  var _newCh=document.getElementById("newChatModal");if(_newCh)_newCh.classList.add("open");
+  var _searc=document.getElementById("searchUserInp");if(_searc)_searc.value="";
+  var _searc=document.getElementById("searchResults");if(_searc)_searc.innerHTML="";
   setTimeout(function(){document.getElementById("searchUserInp").focus();},100);
 }
 
@@ -493,7 +493,7 @@ document.getElementById("searchUserInp").addEventListener("input",function(){
       var nm=document.createElement("span");nm.style.cssText="font-weight:700;font-size:13px";nm.textContent="@"+u.username;
       item.appendChild(av);item.appendChild(nm);
       item.addEventListener("click",function(){
-        document.getElementById("newChatModal").classList.remove("open");
+        var _newCh=document.getElementById("newChatModal");if(_newCh)_newCh.classList.remove("open");
         openChatWith(u.username);
       });
       res.appendChild(item);
@@ -554,7 +554,7 @@ function openNoteModal(){
     var inp=document.getElementById("noteInp");
     if(inp){inp.value=r.data&&r.data.note_text?r.data.note_text:"";updateNoteCount();}
   });
-  document.getElementById("noteModal").classList.add("open");
+  var _noteM=document.getElementById("noteModal");if(_noteM)_noteM.classList.add("open");
 }
 
 function updateNoteCount(){
@@ -568,7 +568,7 @@ async function saveMyNote(){
   var text=(document.getElementById("noteInp").value||"").trim();
   var expires=new Date(Date.now()+24*60*60*1000).toISOString();
   await sb.from("profiles").update({note_text:text||null,note_expires_at:text?expires:null}).eq("id",currentUser.id);
-  document.getElementById("noteModal").classList.remove("open");
+  var _noteM=document.getElementById("noteModal");if(_noteM)_noteM.classList.remove("open");
   var nb=document.getElementById("myNoteBubble");
   if(nb){nb.textContent=text;nb.style.display=text?"block":"none";}
   showToast(text?"\u2713 Nota compartida (24h)":"Nota eliminada");
@@ -577,8 +577,8 @@ async function saveMyNote(){
 
 async function clearMyNote(){
   await sb.from("profiles").update({note_text:null,note_expires_at:null}).eq("id",currentUser&&currentUser.id);
-  document.getElementById("noteInp").value="";
-  document.getElementById("noteModal").classList.remove("open");
+  var _noteI=document.getElementById("noteInp");if(_noteI)_noteI.value="";
+  var _noteM=document.getElementById("noteModal");if(_noteM)_noteM.classList.remove("open");
   var nb=document.getElementById("myNoteBubble");
   if(nb){nb.textContent="";nb.style.display="none";}
   showToast("Nota eliminada");
@@ -604,7 +604,7 @@ async function loadMessageRequests(){
 }
 
 function openRequestsPanel(){
-  document.getElementById("requestsPanel").classList.add("open");
+  var _reque=document.getElementById("requestsPanel");if(_reque)_reque.classList.add("open");
   renderRequests();
 }
 
@@ -667,11 +667,11 @@ async function openMassMessage(){
   var r=await sb.from("subscriptions").select("*",{count:"exact",head:true}).eq("creator_id",currentUser.id).eq("status","active");
   var cnt=r.count||0;
   document.getElementById("massRecipients").textContent="\uD83D\uDC65 "+cnt+" suscriptor"+(cnt!==1?"es":"")+" recibiran este mensaje";
-  document.getElementById("massMsgText").value="";
+  var _massM=document.getElementById("massMsgText");if(_massM)_massM.value="";
   document.getElementById("massPPVCheck").checked=false;
-  document.getElementById("massPPVPrice").classList.remove("show");
-  document.getElementById("massPPVPrice").value="";
-  document.getElementById("massModal").classList.add("open");
+  var _massP=document.getElementById("massPPVPrice");if(_massP)_massP.classList.remove("show");
+  var _massP=document.getElementById("massPPVPrice");if(_massP)_massP.value="";
+  var _massM=document.getElementById("massModal");if(_massM)_massM.classList.add("open");
 }
 
 async function sendMassMessage(){
@@ -702,7 +702,7 @@ async function sendMassMessage(){
       sent++;
     }
   }
-  document.getElementById("massModal").classList.remove("open");
+  var _massM=document.getElementById("massModal");if(_massM)_massM.classList.remove("open");
   showToast("\uD83D\uDCE8 Mensaje enviado a "+sent+" suscriptores!");
 }
 

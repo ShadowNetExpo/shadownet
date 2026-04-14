@@ -265,14 +265,14 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       <button class="save-btn" onclick="saveCreatorSettings()">&#10003; Guardar configuraci&#243;n</button>
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid #0d2744">
         <div class="section-title" style="margin-bottom:12px"> PAGOS  CCBill — Pagos automticos</div>
-        <div id="stripeStatusBox" class="payment-status-box none">CCBill pendiente de configuracion. Solicita tu cuenta en ccbill.com</div>
+        <div id="stripeStatusBox" class="payment-status-box none">CCBill pendiente de configuración. Solicita tu cuenta en ccbill.com</div>
         <button class="outline-btn" id="stripeConnectBtn" onclick="window.open("https://www.ccbill.com/contact","_blank")" style="margin-top:0"> Solicitar cuenta CCBill</button>
         <button class="withdraw-btn" id="withdrawBtn" onclick="requestWithdraw()" disabled> Solicitar retiro</button>
       </div>
     </div>
 </div>
 
-  <!-- VERIFICACION KYC -->
+  <!-- verificación KYC -->
 
 <div class="section" style="margin-top:16px"><div class="section-head"><span class="section-icon">&#128274;</span><span class="section-title">PRIVACIDAD</span></div><div class="section-body"><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0d2744"><div><div style="font-size:14px;color:#e8f4ff;font-weight:700">Cuenta privada</div><div style="font-size:11px;color:#5a8aaa;margin-top:2px">Solo tus seguidores aprobados pueden ver tu contenido</div></div><button class="toggle" id="privateToggle" onclick="togglePrivate()" style="flex-shrink:0"></button></div><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0d2744"><div><div style="font-size:14px;color:#e8f4ff;font-weight:700">Ocultar actividad</div><div style="font-size:11px;color:#5a8aaa;margin-top:2px">No mostrar cuando estás en línea</div></div><button class="toggle" id="hideActivityToggle" onclick="toggleHideActivity()"></button></div><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0"><div><div style="font-size:14px;color:#e8f4ff;font-weight:700">Permitir mensajes de desconocidos</div><div style="font-size:11px;color:#5a8aaa;margin-top:2px">Recibir DMs de personas que no sigues</div></div><button class="toggle active" id="dmToggle" onclick="toggleDM()"></button></div></div></div>
 <div class="section" id="becomeCreatorSection" style="margin-top:16px">

@@ -3276,7 +3276,7 @@ function showStory(){
   _storyTimer=setTimeout(nextStory,5000);
   // Track view
   if(window.currentUser&&story.user_id!==window.currentUser.id){
-    sb.from('story_views').upsert({story_id:story.id,viewer_id:window.currentUser.id},{onConflict:'story_id,viewer_id'}).then(function(){});
+    sb.from('story_views').upsert({story_id:story.id,user_id:window.currentUser.id},{onConflict:'story_id,user_id'}).then(function(){});
   }
 }
 

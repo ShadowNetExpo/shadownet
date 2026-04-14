@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SHADOWNET â Sounds</title>
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--sn-abyss:#070f1e;--sn-surface:rgba(13,27,44,.6);--sn-border:#0d2744;--sn-text:#e8f4ff;--sn-text-mid:#8a9bb0;--sn-text-dim:#5a8aaa;--sn-fire:#ff2255;--sn-ice:#00e5ff}
+body{background:var(--sn-abyss);color:var(--sn-text);font-family:Rajdhani,sans-serif;min-height:100vh;padding-bottom:70px}
+a{text-decoration:none;color:inherit}
+.sn-header{position:sticky;top:0;z-index:100;background:rgba(7,15,30,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--sn-border);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.header-back{background:none;border:none;color:var(--sn-text-dim);font-size:18px;cursor:pointer;padding:4px}
+.sn-header-logo{font-family:Orbitron,monospace;font-size:14px;font-weight:900;color:var(--sn-fire);letter-spacing:.08em}
+.genre-tabs{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.genre-tabs::-webkit-scrollbar{display:none}
+.genre-tab{padding:6px 14px;border-radius:16px;border:1px solid var(--sn-border);font-size:12px;font-weight:700;color:var(--sn-text-dim);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.genre-tab.active{background:var(--sn-fire);border-color:var(--sn-fire);color:#fff}
+.genre-tab:hover{border-color:var(--sn-fire);color:var(--sn-fire)}
+.section-title{font-family:Orbitron,monospace;font-size:12px;letter-spacing:.1em;color:var(--sn-text-dim);text-transform:uppercase;padding:16px 16px 8px}
+.sound-list{padding:0 16px}
+.sound-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(13,39,68,.3);cursor:pointer;animation:soundIn .3s ease both}
+.sound-item:nth-child(1){animation-delay:.05s}
+.sound-item:nth-child(2){animation-delay:.1s}
+.sound-item:nth-child(3){animation-delay:.15s}
+@keyframes soundIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.sound-play{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--sn-fire),#800011);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:transform .2s}
+.sound-play:active{transform:scale(.9)}
+.sound-play.playing{animation:playPulse 1s ease infinite}
+@keyframes playPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,34,85,.3)}50%{box-shadow:0 0 12px 4px rgba(255,34,85,.15)}}
+.sound-info{flex:1;min-width:0}
+.sound-name{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sound-artist{font-size:12px;color:var(--sn-text-dim)}
+.sound-meta{display:flex;gap:12px;margin-top:2px;font-size:11px;color:var(--sn-text-dim)}
+.sound-trending{color:var(--sn-fire);font-weight:700}
+.sound-use-btn{padding:6px 14px;background:transparent;border:1px solid var(--sn-border);color:var(--sn-text-mid);border-radius:16px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;flex-shrink:0}
+.sound-use-btn:hover{border-color:var(--sn-fire);color:var(--sn-fire)}
+.sound-empty{text-align:center;padding:60px 20px}
+.audio-player{position:fixed;bottom:60px;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid var(--sn-border);padding:8px 16px;display:none;align-items:center;gap:10px;z-index:90;backdrop-filter:blur(12px)}
+.audio-player.active{display:flex}
+.ap-info{flex:1;min-width:0}
+.ap-name{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ap-artist{font-size:10px;color:var(--sn-text-dim)}
+.ap-btn{background:none;border:none;color:var(--sn-text);font-size:18px;cursor:pointer}
+.ap-progress{position:absolute;top:-2px;left:0;right:0;height:2px;background:rgba(255,255,255,.1)}
+.ap-progress-fill{height:100%;background:var(--sn-fire);width:0;transition:width .2s}
+.sn-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(7,15,30,.92);backdrop-filter:blur(16px);border-top:1px solid var(--sn-border);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+.sn-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--sn-text-dim);font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:all .2s}
+.sn-nav-item.active{position:relative;color:var(--sn-fire)}
+.sn-nav-item.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--sn-fire);box-shadow:0 0 8px rgba(255,34,85,.5)}
+.sn-nav-icon{font-size:20px}
+.sn-nav-create{width:46px;height:28px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.sn-nav-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid var(--sn-border);color:#fff;font-weight:800}
+.sn-nav-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+</style>
+</head>
+<body>
+<header class="sn-header">
+  <button class="header-back" onclick="history.back()">&#8592;</button>
+  <span class="sn-header-logo">&#127925; SOUNDS</span>
+</header>
+<div class="genre-tabs">
+  <div class="genre-tab active" onclick="filterGenre('all',this)">Todos</div>
+  <div class="genre-tab" onclick="filterGenre('trending',this)">&#128293; Trending</div>
+  <div class="genre-tab" onclick="filterGenre('reggaeton',this)">ReggaetÃ³n</div>
+  <div class="genre-tab" onclick="filterGenre('pop',this)">Pop</div>
+  <div class="genre-tab" onclick="filterGenre('trap',this)">Trap</div>
+  <div class="genre-tab" onclick="filterGenre('electronic',this)">ElectrÃ³nica</div>
+  <div class="genre-tab" onclick="filterGenre('latin',this)">Latin</div>
+  <div class="genre-tab" onclick="filterGenre('original',this)">Originales</div>
+</div>
+<div class="section-title" id="sectionTitle">&#128293; Trending Sounds</div>
+<div class="sound-list" id="soundList"></div>
+<div class="audio-player" id="audioPlayer">
+  <div class="ap-progress"><div class="ap-progress-fill" id="apFill"></div></div>
+  <div class="ap-info"><div class="ap-name" id="apName">-</div><div class="ap-artist" id="apArtist">-</div></div>
+  <div style="display:flex;gap:8px">
+    <button class="ap-btn" id="apPlayBtn" onclick="togglePlay()">&#9654;</button>
+    <button class="ap-btn" onclick="stopAudio()">&#9632;</button>
+  </div>
+</div>
+<nav class="sn-nav">
+  <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
+  <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">&#128269;</span>Explorar</a>
+  <a class="sn-nav-item" href="/editor.html"><span class="sn-nav-create">&#43;</span></a>
+  <a class="sn-nav-item" href="/reels.html"><span class="sn-nav-icon">&#9654;</span>Reels</a>
+  <a class="sn-nav-item" href="/profile.html"><div class="sn-nav-avatar" id="snNavAv">&#128100;</div>Perfil</a>
+</nav>
+<audio id="audioEl" preload="none"></audio>
+<script>
+var SB_URL="https://cdokplvoqivducsqrejt.supabase.co";
+var SB_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb=supabase.createClient(SB_URL,SB_KEY);window.sb=sb;
+var currentGenre="all",currentAudioId=null,isPlaying=false;
+sb.auth.getSession().then(function(r){
+  if(!r.data||!r.data.session){location.href="/";return;}
+  window.currentUser=r.data.session.user;
+  loadSounds();
+});
+async function loadSounds(){
+  var query;
+  if(currentGenre==="trending")query=sb.from("sounds").select("*").eq("is_trending",true).order("uses_count",{ascending:false}).limit(40);
+  else if(currentGenre==="original")query=sb.from("sounds").select("*").eq("is_original",true).order("created_at",{ascending:false}).limit(40);
+  else if(currentGenre==="all")query=sb.from("sounds").select("*").order("uses_count",{ascending:false}).limit(40);
+  else query=sb.from("sounds").select("*").eq("genre",currentGenre).order("uses_count",{ascending:false}).limit(40);
+  var r=await query;
+  var list=document.getElementById("soundList");
+  if(!r.data||!r.data.length){list.innerHTML='<div class="sound-empty"><div style="font-size:48px;opacity:.3;margin-bottom:12px">&#127925;</div><div style="color:#5a8aaa">No hay sonidos en esta categorÃ­a aÃºn</div></div>';return;}
+  list.innerHTML="";
+  r.data.forEach(function(s){
+    var item=document.createElement("div");item.className="sound-item";
+    var dur=s.duration_ms?Math.floor(s.duration_ms/1000):0;
+    var durStr=dur?(Math.floor(dur/60)+":"+String(dur%60).padStart(2,"0")):"";
+    var playDiv=document.createElement("div");playDiv.className="sound-play";playDiv.innerHTML='<span>&#9654;</span>';
+    playDiv.onclick=function(){playSound(s.id,s.audio_url,s.name,s.artist,playDiv);};
+    var info=document.createElement("div");info.className="sound-info";
+    info.innerHTML='<div class="sound-name">'+s.name+'</div><div class="sound-artist">'+(s.artist||"Creador original")+'</div><div class="sound-meta">'+(s.is_trending?'<span class="sound-trending">&#128293; Trending</span>':'')+'<span>'+s.uses_count+' usos</span>'+(durStr?'<span>'+durStr+'</span>':'')+'</div>';
+    var useBtn=document.createElement("button");useBtn.className="sound-use-btn";useBtn.textContent="Usar";
+    useBtn.onclick=function(){location.href="/editor.html?sound="+s.id;};
+    item.appendChild(playDiv);item.appendChild(info);item.appendChild(useBtn);
+    list.appendChild(item);
+  });
+}
+function filterGenre(g,el){
+  currentGenre=g;
+  document.querySelectorAll(".genre-tab").forEach(function(t){t.classList.remove("active");});
+  if(el)el.classList.add("active");
+  var title=document.getElementById("sectionTitle");
+  if(g==="all")title.innerHTML="&#128293; Todos los Sounds";
+  else if(g==="trending")title.innerHTML="&#128293; Trending Sounds";
+  else if(g==="original")title.innerHTML="&#127908; Sonidos Originales";
+  else title.innerHTML="&#127925; "+g.charAt(0).toUpperCase()+g.slice(1);
+  loadSounds();
+}
+function playSound(id,url,name,artist,btn){
+  var audio=document.getElementById("audioEl");
+  var player=document.getElementById("audioPlayer");
+  if(currentAudioId===id&&isPlaying){audio.pause();isPlaying=false;player.classList.remove("active");document.querySelectorAll(".sound-play").forEach(function(b){b.classList.remove("playing");});return;}
+  audio.src=url;audio.play().catch(function(){});currentAudioId=id;isPlaying=true;
+  player.classList.add("active");
+  document.getElementById("apName").textContent=name;
+  document.getElementById("apArtist").textContent=artist||"Original";
+  document.getElementById("apPlayBtn").innerHTML="&#9646;&#9646;";
+  document.querySelectorAll(".sound-play").forEach(function(b){b.classList.remove("playing");});
+  if(btn)btn.classList.add("playing");
+  audio.ontimeupdate=function(){var fill=document.getElementById("apFill");if(audio.duration)fill.style.width=(audio.currentTime/audio.duration*100)+"%";};
+  audio.onended=function(){isPlaying=false;player.classList.remove("active");document.querySelectorAll(".sound-play").forEach(function(b){b.classList.remove("playing");});document.getElementById("apPlayBtn").innerHTML="&#9654;";};
+}
+function togglePlay(){var a=document.getElementById("audioEl");if(isPlaying){a.pause();isPlaying=false;document.getElementById("apPlayBtn").innerHTML="&#9654;";}else{a.play();isPlaying=true;document.getElementById("apPlayBtn").innerHTML="&#9646;&#9646;";}}
+function stopAudio(){var a=document.getElementById("audioEl");a.pause();a.currentTime=0;isPlaying=false;currentAudioId=null;document.getElementById("audioPlayer").classList.remove("active");document.querySelectorAll(".sound-play").forEach(function(b){b.classList.remove("playing");});document.getElementById("apPlayBtn").innerHTML="&#9654;";}
+</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").catch(function(){});}</script>
+</body>
+</html>

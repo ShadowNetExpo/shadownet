@@ -439,7 +439,7 @@ function renderProfile(p){
     nameEl.appendChild(rt);
   }
 
-  document.getElementById("profileBio").textContent=p.bio||"";
+  var _profi=document.getElementById("profileBio");if(_profi)_profi.textContent=p.bio||"";
 
   var rankEl=document.getElementById("profileRankBadge");
   rankEl.innerHTML="";
@@ -448,10 +448,10 @@ function renderProfile(p){
     rb.textContent="\u2B50 "+(p.fan_rank_name||"Sombra")+" Lv."+(p.fan_rank||1)+" \u2022 "+(p.fan_points||0)+" pts";
     rb.addEventListener("click",function(){window.location.href="/leaderboard.html";});
     rankEl.appendChild(rb);
-  }  document.getElementById("statFollowers").textContent=p.followers_count||0;
-  document.getElementById("statFollowing").textContent=p.following_count||0;
-  document.getElementById("statSubs").textContent=p.subscribers_count||0;
-  document.getElementById("statPosts").textContent=p.posts_count||0;
+  }  var _statF=document.getElementById("statFollowers");if(_statF)_statF.textContent=p.followers_count||0;
+  var _statF=document.getElementById("statFollowing");if(_statF)_statF.textContent=p.following_count||0;
+  var _statS=document.getElementById("statSubs");if(_statS)_statS.textContent=p.subscribers_count||0;
+  var _statP=document.getElementById("statPosts");if(_statP)_statP.textContent=p.posts_count||0;
   if(p.fan_rank) document.getElementById("statRank").textContent="Lv."+(p.fan_rank||1);
 
   var actions=document.getElementById("profileActions");
@@ -744,24 +744,24 @@ var _postFile = null;
 function openNewPost(){
   _postFile = null;
   _postType = 'image';
-  document.getElementById('postCaption').value = '';
-  document.getElementById('captionCount').textContent = '0';
-  document.getElementById('postFileInput').value = '';
-  document.getElementById('postImgPreview').style.display = 'none';
-  document.getElementById('postVidPreview').style.display = 'none';
-  document.getElementById('postMediaPlaceholder').style.display = 'block';
-  document.getElementById('postProgress').style.display = 'none';
-  document.getElementById('postProgressFill').style.width = '0';
-  document.getElementById('postMsg').style.display = 'none';
+  var _postC=document.getElementById("postCaption");if(_postC)_postC.value = '';
+  var _capti=document.getElementById("captionCount");if(_capti)_capti.textContent = '0';
+  var _postF=document.getElementById("postFileInput");if(_postF)_postF.value = '';
+  var _postI=document.getElementById("postImgPreview");if(_postI)_postI.style.display = 'none';
+  var _postV=document.getElementById("postVidPreview");if(_postV)_postV.style.display = 'none';
+  var _postM=document.getElementById("postMediaPlaceholder");if(_postM)_postM.style.display = 'block';
+  var _postP=document.getElementById("postProgress");if(_postP)_postP.style.display = 'none';
+  var _postP=document.getElementById("postProgressFill");if(_postP)_postP.style.width = '0';
+  var _postM=document.getElementById("postMsg");if(_postM)_postM.style.display = 'none';
   document.getElementById('postSubmitBtn').disabled = false;
-  document.getElementById('postSubmitBtn').textContent = '\uD83D\uDE80 Publicar';
+  var _postS=document.getElementById("postSubmitBtn");if(_postS)_postS.textContent = '\uD83D\uDE80 Publicar';
   document.getElementById('postFileInput').accept = 'image/*,video/*';
   selectPostType('image');
-  document.getElementById('newPostModal').classList.add('open');
+  var _newPo=document.getElementById("newPostModal");if(_newPo)_newPo.classList.add('open');
 }
 
 function closeNewPost(){
-  document.getElementById('newPostModal').classList.remove('open');
+  var _newPo=document.getElementById("newPostModal");if(_newPo)_newPo.classList.remove('open');
   _postFile = null;
 }
 
@@ -792,7 +792,7 @@ function postFileSelected(){
   var isVideo = file.type.startsWith('video/');
   var img = document.getElementById('postImgPreview');
   var vid = document.getElementById('postVidPreview');
-  document.getElementById('postMediaPlaceholder').style.display = 'none';
+  var _postM=document.getElementById("postMediaPlaceholder");if(_postM)_postM.style.display = 'none';
   if(isVideo){
     _postType = 'video';
     selectPostType('video');
@@ -812,7 +812,7 @@ function postFileSelected(){
 // Caption counter
 document.addEventListener('DOMContentLoaded', function(){
   var cap = document.getElementById('postCaption');
-  if(cap) cap.addEventListener('input', function(){ document.getElementById('captionCount').textContent = this.value.length; });
+  if(cap) cap.addEventListener('input', function(){ var _capti=document.getElementById("captionCount");if(_capti)_capti.textContent = this.value.length; });
 });
 
 async function submitPost(){
@@ -984,7 +984,7 @@ function doLogout(){
     <div style="font-size:11px;color:#5a8aaa;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Selecciona historias para incluir</div>
     <div class="highlight-stories-grid" id="hlStoriesGrid"></div>
     <button class="highlight-save-btn" id="hlSaveBtn" onclick="saveHighlight()"> Crear Destacada</button>
-    <button class="highlight-cancel-btn" onclick="document.getElementById('highlightModal').classList.remove('open')">Cancelar</button>
+    <button class="highlight-cancel-btn" onclick="var _highl=document.getElementById("highlightModal");if(_highl)_highl.classList.remove('open')">Cancelar</button>
   </div>
 </div>
 
@@ -1509,6 +1509,6 @@ async function pinPost(postId){
   }
 }
 </script>
-<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";</script>
+<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))var _snCoo=document.getElementById("snCookieBanner");if(_snCoo)_snCoo.style.display="block";</script>
 </body>
 </html>

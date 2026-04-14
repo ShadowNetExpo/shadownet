@@ -511,6 +511,44 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 @media(max-width:768px){
   .sn-feed-tabs{display:none!important}
 }
+
+/* === ENHANCED BOTTOM NAV === */
+/* Glass morphism background */
+.pg-bottom-nav,.sn-nav{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;background:rgba(7,15,30,.92)!important}
+
+/* Active indicator - dot under active item */
+.pg-bn-item.active,.sn-nav-item.active{position:relative;color:#ff2255!important}
+.pg-bn-item.active::after,.sn-nav-item.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#ff2255;box-shadow:0 0 8px rgba(255,34,85,.5)}
+
+/* Tap/hover effects */
+.pg-bn-item,.sn-nav-item{transition:all .2s;-webkit-tap-highlight-color:transparent}
+.pg-bn-item:hover,.sn-nav-item:hover{color:#c8d8e8!important}
+.pg-bn-item:active,.sn-nav-item:active{transform:scale(.9)}
+
+/* Create button - enhanced */
+.pg-bn-plus-inner,.sn-nav-create{transition:all .3s;box-shadow:0 2px 12px rgba(255,34,85,.3)}
+.pg-bn-plus-inner:hover,.sn-nav-create:hover{transform:scale(1.1);box-shadow:0 4px 20px rgba(255,34,85,.4)}
+.pg-bn-plus-inner:active,.sn-nav-create:active{transform:scale(.95)}
+
+/* Avatar ring - gradient border for active */
+.pg-bn-avatar,.sn-nav-avatar{transition:all .2s}
+.pg-bn-item.active .pg-bn-avatar,.sn-nav-item.active .sn-nav-avatar{border-color:#ff2255!important;box-shadow:0 0 8px rgba(255,34,85,.3)}
+
+/* Icon bounce on tap */
+@keyframes navBounce{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.pg-bn-item:active .pg-bn-icon,.sn-nav-item:active .sn-nav-icon{animation:navBounce .3s ease}
+
+/* === ENHANCED HEADER === */
+.sn-header{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+
+/* Header icons - better hover */
+.sn-header-actions button,.sn-header-actions a{transition:all .2s}
+.sn-header-actions button:hover,.sn-header-actions a:hover{transform:scale(1.1)}
+.sn-header-actions button:active,.sn-header-actions a:active{transform:scale(.9)}
+
+/* === TOAST NOTIFICATIONS - better style === */
+.sn-toast{backdrop-filter:blur(12px);animation:toastIn .4s cubic-bezier(.68,-.55,.265,1.55) both}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 </style>
 </head>
 <body>

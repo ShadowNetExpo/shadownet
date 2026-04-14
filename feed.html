@@ -628,7 +628,7 @@ sb.auth.getSession().then(function(r) {
 });
 sb.auth.onAuthStateChange(function(e, s) {
   if (e === "SIGNED_IN" && s) initUser(s.user);
-  if (e === "SIGNED_OUT") { currentUser = null; document.getElementById("postBox").style.display = "none"; document.getElementById("logoutNavBtn").style.display = "none"; }
+  if (e === "SIGNED_OUT") { currentUser = null; var _pb=document.getElementById("postBox");if(_pb)_pb.style.display="none";var _lb=document.getElementById("logoutNavBtn");if(_lb)_lb.style.display="none"; }
 });
 
 async function initUser(u) {
@@ -1093,8 +1093,8 @@ async function submitPost() {
     if (r.error) throw new Error(r.error.message);
     document.getElementById("postText").value = "";
     mediaFile = null;
-    document.getElementById("mediaPreview").style.display = "none";
-    document.getElementById("mediaInput").value = "";
+    var _mp=document.getElementById("mediaPreview");if(_mp)_mp.style.display="none";
+    var _mi=document.getElementById("mediaInput");if(_mi)_mi.value="";
     showToast("\u2713 Publicado!");
     loadFeed(curTab);
   } catch(e) {
@@ -1425,7 +1425,7 @@ function openEditPost(postId){
   var currentText = card ? (card.querySelector('.card-text')?.textContent || '') : '';
   var inp = document.getElementById('editPostInp');
   if(inp) inp.value = currentText;
-  document.getElementById('editPostModal').classList.add('open');
+  var _epm=document.getElementById('editPostModal');if(_epm)_epm.classList.add('open');
   if(inp) setTimeout(function(){ inp.focus(); }, 100);
 }
 
@@ -2094,7 +2094,7 @@ async function loadNotifications(){
   var notifs = r.data || [];
   // Mark as read
   if(notifs.length) {
-    document.getElementById('notifDot').style.display='none';
+    var _nd=document.getElementById('notifDot');if(_nd)_nd.style.display='none';
     window.sb.from('notifications').update({read:true}).eq('user_id',window.currentUser.id).eq('read',false).then(()=>{});
   }
   if(!notifs.length){ list.innerHTML='<div style="text-align:center;padding:40px;color:#5a8aaa;font-size:13px">Sin notificaciones</div>'; return; }

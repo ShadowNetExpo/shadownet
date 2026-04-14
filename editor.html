@@ -99,6 +99,43 @@ input[type=file]{display:none}
 .poll-remove{background:none;border:none;color:#ff2255;font-size:16px;cursor:pointer;padding:4px}
 .poll-add{background:none;border:1px dashed #0d2744;border-radius:8px;padding:6px;text-align:center;color:#5a8aaa;font-size:12px;cursor:pointer;transition:border-color .15s}
 .poll-add:hover{border-color:#ff2255;color:#ff2255}
+
+/* === EDITOR UI ENHANCEMENTS === */
+/* Upload zone - better drag hover */
+.upload-zone{transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+.upload-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,34,85,.06),transparent);opacity:0;transition:opacity .3s}
+.upload-zone:hover{border-color:rgba(255,34,85,.4)!important;transform:scale(1.01)}
+.upload-zone:hover::before{opacity:1}
+.upload-zone.dragover{border-color:#ff2255!important;background:rgba(255,34,85,.05)!important;transform:scale(1.02)}
+
+/* Tool sections - sleek cards */
+.tool-section{transition:all .2s;border-radius:10px;overflow:hidden}
+.tool-section:hover{background:rgba(255,255,255,.02)}
+
+/* Tool labels - better typography */
+.tool-label{font-family:Orbitron,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#5a8aaa;transition:color .2s}
+.tool-section:hover .tool-label{color:#c8d8e8}
+
+/* Range sliders - custom style */
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;background:linear-gradient(90deg,#ff2255,#0d2744);border-radius:4px;outline:none}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#ff2255;cursor:pointer;box-shadow:0 0 8px rgba(255,34,85,.4);transition:transform .2s}
+input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+
+/* Toggle rows - interactive */
+.toggle-row{transition:background .2s;padding:8px;border-radius:8px}
+.toggle-row:hover{background:rgba(255,255,255,.02)}
+
+/* Publish button - glow pulse */
+.publish-btn{position:relative;overflow:hidden;animation:pubPulse 2.5s ease infinite}
+@keyframes pubPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,34,85,.2)}50%{box-shadow:0 0 24px 4px rgba(255,34,85,.1)}}
+.publish-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,.05),transparent);transform:rotate(45deg);transition:left .5s}
+.publish-btn:hover::after{left:100%}
+
+/* Preview area - cinematic frame */
+.preview-container,.video-preview{border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+
+/* Trim slider values */
+.trim-val{font-family:Orbitron,monospace;font-size:11px;color:#00e5ff}
 </style>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff2255">

@@ -814,6 +814,13 @@ document.addEventListener("DOMContentLoaded",function(){
 .gift-item{transition:all .2s}
 .gift-item:hover{transform:scale(1.1);z-index:2}
 .gift-item:active{transform:scale(.95)}
+
+/* NAV POLISH */
+.sn-nav,.sn-bottom-nav{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;background:rgba(7,15,30,.92)!important}
+.sn-nav-item.active,.sn-bn-item.active{position:relative;color:#ff2255!important}
+.sn-nav-item.active::after,.sn-bn-item.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#ff2255;box-shadow:0 0 8px rgba(255,34,85,.5)}
+.sn-nav-item,.sn-bn-item{transition:all .2s}
+.sn-nav-item:active,.sn-bn-item:active{transform:scale(.9)}
 </style>
 
 <nav class="sn-bottom-nav" id="snBottomNav">

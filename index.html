@@ -349,6 +349,51 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
 function acceptCookies(){localStorage.setItem("sn_cookies","all");document.getElementById("snCookieBanner").style.display="none";}
 function denyCookies(){localStorage.setItem("sn_cookies","essential");document.getElementById("snCookieBanner").style.display="none";}
 if(!localStorage.getItem("sn_cookies")){document.getElementById("snCookieBanner").style.display="block";}
+
+// === REFERRAL TRACKING ===
+var _refCode=new URLSearchParams(location.search).get("ref")||"";
+if(_refCode){
+  // Store in session for after signup
+  sessionStorage.setItem("sn_ref",_refCode);
+  // Show referral badge on landing
+  var badge=document.querySelector(".hero-badge");
+  if(badge)badge.innerHTML="&#127873; Invitado por un creador";
+}
+// After signup - record referral
+async function processReferral(newUserId){
+  var code=sessionStorage.getItem("sn_ref");
+  if(!code||!newUserId||!window.sb)return;
+  try{
+    // Find referrer by code
+    var r=await sb.from("profiles").select("id").eq("referral_code",code).single();
+    if(!r.data||r.data.id===newUserId)return;
+    var referrerId=r.data.id;
+    // Record referral
+    await sb.from("referrals").insert({referrer_id:referrerId,referred_id:newUserId,bonus_paid:false});
+    // Update referred user profile
+    await sb.from("profiles").update({referred_by:referrerId}).eq("id",newUserId);
+    // Increment referrer count
+    await sb.rpc("increment_referral_count",{p_user_id:referrerId});
+    // Award bonus: 50 Almas to referrer, 25 to new user
+    await sb.rpc("add_referral_bonus",{p_referrer_id:referrerId,p_referred_id:newUserId});
+    sessionStorage.removeItem("sn_ref");
+  }catch(e){console.warn("Referral tracking:",e);}
+}
+// Hook into signup success
+(function(){
+  var origSubmit=window.submitAuth;
+  if(!origSubmit)return;
+  window.submitAuth=async function(){
+    var wasSignup=window._authMode==="signup";
+    await origSubmit.apply(this,arguments);
+    // After signup, check if user was created
+    if(wasSignup&&window.sb){
+      var s=await sb.auth.getSession();
+      if(s.data&&s.data.session){processReferral(s.data.session.user.id);}
+    }
+  };
+})();
+
 </script>
 </body>
 </html>

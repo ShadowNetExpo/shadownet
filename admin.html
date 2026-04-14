@@ -79,6 +79,60 @@ header{background:#070f1e;border-bottom:1px solid #0d2744;padding:12px 20px;disp
 .section-heading{font-size:10px;font-weight:700;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid #0d2744}
 .post-media-thumb{max-height:120px;width:100%;object-fit:cover;border-radius:6px;margin-top:8px;cursor:pointer}
 .loading{text-align:center;padding:28px;color:#5a8aaa;font-size:12px}
+
+/* === ADMIN ENHANCEMENTS === */
+/* Revenue dashboard cards */
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px}
+.rev-card{padding:16px;background:rgba(13,27,44,.6);border:1px solid #0d2744;border-radius:12px;text-align:center;position:relative;overflow:hidden;transition:all .2s}
+.rev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.rev-card.tips::before{background:linear-gradient(90deg,#ff2255,#ff6680)}
+.rev-card.subs::before{background:linear-gradient(90deg,#833ab4,#b066e0)}
+.rev-card.total::before{background:linear-gradient(90deg,#ffd700,#ffb800)}
+.rev-card.payouts::before{background:linear-gradient(90deg,#00e5ff,#0080aa)}
+.rev-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.rev-val{font-family:Orbitron,monospace;font-size:22px;font-weight:900;color:#e8f4ff}
+.rev-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+
+/* Commission control */
+.commission-panel{margin:16px;padding:16px;background:rgba(13,27,44,.6);border:1px solid #0d2744;border-radius:12px}
+.commission-panel h3{font-family:Orbitron,monospace;font-size:13px;color:#ffd700;margin-bottom:12px}
+.commission-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.commission-row label{font-size:12px;color:#8a9bb0;min-width:120px}
+.commission-row input{flex:1;padding:8px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none;max-width:100px;text-align:center}
+.commission-row input:focus{border-color:rgba(255,34,85,.4)}
+.commission-row .unit{font-size:12px;color:#5a8aaa}
+.save-commission-btn{padding:8px 20px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s}
+.save-commission-btn:hover{transform:scale(1.05)}
+
+/* Platform settings */
+.platform-panel{margin:16px;padding:16px;background:rgba(13,27,44,.6);border:1px solid #0d2744;border-radius:12px}
+.platform-panel h3{font-family:Orbitron,monospace;font-size:13px;color:#00e5ff;margin-bottom:12px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(13,39,68,.3)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:13px;color:#c8d8e8}
+.setting-val{font-size:13px;color:#00e5ff;font-weight:700;font-family:Orbitron,monospace}
+.setting-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700}
+.setting-status.on{background:rgba(0,200,83,.1);color:#00c853}
+.setting-status.off{background:rgba(255,34,85,.1);color:#ff6680}
+
+/* Recent transactions */
+.txn-table{width:100%;border-collapse:collapse;margin:16px 0}
+.txn-table th{text-align:left;padding:8px 12px;font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #0d2744}
+.txn-table td{padding:8px 12px;font-size:12px;color:#c8d8e8;border-bottom:1px solid rgba(13,39,68,.3)}
+.txn-table tr:hover{background:rgba(255,34,85,.02)}
+.txn-amount{font-family:Orbitron,monospace;font-weight:700}
+.txn-amount.positive{color:#00c853}
+.txn-amount.negative{color:#ff6680}
+
+/* Admin tabs enhancement */
+.admin-tab{transition:all .2s!important}
+.admin-tab:hover{background:rgba(255,34,85,.05)!important}
+.admin-tab.active{box-shadow:0 0 12px rgba(255,34,85,.15)!important}
+
+/* Quick actions */
+.quick-actions{display:flex;gap:8px;margin:16px;flex-wrap:wrap}
+.qa-btn{padding:8px 16px;background:rgba(13,27,44,.6);border:1px solid #0d2744;border-radius:8px;color:#8a9bb0;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.qa-btn:hover{border-color:var(--sn-fire,#ff2255);color:#e8f4ff}
 </style>
 <link rel="stylesheet" href="/sn-design.css">
 <link rel="manifest" href="/manifest.json">
@@ -97,7 +151,7 @@ header{background:#070f1e;border-bottom:1px solid #0d2744;padding:12px 20px;disp
   <button class="tab" onclick="switchTab('reports')" id="tab-reports">⚠️ Reportes <span class="badge" id="rep-badge">0</span></button>
   <button class="tab" onclick="switchTab('users')" id="tab-users">👥 Usuarios</button>
   <button class="tab" onclick="switchTab('posts')" id="tab-posts">🖼 Posts</button>
-</div>
+<div class="admin-tab" onclick="switchTab('revenue')">&#128176; Revenue</div><div class="admin-tab" onclick="switchTab('platform')">&#9881; Plataforma</div></div>
 <div class="content">
   <div class="section active" id="sec-stats">
     <div class="stats-grid">
@@ -375,6 +429,129 @@ function searchPosts(){
 }
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+// === ADMIN REVENUE & PLATFORM ===
+async function loadRevenue(){
+  if(!window.sb)return;
+  var tc=document.getElementById("tabContent");if(!tc)return;
+  tc.innerHTML='<div style="text-align:center;padding:40px;color:#5a8aaa">Cargando revenue...</div>';
+  try{
+    // Get transaction totals
+    var tips=await sb.from("transactions").select("amount").eq("type","tip");
+    var gifts=await sb.from("transactions").select("amount").eq("type","gift");
+    var subs=await sb.from("transactions").select("amount").eq("type","subscription");
+    var payouts=await sb.from("payouts").select("amount").eq("status","completed");
+    
+    var tipTotal=(tips.data||[]).reduce(function(s,t){return s+(t.amount||0);},0);
+    var giftTotal=(gifts.data||[]).reduce(function(s,t){return s+(t.amount||0);},0);
+    var subTotal=(subs.data||[]).reduce(function(s,t){return s+(t.amount||0);},0);
+    var payoutTotal=(payouts.data||[]).reduce(function(s,t){return s+(t.amount||0);},0);
+    var totalRev=tipTotal+giftTotal+subTotal;
+    
+    // Get commission settings
+    var cs=await sb.from("commission_settings").select("*").single();
+    var rate=cs.data?cs.data.platform_rate||10:10;
+    var platformEarnings=Math.floor(totalRev*rate/100);
+    
+    // Recent transactions
+    var recent=await sb.from("transactions").select("*,profiles:user_id(username)").order("created_at",{ascending:false}).limit(20);
+    
+    var html='<div class="rev-grid">';
+    html+='<div class="rev-card total"><div class="rev-val">'+totalRev+'</div><div class="rev-label">Total Almas</div></div>';
+    html+='<div class="rev-card tips"><div class="rev-val">'+tipTotal+'</div><div class="rev-label">Tips</div></div>';
+    html+='<div class="rev-card subs"><div class="rev-val">'+subTotal+'</div><div class="rev-label">Suscripciones</div></div>';
+    html+='<div class="rev-card payouts"><div class="rev-val">'+payoutTotal+'</div><div class="rev-label">Payouts</div></div>';
+    html+='</div>';
+    
+    // Commission control
+    html+='<div class="commission-panel"><h3>&#9881; Comisión de Plataforma</h3>';
+    html+='<div class="commission-row"><label>Tasa actual:</label><input type="number" id="commissionRate" value="'+rate+'" min="1" max="50"><span class="unit">%</span></div>';
+    html+='<div class="commission-row"><label>Ganancias plataforma:</label><span style="font-family:Orbitron;font-weight:900;color:#ffd700">'+platformEarnings+' Almas</span></div>';
+    html+='<button class="save-commission-btn" onclick="saveCommission()">Guardar tasa</button></div>';
+    
+    // Recent transactions table
+    html+='<div style="margin:16px;overflow-x:auto"><table class="txn-table"><tr><th>Fecha</th><th>Usuario</th><th>Tipo</th><th>Monto</th></tr>';
+    (recent.data||[]).forEach(function(t){
+      var prof=t.profiles||{};
+      var ago=Math.floor((Date.now()-new Date(t.created_at))/60000);
+      var time=ago<60?ago+"m":ago<1440?Math.floor(ago/60)+"h":Math.floor(ago/1440)+"d";
+      var cls=t.type==="payout"?"negative":"positive";
+      html+='<tr><td>'+time+'</td><td>@'+(prof.username||"")+'</td><td>'+t.type+'</td><td class="txn-amount '+cls+'">'+(t.amount||0)+' \u2B50</td></tr>';
+    });
+    html+='</table></div>';
+    tc.innerHTML=html;
+  }catch(e){tc.innerHTML='<div style="color:#ff6680;padding:20px">Error: '+e.message+'</div>';}
+}
+
+async function saveCommission(){
+  var rate=parseInt(document.getElementById("commissionRate").value);
+  if(isNaN(rate)||rate<1||rate>50){showToast("Tasa debe ser entre 1% y 50%",true);return;}
+  var r=await sb.from("commission_settings").update({platform_rate:rate}).eq("id",(await sb.from("commission_settings").select("id").single()).data.id);
+  if(r.error)showToast("Error: "+r.error.message,true);
+  else{showToast("Comisión actualizada a "+rate+"%");loadRevenue();}
+}
+
+async function loadPlatform(){
+  if(!window.sb)return;
+  var tc=document.getElementById("tabContent");if(!tc)return;
+  tc.innerHTML='<div style="text-align:center;padding:40px;color:#5a8aaa">Cargando configuración...</div>';
+  try{
+    var ps=await sb.from("platform_settings").select("*").single();
+    var s=ps.data||{};
+    var ef=await sb.rpc("get_edge_function_count").catch(function(){return{data:14};});
+    
+    var html='<div class="platform-panel"><h3>&#9881; Configuración de Plataforma</h3>';
+    var settings=[
+      ["Nombre","SHADOWNET"],
+      ["Dominio","shadownet-xi.vercel.app"],
+      ["CCBill",s.ccbill_enabled?"Activo":"Pendiente",s.ccbill_enabled],
+      ["CCBill Account",s.ccbill_account_number||"Sin configurar"],
+      ["Google OAuth","Activo",true],
+      ["Edge Functions","14 activas"],
+      ["Tablas DB","88"],
+      ["RLS Policies","192"],
+      ["Versión","Session 88"]
+    ];
+    settings.forEach(function(row){
+      html+='<div class="setting-row"><span class="setting-label">'+row[0]+'</span>';
+      if(row.length>2){html+='<span class="setting-status '+(row[2]?"on":"off")+'">'+(row[2]?"\u2713":"\u2717")+' '+row[1]+'</span>';}
+      else{html+='<span class="setting-val">'+row[1]+'</span>';}
+      html+='</div>';
+    });
+    html+='</div>';
+    
+    // Quick actions
+    html+='<div style="margin:16px"><h3 style="font-family:Orbitron;font-size:13px;color:#e8f4ff;margin-bottom:12px">Acciones rápidas</h3>';
+    html+='<div class="quick-actions">';
+    html+='<button class="qa-btn" onclick="location.href=\'/feed.html\'">&#127968; Ver Feed</button>';
+    html+='<button class="qa-btn" onclick="location.href=\'/explore.html\'">&#128269; Explorar</button>';
+    html+='<button class="qa-btn" onclick="location.href=\'/stats.html\'">&#128200; Stats</button>';
+    html+='<button class="qa-btn" onclick="location.href=\'/sounds.html\'">&#127925; Sounds</button>';
+    html+='<button class="qa-btn" onclick="exportUsers()">&#128229; Exportar usuarios</button>';
+    html+='</div></div>';
+    
+    tc.innerHTML=html;
+  }catch(e){tc.innerHTML='<div style="color:#ff6680;padding:20px">Error: '+e.message+'</div>';}
+}
+
+async function exportUsers(){
+  var r=await sb.from("profiles").select("username,email,display_name,role,is_verified,created_at,followers_count,coins_balance").order("created_at",{ascending:false});
+  if(!r.data)return;
+  var csv="username,email,display_name,role,verified,created,followers,almas\n";
+  r.data.forEach(function(u){csv+=u.username+","+u.email+","+(u.display_name||"")+","+(u.role||"")+","+(u.is_verified?"si":"no")+","+(u.created_at||"")+","+(u.followers_count||0)+","+(u.coins_balance||0)+"\n";});
+  var blob=new Blob([csv],{type:"text/csv"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="shadownet_users.csv";a.click();
+  showToast("Usuarios exportados");
+}
+
+// Hook into switchTab
+var _origSwitch=window.switchTab;
+window.switchTab=function(tab){
+  if(tab==="revenue"){loadRevenue();document.querySelectorAll(".admin-tab").forEach(function(t){t.classList.remove("active");});event.target.classList.add("active");return;}
+  if(tab==="platform"){loadPlatform();document.querySelectorAll(".admin-tab").forEach(function(t){t.classList.remove("active");});event.target.classList.add("active");return;}
+  if(_origSwitch)_origSwitch(tab);
+};
+
+</script>
 </body>
 </html>

@@ -90,6 +90,45 @@
 .why-card.us .why-val{color:var(--sn-fire)}
 .why-card.others .why-val{color:var(--sn-text-dim)}
 .why-detail{font-size:11px;color:var(--sn-text-dim);margin-top:4px}
+
+/* === AUTH MODAL ENHANCEMENTS === */
+/* Overlay - smooth fade */
+#authOverlay{animation:overlayIn .3s ease both;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+
+/* Modal card - slide up + glass */
+#authOverlay > div{animation:modalSlide .4s cubic-bezier(.4,0,.2,1) both;box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(255,34,85,.1)!important}
+@keyframes modalSlide{from{opacity:0;transform:translateY(40px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* Input fields - focus glow */
+#authOverlay input{transition:all .2s!important}
+#authOverlay input:focus{border-color:rgba(255,34,85,.4)!important;box-shadow:0 0 16px rgba(255,34,85,.08)!important}
+
+/* Submit button - gradient shine */
+#authSubmit{transition:all .2s!important;position:relative;overflow:hidden}
+#authSubmit:hover{transform:translateY(-1px)!important;box-shadow:0 6px 20px rgba(255,34,85,.3)!important}
+#authSubmit:active{transform:translateY(0)!important}
+#authSubmit::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,.08),transparent);transform:rotate(45deg);transition:left .6s}
+#authSubmit:hover::after{left:150%}
+
+/* Google button - better style */
+#authOverlay button[onclick*="Google"]{transition:all .2s!important}
+#authOverlay button[onclick*="Google"]:hover{transform:translateY(-1px)!important;box-shadow:0 4px 12px rgba(255,255,255,.1)!important}
+
+/* Close button - better hover */
+#authOverlay button[onclick*="closeAuth"]{transition:all .2s!important}
+#authOverlay button[onclick*="closeAuth"]:hover{color:#ff2255!important;transform:rotate(90deg)!important}
+
+/* Error message - slide in */
+#authError{animation:errorShake .4s ease!important}
+@keyframes errorShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+/* Toggle link - better hover */
+#authToggleLink{transition:all .2s!important}
+#authToggleLink:hover{text-shadow:0 0 8px rgba(255,34,85,.3)!important}
+
+/* Loading state on button */
+#authSubmit:disabled{opacity:.7!important;cursor:not-allowed!important}
 </style>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff2255">

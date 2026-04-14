@@ -141,7 +141,52 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 
 <meta property="og:title" content="Configuraci&#243;n &mdash; SHADOWNET">
 <meta name="description" content="Ajusta tu cuenta y preferencias en SHADOWNET.">
-<style>.section-outside{max-width:640px;margin:0 auto 16px;padding:0 16px}</style></head>
+<style>.section-outside{max-width:640px;margin:0 auto 16px;padding:0 16px}
+/* === SETTINGS UI ENHANCEMENTS === */
+/* Section cards - hover lift */
+.settings-section,.section-card{transition:all .2s;border-radius:12px}
+.settings-section:hover,.section-card:hover{border-color:rgba(255,34,85,.15);box-shadow:0 4px 20px rgba(0,0,0,.2)}
+
+/* Section titles - gradient underline */
+.section-title{position:relative;padding-bottom:10px}
+.section-title::after{content:'';position:absolute;bottom:0;left:0;width:40px;height:2px;background:linear-gradient(90deg,#ff2255,transparent);border-radius:2px}
+
+/* Input fields - focus glow */
+input:focus,textarea:focus,select:focus{border-color:rgba(255,34,85,.4)!important;box-shadow:0 0 12px rgba(255,34,85,.08)!important;outline:none}
+
+/* Toggle switches - smooth */
+input[type="checkbox"]{transition:all .2s}
+
+/* Save buttons - pulse on hover */
+.outline-btn,.save-btn{transition:all .2s;position:relative;overflow:hidden}
+.outline-btn:hover,.save-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.outline-btn:active,.save-btn:active{transform:translateY(0)}
+
+/* KYC section - highlight */
+.kyc-section{position:relative;overflow:hidden}
+.kyc-section::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff2255,#833ab4,#00e5ff);border-radius:3px}
+
+/* Avatar upload - hover effect */
+.avatar-upload,.avatar-edit{transition:all .3s}
+.avatar-upload:hover,.avatar-edit:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(255,34,85,.2)}
+
+/* Danger zone - red accent */
+.danger-zone,.delete-section{border-color:rgba(255,34,85,.2)!important}
+.danger-zone .outline-btn,.delete-section .outline-btn{border-color:rgba(255,34,85,.3);color:#ff6680}
+.danger-zone .outline-btn:hover,.delete-section .outline-btn:hover{background:rgba(255,34,85,.1);border-color:#ff2255}
+
+/* Payment status box animation */
+.payment-status-box{transition:all .3s;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Smooth section transitions */
+.settings-section{animation:sectionIn .4s ease both}
+.settings-section:nth-child(1){animation-delay:.05s}
+.settings-section:nth-child(2){animation-delay:.1s}
+.settings-section:nth-child(3){animation-delay:.15s}
+.settings-section:nth-child(4){animation-delay:.2s}
+@keyframes sectionIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style></head>
 <body>
 <header class="sn-header">
   <button class="sn-header-btn" onclick="history.back()">&#8592;</button>

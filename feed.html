@@ -618,6 +618,17 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sv-nav.prev{left:0}
 .sv-nav.next{right:0}
 .sv-views{position:absolute;bottom:16px;left:16px;color:rgba(255,255,255,.5);font-size:12px}
+
+/* === SCHEDULED POSTS === */
+.schedule-row{display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.1);border-radius:8px;display:none}
+.schedule-row.visible{display:flex}
+.schedule-row label{font-size:11px;color:#00e5ff;font-weight:700;white-space:nowrap}
+.schedule-row input[type="datetime-local"]{flex:1;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;padding:6px 8px;font-family:Rajdhani,sans-serif;font-size:12px;outline:none}
+.schedule-row input:focus{border-color:rgba(0,229,255,.4)}
+.schedule-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#5a8aaa;transition:color .2s}
+.schedule-toggle:hover{color:#00e5ff}
+.schedule-toggle.active{color:#00e5ff}
+.scheduled-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);border-radius:12px;font-size:10px;color:#00e5ff;font-weight:700}
 </style>
 </head>
 <body>
@@ -3399,6 +3410,52 @@ function openStoryCreator(){
   input.click();
 }
 setTimeout(function(){loadStories();},2000);
+
+
+// === SCHEDULED POSTS ===
+var _isScheduled=false;
+function toggleSchedule(){
+  _isScheduled=!_isScheduled;
+  var row=document.getElementById("scheduleRow");
+  var toggle=document.querySelector(".schedule-toggle");
+  if(row)row.classList.toggle("visible",_isScheduled);
+  if(toggle)toggle.classList.toggle("active",_isScheduled);
+  // Set min date to now
+  if(_isScheduled){
+    var now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset()+30);
+    var inp=document.getElementById("scheduleDate");
+    if(inp)inp.min=now.toISOString().slice(0,16);
+  }
+}
+// Hook into publish flow
+(function(){
+  var origPublish=window.publishPost;
+  window.publishPost=async function(){
+    if(!_isScheduled||!document.getElementById("scheduleDate").value){
+      if(origPublish)return origPublish.apply(this,arguments);
+      return;
+    }
+    // Save as scheduled post instead
+    var content=document.querySelector(".post-box textarea");
+    var hashtags=document.querySelector(".post-hashtag-input");
+    if(!content||!content.value.trim()){alert("Escribe algo primero");return;}
+    var schedDate=document.getElementById("scheduleDate").value;
+    if(!schedDate){alert("Selecciona fecha y hora");return;}
+    if(new Date(schedDate)<new Date()){alert("La fecha debe ser en el futuro");return;}
+    var data={
+      user_id:window.currentUser.id,
+      content:content.value.trim(),
+      scheduled_at:new Date(schedDate).toISOString(),
+      published:false,
+      hashtags:hashtags&&hashtags.value?hashtags.value.split(/[\s,]+/).filter(function(t){return t.startsWith("#");}):[]
+    };
+    var r=await window.sb.from("scheduled_posts").insert(data);
+    if(r.error){alert("Error: "+r.error.message);return;}
+    content.value="";if(hashtags)hashtags.value="";
+    _isScheduled=false;toggleSchedule();
+    if(window.showToast)showToast("Post programado para "+new Date(schedDate).toLocaleString("es"));
+  };
+})();
 
 </script>
 

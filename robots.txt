@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /terms.html
+Allow: /privacy.html
+Allow: /cookies.html
+Allow: /legal18.html
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /functions/
+
+Sitemap: https://shadownet-xi.vercel.app/sitemap.xml
+
+# SHADOWNET - Adult content platform (+18)
+# Contact: legal@shadownet.app

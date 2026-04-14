@@ -91,6 +91,52 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-bn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;border:2px solid #0d2744;color:#fff;font-weight:800}
 .sn-bn-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 @media(min-width:769px){.sn-bottom-nav{max-width:680px;left:50%;right:auto;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #0d2744;border-bottom:none}}
+
+/* === STATS UI ENHANCEMENTS === */
+/* Revenue cards - gradient borders */
+.rev-card{position:relative;overflow:hidden;transition:all .3s cubic-bezier(.4,0,.2,1)}
+.rev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.rev-card.tips::before{background:linear-gradient(90deg,#ff2255,#ff6680)}
+.rev-card.subs::before{background:linear-gradient(90deg,#833ab4,#b066e0)}
+.rev-card.ppv::before{background:linear-gradient(90deg,#00e5ff,#0080aa)}
+.rev-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+
+/* Stat values - animated count */
+.stat-value{font-family:Orbitron,monospace;font-weight:900;transition:all .3s}
+.stat-value.counting{color:#ff2255}
+
+/* Engagement cards - glow on hover */
+.eng-card{transition:all .3s;position:relative;overflow:hidden}
+.eng-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,34,85,.08),transparent);opacity:0;transition:opacity .3s}
+.eng-card:hover{transform:translateY(-2px);border-color:rgba(255,34,85,.2)}
+.eng-card:hover::after{opacity:1}
+
+/* Chart container - better frame */
+.chart-canvas{border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);border:1px solid rgba(255,255,255,.04)}
+
+/* Withdrawal button - pulse */
+.withdraw-btn{position:relative;animation:withdrawPulse 3s ease infinite}
+@keyframes withdrawPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,34,85,.3)}50%{box-shadow:0 0 20px 4px rgba(255,34,85,.1)}}
+
+/* Section titles */
+.section-title{position:relative;padding-bottom:8px}
+.section-title::after{content:'';position:absolute;bottom:0;left:0;width:32px;height:2px;background:linear-gradient(90deg,#ff2255,transparent);border-radius:2px}
+
+/* Stagger animations */
+.rev-card,.eng-card{animation:statIn .4s ease both}
+.rev-card:nth-child(1),.eng-card:nth-child(1){animation-delay:.05s}
+.rev-card:nth-child(2),.eng-card:nth-child(2){animation-delay:.1s}
+.rev-card:nth-child(3),.eng-card:nth-child(3){animation-delay:.15s}
+.rev-card:nth-child(4),.eng-card:nth-child(4){animation-delay:.2s}
+@keyframes statIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* Top posts - better list items */
+.top-post{transition:all .2s;border-radius:8px;padding:8px}
+.top-post:hover{background:rgba(255,255,255,.03)}
+
+/* Transaction rows */
+.txn-row{transition:background .2s}
+.txn-row:hover{background:rgba(255,255,255,.02)}
 </style>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff2255">

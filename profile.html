@@ -685,7 +685,7 @@ async function loadTabContent(tab, userId) {
   } else if(tab === 'reels'){
     var rr = await (window.sb||sb).from('posts').select('*').eq('user_id', userId).eq('media_type','video').order('created_at',{ascending:false}).limit(30);
     if(!rr.data||!rr.data.length){
-      grid.innerHTML = '<div class="tab-empty"><div class="tab-empty-icon">\u25B6\uFE0F</div><div class="tab-empty-text">Sin reels todavia</div></div>';
+      grid.innerHTML = '<div class="tab-empty"><div class="tab-empty-icon">\u25B6\uFE0F</div><div class="tab-empty-text">Sin reels todavía</div></div>';
     } else renderPostsGrid(rr.data);
 
   } else if(tab === 'shop'){
@@ -710,11 +710,11 @@ async function loadTabContent(tab, userId) {
     if(!currentUser||currentUser.id!==userId){grid.innerHTML='<div class="tab-empty"><div class="tab-empty-text">Solo tu puedes ver tus guardados</div></div>';return;}
     var rs = await (window.sb||sb).from('bookmarks').select('post_id, posts(*)').eq('user_id', userId).limit(30);
     var posts2 = (rs.data||[]).map(function(b){return b.posts;}).filter(Boolean);
-    if(!posts2.length){grid.innerHTML='<div class="tab-empty"><div class="tab-empty-icon">\uD83D\uDD16</div><div class="tab-empty-text">No has guardado nada todavia</div></div>';}
+    if(!posts2.length){grid.innerHTML='<div class="tab-empty"><div class="tab-empty-icon">\uD83D\uDD16</div><div class="tab-empty-text">No has guardado nada todavía</div></div>';}
     else renderPostsGrid(posts2);
 
   } else if(tab === 'tagged'){
-    grid.innerHTML = '<div class="tab-empty"><div class="tab-empty-icon">\uD83C\uDFF7\uFE0F</div><div class="tab-empty-text">Sin etiquetas todavia</div></div>';
+    grid.innerHTML = '<div class="tab-empty"><div class="tab-empty-icon">\uD83C\uDFF7\uFE0F</div><div class="tab-empty-text">Sin etiquetas todavía</div></div>';
   }
 }
 

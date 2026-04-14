@@ -737,7 +737,7 @@ async function loadFeed(tab) {
 }
 
 // == ALGORITMO DE FEED INTELIGENTE ==
-// Llama a la funcion PostgreSQL get_ranked_feed que rankea posts por:
+// Llama a la función PostgreSQL get_ranked_feed que rankea posts por:
 // interacciones * decay temporal * boost de seguidos * boost verificados
 async function loadRankedFeed(mode, container, offset) {
   if(!window.sb||!window._currentUserId) return;
@@ -1792,7 +1792,7 @@ function parseHashtags(text) {
 var _collPostId = null;
 
 async function openCollections(postId){
-  if(!currentUser){showToast("Inicia sesion para guardar",true);return;}
+  if(!currentUser){showToast("Inicia sesión para guardar",true);return;}
   _collPostId = postId;
   var grid = document.getElementById("collGrid");
   grid.innerHTML="<div style='color:#5a8aaa;font-size:13px;padding:10px'>Cargando...</div>";
@@ -1909,7 +1909,7 @@ var titleText=document.createElement("span");titleText.textContent="\uD83D\uDCA1
 var _tipPostId=null, _tipCreatorId=null, _tipCreatorUsername='', _tipAmount=5;
 
 function openTipModal(postId, creatorId, creatorUsername){
-  if(!currentUser){showToast("Inicia sesion para dar propina",true);return;}
+  if(!currentUser){showToast("Inicia sesión para dar propina",true);return;}
   if(currentUser.id===creatorId){showToast("No puedes darte propina a ti mismo",true);return;}
   _tipPostId=postId; _tipCreatorId=creatorId; _tipCreatorUsername=creatorUsername; _tipAmount=5;
   document.getElementById("tipBoxSub").textContent="Apoyar a @"+creatorUsername;

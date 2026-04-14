@@ -296,6 +296,19 @@ header{position:sticky;top:0;z-index:100;padding:10px 16px;background:rgba(1,2,1
 .pin-indicator{position:absolute;top:6px;right:6px;background:rgba(0,229,255,.85);color:#01020c;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;z-index:2}
 .pin-action{cursor:pointer;padding:6px 12px;font-size:13px;color:#5a8aaa;transition:color .15s}
 .pin-action:hover{color:#00e5ff}
+
+/* === PROFILE UI FIXES === */
+/* Move logout button below stats, full width */
+.profile-logout-btn{position:static!important;display:block;width:100%;margin:12px 0 0;text-align:center;order:99}
+/* Fix floating almas badge - hide duplicate */
+.profile-almas-float{display:none!important}
+/* Fix FAB position - move above tabs */
+.profile-fab,.fab-new-post{bottom:80px!important;right:16px!important;z-index:50}
+/* Fix stats row overflow */
+.profile-stats{flex-wrap:nowrap;overflow-x:auto;gap:0}
+.profile-stats .stat-item{min-width:60px;flex-shrink:0}
+/* Ensure tabs are not hidden by FAB */
+.profile-tabs{position:relative;z-index:40}
 </style>
 
 <meta property="og:title" content="Perfil &mdash; SHADOWNET">
@@ -974,7 +987,7 @@ function doLogout(){
 
 <!-- Tier Subscribe Modal -->
 <!-- Logout button - visible on own profile -->
-<button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:218px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)"> Cerrar sesi&#243;n</button>
+<button id="profileLogoutBtn" onclick="doLogout()" style="display:none;position:fixed;bottom:218px;right:16px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.35);color:#ff6680;padding:10px 18px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;z-index:100;letter-spacing:.06em;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.4)" class="profile-logout-btn"> Cerrar sesi&#243;n</button>
 
 <!-- Highlight Create Modal -->
 <div class="highlight-modal" id="highlightModal">

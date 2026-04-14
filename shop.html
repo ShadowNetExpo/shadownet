@@ -101,16 +101,16 @@ async function loadShopByUser(username){
   if(!pr.data)return;
   var r=await sb.from('shops').select('*,profiles(username,avatar_url,display_name)').eq('owner_id',pr.data.id).single();
   if(r.data){renderShop(r.data);loadProducts(r.data.id);}
-  else{document.getElementById('shopContent').innerHTML='<div class="empty-shop"><div class="empty-shop-icon">&#128722;</div><div>Este creador no tiene tienda</div></div>';}
+  else{var _shop=document.getElementById("shopContent");if(_shop)_shop.innerHTML='<div class="empty-shop"><div class="empty-shop-icon">&#128722;</div><div>Este creador no tiene tienda</div></div>';}
 }
 async function loadTrending(){
   var _ht=document.querySelector('.hdr-title');if(_ht)_ht.textContent='MARKETPLACE';
   var r=await sb.rpc('get_trending_products',{p_limit:20});
   if(r.data&&r.data.length){
-    document.getElementById('shopContent').innerHTML='<div class="tabs"><div class="tab active">Trending</div></div><div class="products-grid" id="productsGrid"></div>';
+    var _shop=document.getElementById("shopContent");if(_shop)_shop.innerHTML='<div class="tabs"><div class="tab active">Trending</div></div><div class="products-grid" id="productsGrid"></div>';
     renderProducts(r.data.map(function(p){return{id:p.product_id,name:p.name,price_cents:p.price_cents,currency:p.currency,images:p.images,sales_count:p.sales_count,rating_avg:p.rating_avg};}));
   }else{
-    document.getElementById('shopContent').innerHTML='<div class="empty-shop"><div class="empty-shop-icon">&#128722;</div><div>No hay productos todavia</div><div style="font-size:12px;margin-top:6px">Se el primero en abrir una tienda</div></div>';
+    var _shop=document.getElementById("shopContent");if(_shop)_shop.innerHTML='<div class="empty-shop"><div class="empty-shop-icon">&#128722;</div><div>No hay productos todavia</div><div style="font-size:12px;margin-top:6px">Se el primero en abrir una tienda</div></div>';
   }
 }
 function renderShop(shop){
@@ -121,7 +121,7 @@ function renderShop(shop){
   html+='<div class="shop-owner">@'+(p.username||'creador')+'</div>';
   if(shop.description)html+='<div class="shop-desc">'+shop.description+'</div>';
   html+='</div><div class="tabs"><div class="tab active">Productos</div></div><div class="products-grid" id="productsGrid"></div>';
-  document.getElementById('shopContent').innerHTML=html;
+  var _shop=document.getElementById("shopContent");if(_shop)_shop.innerHTML=html;
 }
 async function loadProducts(sid){
   var r=await sb.rpc('get_shop_products',{p_shop_id:sid,p_limit:30});
@@ -146,13 +146,13 @@ function fmtPrice(c,cur){return new Intl.NumberFormat('es-ES',{style:'currency',
 function openDetail(p){
   _selectedProduct=p;
   var imgs=p.images;if(typeof imgs==='string')try{imgs=JSON.parse(imgs);}catch(e){imgs=[];}
-  document.getElementById('pdImages').innerHTML=(imgs&&imgs.length)?'<img src="'+imgs[0]+'">':'';
-  document.getElementById('pdName').textContent=p.name;
-  document.getElementById('pdPrice').textContent=fmtPrice(p.price_cents,p.currency);
-  document.getElementById('pdDesc').textContent=p.description||'';
-  document.getElementById('productDetail').classList.add('open');
+  var _pdIm=document.getElementById("pdImages");if(_pdIm)_pdIm.innerHTML=(imgs&&imgs.length)?'<img src="'+imgs[0]+'">':'';
+  var _pdNa=document.getElementById("pdName");if(_pdNa)_pdNa.textContent=p.name;
+  var _pdPr=document.getElementById("pdPrice");if(_pdPr)_pdPr.textContent=fmtPrice(p.price_cents,p.currency);
+  var _pdDe=document.getElementById("pdDesc");if(_pdDe)_pdDe.textContent=p.description||'';
+  var _prod=document.getElementById("productDetail");if(_prod)_prod.classList.add('open');
 }
-function closeDetail(){document.getElementById('productDetail').classList.remove('open');_selectedProduct=null;}
+function closeDetail(){var _prod=document.getElementById("productDetail");if(_prod)_prod.classList.remove('open');_selectedProduct=null;}
 async function buyProduct(){
   if(!currentUser){location.href='/';return;}if(!_selectedProduct)return;
   var btn=document.getElementById('pdBuy');btn.disabled=true;btn.textContent='Procesando...';
@@ -201,6 +201,6 @@ if(_sp.get('cancelled')==='1'){
 </script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
-<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";</script>
+<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))var _snCo=document.getElementById("snCookieBanner");if(_snCo)_snCo.style.display="block";</script>
 </body>
 </html>

@@ -81,6 +81,22 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;height:100vh;ove
 .live-goal{position:absolute;top:110px;left:12px;right:70px;z-index:50;display:none}
 .live-goal-bar{height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;margin-top:4px}
 .live-goal-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ffaa00);border-radius:3px;transition:width .5s ease}
+.sn-pinned{position:absolute;top:60px;left:12px;right:70px;z-index:45;background:rgba(255,34,85,.15);backdrop-filter:blur(10px);border:1px solid rgba(255,34,85,.3);border-radius:12px;padding:8px 12px;display:none;font-size:12px;color:#fff;}
+.sn-pinned-icon{color:#ff2255;margin-right:6px;font-weight:800}
+.sn-pinned .sn-unpin{position:absolute;right:8px;top:6px;background:none;border:none;color:#888;cursor:pointer;font-size:14px}
+.sn-reactions{position:absolute;bottom:140px;right:16px;z-index:55;pointer-events:none}
+.sn-heart-float{position:absolute;bottom:0;right:0;font-size:24px;animation:heartRise 2s ease forwards;pointer-events:none}
+@keyframes heartRise{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:.8;transform:translateY(-100px) scale(1.2)}100%{opacity:0;transform:translateY(-200px) scale(.6)}}
+.sn-leaderboard{position:absolute;top:60px;right:12px;z-index:45;display:none}
+.sn-lb-item{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);border-radius:20px;padding:4px 10px 4px 4px;margin-bottom:4px;font-size:11px;color:#fff}
+.sn-lb-rank{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900}
+.sn-lb-1{background:linear-gradient(135deg,#ffaa00,#ff6600)}
+.sn-lb-2{background:linear-gradient(135deg,#c0c0c0,#888)}
+.sn-lb-3{background:linear-gradient(135deg,#cd7f32,#8b4513)}
+.sn-confetti-wrap{position:absolute;inset:0;z-index:65;pointer-events:none;overflow:hidden}
+.sn-confetti{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall 2.5s ease forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(-20px) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+.sn-slow-badge{position:absolute;top:14px;right:70px;background:rgba(255,170,0,.2);color:#ffaa00;font-size:10px;font-weight:800;padding:3px 8px;border-radius:8px;z-index:46;display:none}
 .live-goal-label{font-size:11px;color:rgba(255,255,255,.8);font-weight:700;display:flex;justify-content:space-between}
 .sticker-item{position:absolute;font-size:32px;cursor:move;user-select:none;z-index:55;animation:stickerPop .3s ease}
 @keyframes stickerPop{from{transform:scale(0)}to{transform:scale(1)}}
@@ -244,7 +260,7 @@ async function initViewer(){
 
 function buildViewerActionBar(){
   var bar=document.getElementById("actionBar");
-  var actions=[{icon:"\uD83C\uDF81",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"\uD83D\uDCAC",label:"Chat",fn:"document.getElementById('chatInp').focus()"},{icon:"\uD83D\uDD17",label:"Compartir",fn:"shareLive()"},{icon:"\uD83D\uDEAA",label:"Salir",fn:"window.location.href='/'",style:"background:rgba(255,34,85,.2)"},{icon:"\uD83D\uDC65",label:"Invitar",fn:"toggleGuestPanel()"}];
+  var actions=[{icon:"\uD83C\uDF81",label:"Regalos",fn:"openPanel('giftsPanel')"},{icon:"\uD83D\uDCAC",label:"Chat",fn:"document.getElementById('chatInp').focus()"},{icon:"\uD83D\uDD17",label:"Compartir",fn:"shareLive()"},{icon:"\u2764\uFE0F",label:"Reaccionar",fn:"snSendReaction()"},{icon:"\uD83D\uDEAA",label:"Salir",fn:"window.location.href='/'",style:"background:rgba(255,34,85,.2)"},{icon:"\uD83D\uDC65",label:"Invitar",fn:"toggleGuestPanel()"}];
   bar.innerHTML="";
   actions.forEach(function(a){var btn=document.createElement("div");btn.className="live-action-btn";var icon=document.createElement("div");icon.className="live-action-icon";icon.innerHTML=a.icon;if(a.style)icon.style.cssText=a.style;var label=document.createElement("div");label.className="live-action-label";label.textContent=a.label;btn.appendChild(icon);btn.appendChild(label);btn.addEventListener("click",function(){eval(a.fn);});bar.appendChild(btn);});
 }
@@ -334,7 +350,7 @@ function clearStickers(){try{document.querySelectorAll(".sticker-item").forEach(
 
 // \u2500\u2500 GIFTS \u2500\u2500
 function buildGiftsGrid(){var _gg=document.getElementById('giftGrid');if(!_gg){return;}renderGiftGrid();}
-async function sendGiftFromPanel(gift){if(!currentUser)return;if((currentProfile?.coins_balance||0)<gift.cost){showToastMsg("No tienes suficientes Almas",true);return;}await sb.from("profiles").update({coins_balance:(currentProfile.coins_balance-gift.cost)}).eq("id",currentUser.id);currentProfile.coins_balance-=gift.cost;(document.getElementById("panelCoinsBalance")||{}).textContent =currentProfile.coins_balance;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"gift",payload:{emoji:gift.emoji,name:gift.name,cost:gift.cost}});animateGift(gift.emoji,gift.name,gift.cost);closePanel("giftsPanel");}
+async function sendGiftFromPanel(gift){if(!currentUser)return;if((currentProfile?.coins_balance||0)<gift.cost){showToastMsg("No tienes suficientes Almas",true);return;}await sb.from("profiles").update({coins_balance:(currentProfile.coins_balance-gift.cost)}).eq("id",currentUser.id);currentProfile.coins_balance-=gift.cost;(document.getElementById("panelCoinsBalance")||{}).textContent =currentProfile.coins_balance;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"gift",payload:{emoji:gift.emoji,name:gift.name,cost:gift.cost}});animateGift(gift.emoji,gift.name,gift.cost);if(gift.cost>=100)snConfetti();snUpdateLeaderboard(currentProfile?.username||"Tu",gift.cost);closePanel("giftsPanel");}
 function animateGift(emoji,name,cost){var el=document.createElement("div");el.className="gift-float";el.textContent=emoji;document.getElementById("liveContainer").appendChild(el);setTimeout(function(){el.remove();},2500);var alert=document.createElement("div");alert.className="gift-alert";alert.innerHTML=emoji+"<br><span style='font-size:11px'>"+name+" (+"+cost+" Almas)</span>";document.getElementById("liveContainer").appendChild(alert);setTimeout(function(){alert.remove();},3000);totalGiftsReceived+=cost;updateGoalProgress(cost);}
 
 // \u2500\u2500 POLL \u2500\u2500
@@ -538,7 +554,10 @@ document.addEventListener("DOMContentLoaded",function(){
       <span style="font-size:18px">&#10067;</span>
       <span class="live-ctrl-label">Q&amp;A</span>
     </button>
-    <button class="live-ctrl-btn" onclick="openPanel('goalPanel')">
+    <button class="live-ctrl-btn" onclick="snToggleSlow()" title="Modo lento">
+<span style="font-size:16px">\uD83D\uDC22</span><span style="font-size:8px">Lento</span>
+</button>
+<button class="live-ctrl-btn" onclick="openPanel('goalPanel')">
       <span style="font-size:18px">&#127919;</span>
       <span class="live-ctrl-label">Regalos</span>
     </button>
@@ -554,7 +573,11 @@ document.addEventListener("DOMContentLoaded",function(){
   </div>
 
   <!-- Chat overlay (left) -->
-  <div class="live-chat-overlay" id="chatOverlay"></div>
+  <div class="sn-pinned" id="snPinned"><span class="sn-pinned-icon">\uD83D\uDCCC</span><span id="snPinnedText"></span><button class="sn-unpin" onclick="snUnpin()">\u2715</button></div>
+<div class="sn-reactions" id="snReactions"></div>
+<div class="sn-leaderboard" id="snLeaderboard"></div>
+<div class="sn-slow-badge" id="snSlowBadge">\uD83D\uDC22 MODO LENTO</div>
+<div class="live-chat-overlay" id="chatOverlay"></div>
 
   <!-- Bottom bar -->
   <div class="live-bottombar">
@@ -1237,6 +1260,58 @@ async function kickGuest(guestId,username){
   loadActiveGuests();
 }
 </script>
-<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";</script>
+<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";
+// === P1 LIVE FEATURES: Pin, Mute/Ban, Slow, Reactions, Leaderboard, Confetti ===
+var _pinnedMsg=null,_slowMode=false,_slowInterval=3000,_lastChatTime=0,_giftLeaderboard={},_isHost=false;
+
+// PIN MESSAGE
+window.snPinMsg=function(text,user){
+  _pinnedMsg=text;
+  document.getElementById("snPinnedText").textContent=(user?user+": ":"")+text;
+  document.getElementById("snPinned").style.display="block";
+  if(_liveChannel)_liveChannel.send({type:"broadcast",event:"pin",payload:{text:text,user:user||""}});
+};
+window.snUnpin=function(){_pinnedMsg=null;document.getElementById("snPinned").style.display="none";if(_liveChannel)_liveChannel.send({type:"broadcast",event:"unpin",payload:{}});};
+
+// MUTE/BAN VIEWER
+window.snMuteViewer=function(uid,name){if(!confirm("Silenciar a "+name+"?"))return;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"mute",payload:{uid:uid}});showToastMsg("\uD83D\uDD07 "+name+" silenciado");};
+window.snBanViewer=function(uid,name){if(!confirm("Expulsar a "+name+" del live?"))return;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"ban",payload:{uid:uid}});showToastMsg("\uD83D\uDEAB "+name+" expulsado");};
+
+// SLOW MODE
+window.snToggleSlow=function(){_slowMode=!_slowMode;document.getElementById("snSlowBadge").style.display=_slowMode?"block":"none";if(_liveChannel)_liveChannel.send({type:"broadcast",event:"slow",payload:{on:_slowMode,interval:_slowInterval}});showToastMsg(_slowMode?"\uD83D\uDC22 Modo lento activado (3s)":"Modo lento desactivado");};
+
+// VIEWER REACTIONS (floating hearts)
+window.snSendReaction=function(emoji){
+  if(_liveChannel)_liveChannel.send({type:"broadcast",event:"reaction",payload:{emoji:emoji||"\u2764\uFE0F"}});
+  snShowReaction(emoji||"\u2764\uFE0F");
+};
+window.snShowReaction=function(emoji){
+  var c=document.getElementById("snReactions");if(!c)return;
+  var el=document.createElement("div");el.className="sn-heart-float";
+  el.textContent=emoji;el.style.right=Math.random()*40+"px";
+  c.appendChild(el);setTimeout(function(){el.remove();},2200);
+};
+
+// TOP GIFTERS LEADERBOARD
+window.snUpdateLeaderboard=function(user,amount){
+  _giftLeaderboard[user]=(_giftLeaderboard[user]||0)+amount;
+  var sorted=Object.entries(_giftLeaderboard).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
+  var lb=document.getElementById("snLeaderboard");if(!lb)return;lb.style.display="block";
+  lb.innerHTML=sorted.map(function(e,i){return '<div class="sn-lb-item"><div class="sn-lb-rank sn-lb-'+(i+1)+'">'+["\uD83E\uDD47","\uD83E\uDD48","\uD83E\uDD49"][i]+'</div><span>'+e[0]+'</span><span style="color:#ffaa00;font-weight:800;margin-left:auto">'+e[1]+' \uD83D\uDC8E</span></div>';}).join("");
+};
+
+// CONFETTI SCREEN EFFECT
+window.snConfetti=function(){
+  var w=document.createElement("div");w.className="sn-confetti-wrap";
+  var colors=["#ff2255","#ffaa00","#00e5ff","#833ab4","#ff6680","#00ff88"];
+  for(var i=0;i<40;i++){var c=document.createElement("div");c.className="sn-confetti";c.style.left=Math.random()*100+"%";c.style.top=-10+"px";c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.animationDelay=Math.random()*1+"s";c.style.transform="rotate("+Math.random()*360+"deg)";w.appendChild(c);}
+  document.getElementById("liveContainer").appendChild(w);setTimeout(function(){w.remove();},3000);
+};
+
+// LIVE TITLE (stored in window)
+window._liveTitle="";
+window.snSetTitle=function(t){_liveTitle=t;var el=document.getElementById("snLiveTitle");if(el)el.textContent=t;};
+
+</script>
 </body>
 </html>

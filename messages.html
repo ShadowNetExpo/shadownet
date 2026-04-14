@@ -225,6 +225,40 @@ body{padding-bottom:72px}
 .sn-nav-item.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#ff2255;box-shadow:0 0 8px rgba(255,34,85,.5)}
 .sn-nav-item{transition:all .2s}
 .sn-nav-item:active{transform:scale(.9)}
+
+/* === DM MEDIA FEATURES === */
+/* Attach buttons row */
+.dm-attach-row{display:flex;gap:6px;padding:0 16px 8px;flex-shrink:0}
+.dm-attach-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(13,39,68,.6);color:#5a8aaa;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.dm-attach-btn:hover{background:rgba(255,34,85,.1);border-color:rgba(255,34,85,.3);color:#ff2255}
+.dm-attach-btn.active{background:rgba(255,34,85,.15);border-color:#ff2255;color:#ff2255}
+
+/* Media preview above input */
+.dm-media-preview{display:none;padding:8px 16px;border-top:1px solid #0d2744;position:relative}
+.dm-media-preview.show{display:flex;align-items:center;gap:10px}
+.dm-preview-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid #0d2744}
+.dm-preview-info{flex:1;font-size:12px;color:#8a9bb0}
+.dm-preview-name{font-weight:700;color:#c8d8e8;font-size:13px}
+.dm-preview-close{background:none;border:none;color:#ff2255;font-size:18px;cursor:pointer;padding:4px}
+.dm-ppv-toggle{display:flex;align-items:center;gap:8px;margin-top:4px}
+.dm-ppv-toggle label{font-size:11px;color:#5a8aaa}
+.dm-ppv-input{width:60px;padding:4px 8px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:6px;font-size:12px;font-family:Rajdhani,sans-serif}
+
+/* Media in chat bubbles */
+.msg-media{border-radius:10px;overflow:hidden;margin-bottom:6px;max-width:240px;position:relative}
+.msg-media img,.msg-media video{width:100%;display:block;border-radius:10px}
+.msg-media video{max-height:300px}
+/* PPV locked overlay */
+.msg-ppv-lock{position:absolute;inset:0;background:rgba(7,15,30,.85);backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-radius:10px;cursor:pointer}
+.msg-ppv-icon{font-size:32px}
+.msg-ppv-price{font-family:Orbitron,monospace;font-size:14px;font-weight:900;color:#ff2255}
+.msg-ppv-label{font-size:11px;color:#5a8aaa}
+/* Voice message */
+.msg-voice{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(0,229,255,.08);border-radius:20px;cursor:pointer}
+.msg-voice-icon{font-size:18px}
+.msg-voice-bar{flex:1;height:3px;background:rgba(255,255,255,.1);border-radius:3px;position:relative}
+.msg-voice-fill{height:100%;background:#00e5ff;border-radius:3px;width:0%;transition:width .1s}
+.msg-voice-dur{font-size:11px;color:#5a8aaa;min-width:30px}
 </style>
 
 <meta property="og:title" content="Mensajes &mdash; SHADOWNET">
@@ -278,7 +312,25 @@ body{padding-bottom:72px}
       <div class="chat-user-name" id="chatUserName" onclick="goToProfile()"></div>
     </div>
     <div class="chat-msgs" id="chatMsgsArea" style="display:none"></div>
-    <div class="chat-input" id="chatInputArea" style="display:none">
+    <div class="chat-input" id="chatInputArea">
+    <input type="file" id="dmFileInput" accept="image/*,video/*" style="display:none" onchange="onDMFileSelected(event)">
+    <div class="dm-media-preview" id="dmMediaPreview">
+      <img id="dmPreviewThumb" class="dm-preview-thumb" src="">
+      <div class="dm-preview-info">
+        <div class="dm-preview-name" id="dmPreviewName"></div>
+        <div class="dm-ppv-toggle">
+          <label>&#128274; PPV</label>
+          <input type="number" class="dm-ppv-input" id="dmPPVPrice" placeholder="0" min="0" value="0">
+          <label>Almas</label>
+        </div>
+      </div>
+      <button class="dm-preview-close" onclick="clearDMMedia()">&#10005;</button>
+    </div>
+    <div class="dm-attach-row" id="dmAttachRow">
+      <button class="dm-attach-btn" onclick="document.getElementById('dmFileInput').click()" title="Foto/Video">&#128247;</button>
+      <button class="dm-attach-btn" onclick="startVoiceMsg()" title="Audio" id="voiceBtn">&#127908;</button>
+      <button class="dm-attach-btn" onclick="togglePPV()" title="PPV" id="ppvToggle">&#128176;</button>
+    </div style="display:none">
       <textarea class="msg-inp" id="msgInp" placeholder="Escribe un mensaje..." rows="1"></textarea>
       <button class="send-btn" onclick="sendDM()">&#9658;</button>
     </div>
@@ -914,6 +966,124 @@ function playVoice(btn,url){
 }
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+// === DM MEDIA FEATURES ===
+var _dmFile=null,_dmMediaUrl=null,_dmMediaType=null;
+
+window.onDMFileSelected=function(e){
+  var file=e.target.files[0];if(!file)return;
+  _dmFile=file;
+  _dmMediaType=file.type.startsWith('video')?'video':'image';
+  var preview=document.getElementById('dmMediaPreview');
+  var thumb=document.getElementById('dmPreviewThumb');
+  var name=document.getElementById('dmPreviewName');
+  name.textContent=file.name;
+  if(_dmMediaType==='image'){
+    var reader=new FileReader();
+    reader.onload=function(ev){thumb.src=ev.target.result;};
+    reader.readAsDataURL(file);
+  } else {
+    thumb.src='';thumb.style.background='linear-gradient(135deg,#ff2255,#800011)';
+    thumb.alt='Video';
+  }
+  preview.classList.add('show');
+};
+
+window.clearDMMedia=function(){
+  _dmFile=null;_dmMediaUrl=null;_dmMediaType=null;
+  document.getElementById('dmMediaPreview').classList.remove('show');
+  document.getElementById('dmFileInput').value='';
+  document.getElementById('dmPPVPrice').value='0';
+};
+
+window.togglePPV=function(){
+  var btn=document.getElementById('ppvToggle');
+  btn.classList.toggle('active');
+};
+
+window.startVoiceMsg=function(){
+  var btn=document.getElementById('voiceBtn');
+  btn.classList.toggle('active');
+  // Voice recording placeholder - requires MediaRecorder API
+  if(btn.classList.contains('active')){
+    showToast('Grabación de voz próximamente');
+    btn.classList.remove('active');
+  }
+};
+
+// Override sendDM to support media
+var _origSendDM=window.sendDM;
+window.sendDM=async function(){
+  if(!_dmFile){if(_origSendDM)return _origSendDM();return;}
+  if(!activePeerId||!currentUser)return;
+  // Upload media to Supabase Storage
+  var ext=_dmFile.name.split('.').pop();
+  var path='dm/'+currentUser.id+'/'+Date.now()+'.'+ext;
+  showToast('Subiendo media...');
+  var upload=await sb.storage.from('media').upload(path,_dmFile,{cacheControl:'3600',upsert:false});
+  if(upload.error){showToast('Error: '+upload.error.message,true);return;}
+  var url=sb.storage.from('media').getPublicUrl(path).data.publicUrl;
+  var msg=document.getElementById('msgInp').value.trim()||'';
+  var ppvPrice=parseInt(document.getElementById('dmPPVPrice').value)||0;
+  
+  // Create conversation if needed
+  if(!activeConvId){
+    var uid1=currentUser.id<activePeerId?currentUser.id:activePeerId;
+    var uid2=currentUser.id<activePeerId?activePeerId:currentUser.id;
+    var ec=await sb.from('conversations').select('id').eq('user1_id',uid1).eq('user2_id',uid2).single();
+    if(ec.data)activeConvId=ec.data.id;
+    else{var nc=await sb.from('conversations').insert({user1_id:uid1,user2_id:uid2}).select().single();if(nc.data)activeConvId=nc.data.id;}
+  }
+  
+  var insertData={sender_id:currentUser.id,receiver_id:activePeerId,message:msg,media_url:url,media_type:_dmMediaType};
+  if(ppvPrice>0){insertData.ppv_price=ppvPrice;insertData.ppv_locked=true;}
+  await sb.from('direct_messages').insert(insertData);
+  
+  // Update conversation
+  await sb.from('conversations').update({last_message:ppvPrice>0?'Contenido PPV':(_dmMediaType==='image'?'Foto':'Video'),last_message_at:new Date().toISOString()}).eq('id',activeConvId);
+  
+  document.getElementById('msgInp').value='';
+  clearDMMedia();
+  showToast('Enviado');
+};
+
+// Patch appendMsg for media display
+var _origAppendMsg=window.appendMsg||appendMsg;
+window.appendMsg=function(m){
+  if(m.media_url){
+    var area=document.getElementById('chatMsgsArea');
+    var isMine=m.sender_id===currentUser.id;
+    var wrap=document.createElement('div');wrap.className='msg '+(isMine?'mine':'theirs');
+    
+    if(!isMine&&activePeerProfile){
+      var av=document.createElement('div');av.className='msg-avatar-sm';
+      if(activePeerProfile.avatar_url){var img=document.createElement('img');img.src=activePeerProfile.avatar_url;av.appendChild(img);}
+      else av.textContent=(activePeerProfile.username||'?')[0].toUpperCase();
+      wrap.appendChild(av);
+    }
+    
+    var mediaDiv=document.createElement('div');mediaDiv.className='msg-media';
+    if(m.ppv_locked&&!isMine){
+      mediaDiv.innerHTML='<div class="msg-ppv-lock"><div class="msg-ppv-icon">\uD83D\uDD12</div><div class="msg-ppv-price">'+(m.ppv_price||0)+' Almas</div><div class="msg-ppv-label">Desbloquear contenido</div></div>';
+      mediaDiv.style.width='200px';mediaDiv.style.height='200px';mediaDiv.style.background='linear-gradient(135deg,rgba(255,34,85,.1),rgba(13,27,44,.8))';
+    } else if(m.media_type==='video'){
+      var vid=document.createElement('video');vid.src=m.media_url;vid.controls=true;vid.preload='metadata';vid.style.maxWidth='100%';
+      mediaDiv.appendChild(vid);
+    } else {
+      var img=document.createElement('img');img.src=m.media_url;img.loading='lazy';
+      mediaDiv.appendChild(img);
+    }
+    wrap.appendChild(mediaDiv);
+    
+    if(m.message){var bubble=document.createElement('div');bubble.className='msg-bubble';bubble.textContent=m.message;wrap.appendChild(bubble);}
+    var time=document.createElement('div');time.className='msg-time';time.textContent=getTimeAgo(m.created_at);
+    wrap.appendChild(time);
+    area.appendChild(wrap);
+    area.scrollTop=area.scrollHeight;
+    return;
+  }
+  _origAppendMsg(m);
+};
+</script>
 </body>
 </html>

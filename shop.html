@@ -160,10 +160,10 @@ async function buyProduct(){
     // 1. Create order
     var order=await sb.from('orders').insert({buyer_id:currentUser.id,seller_id:_selectedProduct.seller_id||null,product_id:_selectedProduct.id||_selectedProduct.product_id,quantity:1,total_cents:_selectedProduct.price_cents,currency:_selectedProduct.currency||'EUR',status:'pending'}).select('id').single();
     if(order.error) throw order.error;
-    // 2. Call Stripe payment edge function
+    // 2. Call CCBill payment edge function
     var sess=await sb.auth.getSession();
     var tok=sess.data.session?sess.data.session.access_token:'';
-    var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/stripe-payment',{
+    var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/ccbill-payment',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
       body:JSON.stringify({

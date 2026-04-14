@@ -186,6 +186,13 @@ input[type="checkbox"]{transition:all .2s}
 .settings-section:nth-child(3){animation-delay:.15s}
 .settings-section:nth-child(4){animation-delay:.2s}
 @keyframes sectionIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV POLISH */
+.sn-nav{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;background:rgba(7,15,30,.92)!important}
+.sn-nav-item.active{position:relative;color:#ff2255!important}
+.sn-nav-item.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#ff2255;box-shadow:0 0 8px rgba(255,34,85,.5)}
+.sn-nav-item{transition:all .2s}
+.sn-nav-item:active{transform:scale(.9)}
 </style></head>
 <body>
 <header class="sn-header">

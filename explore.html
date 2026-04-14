@@ -269,7 +269,7 @@ setTimeout(function(){
   window.sb.rpc('get_trending_sounds',{p_limit:10}).then(function(r){
     if(!r.data||!r.data.length) return;
     var container=document.getElementById('trendingSounds');
-    document.getElementById('trendingSoundsSection').style.display='block';
+    var _ts=document.getElementById('trendingSoundsSection');if(_ts)_ts.style.display='block';
     r.data.forEach(function(s){
       var chip=document.createElement('div');chip.className='sound-chip';
       chip.onclick=function(){location.href='/sound.html?id='+s.sound_id;};
@@ -281,7 +281,7 @@ setTimeout(function(){
   window.sb.rpc('get_trending_products',{p_limit:8}).then(function(r){
     if(!r.data||!r.data.length) return;
     var container=document.getElementById('trendingShops');
-    document.getElementById('shopSection').style.display='block';
+    var _ss=document.getElementById('shopSection');if(_ss)_ss.style.display='block';
     r.data.forEach(function(p){
       var chip=document.createElement('div');chip.className='shop-chip';
       chip.onclick=function(){location.href='/shop.html?u='+(p.seller_username||'');};

@@ -549,6 +549,39 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 /* === TOAST NOTIFICATIONS - better style === */
 .sn-toast{backdrop-filter:blur(12px);animation:toastIn .4s cubic-bezier(.68,-.55,.265,1.55) both}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* === STORIES BAR === */
+.stories-bar{display:flex;gap:12px;padding:12px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-bottom:1px solid #0d2744}
+.stories-bar::-webkit-scrollbar{display:none}
+.story-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex-shrink:0;width:68px}
+.story-ring{width:60px;height:60px;border-radius:50%;padding:3px;background:linear-gradient(135deg,#ff2255,#833ab4,#00e5ff);position:relative}
+.story-ring.seen{background:rgba(90,138,170,.3)}
+.story-ring.add{background:none;border:2px dashed rgba(90,138,170,.3)}
+.story-avatar{width:100%;height:100%;border-radius:50%;background:#070f1e;border:2px solid #070f1e;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5a8aaa}
+.story-avatar img{width:100%;height:100%;object-fit:cover}
+.story-add-icon{font-size:22px;color:#ff2255}
+.story-name{font-size:10px;color:#8a9bb0;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%}
+.story-item:hover .story-ring{transform:scale(1.05);transition:transform .2s}
+
+/* Story Viewer Overlay */
+.story-viewer{display:none;position:fixed;inset:0;z-index:9999;background:#000}
+.story-viewer.open{display:flex;flex-direction:column}
+.sv-header{position:absolute;top:0;left:0;right:0;z-index:10;padding:12px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent)}
+.sv-progress{display:flex;gap:3px;width:100%;position:absolute;top:4px;left:0;right:0;padding:0 8px}
+.sv-bar{flex:1;height:2px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.sv-bar-fill{height:100%;background:#fff;width:0%;transition:width .05s linear}
+.sv-bar.done .sv-bar-fill{width:100%}
+.sv-avatar{width:36px;height:36px;border-radius:50%;overflow:hidden}
+.sv-avatar img{width:100%;height:100%;object-fit:cover}
+.sv-username{font-size:13px;font-weight:700;color:#fff}
+.sv-time{font-size:11px;color:rgba(255,255,255,.5)}
+.sv-close{margin-left:auto;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px}
+.sv-media{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.sv-media img,.sv-media video{max-width:100%;max-height:100%;object-fit:contain}
+.sv-caption{position:absolute;bottom:60px;left:16px;right:16px;text-align:center;color:#fff;font-size:14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.sv-nav{position:absolute;top:0;bottom:0;width:40%;cursor:pointer;z-index:5}
+.sv-nav.prev{left:0}
+.sv-nav.next{right:0}
 </style>
 </head>
 <body>
@@ -571,6 +604,14 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 </div>
 
 <div class="wrap">
+
+<!-- STORIES BAR -->
+<div class="stories-bar" id="storiesBar">
+  <div class="story-item" onclick="openStoryCamera()">
+    <div class="story-ring add"><div class="story-avatar"><span class="story-add-icon">+</span></div></div>
+    <div class="story-name">Tu historia</div>
+  </div>
+</div>
   <div id="postBox" class="post-box" style="display:none">
     <div class="post-box-header">
       <div class="avatar-sm" id="myAvatar">?</div>
@@ -3122,7 +3163,126 @@ async function requestSubscription(cid){if(!currentUser){openAuth("login");retur
     }
   });
 })();
+
+// === STORIES FEATURE ===
+var _stories=[],_storyIdx=0,_storyUserIdx=0,_storyTimer=null,_storyUsers=[];
+
+async function loadStories(){
+  if(!window.sb)return;
+  var now=new Date().toISOString();
+  var r=await sb.from('stories').select('*,profiles:user_id(username,avatar_url,display_name)').gt('expires_at',now).order('created_at',{ascending:false}).limit(50);
+  if(!r.data||!r.data.length)return;
+  // Group by user
+  var userMap={};
+  r.data.forEach(function(s){
+    if(!userMap[s.user_id])userMap[s.user_id]={user:s.profiles||{},stories:[],user_id:s.user_id};
+    userMap[s.user_id].stories.push(s);
+  });
+  _storyUsers=Object.values(userMap);
+  var bar=document.getElementById('storiesBar');
+  if(!bar)return;
+  _storyUsers.forEach(function(u,i){
+    var item=document.createElement('div');item.className='story-item';
+    var ring=document.createElement('div');ring.className='story-ring';
+    var av=document.createElement('div');av.className='story-avatar';
+    if(u.user.avatar_url){var img=document.createElement('img');img.src=u.user.avatar_url;av.appendChild(img);}
+    else av.textContent=(u.user.username||'?')[0].toUpperCase();
+    ring.appendChild(av);
+    var name=document.createElement('div');name.className='story-name';name.textContent=u.user.username||'';
+    item.appendChild(ring);item.appendChild(name);
+    item.onclick=function(){openStoryViewer(i);};
+    bar.appendChild(item);
+  });
+}
+
+function openStoryViewer(userIdx){
+  _storyUserIdx=userIdx;_storyIdx=0;
+  document.getElementById('storyViewer').classList.add('open');
+  document.body.style.overflow='hidden';
+  showStory();
+}
+
+function closeStoryViewer(){
+  document.getElementById('storyViewer').classList.remove('open');
+  document.body.style.overflow='';
+  clearTimeout(_storyTimer);
+}
+
+function showStory(){
+  var user=_storyUsers[_storyUserIdx];if(!user)return closeStoryViewer();
+  var story=user.stories[_storyIdx];if(!story)return nextUserStory();
+  // Update header
+  var avEl=document.getElementById('svAvatar');
+  if(user.user.avatar_url)avEl.innerHTML='<img src="'+user.user.avatar_url+'">';
+  else avEl.textContent=(user.user.username||'?')[0].toUpperCase();
+  document.getElementById('svUsername').textContent='@'+(user.user.username||'');
+  document.getElementById('svTime').textContent=timeAgoShort(story.created_at);
+  // Progress bars
+  var prog=document.getElementById('svProgress');
+  prog.innerHTML='';
+  user.stories.forEach(function(s,i){
+    var bar=document.createElement('div');bar.className='sv-bar'+(i<_storyIdx?' done':'');bar.id='svBar'+i;
+    var fill=document.createElement('div');fill.className='sv-bar-fill';bar.appendChild(fill);
+    prog.appendChild(bar);
+  });
+  // Media
+  var media=document.getElementById('svMedia');
+  if(story.media_type==='video'){
+    media.innerHTML='<video src="'+story.media_url+'" autoplay playsinline muted style="max-width:100%;max-height:100%"></video>';
+  } else {
+    media.innerHTML='<img src="'+story.media_url+'" style="max-width:100%;max-height:100%">';
+  }
+  document.getElementById('svCaption').textContent=story.caption||'';
+  // Animate progress
+  var fill=document.querySelector('#svBar'+_storyIdx+' .sv-bar-fill');
+  if(fill){fill.style.width='0%';setTimeout(function(){fill.style.transition='width 5s linear';fill.style.width='100%';},50);}
+  clearTimeout(_storyTimer);
+  _storyTimer=setTimeout(nextStory,5000);
+  // Track view
+  if(window.currentUser&&story.user_id!==window.currentUser.id){
+    sb.from('story_views').upsert({story_id:story.id,viewer_id:window.currentUser.id},{onConflict:'story_id,viewer_id'}).then(function(){});
+  }
+}
+
+function nextStory(){
+  _storyIdx++;
+  var user=_storyUsers[_storyUserIdx];
+  if(!user||_storyIdx>=user.stories.length)nextUserStory();
+  else showStory();
+}
+function prevStory(){
+  if(_storyIdx>0){_storyIdx--;showStory();}
+  else if(_storyUserIdx>0){_storyUserIdx--;_storyIdx=0;showStory();}
+}
+function nextUserStory(){
+  _storyUserIdx++;
+  _storyIdx=0;
+  if(_storyUserIdx>=_storyUsers.length)closeStoryViewer();
+  else showStory();
+}
+function openStoryCamera(){location.href='/editor.html?mode=story';}
+function timeAgoShort(d){var s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'ahora';if(s<3600)return Math.floor(s/60)+'m';if(s<86400)return Math.floor(s/3600)+'h';return Math.floor(s/86400)+'d';}
+
+// Load stories on page load
+setTimeout(loadStories,1500);
 </script>
 
+
+<!-- STORY VIEWER -->
+<div class="story-viewer" id="storyViewer">
+  <div class="sv-progress" id="svProgress"></div>
+  <div class="sv-header">
+    <div class="sv-avatar" id="svAvatar"></div>
+    <div>
+      <div class="sv-username" id="svUsername"></div>
+      <div class="sv-time" id="svTime"></div>
+    </div>
+    <button class="sv-close" onclick="closeStoryViewer()">&times;</button>
+  </div>
+  <div class="sv-media" id="svMedia"></div>
+  <div class="sv-caption" id="svCaption"></div>
+  <div class="sv-nav prev" onclick="prevStory()"></div>
+  <div class="sv-nav next" onclick="nextStory()"></div>
+</div>
 </body>
 </html>

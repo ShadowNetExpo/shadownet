@@ -122,6 +122,7 @@ function renderReel(idx){
   slide.appendChild(vid);
   var indicator=document.createElement('div');indicator.className='reel-play-indicator';indicator.textContent='\u25B6\uFE0F';
   slide.appendChild(indicator);
+  var muteBtn=document.createElement('button');muteBtn.style.cssText='position:absolute;top:60px;right:16px;z-index:25;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center';muteBtn.textContent='\uD83D\uDD0A';muteBtn.onclick=function(){vid.muted=!vid.muted;muteBtn.textContent=vid.muted?'\uD83D\uDD07':'\uD83D\uDD0A';};slide.appendChild(muteBtn);
   var progress=document.createElement('div');progress.className='reel-progress';
   var progressFill=document.createElement('div');progressFill.className='reel-progress-fill';
   progress.appendChild(progressFill);slide.appendChild(progress);
@@ -133,6 +134,7 @@ function renderReel(idx){
   var un=document.createElement('div');un.className='reel-username';
   un.textContent='@'+(reel.username||'usuario');
   un.onclick=function(){location.href='profile.html?u='+encodeURIComponent(reel.username||'');};
+  if(window.currentUser&&reel.user_id!==window.currentUser.id){var flb=document.createElement('button');flb.style.cssText='background:none;border:1px solid #ff2255;color:#ff2255;border-radius:16px;padding:2px 12px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;cursor:pointer;margin-left:8px;text-shadow:none';flb.textContent='Seguir';flb.onclick=function(e){e.stopPropagation();snFollowFromReel(reel.user_id,flb);};un.appendChild(flb);}
   info.appendChild(un);
   if(reel.content){var cap=document.createElement('div');cap.className='reel-caption';cap.textContent=reel.content;info.appendChild(cap);}
   if(reel.category){var cat=document.createElement('span');cat.className='reel-category';cat.textContent=reel.category;info.appendChild(cat);}
@@ -145,6 +147,7 @@ function renderReel(idx){
   actions.appendChild(av);
   actions.appendChild(createAction('\u2764\uFE0F',reel.likes_count||0,function(icon){toggleReelLike(reel.post_id,icon);}));
   actions.appendChild(createAction('\uD83D\uDCAC',reel.comments_count||0,function(){location.href='feed.html#post-'+reel.post_id;}));
+  actions.appendChild(createAction('\uD83D\uDD16',0,function(icon){snSaveReel(reel.post_id,icon);}));
   actions.appendChild(createAction('\uD83D\uDD17',reel.shares_count||0,function(){
     if(navigator.share){navigator.share({title:'SHADOWNET',url:location.origin+'/feed.html#post-'+reel.post_id}).catch(function(){});
   // Duet + Stitch buttons
@@ -225,6 +228,22 @@ function initNav(){
 <script src="/push.js"></script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
-<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";</script>
+<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";
+// === REEL SAVE + FOLLOW ===
+window.snSaveReel=async function(pid,icon){
+  if(!window.sb||!window.currentUser)return;
+  var uid=window.currentUser.id;
+  var chk=await sb.from('saved_posts').select('id').eq('post_id',pid).eq('user_id',uid);
+  if(chk.data&&chk.data.length){await sb.from('saved_posts').delete().eq('post_id',pid).eq('user_id',uid);icon.style.background='rgba(255,255,255,.12)';}
+  else{await sb.from('saved_posts').insert({post_id:pid,user_id:uid});icon.style.background='rgba(255,170,0,.3)';icon.style.borderColor='rgba(255,170,0,.5)';}
+};
+window.snFollowFromReel=async function(uid,btn){
+  if(!window.sb||!window.currentUser)return;
+  var me=window.currentUser.id;if(me===uid)return;
+  var chk=await sb.from('follows').select('id').eq('follower_id',me).eq('following_id',uid);
+  if(chk.data&&chk.data.length){await sb.from('follows').delete().eq('follower_id',me).eq('following_id',uid);btn.textContent='Seguir';btn.style.color='#ff2255';btn.style.background='none';}
+  else{await sb.from('follows').insert({follower_id:me,following_id:uid});btn.textContent='Siguiendo';btn.style.color='#fff';btn.style.background='#ff2255';btn.style.borderColor='#ff2255';}
+};
+</script>
 </body>
 </html>

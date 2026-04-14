@@ -1,5 +1,5 @@
-var CACHE='shadownet-v3';
-var URLS=['/','/feed.html','/explore.html','/reels.html','/profile.html','/messages.html','/settings.html','/shop.html','/editor.html','/live.html','/stats.html','/sn-design.css','/manifest.json','/icon.svg'];
+var CACHE='shadownet-v4';
+var URLS=['/','/feed.html','/explore.html','/reels.html','/profile.html','/messages.html','/settings.html','/shop.html','/editor.html','/live.html','/stats.html','/notifications.html','/search.html','/sn-design.css','/manifest.json','/icon.svg'];
 
 self.addEventListener('install', function(e) {
   e.waitUntil(

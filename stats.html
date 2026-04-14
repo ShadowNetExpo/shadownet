@@ -137,6 +137,15 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 /* Transaction rows */
 .txn-row{transition:background .2s}
 .txn-row:hover{background:rgba(255,255,255,.02)}
+
+/* NAV POLISH */
+.sn-nav{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;background:rgba(7,15,30,.92)!important}
+.sn-nav-item.active{position:relative;color:#ff2255!important}
+.sn-nav-item.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#ff2255;box-shadow:0 0 8px rgba(255,34,85,.5)}
+.sn-nav-item{transition:all .2s}
+.sn-nav-item:active{transform:scale(.9)}
+.sn-nav-create{transition:all .3s;box-shadow:0 2px 12px rgba(255,34,85,.3)}
+.sn-nav-create:hover{transform:scale(1.1)}
 </style>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff2255">

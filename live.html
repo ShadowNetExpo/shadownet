@@ -237,7 +237,7 @@ async function initViewer(){
   AGORA_CHANNEL=creator.id;
   (document.getElementById("liveTitle")||{}).textContent =creator.username.toUpperCase()+" EN VIVO";
   (document.getElementById("liveSubtitle")||{}).textContent ="Conectando...";
-  document.getElementById("rightControls").style.display="none";
+  var _rc=document.getElementById("rightControls");if(_rc)_rc.style.display="none";
   buildViewerActionBar();if(document.getElementById('giftGrid'))buildGiftsGrid();
   if(!AGORA_APP_ID){showToastMsg("Streaming no disponible",true);(document.getElementById("liveSubtitle")||{}).textContent ="Sin se\u00F1al";return;}
   try{
@@ -436,7 +436,7 @@ function endLive(){
   (document.getElementById("endViewers")||{}).textContent =maxViewers;
   (document.getElementById("endDuration")||{}).textContent =Math.floor(e/60)+"m "+e%60+"s";
   (document.getElementById("endGifts")||{}).textContent =totalGiftsReceived;
-  document.getElementById("endScreen").classList.add("show");
+  var _es=document.getElementById("endScreen");if(_es)_es.classList.add("show");
 
   // Mark live as ended in DB
   (function(){
@@ -1267,11 +1267,11 @@ var _pinnedMsg=null,_slowMode=false,_slowInterval=3000,_lastChatTime=0,_giftLead
 // PIN MESSAGE
 window.snPinMsg=function(text,user){
   _pinnedMsg=text;
-  document.getElementById("snPinnedText").textContent=(user?user+": ":"")+text;
-  document.getElementById("snPinned").style.display="block";
+  var _spt=document.getElementById("snPinnedText");if(_spt)_spt.textContent=(user?user+": ":"")+text;
+  var _sp=document.getElementById("snPinned");if(_sp)_sp.style.display="block";
   if(_liveChannel)_liveChannel.send({type:"broadcast",event:"pin",payload:{text:text,user:user||""}});
 };
-window.snUnpin=function(){_pinnedMsg=null;document.getElementById("snPinned").style.display="none";if(_liveChannel)_liveChannel.send({type:"broadcast",event:"unpin",payload:{}});};
+window.snUnpin=function(){_pinnedMsg=null;var _sph=document.getElementById("snPinned");if(_sph)_sph.style.display="none";if(_liveChannel)_liveChannel.send({type:"broadcast",event:"unpin",payload:{}});};
 
 // MUTE/BAN VIEWER
 window.snMuteViewer=function(uid,name){if(!confirm("Silenciar a "+name+"?"))return;if(_liveChannel)_liveChannel.send({type:"broadcast",event:"mute",payload:{uid:uid}});showToastMsg("\uD83D\uDD07 "+name+" silenciado");};

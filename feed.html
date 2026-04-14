@@ -495,6 +495,22 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .carousel-prev{left:6px}
 .carousel-next{right:6px}
 .sn-nsfw-lock{position:relative;background:linear-gradient(135deg,#1a0011,#0a0020);border-radius:12px;padding:40px 20px;text-align:center;margin:12px 0}.sn-nsfw-overlay{display:flex;flex-direction:column;align-items:center;gap:8px}.sn-nsfw-icon{font-size:32px}.sn-nsfw-text{font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;color:#ff2255}.sn-nsfw-sub{font-size:11px;color:#5a8aaa;max-width:260px}.sn-nsfw-btn{margin-top:8px;padding:10px 24px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:13px;cursor:pointer}
+
+/* === COLLAPSED COMPOSER ON MOBILE === */
+@media(max-width:768px){
+  .post-box{max-height:56px;overflow:hidden;transition:max-height .3s ease;cursor:pointer;border-radius:12px}
+  .post-box.expanded{max-height:500px;cursor:default}
+  .post-box:not(.expanded) .post-media-row,
+  .post-box:not(.expanded) .post-hashtag-input,
+  .post-box:not(.expanded) .post-actions-row,
+  .post-box:not(.expanded) .post-ppv-row{display:none!important}
+  .post-box:not(.expanded) textarea{pointer-events:none;min-height:32px!important;height:32px!important;resize:none}
+}
+
+/* Hide duplicate Para Ti/Siguiendo when main tabs visible */
+@media(max-width:768px){
+  .feed-subtabs{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -3051,6 +3067,23 @@ async function requestSubscription(cid){if(!currentUser){openAuth("login");retur
 <div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. Al continuar, aceptas nuestra <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a>.</div><div style="display:flex;gap:8px;flex-shrink:0"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";</script>
 <script>
 (function(){var _ld=false,_pg=0,_more=true;window.snLoadMore=async function(){if(_ld||!_more||!window.sb)return;_ld=true;_pg++;var fc=document.getElementById("paraTiFeed")||document.getElementById("feedContainer");if(!fc){_ld=false;return;}var lo=document.createElement("div");lo.style.cssText="text-align:center;padding:20px;color:#5a8aaa;font-size:13px";lo.textContent="Cargando m\u00E1s...";fc.appendChild(lo);try{var r=await window.sb.from("posts").select("*,profiles:user_id(username,avatar_url,is_verified,display_name)").order("created_at",{ascending:false}).range(_pg*10,(_pg+1)*10-1);var posts=r.data||[];if(posts.length<10)_more=false;lo.remove();if(!posts.length){var end=document.createElement("div");end.style.cssText="text-align:center;padding:30px;color:#5a8aaa;font-size:13px";end.textContent="No hay m\u00E1s publicaciones";fc.appendChild(end);return;}if(window.renderParaTiPost)posts.forEach(function(p){var el=renderParaTiPost(p);if(el)fc.appendChild(el);});}catch(e){lo.textContent="Error";}finally{_ld=false;}};if("IntersectionObserver" in window){var sn=document.createElement("div");sn.style.height="1px";var obs=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting)snLoadMore();});},{rootMargin:"400px"});setTimeout(function(){var fc=document.getElementById("paraTiFeed")||document.getElementById("feedContainer");if(fc){fc.appendChild(sn);obs.observe(sn);}},4000);}window.snCheckDMs=async function(){if(!window.sb||!window.currentUser)return;try{var r=await window.sb.from("conversations").select("unread_count_1,unread_count_2,user1_id,user2_id").or("user1_id.eq."+window.currentUser.id+",user2_id.eq."+window.currentUser.id);var t=0;(r.data||[]).forEach(function(c){if(c.user1_id===window.currentUser.id)t+=c.unread_count_1||0;else t+=c.unread_count_2||0;});var b=document.getElementById("dmBadge");if(b){b.style.display=t>0?"flex":"none";b.textContent=t>9?"9+":String(t);}}catch(e){}};setTimeout(function(){snCheckDMs();},2000);setInterval(function(){snCheckDMs();},30000);})();
+
+// === COLLAPSE COMPOSER MOBILE ===
+(function(){
+  var pb=document.querySelector('.post-box');
+  if(!pb)return;
+  pb.addEventListener('click',function(e){
+    if(!pb.classList.contains('expanded')&&window.innerWidth<=768){
+      pb.classList.add('expanded');
+      var ta=pb.querySelector('textarea');if(ta){ta.focus();ta.style.pointerEvents='auto';}
+    }
+  });
+  document.addEventListener('click',function(e){
+    if(window.innerWidth<=768&&pb.classList.contains('expanded')&&!pb.contains(e.target)){
+      pb.classList.remove('expanded');
+    }
+  });
+})();
 </script>
 
 </body>

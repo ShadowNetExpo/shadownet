@@ -265,8 +265,8 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       <button class="save-btn" onclick="saveCreatorSettings()">&#10003; Guardar configuraci&#243;n</button>
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid #0d2744">
         <div class="section-title" style="margin-bottom:12px"> PAGOS  CCBill — Pagos automticos</div>
-        <div id="stripeStatusBox" class="payment-status-box none">CCBill pendiente de configuración. Solicita tu cuenta en ccbill.com</div>
-        <button class="outline-btn" id="stripeConnectBtn" onclick="window.open("https://www.ccbill.com/contact","_blank")" style="margin-top:0"> Solicitar cuenta CCBill</button>
+        <div id="paymentStatusBox" class="payment-status-box none">CCBill pendiente de configuración. Solicita tu cuenta en ccbill.com</div>
+        <button class="outline-btn" id="ccbillConnectBtn" onclick="window.open("https://www.ccbill.com/contact","_blank")" style="margin-top:0"> Solicitar cuenta CCBill</button>
         <button class="withdraw-btn" id="withdrawBtn" onclick="requestWithdraw()" disabled> Solicitar retiro</button>
       </div>
     </div>
@@ -581,7 +581,7 @@ async function loadProfile(){
   if(d.notif_follows===false) document.getElementById('togFollows').classList.remove('on');
   if(d.notif_messages===false) document.getElementById('togDMs').classList.remove('on');
   if(d.notif_subs===false) document.getElementById('togSubs').classList.remove('on');
-  // Check stripe return
+  // Check payment return
   var params=new URLSearchParams(location.search);
   if(params.get('payment')==='success'){showToast(' Pago configurado correctamente!');// CCBill status}
   if(params.get('payment')==='refresh'){showToast('Reintenta configurar tu cuenta de pagos',true);}
@@ -648,11 +648,11 @@ async function saveNotifPrefs(){
   showToast(r.error?'Error: '+r.error.message:' Preferencias guardadas');
 }
 
-async function connectStripe(){window.open('https://www.ccbill.com/contact','_blank');}
-async function _old_connectStripe(){
+async function connectCCBill(){window.open('https://www.ccbill.com/contact','_blank');}
+async function _old_connectCCBill(){
   var sess=await sb.auth.getSession();
   if(!sess.data.session){window.location.href='/';return;}
-  var btn=document.getElementById('stripeConnectBtn');
+  var btn=document.getElementById('ccbillConnectBtn');
   if(btn){btn.disabled=true;btn.textContent='Conectando...';}
   try{
     var res=await fetch(SB_URL+'/functions/v1/ccbill-payment',{
@@ -661,26 +661,26 @@ async function _old_connectStripe(){
     });
     var data=await res.json();
     if(data.url){window.location.href=data.url;}
-    else{showToast(data.error||'Error al conectar Stripe',true);if(btn){btn.disabled=false;btn.textContent=' Conectar cuenta bancaria';}}
+    else{showToast(data.error||'Error al conectar CCBill',true);if(btn){btn.disabled=false;btn.textContent=' Solicitar cuenta CCBill';}}
   }catch(e){
     showToast('Error: '+e.message,true);
-    if(btn){btn.disabled=false;btn.textContent=' Conectar cuenta bancaria';}
+    if(btn){btn.disabled=false;btn.textContent=' Solicitar cuenta CCBill';}
   }
 }
 
-async function loadStripeStatus(){
+async function loadPaymentStatus(){
   var sess=await sb.auth.getSession();
   if(!sess.data.session)return;
-  var box=document.getElementById('stripeStatusBox');
-  var connectBtn=document.getElementById('stripeConnectBtn');
+  var box=document.getElementById('paymentStatusBox');
+  var connectBtn=document.getElementById('ccbillConnectBtn');
   try{
-    var res=await fetch(SB_URL+'/functions/v1/stripe-onboard/status',{
+    var res=await fetch(SB_URL+'/functions/v1/ccbill-payment',{
       headers:{'Authorization':'Bearer '+sess.data.session.access_token,'apikey':SB_KEY}
     });
     var d=await res.json();
     if(d.charges_enabled&&d.payouts_enabled){
       box.className='payment-status-box active';
-      box.innerHTML=' Cuenta Stripe activa  recibirs pagos automticos al instante';
+      box.innerHTML=' Cuenta CCBill activa  recibirs pagos automticos al instante';
       if(connectBtn)connectBtn.textContent=' Cuenta conectada';
     } else if(d.account_id){
       box.className='payment-status-box pending';
@@ -688,9 +688,9 @@ async function loadStripeStatus(){
       if(connectBtn)connectBtn.textContent=' Continuar onboarding';
     } else {
       box.className='payment-status-box none';
-      box.innerHTML='Sin cuenta Stripe conectada. Conctala para recibir pagos automticos.';
+      box.innerHTML='Sin cuenta CCBill conectada. Conctala para recibir pagos automticos.';
     }
-  }catch(e){box.innerHTML='No se pudo verificar estado de Stripe';}
+  }catch(e){box.innerHTML='No se pudo verificar estado de CCBill';}
 }
 
 async function requestWithdraw(){
@@ -702,7 +702,7 @@ async function requestWithdraw(){
   if(isNaN(amt)||amt<10||amt>pending){showToast('Monto invlido',true);return;}
   var sess=await sb.auth.getSession();
   if(!sess.data.session)return;
-  var res=await fetch(SB_URL+'/functions/v1/stripe-onboard/withdraw',{
+  var res=await fetch(SB_URL+'/functions/v1/ccbill-payment',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':SB_KEY},
     body:JSON.stringify({amount:amt})

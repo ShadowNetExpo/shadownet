@@ -51,6 +51,45 @@
 .social-btn-email:hover{border-color:var(--sn-fire);color:var(--sn-fire)}
 .divider-or{display:flex;align-items:center;gap:12px;color:var(--sn-text-dim);font-size:12px;margin:8px 0}
 .divider-or::before,.divider-or::after{content:'';flex:1;height:1px;background:var(--sn-border)}
+
+/* === LANDING PAGE ENHANCEMENTS === */
+/* Animated stars */
+.stars-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle var(--dur) ease-in-out infinite var(--delay)}
+@keyframes twinkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.8;transform:scale(1.5)}}
+
+/* How it works section */
+.how-section{max-width:600px;margin:0 auto;padding:40px 20px 20px;animation:sn-slide-up .6s var(--sn-ease) .55s both}
+.how-title{font-family:var(--sn-font-display);font-size:16px;text-align:center;color:var(--sn-text-dim);letter-spacing:.15em;text-transform:uppercase;margin-bottom:24px}
+.how-steps{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.how-step{flex:1;min-width:140px;max-width:180px;text-align:center;padding:20px 12px;border-radius:var(--sn-radius-lg);background:var(--sn-surface);border:1px solid var(--sn-border);position:relative;transition:all .3s var(--sn-ease)}
+.how-step:hover{border-color:var(--sn-fire);transform:translateY(-4px);box-shadow:0 8px 32px rgba(255,34,85,.15)}
+.how-num{font-family:var(--sn-font-display);font-size:28px;font-weight:900;background:var(--sn-grad-fire);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.how-label{font-size:14px;font-weight:700;color:var(--sn-text);margin-bottom:4px}
+.how-desc{font-size:11px;color:var(--sn-text-dim);line-height:1.4}
+.how-arrow{color:var(--sn-text-dim);font-size:20px;display:flex;align-items:center;flex-shrink:0}
+@media(max-width:480px){.how-arrow{display:none}}
+
+/* Animated counter */
+.counter-anim{transition:all .5s var(--sn-ease)}
+
+/* Enhanced feature cards */
+.feature-card{position:relative;overflow:hidden}
+.feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,34,85,.05),transparent);opacity:0;transition:opacity .3s}
+.feature-card:hover::before{opacity:1}
+.feature-card:hover .feature-icon{transform:scale(1.2);transition:transform .3s}
+
+/* Why SHADOWNET comparison */
+.why-section{max-width:600px;margin:0 auto;padding:30px 20px;animation:sn-slide-up .6s var(--sn-ease) .65s both}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.why-card{padding:14px;border-radius:var(--sn-radius-lg);text-align:center}
+.why-card.others{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);opacity:.5}
+.why-card.us{background:rgba(255,34,85,.06);border:1px solid rgba(255,34,85,.2)}
+.why-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;color:var(--sn-text-dim)}
+.why-val{font-family:var(--sn-font-display);font-size:22px;font-weight:900}
+.why-card.us .why-val{color:var(--sn-fire)}
+.why-card.others .why-val{color:var(--sn-text-dim)}
+.why-detail{font-size:11px;color:var(--sn-text-dim);margin-top:4px}
 </style>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff2255">
@@ -59,6 +98,7 @@
 <link rel="apple-touch-icon" href="/icon.svg">
 </head>
 <body>
+<div class="stars-bg" id="starsBg"></div>
 <div class="landing-hero">
   <header class="sn-header">
     <span class="sn-header-logo">SHADOWNET</span>
@@ -96,7 +136,38 @@
     <div class="feature-card"><span class="feature-icon">&#127873;</span><div class="feature-name">Regalos</div><div class="feature-desc">10 regalos animados con Almas</div></div>
     <div class="feature-card"><span class="feature-icon">&#128142;</span><div class="feature-name">Premium</div><div class="feature-desc">Contenido exclusivo para fans</div></div>
   </div>
-  <div class="social-proof">
+  
+<div class="how-section">
+  <div class="how-title">Cómo funciona</div>
+  <div class="how-steps">
+    <div class="how-step">
+      <div class="how-num">1</div>
+      <div class="how-label">Crea tu perfil</div>
+      <div class="how-desc">Regístrate gratis y personaliza tu página de creador</div>
+    </div>
+    <div class="how-arrow">→</div>
+    <div class="how-step">
+      <div class="how-num">2</div>
+      <div class="how-label">Publica contenido</div>
+      <div class="how-desc">Posts, reels, lives y contenido premium para tus fans</div>
+    </div>
+    <div class="how-arrow">→</div>
+    <div class="how-step">
+      <div class="how-num">3</div>
+      <div class="how-label">Gana el 90%</div>
+      <div class="how-desc">Cobra por suscripciones, tips, regalos y ventas</div>
+    </div>
+  </div>
+</div>
+
+<div class="why-section">
+  <div class="how-title">¿Por qué SHADOWNET?</div>
+  <div class="why-grid">
+    <div class="why-card others"><div class="why-label">Otros</div><div class="why-val">80%</div><div class="why-detail">OnlyFans / Fansly</div></div>
+    <div class="why-card us"><div class="why-label">SHADOWNET</div><div class="why-val">90%</div><div class="why-detail">Tú ganas más</div></div>
+  </div>
+</div>
+<div class="social-proof">
     <div class="avatar-stack">
       <div class="av" style="background:var(--sn-fire)">S</div>
       <div class="av" style="background:var(--sn-soul)">N</div>
@@ -110,7 +181,7 @@
     <a href="/terms.html">Términos</a>
     <a href="/privacy.html">Privacidad</a>
     <a href="/legal18.html">+18</a>
-    <a href="/soporte.html">Soporte</a>
+    <a href="/mailto:info80806@gmail.com">Soporte</a>
   </div>
   <div class="footer-copy">SHADOWNET 2026. Tu red social.</div>
 </div>
@@ -189,7 +260,15 @@ async function submitAuth(){
 async function forgotPassword(){var email=document.getElementById("authEmail").value.trim();if(!email){showAuthError("Ingresa tu email para restablecer la contraseña");return;}document.getElementById("authError").style.display="none";try{var r=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+"/feed.html"});if(r.error){showAuthError(r.error.message);}else{var e=document.getElementById("authError");e.textContent="✅ Revisa tu email para restablecer tu contraseña";e.style.display="block";e.style.background="rgba(0,200,83,.1)";e.style.borderColor="rgba(0,200,83,.3)";e.style.color="#00c853";}}catch(err){showAuthError(err.message);}}
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+<script>
+// === ANIMATED STARS ===
+(function(){var c=document.getElementById('starsBg');if(!c)return;for(var i=0;i<60;i++){var s=document.createElement('div');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.setProperty('--dur',(2+Math.random()*4)+'s');s.style.setProperty('--delay',Math.random()*3+'s');s.style.width=s.style.height=(1+Math.random()*2)+'px';c.appendChild(s);}})();
+
+// === ANIMATED COUNTERS ===
+(function(){var observed=false;function animateCounters(){if(observed)return;observed=true;var els=document.querySelectorAll('.hero-stat-val');els.forEach(function(el){var target=parseInt(el.textContent);if(isNaN(target))return;var start=0;var dur=1500;var startTime=null;function step(ts){if(!startTime)startTime=ts;var p=Math.min((ts-startTime)/dur,1);el.textContent=Math.floor(p*target);if(p<1)requestAnimationFrame(step);else el.textContent=target;}requestAnimationFrame(step);});}
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)animateCounters();});});var stats=document.getElementById('heroStats');if(stats)obs.observe(stats);})();
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
 
 <!-- AUTH MODAL -->
 <div id="authOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">

@@ -208,16 +208,16 @@ function handleVideoSelect(e){
   var file=e.target.files[0];if(!file) return;
   _videoFile=file;var url=URL.createObjectURL(file);
   var area=document.getElementById('previewArea');
-  document.getElementById('uploadZone').style.display='none';
+  var _uz=document.getElementById('uploadZone');if(_uz)_uz.style.display='none';
   _videoEl=document.createElement('video');_videoEl.src=url;_videoEl.autoplay=true;_videoEl.loop=true;_videoEl.muted=true;_videoEl.playsInline=true;_videoEl.setAttribute('playsinline','');
   _videoEl.addEventListener('loadedmetadata',function(){
     _videoDuration=_videoEl.duration;
-    document.getElementById('trimEndVal').textContent=fmtTime(_videoDuration);
+    var _tev=document.getElementById('trimEndVal');if(_tev)_tev.textContent=fmtTime(_videoDuration);
     if(_videoDuration>60){_trimEnd=60/_videoDuration;document.getElementById('trimEnd').value=_trimEnd*100;document.getElementById('trimEndVal').textContent='1:00';}
   });
   _videoEl.addEventListener('click',function(){if(_videoEl.paused)_videoEl.play();else _videoEl.pause();});
   area.insertBefore(_videoEl,area.firstChild);
-  document.getElementById('toolsPanel').style.display='block';
+  var _tp=document.getElementById('toolsPanel');if(_tp)_tp.style.display='block';
   document.getElementById('btnPost').disabled=false;
 }
 
@@ -226,7 +226,7 @@ function addTextOverlay(){
   var area=document.getElementById('previewArea');
   var el=document.createElement('div');el.className='text-overlay';el.textContent=text;el.style.top='40%';el.style.left='10%';
   area.appendChild(el);_textOverlays.push({text:text,x:10,y:40});
-  document.getElementById('textInput').value='';
+  var _ti=document.getElementById('textInput');if(_ti)_ti.value='';
   var dragging=false,ox=0,oy=0;
   el.addEventListener('mousedown',function(e){
     dragging=true;ox=e.offsetX;oy=e.offsetY;
@@ -298,7 +298,7 @@ function fmtTime(s){var m=Math.floor(s/60);var sec=Math.floor(s%60);return m+':'
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
 // == P1: SCHEDULE ==
-function clearSchedule(){document.getElementById('scheduleInput').value='';}
+function clearSchedule(){var _si=document.getElementById('scheduleInput');if(_si)_si.value='';}
 
 // == P1: POLL CREATOR ==
 var _pollOptions=[];

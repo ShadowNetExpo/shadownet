@@ -540,7 +540,7 @@ async function checkSubState(creatorId,btn){
 async function handleSubscribe(creatorId,price,paypalEmail,creatorUsername){
   if(!currentUser){window.location.href="/";return;}
   if(price>0){
-    // Usar Stripe via modal de tiers
+    // Usar CCBill via modal de tiers
     openSubscribeModal(creatorId);
     return;
   } else {
@@ -1336,8 +1336,8 @@ window.snConfirmTier=async function(){
     var uid=s.data.session.user.id;
     var price=parseFloat(_snTierSelected.price||0);
     if(price>0){
-      // Paid tier - redirect to Stripe checkout
-      var resp=await fetch(_SBT+"/functions/v1/stripe-payment",{
+      // Paid tier - redirect to CCBill checkout
+      var resp=await fetch(_SBT+"/functions/v1/ccbill-payment",{
         method:"POST",
         headers:{"Content-Type":"application/json","apikey":_AKT,"Authorization":"Bearer "+s.data.session.access_token},
         body:JSON.stringify({creator_id:_snTierCreatorId,tier_id:_snTierSelected.id,amount:Math.round(price*100),currency:"eur",subscriber_id:uid})

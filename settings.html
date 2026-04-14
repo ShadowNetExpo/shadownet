@@ -61,10 +61,10 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .price-wrap{position:relative}
 .price-wrap::before{content:"$";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#5a8aaa;font-size:14px;pointer-events:none}
 .price-wrap .field-input{padding-left:28px}
-.stripe-status-box{padding:14px;border-radius:8px;margin-bottom:14px;font-size:13px}
-.stripe-status-box.pending{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.25);color:#ffaa00}
-.stripe-status-box.active{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);color:#00ff88}
-.stripe-status-box.none{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);color:#5a8aaa}
+.payment-status-box{padding:14px;border-radius:8px;margin-bottom:14px;font-size:13px}
+.payment-status-box.pending{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.25);color:#ffaa00}
+.payment-status-box.active{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);color:#00ff88}
+.payment-status-box.none{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);color:#5a8aaa}
 .earnings-row{display:flex;gap:10px;margin-bottom:14px}
 .earning-card{flex:1;background:rgba(1,2,12,.6);border:1px solid #0d2744;border-radius:8px;padding:12px;text-align:center}
 .earning-label{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
@@ -264,9 +264,9 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
       </div>
       <button class="save-btn" onclick="saveCreatorSettings()">&#10003; Guardar configuraci&#243;n</button>
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid #0d2744">
-        <div class="section-title" style="margin-bottom:12px"> STRIPE CONNECT  Pagos automticos</div>
-        <div id="stripeStatusBox" class="stripe-status-box none">Cargando estado de Stripe...</div>
-        <button class="outline-btn" id="stripeConnectBtn" onclick="connectStripe()" style="margin-top:0"> Conectar cuenta bancaria</button>
+        <div class="section-title" style="margin-bottom:12px"> PAGOS  CCBill — Pagos automticos</div>
+        <div id="stripeStatusBox" class="payment-status-box none">CCBill pendiente de configuracion. Solicita tu cuenta en ccbill.com</div>
+        <button class="outline-btn" id="stripeConnectBtn" onclick="window.open("https://www.ccbill.com/contact","_blank")" style="margin-top:0"> Solicitar cuenta CCBill</button>
         <button class="withdraw-btn" id="withdrawBtn" onclick="requestWithdraw()" disabled> Solicitar retiro</button>
       </div>
     </div>
@@ -573,7 +573,7 @@ async function loadProfile(){
     document.getElementById('totalWithdrawn').textContent='$'+(parseFloat(d.total_withdrawn||0)).toFixed(2);
     var wBtn=document.getElementById('withdrawBtn');
     if(wBtn) wBtn.disabled=(parseFloat(d.pending_withdrawal||0)<10);
-    loadStripeStatus();
+    // CCBill status loaded from platform_settings
   }
   // Notif prefs
   if(d.notif_likes===false) document.getElementById('togLikes').classList.remove('on');
@@ -583,8 +583,8 @@ async function loadProfile(){
   if(d.notif_subs===false) document.getElementById('togSubs').classList.remove('on');
   // Check stripe return
   var params=new URLSearchParams(location.search);
-  if(params.get('stripe')==='success'){showToast(' Stripe conectado correctamente!');loadStripeStatus();}
-  if(params.get('stripe')==='refresh'){showToast('Reintenta conectar tu cuenta Stripe',true);}
+  if(params.get('payment')==='success'){showToast(' Pago configurado correctamente!');// CCBill status}
+  if(params.get('payment')==='refresh'){showToast('Reintenta configurar tu cuenta de pagos',true);}
 }
 
 async function saveProfile(){
@@ -648,13 +648,14 @@ async function saveNotifPrefs(){
   showToast(r.error?'Error: '+r.error.message:' Preferencias guardadas');
 }
 
-async function connectStripe(){
+async function connectStripe(){window.open('https://www.ccbill.com/contact','_blank');}
+async function _old_connectStripe(){
   var sess=await sb.auth.getSession();
   if(!sess.data.session){window.location.href='/';return;}
   var btn=document.getElementById('stripeConnectBtn');
   if(btn){btn.disabled=true;btn.textContent='Conectando...';}
   try{
-    var res=await fetch(SB_URL+'/functions/v1/stripe-onboard',{
+    var res=await fetch(SB_URL+'/functions/v1/ccbill-payment',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':SB_KEY}
     });
@@ -678,15 +679,15 @@ async function loadStripeStatus(){
     });
     var d=await res.json();
     if(d.charges_enabled&&d.payouts_enabled){
-      box.className='stripe-status-box active';
+      box.className='payment-status-box active';
       box.innerHTML=' Cuenta Stripe activa  recibirs pagos automticos al instante';
       if(connectBtn)connectBtn.textContent=' Cuenta conectada';
     } else if(d.account_id){
-      box.className='stripe-status-box pending';
+      box.className='payment-status-box pending';
       box.innerHTML=' Onboarding incompleto  completa el proceso para recibir pagos';
       if(connectBtn)connectBtn.textContent=' Continuar onboarding';
     } else {
-      box.className='stripe-status-box none';
+      box.className='payment-status-box none';
       box.innerHTML='Sin cuenta Stripe conectada. Conctala para recibir pagos automticos.';
     }
   }catch(e){box.innerHTML='No se pudo verificar estado de Stripe';}

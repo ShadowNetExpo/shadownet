@@ -328,7 +328,7 @@ async function loadReports(){
         (rep.description?'<div class="report-reason">'+escH(rep.description)+'</div>':'')+
         '<div class="actions" style="margin-top:8px">'+
           (rep.reported_user_id?'<button class="btn btn-ban" onclick="openBanModal(&apos;+rep.reported_user_id+&apos;)">Banear usuario</button>':'')+
-          (rep.post_id?'<button class="btn btn-del" onclick="deletePost(&apos;+rep.post_id+&apos;,''+rep.id+&apos;)">Eliminar post</button>':'')+
+          (rep.post_id?'<button class="btn btn-del" onclick="deletePost(&apos;+rep.post_id+&apos;,&apos;+rep.id+&apos;)">Eliminar post</button>':'')+
           '<button class="btn btn-dismiss" onclick="dismissReport(&apos;+rep.id+&apos;)">Desestimar</button>'+
         '</div>'+
       '</div>'+

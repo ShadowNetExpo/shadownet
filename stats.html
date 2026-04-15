@@ -146,6 +146,10 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 .sn-nav-item:active{transform:scale(.9)}
 .sn-nav-create{transition:all .3s;box-shadow:0 2px 12px rgba(255,34,85,.3)}
 .sn-nav-create:hover{transform:scale(1.1)}
+
+.export-btn{padding:10px 18px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;margin-top:12px}
+.export-btn:hover{background:rgba(0,229,255,.2);transform:translateY(-1px)}
+
 </style>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff2255">
@@ -189,6 +193,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
     </div>
   </div>
 </div>
+<div style="padding:0 16px 16px"><button class="export-btn" onclick="exportStats()">&#128229; Exportar Datos (CSV)</button></div>
 <nav class="sn-nav">
   <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
   <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">&#128269;</span>Explorar</a>
@@ -529,6 +534,22 @@ function initNav(){
 <\/body>
 <\/html>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+async function exportStats(){
+  if(!window.currentUser)return;
+  try{
+    var r=await sb.rpc('export_creator_stats',{p_creator_id:currentUser.id});
+    if(!r.data){alert('Sin datos para exportar');return;}
+    var d=r.data;
+    var csv='TIPO,MONTO,DESCRIPCION,FECHA\n';
+    if(d.transactions){d.transactions.forEach(function(t){csv+=t.type+','+t.amount+',"'+(t.description||'')+'",'+t.created_at+'\n';});}
+    csv+='\nTOP POSTS\nCONTENIDO,LIKES,COMENTARIOS,FECHA\n';
+    if(d.top_posts){d.top_posts.forEach(function(p){csv+='"'+(p.content||'').substring(0,50)+'",'+p.likes_count+','+p.comments_count+','+p.created_at+'\n';});}
+    var blob=new Blob([csv],{type:'text/csv'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shadownet_stats_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+  }catch(e){alert('Error: '+e.message);}
+}
+
+</script>
 </body>
 </html>

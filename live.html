@@ -892,6 +892,57 @@ document.addEventListener("DOMContentLoaded",function(){
 @keyframes chatSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .sn-panel{backdrop-filter:blur(20px)!important;background:rgba(7,15,30,.92)!important}
 
+
+/* ══════ SHADOWNET LIVE — PREMIUM REDESIGN ══════ */
+/* Viewer count pulse */
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(255,34,85,.6)}50%{box-shadow:0 0 0 8px rgba(255,34,85,0)}}
+#viewerBadge,.sn-viewer-live-badge{animation:livePulse 2s ease infinite!important}
+/* Header glassmorphism */
+#liveHeader,.sn-live-header{background:rgba(0,0,0,.35)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;border-bottom:1px solid rgba(255,255,255,.06)!important}
+/* Chat messages premium */
+.chat-msg,.sn-viewer-chat-msg{background:rgba(0,0,0,.3)!important;backdrop-filter:blur(8px)!important;border-radius:16px 16px 16px 4px!important;padding:6px 12px!important;margin:3px 0!important;border:1px solid rgba(255,255,255,.04)!important;max-width:85%!important}
+.chat-msg .chat-user,.sn-viewer-chat-user{background:linear-gradient(90deg,#ff2255,#ff6b35)!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;font-weight:800!important;font-size:12px!important}
+.chat-msg .chat-text{color:rgba(255,255,255,.9)!important;font-size:13px!important;line-height:1.4!important}
+@keyframes chatSlide{from{opacity:0;transform:translateX(-20px) scale(.95)}to{opacity:1;transform:translateX(0) scale(1)}}
+.chat-msg{animation:chatSlide .3s cubic-bezier(.4,0,.2,1)!important}
+/* Panels premium glassmorphism */
+.sn-panel{background:rgba(5,10,25,.88)!important;backdrop-filter:blur(24px) saturate(1.5)!important;-webkit-backdrop-filter:blur(24px) saturate(1.5)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:20px 20px 0 0!important}
+/* Control buttons premium */
+.live-ctrl-btn{background:rgba(255,255,255,.06)!important;backdrop-filter:blur(8px)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:14px!important;transition:all .25s cubic-bezier(.4,0,.2,1)!important;padding:8px!important}
+.live-ctrl-btn:hover{background:rgba(255,255,255,.14)!important;transform:scale(1.08)!important;border-color:rgba(255,34,85,.3)!important}
+.live-ctrl-btn:active{transform:scale(.92)!important}
+.live-ctrl-label{font-size:9px!important;font-weight:700!important;letter-spacing:.03em!important;margin-top:3px!important;color:rgba(255,255,255,.7)!important}
+/* Chat input premium */
+#chatInp,.sn-viewer-input{background:rgba(255,255,255,.06)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:24px!important;color:#fff!important;padding:10px 16px!important;font-size:14px!important;transition:border-color .2s!important}
+#chatInp:focus,.sn-viewer-input:focus{border-color:rgba(255,34,85,.5)!important;outline:none!important;box-shadow:0 0 12px rgba(255,34,85,.15)!important}
+/* Gift animations premium */
+@keyframes giftFloat{0%{opacity:0;transform:translateY(40px) scale(.5)}30%{opacity:1;transform:translateY(-20px) scale(1.2)}60%{transform:translateY(-60px) scale(1)}100%{opacity:0;transform:translateY(-120px) scale(.7)}}
+.gift-anim{animation:giftFloat 2.5s cubic-bezier(.4,0,.2,1) forwards!important}
+/* Action bar premium */
+.live-action-btn{transition:transform .2s!important}
+.live-action-btn:active{transform:scale(.88)!important}
+.live-action-icon{font-size:22px!important}
+/* Scrollbar hide for chat */
+#chatArea,.sn-viewer-chat{scrollbar-width:none!important}
+#chatArea::-webkit-scrollbar,.sn-viewer-chat::-webkit-scrollbar{display:none!important}
+/* Goal progress bar */
+.sn-goal-bar{position:fixed;top:52px;left:0;right:0;z-index:45;height:28px;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);display:none;align-items:center;padding:0 12px;gap:8px}
+.sn-goal-bar.active{display:flex}
+.sn-goal-track{flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.sn-goal-fill{height:100%;background:linear-gradient(90deg,#ff2255,#ff6b35);border-radius:3px;transition:width .5s ease;width:0%}
+.sn-goal-text{font-size:10px;color:rgba(255,255,255,.7);font-weight:700;white-space:nowrap}
+/* Pinned message */
+.sn-pinned{position:fixed;top:56px;left:12px;right:80px;z-index:44;background:rgba(255,34,85,.15);backdrop-filter:blur(12px);border:1px solid rgba(255,34,85,.2);border-radius:12px;padding:8px 14px;display:none;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.9)}
+.sn-pinned.active{display:flex}
+.sn-pinned-icon{font-size:14px}
+/* Viewer list badge */
+.sn-viewers-list{font-size:11px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:4px}
+/* Send button premium */
+.chat-send-btn,.sn-viewer-send-btn{background:linear-gradient(135deg,#ff2255,#cc0030)!important;border:none!important;border-radius:50%!important;width:36px!important;height:36px!important;display:flex!important;align-items:center!important;justify-content:center!important;color:#fff!important;font-size:16px!important;cursor:pointer!important;transition:transform .2s!important}
+.chat-send-btn:active,.sn-viewer-send-btn:active{transform:scale(.88)!important}
+/* Timer premium */
+#liveSubtitle{font-size:11px!important;color:rgba(255,255,255,.5)!important;font-weight:600!important;letter-spacing:.04em!important}
+
 </style>
 
 <nav class="sn-bottom-nav" id="snBottomNav">

@@ -1115,11 +1115,11 @@ async function createShop(){
 async function togglePrivate(){var t=document.getElementById("privateToggle");t.classList.toggle("active");var priv=t.classList.contains("active");var s=await sb.auth.getSession();if(s.data.session){await sb.from("profiles").update({is_private:priv}).eq("id",s.data.session.user.id);showToast(priv?"Cuenta privada activada":"Cuenta pública activada");}}
 function toggleHideActivity(){var t=document.getElementById("hideActivityToggle");t.classList.toggle("active");showToast("Preferencia guardada");}
 function toggleDM(){var t=document.getElementById("dmToggle");t.classList.toggle("active");showToast("Preferencia guardada");}
-async function loadPrivacySettings(){var s=await sb.auth.getSession();if(s.data.session){var r=await sb.from("profiles").select("is_private").eq("id",s.data.session.user.id).single();if(r.data&&r.data.is_private){document.getElementById("privateToggle").classList.add("active");}}}
-loadPrivacySettings();
+async function loadPrivacySettings(){if(typeof sb==="undefined")return;var s=await sb.auth.getSession();if(s.data.session){var r=await sb.from("profiles").select("is_private").eq("id",s.data.session.user.id).single();if(r.data&&r.data.is_private){document.getElementById("privateToggle").classList.add("active");}}}
+if(typeof sb!=="undefined")loadPrivacySettings();else document.addEventListener("DOMContentLoaded",function(){if(typeof sb!=="undefined")loadPrivacySettings();});
 
 async function loadSubRequests(){
-  var s=await sb.auth.getSession();if(!s.data.session)return;
+  if(typeof sb==="undefined")return;var s=await sb.auth.getSession();if(!s.data.session)return;
   var uid=s.data.session.user.id;
   var r=await sb.from("subscription_requests").select("id,requester_id,status,created_at,profiles!subscription_requests_requester_id_fkey(username,avatar_url)").eq("creator_id",uid).order("created_at",{ascending:false});
   var list=document.getElementById("subRequestsList");

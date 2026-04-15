@@ -476,6 +476,37 @@ document.addEventListener("DOMContentLoaded",function(){
 </script>
 
 <body>
+
+<!-- PRE-LIVE WAITING ROOM -->
+<div class="pre-live-overlay" id="preLiveOverlay">
+  <button class="pre-live-back" onclick="history.back()">&#8592;</button>
+  <button class="pre-live-flip" onclick="preLiveFlip()">&#128260;</button>
+  <button class="pre-live-beauty" id="preLiveBeauty" onclick="preLiveToggleBeauty()">&#10024;</button>
+  <div class="pre-live-cam"><video id="preLiveVideo" autoplay playsinline muted></video></div>
+  <div class="pre-live-gradient"></div>
+  <div class="pre-live-content">
+    <div class="pre-live-logo">SHADOWNET LIVE</div>
+    <input class="pre-live-title-input" id="preLiveTitle" placeholder="T&#237;tulo de tu live..." maxlength="80">
+    <div class="pre-live-categories" id="preLiveCats">
+      <div class="pre-live-cat active" onclick="selectCat(this)">General</div>
+      <div class="pre-live-cat" onclick="selectCat(this)">Chat</div>
+      <div class="pre-live-cat" onclick="selectCat(this)">Gaming</div>
+      <div class="pre-live-cat" onclick="selectCat(this)">M&#250;sica</div>
+      <div class="pre-live-cat" onclick="selectCat(this)">Fitness</div>
+      <div class="pre-live-cat" onclick="selectCat(this)">Arte</div>
+      <div class="pre-live-cat" onclick="selectCat(this)">Cocina</div>
+      <div class="pre-live-cat" onclick="selectCat(this)">+18</div>
+    </div>
+    <div class="pre-live-toggles">
+      <label class="pre-live-toggle"><input type="checkbox" id="preLiveBeautyCheck"> Belleza</label>
+      <label class="pre-live-toggle"><input type="checkbox" id="preLiveMirror" checked> Espejo</label>
+      <label class="pre-live-toggle"><input type="checkbox" id="preLive18" checked> +18 only</label>
+    </div>
+    <button class="pre-live-go" id="preLiveGoBtn" onclick="startCountdown()">GO LIVE</button>
+  </div>
+</div>
+
+
 <!-- VIEWER MODE OVERLAY -->
 <div id="sn-viewer-wrap">
   <video id="sn-viewer-video" autoplay playsinline muted></video>
@@ -823,6 +854,44 @@ document.addEventListener("DOMContentLoaded",function(){
 .sn-nav-item.active::after,.sn-bn-item.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#ff2255;box-shadow:0 0 8px rgba(255,34,85,.5)}
 .sn-nav-item,.sn-bn-item{transition:all .2s}
 .sn-nav-item:active,.sn-bn-item:active{transform:scale(.9)}
+
+/* === WAITING ROOM / PRE-LIVE === */
+.pre-live-overlay{position:fixed;inset:0;z-index:500;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pre-live-overlay.hidden{display:none}
+.pre-live-cam{position:absolute;inset:0;z-index:1}
+.pre-live-cam video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.pre-live-gradient{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,.1) 30%,rgba(0,0,0,.1) 60%,rgba(0,0,0,.85) 100%)}
+.pre-live-content{position:relative;z-index:3;width:100%;max-width:500px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.pre-live-logo{font-family:Orbitron,monospace;font-size:14px;font-weight:900;color:#ff2255;letter-spacing:.1em;margin-bottom:8px}
+.pre-live-title-input{width:100%;padding:14px 18px;background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:14px;color:#fff;font-family:Rajdhani,sans-serif;font-size:16px;font-weight:600;text-align:center;outline:none}
+.pre-live-title-input::placeholder{color:rgba(255,255,255,.4)}
+.pre-live-title-input:focus{border-color:rgba(255,34,85,.5);box-shadow:0 0 20px rgba(255,34,85,.15)}
+.pre-live-categories{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pre-live-cat{padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.pre-live-cat.active{background:rgba(255,34,85,.2);border-color:#ff2255;color:#ff2255}
+.pre-live-cat:hover{border-color:rgba(255,255,255,.4)}
+.pre-live-toggles{display:flex;gap:16px;align-items:center}
+.pre-live-toggle{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.6);font-size:12px;font-weight:700;cursor:pointer}
+.pre-live-toggle input{accent-color:#ff2255}
+.pre-live-go{width:100%;max-width:280px;padding:16px 32px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:50px;font-family:Orbitron,monospace;font-size:18px;font-weight:900;letter-spacing:.08em;cursor:pointer;transition:all .3s;box-shadow:0 4px 24px rgba(255,34,85,.4);margin-top:12px}
+.pre-live-go:hover{transform:scale(1.05);box-shadow:0 6px 32px rgba(255,34,85,.6)}
+.pre-live-go:active{transform:scale(.97)}
+.pre-live-go.countdown{pointer-events:none;background:linear-gradient(135deg,#333,#222);box-shadow:none}
+.pre-live-go .count-num{font-size:32px;display:block;margin-top:4px}
+.pre-live-back{position:absolute;top:20px;left:20px;z-index:4;background:rgba(0,0,0,.4);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;backdrop-filter:blur(8px)}
+.pre-live-flip{position:absolute;top:20px;right:20px;z-index:4;background:rgba(0,0,0,.4);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:16px;cursor:pointer;backdrop-filter:blur(8px)}
+.pre-live-beauty{position:absolute;top:70px;right:20px;z-index:4;background:rgba(0,0,0,.4);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:16px;cursor:pointer;backdrop-filter:blur(8px)}
+.pre-live-beauty.active{background:rgba(255,34,85,.4);color:#ff2255}
+/* Visual improvements */
+.live-ctrl-btn{transition:all .2s!important}
+.live-ctrl-btn:hover{transform:scale(1.1)!important;background:rgba(255,255,255,.15)!important}
+.live-ctrl-btn:active{transform:scale(.9)!important}
+#chatArea{scrollbar-width:none}
+#chatArea::-webkit-scrollbar{display:none}
+.chat-msg{animation:chatSlide .3s ease!important}
+@keyframes chatSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sn-panel{backdrop-filter:blur(20px)!important;background:rgba(7,15,30,.92)!important}
+
 </style>
 
 <nav class="sn-bottom-nav" id="snBottomNav">
@@ -1366,6 +1435,64 @@ window.snConfetti=function(){
 // LIVE TITLE (stored in window)
 window._liveTitle="";
 window.snSetTitle=function(t){_liveTitle=t;var el=document.getElementById("snLiveTitle");if(el)el.textContent=t;};
+
+
+// === PRE-LIVE WAITING ROOM ===
+var _preLiveStream = null;
+var _preLiveFacing = 'user';
+
+async function initPreLive(){
+  try{
+    _preLiveStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:_preLiveFacing,width:{ideal:1280},height:{ideal:720}},audio:false});
+    document.getElementById('preLiveVideo').srcObject = _preLiveStream;
+  }catch(e){console.log('Camera not available');}
+}
+function preLiveFlip(){
+  _preLiveFacing = _preLiveFacing === 'user' ? 'environment' : 'user';
+  if(_preLiveStream){_preLiveStream.getTracks().forEach(function(t){t.stop();});}
+  initPreLive();
+}
+function preLiveToggleBeauty(){
+  var btn = document.getElementById('preLiveBeauty');
+  btn.classList.toggle('active');
+  var vid = document.getElementById('preLiveVideo');
+  if(btn.classList.contains('active')){vid.style.filter='blur(0.5px) brightness(1.05) contrast(1.05) saturate(1.1)';}
+  else{vid.style.filter='none';}
+}
+function selectCat(el){
+  document.querySelectorAll('.pre-live-cat').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+}
+function startCountdown(){
+  var btn = document.getElementById('preLiveGoBtn');
+  btn.classList.add('countdown');
+  var count = 3;
+  btn.innerHTML = '<span class="count-num">'+count+'</span>';
+  var interval = setInterval(function(){
+    count--;
+    if(count > 0){btn.innerHTML='<span class="count-num">'+count+'</span>';}
+    else{
+      clearInterval(interval);
+      btn.innerHTML='LIVE!';
+      // Stop pre-live camera
+      if(_preLiveStream){_preLiveStream.getTracks().forEach(function(t){t.stop();});}
+      // Hide pre-live, show main live
+      document.getElementById('preLiveOverlay').classList.add('hidden');
+      // Store title
+      window._liveTitle = document.getElementById('preLiveTitle').value || 'Live de ' + (window.currentUser ? window.currentUser.email.split('@')[0] : 'Creador');
+      window._liveCategory = document.querySelector('.pre-live-cat.active') ? document.querySelector('.pre-live-cat.active').textContent : 'General';
+      // Start the actual live
+      if(typeof go === 'function') go();
+    }
+  }, 1000);
+}
+// Only show pre-live for hosts (not viewers)
+if(!new URLSearchParams(location.search).get('stream')){
+  document.getElementById('preLiveOverlay').classList.remove('hidden');
+  initPreLive();
+} else {
+  document.getElementById('preLiveOverlay').classList.add('hidden');
+}
 
 </script>
 </body>

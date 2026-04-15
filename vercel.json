@@ -48,7 +48,16 @@
       ]
     },
     {
-      "source": "/(.*)\\.png",
+      "source": "/icon-(.*).png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, s-maxage=86400"
+        }
+      ]
+    },
+    {
+      "source": "/og-image.png",
       "headers": [
         {
           "key": "Cache-Control",
@@ -75,11 +84,11 @@
       ]
     },
     {
-      "source": "/(.*)\\.html",
+      "source": "/(.*).html",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=0, s-maxage=60, stale-while-revalidate=300"
+          "value": "public, max-age=0, s-maxage=60, stale-while-revalidate=120"
         }
       ]
     }

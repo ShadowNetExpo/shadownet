@@ -111,6 +111,27 @@ header{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:
 .sn-nav-item:active{transform:scale(.9)}
 .sn-nav-create{transition:all .3s;box-shadow:0 2px 12px rgba(255,34,85,.3)}
 .sn-nav-create:hover{transform:scale(1.1)}
+
+.shop-fab{position:fixed;bottom:80px;right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;font-size:26px;cursor:pointer;z-index:90;box-shadow:0 4px 16px rgba(255,34,85,.4);display:none;align-items:center;justify-content:center;transition:transform .2s}
+.shop-fab:active{transform:scale(.9)}
+.shop-fab.visible{display:flex}
+.product-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.product-modal-overlay.active{display:flex}
+.product-modal{background:#0a1a2e;border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;padding:20px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.pm-title{font-family:Orbitron,monospace;font-size:16px;font-weight:900;color:#ff2255}
+.pm-close{background:none;border:none;color:#5a8aaa;font-size:22px;cursor:pointer}
+.pm-field{margin-bottom:14px}
+.pm-label{font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;display:block}
+.pm-input{width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:14px;outline:none}
+.pm-input:focus{border-color:rgba(255,34,85,.4)}
+.pm-textarea{resize:vertical;min-height:60px}
+.pm-row{display:flex;gap:10px}
+.pm-row .pm-field{flex:1}
+.pm-submit{width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff;border:none;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase;margin-top:8px}
+.pm-submit:active{transform:scale(.98)}
+
 </style>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff2255">
@@ -142,6 +163,22 @@ header{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:
     <button class="pd-buy" id="pdBuy" onclick="buyProduct()">COMPRAR</button>
   </div>
 </div>
+
+<button class="shop-fab" id="shopFab" onclick="openProductModal()">&#43;</button>
+<div class="product-modal-overlay" id="productModal">
+<div class="product-modal">
+<div class="pm-header"><span class="pm-title">&#128722; Nuevo Producto</span><button class="pm-close" onclick="closeProductModal()">&#10005;</button></div>
+<div class="pm-field"><label class="pm-label">Nombre del producto</label><input class="pm-input" id="pmName" placeholder="Ej: Pack de Fotos Exclusivas"></div>
+<div class="pm-field"><label class="pm-label">Descripción</label><textarea class="pm-input pm-textarea" id="pmDesc" placeholder="Describe tu producto..." rows="3"></textarea></div>
+<div class="pm-row">
+<div class="pm-field"><label class="pm-label">Precio (USD)</label><input class="pm-input" id="pmPrice" type="number" min="0.99" step="0.01" placeholder="9.99"></div>
+<div class="pm-field"><label class="pm-label">Categoría</label><select class="pm-input" id="pmCategory"><option value="fotos">Fotos</option><option value="videos">Videos</option><option value="digital">Digital</option><option value="ebooks">Ebooks</option><option value="cursos">Cursos</option><option value="merch">Merch</option></select></div>
+</div>
+<div class="pm-field"><label class="pm-label">Stock (opcional)</label><input class="pm-input" id="pmStock" type="number" min="1" value="999" placeholder="999"></div>
+<button class="pm-submit" onclick="submitProduct()">&#128640; PUBLICAR PRODUCTO</button>
+</div>
+</div>
+
 <nav class="sn-nav">
   <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">&#127968;</span>Inicio</a>
   <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">&#128269;</span>Explorar</a>
@@ -268,6 +305,50 @@ if(_sp.get('cancelled')==='1'){
 </script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
-<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))var _snCo=document.getElementById("snCookieBanner");if(_snCo)_snCo.style.display="block";</script>
+<div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998;backdrop-filter:blur(12px)"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies para mejorar tu experiencia. <a href="/privacy.html" style="color:#ff2255;text-decoration:none">Política de Privacidad</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))var _snCo=document.getElementById("snCookieBanner");if(_snCo)_snCo.style.display="block";
+// Check if user is creator to show FAB
+async function checkCreatorForShop(){
+  if(!window.currentUser)return;
+  var r=await sb.from('profiles').select('role').eq('id',currentUser.id).single();
+  if(r.data&&r.data.role==='creator'){
+    document.getElementById('shopFab').classList.add('visible');
+  }
+}
+function openProductModal(){document.getElementById('productModal').classList.add('active');}
+function closeProductModal(){document.getElementById('productModal').classList.remove('active');}
+document.getElementById('productModal').addEventListener('click',function(e){if(e.target===this)closeProductModal();});
+
+async function submitProduct(){
+  var name=document.getElementById('pmName').value.trim();
+  var desc=document.getElementById('pmDesc').value.trim();
+  var price=parseFloat(document.getElementById('pmPrice').value);
+  var category=document.getElementById('pmCategory').value;
+  var stock=parseInt(document.getElementById('pmStock').value)||999;
+  if(!name||name.length<2){alert('Nombre requerido (m\u00ednimo 2 caracteres)');return;}
+  if(!price||price<0.99){alert('Precio m\u00ednimo: $0.99');return;}
+  var r=await sb.rpc('create_shop_product',{
+    p_seller_id:currentUser.id,
+    p_name:name,
+    p_description:desc,
+    p_price_cents:Math.round(price*100),
+    p_category:category,
+    p_is_digital:true,
+    p_stock:stock
+  });
+  if(r.data&&r.data.error){alert(r.data.error);return;}
+  if(r.data&&r.data.success){
+    closeProductModal();
+    document.getElementById('pmName').value='';
+    document.getElementById('pmDesc').value='';
+    document.getElementById('pmPrice').value='';
+    loadProducts();
+    if(typeof showToast==='function')showToast('Producto creado: '+name);
+    else alert('\u2705 Producto creado: '+name);
+  }else{alert('Error al crear producto');}
+}
+// Call on load
+setTimeout(checkCreatorForShop,1500);
+
+</script>
 </body>
 </html>

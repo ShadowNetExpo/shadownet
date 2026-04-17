@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SHADOWNET \u2014 Shop</title>
+<title>SHADOWNET — Shop</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/sn-design.css">
@@ -361,8 +361,8 @@ async function submitProduct(){
   var price=parseFloat(document.getElementById('pmPrice').value);
   var category=document.getElementById('pmCategory').value;
   var stock=parseInt(document.getElementById('pmStock').value)||999;
-  if(!name||name.length<2){alert('Nombre requerido (m\u00ednimo 2 caracteres)');return;}
-  if(!price||price<0.99){alert('Precio m\u00ednimo: $0.99');return;}
+  if(!name||name.length<2){alert('Nombre requerido (mínimo 2 caracteres)');return;}
+  if(!price||price<0.99){alert('Precio mínimo: $0.99');return;}
   var r=await sb.rpc('create_shop_product',{
     p_seller_id:currentUser.id,
     p_name:name,

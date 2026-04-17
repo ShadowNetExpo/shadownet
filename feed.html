@@ -738,7 +738,7 @@ function loadPublicFeed() {
   var banner = document.createElement('div');
   banner.id = 'anonBanner';
   banner.style.cssText = 'position:sticky;top:48px;z-index:90;background:linear-gradient(135deg,rgba(255,34,85,.12),rgba(7,15,30,.95));border-bottom:1px solid rgba(255,34,85,.3);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#e8f4ff;';
-  banner.innerHTML = '<span style="flex:1">Reg\u00edstrate para interactuar, seguir creadores y desbloquear contenido exclusivo</span><button onclick="openAuth(\'login\')" style="padding:6px 16px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ENTRAR</button>';
+  banner.innerHTML = '<span style="flex:1">Regístrate para interactuar, seguir creadores y desbloquear contenido exclusivo</span><button onclick="openAuth(\'login\')" style="padding:6px 16px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;cursor:pointer">ENTRAR</button>';
   var header = document.querySelector('header');
   if(header) header.after(banner);
   // Load public SFW feed via the algorithm
@@ -764,7 +764,7 @@ function requireLogin() {
   if(!window._isAnon) return false;
   var modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  modal.innerHTML = '<div style="background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:32px;text-align:center;max-width:360px;margin:0 16px"><div style="font-family:Orbitron,sans-serif;font-size:18px;color:#ff2255;margin-bottom:12px">SHADOWNET</div><p style="color:#c8d8e8;font-size:14px;margin-bottom:20px">Crea tu cuenta para dar like, comentar, seguir creadores y m\u00e1s</p><button onclick="window.location.href=\'/'+'\''+'" style="width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:8px">CREAR CUENTA</button><button onclick="this.closest(\'div[style]\').parentElement.remove()" style="width:100%;padding:8px;background:none;border:1px solid #0d2744;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer">Seguir viendo</button></div>';
+  modal.innerHTML = '<div style="background:#070f1e;border:1px solid #0d2744;border-radius:16px;padding:32px;text-align:center;max-width:360px;margin:0 16px"><div style="font-family:Orbitron,sans-serif;font-size:18px;color:#ff2255;margin-bottom:12px">SHADOWNET</div><p style="color:#c8d8e8;font-size:14px;margin-bottom:20px">Crea tu cuenta para dar like, comentar, seguir creadores y más</p><button onclick="window.location.href=\'/'+'\''+'" style="width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:8px">CREAR CUENTA</button><button onclick="this.closest(\'div[style]\').parentElement.remove()" style="width:100%;padding:8px;background:none;border:1px solid #0d2744;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;cursor:pointer">Seguir viendo</button></div>';
   document.body.appendChild(modal);
   return true;
 }
@@ -895,7 +895,7 @@ async function loadRankedFeed(mode, container, offset) {
     
     if(!posts.length && !(offset>0)) {
       if(container) container.innerHTML = '<div class="empty-feed" style="text-align:center;padding:40px;color:#5a8aaa;font-size:14px">' +
-        (dbMode==='following'?'Sigue a creadores para ver su contenido aqu\u00ed':'A\u00fan no hay posts. \u00a1S\u00e9 el primero en publicar!') + '</div>';
+        (dbMode==='following'?'Sigue a creadores para ver su contenido aquí':'Aún no hay posts. \u00a1Sé el primero en publicar!') + '</div>';
       return;
     }
     
@@ -1508,7 +1508,7 @@ var REPORT_REASONS=[
   {icon:'\u26a0\ufe0f',text:'Contenido inapropiado'},
   {icon:'\ud83d\udcf8',text:'Contenido sexual no permitido'},
   {icon:'\ud83d\udde1\ufe0f',text:'Violencia o contenido perturbador'},
-  {icon:'\ud83d\udeab',text:'Spam o contenido eng\u00f1oso'},
+  {icon:'\ud83d\udeab',text:'Spam o contenido engñoso'},
   {icon:'\u26a0\ufe0f',text:'Acoso o bullying'},
   {icon:'\ud83d\udccb',text:'Otro motivo'}
 ];
@@ -2269,7 +2269,7 @@ function openLiveStaging(){
     modal.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px';
     modal.innerHTML = '<div style="position:relative;width:100%;max-width:480px;aspect-ratio:9/16;background:#111;border-radius:16px;overflow:hidden;margin:0 auto">'
       +'<video id="livePreviewVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover"></video>'
-      +'<div style="position:absolute;top:16px;left:16px;background:rgba(0,0,0,.6);color:#fff;padding:6px 12px;border-radius:20px;font-size:13px;font-family:Rajdhani,sans-serif">Vista previa \u2014 no est\u00E1s en vivo</div>'
+      +'<div style="position:absolute;top:16px;left:16px;background:rgba(0,0,0,.6);color:#fff;padding:6px 12px;border-radius:20px;font-size:13px;font-family:Rajdhani,sans-serif">Vista previa — no est\u00E1s en vivo</div>'
       +'</div>'
       +'<div style="display:flex;gap:16px;padding:0 20px;width:100%;max-width:480px;box-sizing:border-box">'
       +'<button onclick="closeLiveStaging()" style="flex:1;padding:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:12px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:15px;cursor:pointer">\u2715 Cancelar</button>'
@@ -2984,7 +2984,7 @@ function markNotInterested(postId) {
   }, {onConflict: 'user_id,post_id,signal_type'}).then(function(){
     var el = document.querySelector('[data-post-id="'+postId+'"]');
     if(el) { el.style.opacity='0'; setTimeout(function(){ el.remove(); }, 300); }
-    showToast('\u2713 No ver\u00e1s contenido similar');
+    showToast('\u2713 No verás contenido similar');
   });
   // Update interest negatively
   window.sb.rpc('update_user_interest', {
@@ -3181,9 +3181,9 @@ function buildCarousel(urls,container){
 <div class="onboard-overlay" id="onboardModal">
   <div class="onboard-box">
     <div class="onboard-title">ELIGE TUS INTERESES</div>
-    <div class="onboard-sub">Selecciona 3 o m\u00e1s para personalizar tu feed</div>
+    <div class="onboard-sub">Selecciona 3 o más para personalizar tu feed</div>
     <div class="onboard-grid" id="onboardGrid"></div>
-    <div class="onboard-count" id="onboardCount">0 seleccionados (m\u00ednimo 3)</div>
+    <div class="onboard-count" id="onboardCount">0 seleccionados (mínimo 3)</div>
     <button class="onboard-go" id="onboardGo" disabled onclick="saveOnboarding()">CONTINUAR</button>
     <button class="onboard-skip" onclick="skipOnboarding()">Saltar por ahora</button>
   </div>

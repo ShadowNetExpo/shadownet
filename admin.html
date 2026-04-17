@@ -404,11 +404,11 @@ function renderPosts(posts){
       '<div class="card-header">'+
         '<div><div class="card-title">@'+escH(p.username)+(p.is_subscriber_only?' \uD83D\uDD12':'')+'</div>'+
         '<div class="card-sub">hace '+tsAgo(p.created_at)+' &middot; \u2764 '+p.likes_count+' &middot; \uD83D\uDCAC '+p.comments_count+'</div></div>'+
-        '<button class="btn btn-del" onclick="deletePostAdmin(''+p.id+&apos;)">Eliminar</button>'+
+        '<button class="btn btn-del" onclick="deletePostAdmin(&apos;'+p.id+'&apos;)">Eliminar</button>'+
       '</div>'+
       (p.content||p.media_url?'<div class="card-body">'+
         (p.content?'<div class="report-reason">'+escH(p.content.slice(0,200))+'</div>':'')+
-        (p.media_url&&p.media_type==='image'?'<img class="post-media-thumb" src="'+p.media_url+'" onclick="window.open(''+p.media_url+&apos;,'_blank')" alt="">':'')+
+        (p.media_url&&p.media_type==='image'?'<img class="post-media-thumb" src="'+p.media_url+'" onclick="window.open(&apos;'+p.media_url+'&apos;,&apos;_blank&apos;)" alt="">':'')+
         (p.media_url&&p.media_type==='video'?'<video class="post-media-thumb" src="'+p.media_url+'" controls muted></video>':'')+
       '</div>':'')+
     '</div>';

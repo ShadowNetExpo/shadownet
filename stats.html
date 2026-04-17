@@ -177,14 +177,14 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 <div class="withdrawal-modal" id="withdrawalModal">
   <div class="modal-box">
     <div class="modal-title">&#128176; SOLICITAR RETIRO</div>
-    <div style="font-size:13px;color:#5a8aaa;margin-bottom:14px">M\u00ednimo $10.00 USD. Procesamos en 3-5 d\u00edas.</div>
-    <label style="font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block">M\u00e9todo de pago</label>
+    <div style="font-size:13px;color:#5a8aaa;margin-bottom:14px">Mínimo $10.00 USD. Procesamos en 3-5 días.</div>
+    <label style="font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block">Método de pago</label>
     <select class="select" id="withdrawMethod">
       <option value="paypal">PayPal</option>
       <option value="bank">Transferencia bancaria</option>
       <option value="crypto">Cripto (USDT/BTC)</option>
     </select>
-    <label style="font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block">Cuenta / Email / Direcci\u00f3n</label>
+    <label style="font-size:11px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block">Cuenta / Email / Dirección</label>
     <input class="inp" id="withdrawAccount" placeholder="tu@paypal.com o IBAN...">
     <div style="font-size:12px;color:#ff2255;margin-bottom:10px;display:none" id="withdrawMsg"></div>
     <div class="modal-btns">
@@ -233,7 +233,7 @@ async function loadStats(){
   profileData=r.data;
   var isCreator=(r.data.role==='creator'||r.data.is_creator);
   if(!isCreator){
-    document.getElementById('mainWrap').innerHTML='<div class="not-creator"><div class="icon">&#127775;<\/div><p style="font-size:15px;color:#e8f4ff;margin-bottom:8px">Stats de creador<\/p><p style="font-size:13px;color:#5a8aaa">Solicita ser creador para ver tus estad\u00edsticas.<\/p><button onclick="window.location.href=\'/'+'\''+'" style="margin-top:20px;padding:10px 24px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer">&#127968; Ir al inicio<\/button><\/div>';
+    document.getElementById('mainWrap').innerHTML='<div class="not-creator"><div class="icon">&#127775;<\/div><p style="font-size:15px;color:#e8f4ff;margin-bottom:8px">Stats de creador<\/p><p style="font-size:13px;color:#5a8aaa">Solicita ser creador para ver tus estadísticas.<\/p><button onclick="window.location.href=\'/'+'\''+'" style="margin-top:20px;padding:10px 24px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer">&#127968; Ir al inicio<\/button><\/div>';
     return;
   }
   renderStats(r.data);
@@ -247,7 +247,7 @@ async function renderStats(d){
   wrap.innerHTML='';
   var pb=document.createElement('div');pb.className='period-bar';pb.id='periodBar';
   ['week','month','3months','year','all'].forEach(function(p){
-    var labels={week:'7 d\u00edas',month:'Este mes','3months':'3 meses',year:'Este a\u00f1o',all:'Todo'};
+    var labels={week:'7 días',month:'Este mes','3months':'3 meses',year:'Este año',all:'Todo'};
     var btn=document.createElement('button');btn.className='period-btn'+(p===currentPeriod?' active':'');
     btn.textContent=labels[p];btn.onclick=function(){currentPeriod=p;renderStats(profileData);};
     pb.appendChild(btn);
@@ -257,13 +257,13 @@ async function renderStats(d){
   eb.innerHTML='<div class="section-title">&#128176; GANANCIAS<\/div>'
     +'<div class="earnings-main">'
     +'<div><div class="earnings-total">$'+earnings.toFixed(2)+'<\/div><div class="earnings-label">Total ganado<\/div><\/div>'
-    +'<button class="withdraw-btn" id="wdBtn" onclick="openWithdrawal()"'+(available<10?' disabled':'')+'>'+(available<10?'M\u00ednimo $10':'&#128176; Retirar $'+available.toFixed(2))+'<\/button>'
+    +'<button class="withdraw-btn" id="wdBtn" onclick="openWithdrawal()"'+(available<10?' disabled':'')+'>'+(available<10?'Mínimo $10':'&#128176; Retirar $'+available.toFixed(2))+'<\/button>'
     +'<\/div>'
     +'<div class="earnings-breakdown">'
     +'<div class="eb-item"><div class="eb-val">$'+available.toFixed(2)+'<\/div><div class="eb-lbl">Disponible<\/div><\/div>'
     +'<div class="eb-item"><div class="eb-val">$'+withdrawn.toFixed(2)+'<\/div><div class="eb-lbl">Retirado<\/div><\/div>'
     +'<div class="eb-item"><div class="eb-val">$'+pending.toFixed(2)+'<\/div><div class="eb-lbl">Pendiente<\/div><\/div>'
-    +'<div class="eb-item"><div class="eb-val">10%<\/div><div class="eb-lbl">Comisi\u00f3n SN<\/div><\/div>'
+    +'<div class="eb-item"><div class="eb-val">10%<\/div><div class="eb-lbl">Comisión SN<\/div><\/div>'
     +'<\/div>';
   wrap.appendChild(eb);
   var rvTitle=document.createElement('div');rvTitle.className='section-title';rvTitle.innerHTML='&#128200; INGRESOS POR FUENTE';wrap.appendChild(rvTitle);
@@ -281,7 +281,7 @@ async function renderStats(d){
     +'<div class="chart-leg-item"><span class="chart-leg-dot" style="background:#00e5ff"><\/span>Suscriptores<\/div>'
     +'<\/div>';
   wrap.appendChild(chBox);
-  var sgTitle=document.createElement('div');sgTitle.className='section-title';sgTitle.innerHTML='&#128202; ESTAD\u00cdSTICAS';wrap.appendChild(sgTitle);
+  var sgTitle=document.createElement('div');sgTitle.className='section-title';sgTitle.innerHTML='&#128202; ESTADÍSTICAS';wrap.appendChild(sgTitle);
   var sg=document.createElement('div');sg.className='stats-grid';
   var postsCount=parseInt(d.posts_count||0);
   var followersCount=parseInt(d.followers_count||0);
@@ -292,7 +292,7 @@ async function renderStats(d){
     {icon:'&#128081;',val:subsCount,lbl:'Suscriptores'},
     {icon:'&#128248;',val:postsCount,lbl:'Publicaciones'},
     {icon:'&#127942;',val:'Lv.'+(d.fan_rank||1),lbl:'Rango'},
-    {icon:'&#128200;',val:convRate+'%',lbl:'Conversi\u00f3n'},
+    {icon:'&#128200;',val:convRate+'%',lbl:'Conversión'},
     {icon:'&#9878;',val:d.coins_balance||0,lbl:'Almas'}
   ].forEach(function(s){
     var card=document.createElement('div');card.className='stat-card';
@@ -465,7 +465,7 @@ async function loadTransactions(){
   r.data.forEach(function(tx){
     var item=document.createElement('div');item.className='tx-item';
     var left=document.createElement('div');
-    var type=document.createElement('div');type.className='tx-type';type.textContent=tx.description||tx.type||'Transacci\u00f3n';
+    var type=document.createElement('div');type.className='tx-type';type.textContent=tx.description||tx.type||'Transacción';
     var date=document.createElement('div');date.className='tx-date';date.textContent=new Date(tx.created_at).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
     left.appendChild(type);left.appendChild(date);
     var amt=document.createElement('div');
@@ -489,7 +489,7 @@ async function submitWithdrawal(){
   var earnings=parseFloat(profileData.total_earnings||0);
   var withdrawn=parseFloat(profileData.total_withdrawn||0);
   var available=Math.max(0,earnings-withdrawn);
-  if(available<10){msg.textContent='M\u00ednimo de retiro: $10.00';msg.style.color='#ff2255';msg.style.display='block';return;}
+  if(available<10){msg.textContent='Mínimo de retiro: $10.00';msg.style.color='#ff2255';msg.style.display='block';return;}
   var r=await sb.from('withdrawals').insert({user_id:currentUser.id,amount:available,method:method,account_info:account,status:'pending'});
   if(r.error){msg.textContent='Error: '+r.error.message;msg.style.color='#ff2255';msg.style.display='block';return;}
   await sb.from('profiles').update({total_withdrawn:withdrawn+available}).eq('id',currentUser.id);

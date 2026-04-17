@@ -329,6 +329,108 @@ body{background:#000;color:#fff;font-family:Rajdhani,sans-serif;height:100vh;ove
 .pre-live-back:active,.pre-live-flip:active,.pre-live-beauty:active{transform:scale(.85)!important}
 .pre-live-beauty.active{background:rgba(255,34,85,.35)!important;color:#ff2255!important;border-color:rgba(255,34,85,.4)!important}
 /* ══════ END PREMIUM v3 ══════ */
+
+/* ═══════ SHADOWNET LIVE — PREMIUM REDESIGN v2 ═══════ */
+
+/* === GRADIENT OVERLAY ON VIDEO === */
+.live-video-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 20%,transparent 60%,rgba(0,0,0,.7) 100%);pointer-events:none;z-index:1}
+
+/* === TOPBAR GLASSMORPHISM === */
+.live-topbar{background:rgba(0,0,0,.3)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;border-bottom:1px solid rgba(255,255,255,.04)!important;z-index:50!important;position:fixed!important;top:0!important;left:0!important;right:0!important}
+
+/* === VIEWER BADGE GLOW === */
+.live-viewers-badge{box-shadow:0 0 12px rgba(255,34,85,.4)}
+
+/* === CONTROL BUTTONS PREMIUM === */
+.live-ctrl-btn{background:rgba(0,0,0,.4)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:50%!important;width:48px!important;height:48px!important;transition:all .25s cubic-bezier(.4,0,.2,1)!important}
+.live-ctrl-btn:hover{background:rgba(255,255,255,.12)!important;border-color:rgba(255,34,85,.35)!important;transform:scale(1.1)!important}
+.live-ctrl-btn:active{transform:scale(.88)!important}
+.live-ctrl-label{font-size:8px!important;font-weight:700!important;letter-spacing:.03em!important;color:rgba(255,255,255,.6)!important;text-shadow:0 1px 4px rgba(0,0,0,.5)!important}
+
+/* === CHAT MESSAGES PREMIUM === */
+.live-chat-msg{background:rgba(0,0,0,.45)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;border-radius:16px 16px 16px 4px!important;padding:6px 12px!important;border:1px solid rgba(255,255,255,.04)!important;max-width:82%!important;animation:chatSlide .3s cubic-bezier(.4,0,.2,1)!important}
+.live-chat-name{background:linear-gradient(90deg,#ff2255,#ff6b35)!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;font-weight:800!important;font-size:11px!important}
+.live-chat-text{color:rgba(255,255,255,.92)!important;font-size:13px!important;line-height:1.35!important}
+.live-chat-av{border:1.5px solid rgba(255,34,85,.3)!important}
+@keyframes chatSlide{from{opacity:0;transform:translateX(-16px) scale(.96)}to{opacity:1;transform:translateX(0) scale(1)}}
+
+/* === CHAT INPUT PREMIUM === */
+.live-chat-inp{background:rgba(255,255,255,.06)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:24px!important;color:#fff!important;font-size:14px!important;padding:10px 16px!important;transition:all .25s!important}
+.live-chat-inp:focus{border-color:rgba(255,34,85,.45)!important;box-shadow:0 0 20px rgba(255,34,85,.1)!important}
+.live-chat-inp::placeholder{color:rgba(255,255,255,.25)!important}
+
+/* === SEND BUTTON PREMIUM === */
+.live-send-btn,.chat-send-btn,.live-chat-send{width:38px!important;height:38px!important;border-radius:50%!important;background:linear-gradient(135deg,#ff2255,#cc0030)!important;border:none!important;color:#fff!important;font-size:16px!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:center!important;box-shadow:0 2px 12px rgba(255,34,85,.3)!important;transition:all .2s!important;flex-shrink:0!important}
+.live-send-btn:active,.chat-send-btn:active{transform:scale(.85)!important;box-shadow:0 1px 6px rgba(255,34,85,.2)!important}
+
+/* === BOTTOM BAR GRADIENT === */
+.live-bottombar{background:linear-gradient(0deg,rgba(0,0,0,.7) 0%,transparent 100%)!important;padding:12px!important;padding-bottom:8px!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:35!important}
+
+/* === ACTION BAR PREMIUM === */
+.live-action-bar{background:none!important;backdrop-filter:none!important;position:relative!important;padding:4px 0!important}
+.live-action-btn{transition:all .2s!important}
+.live-action-btn:active{transform:scale(.85)!important}
+.live-action-icon{font-size:20px!important;filter:drop-shadow(0 1px 3px rgba(0,0,0,.4))!important}
+.live-action-label{font-size:8px!important;color:rgba(255,255,255,.5)!important;font-weight:700!important;text-shadow:0 1px 3px rgba(0,0,0,.5)!important}
+
+/* === PANELS SLIDE-UP GLASSMORPHISM === */
+.sn-panel{background:rgba(8,14,30,.92)!important;backdrop-filter:blur(28px) saturate(1.4)!important;-webkit-backdrop-filter:blur(28px) saturate(1.4)!important;border:1px solid rgba(255,255,255,.06)!important;border-bottom:none!important;border-radius:24px 24px 0 0!important;animation:panelUp .35s cubic-bezier(.4,0,.2,1)!important}
+@keyframes panelUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sn-panel .panel-section-title,.panel-section-title{font-size:10px!important;font-weight:800!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:rgba(255,34,85,.65)!important}
+.panel-input,.sn-panel input[type="text"],.sn-panel textarea{background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:12px!important;color:#fff!important;font-family:Rajdhani,sans-serif!important;padding:10px 14px!important;transition:border-color .2s!important}
+.panel-input:focus,.sn-panel input:focus,.sn-panel textarea:focus{border-color:rgba(255,34,85,.4)!important}
+.panel-input::placeholder{color:rgba(255,255,255,.2)!important}
+
+/* === SFX/VOICE GRID PREMIUM === */
+.sfx-grid,.vbg-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+.sfx-btn{background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.06)!important;border-radius:12px!important;padding:10px 6px!important;cursor:pointer!important;transition:all .2s!important;color:rgba(255,255,255,.65)!important;font-size:11px!important;font-weight:700!important}
+.sfx-btn:hover,.sfx-btn.active{background:rgba(255,34,85,.1)!important;border-color:rgba(255,34,85,.3)!important;color:#ff2255!important}
+
+/* === PANEL SLIDERS === */
+input[type="range"]{-webkit-appearance:none!important;appearance:none!important;height:4px!important;background:rgba(255,255,255,.1)!important;border-radius:2px!important;outline:none!important}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none!important;width:16px!important;height:16px!important;border-radius:50%!important;background:#ff2255!important;cursor:pointer!important;border:2px solid rgba(0,0,0,.3)!important}
+
+/* === END SCREEN PREMIUM === */
+.end-live-screen{background:rgba(0,0,0,.92)!important;backdrop-filter:blur(24px)!important;-webkit-backdrop-filter:blur(24px)!important}
+.end-stat-num{font-family:Orbitron,monospace!important;font-size:28px!important;font-weight:900!important;color:#fff!important}
+.end-stat-label{font-size:10px!important;color:rgba(255,255,255,.35)!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:.06em!important}
+
+/* === GIFT FLOAT ANIMATION === */
+@keyframes giftFloat{0%{opacity:0;transform:translateY(30px) scale(.6)}20%{opacity:1;transform:translateY(-10px) scale(1.15)}50%{transform:translateY(-50px) scale(1)}100%{opacity:0;transform:translateY(-110px) scale(.6)}}
+.gift-anim{animation:giftFloat 2.5s cubic-bezier(.4,0,.2,1) forwards!important;pointer-events:none!important}
+
+/* === REACTION FLOAT === */
+@keyframes reactionFloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-120px) scale(.5)}}
+.sn-reaction{animation:reactionFloat 2s ease-out forwards!important}
+
+/* === TOAST PREMIUM === */
+.live-toast:not(:empty){background:rgba(0,0,0,.75)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:12px!important;padding:8px 18px!important;font-size:12px!important;font-weight:700!important}
+
+/* === SLOW MODE BADGE === */
+.sn-slow-badge{backdrop-filter:blur(8px)!important;border:1px solid rgba(255,170,0,.15)!important;border-radius:8px!important}
+
+/* === GOAL BAR PREMIUM === */
+.live-goal.active{background:rgba(0,0,0,.45)!important;backdrop-filter:blur(10px)!important;border:1px solid rgba(255,255,255,.05)!important;border-radius:10px!important}
+.live-goal-fill{background:linear-gradient(90deg,#ff2255,#ff6b35)!important;border-radius:3px!important;transition:width .6s ease!important}
+
+/* === PINNED MESSAGE === */
+.sn-pinned.active{background:rgba(255,34,85,.1)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,34,85,.15)!important;border-radius:12px!important}
+
+/* === PRE-LIVE PREMIUM ENHANCEMENTS === */
+.pre-live-overlay{background:#000!important}
+.pre-live-cam video{filter:brightness(.85)!important}
+.pre-live-logo{text-shadow:0 0 40px rgba(255,34,85,.35)!important}
+.pre-live-go{box-shadow:0 4px 30px rgba(255,34,85,.35)!important;transition:all .3s!important}
+.pre-live-go:hover{box-shadow:0 6px 40px rgba(255,34,85,.5)!important;transform:scale(1.04)!important}
+.pre-live-title-input{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
+
+/* === SCROLLBAR HIDE === */
+.live-chat-overlay::-webkit-scrollbar,.sn-panel::-webkit-scrollbar{display:none!important}
+.live-chat-overlay,.sn-panel{scrollbar-width:none!important}
+
+/* === HIDE NAV DURING LIVE === */
+.sn-bottom-nav{display:none!important}
+
 </style>
 <script>
 // \u2500\u2500 HOST MODE \u2500\u2500

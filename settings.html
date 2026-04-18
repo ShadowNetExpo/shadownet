@@ -487,6 +487,7 @@ function showKycMsg(text, ok) {
 
 function renderKycStatus(status, rejectionReason) {
   var block = document.getElementById('kyc-status-block');
+  if (!block) return;
   var icon = document.getElementById('kyc-status-icon');
   var label = document.getElementById('kyc-status-label');
   var sub = document.getElementById('kyc-status-sub');

@@ -290,9 +290,19 @@ function openAuth(mode){
     document.getElementById("authToggleText").textContent="No tienes cuenta?";
     document.getElementById("authToggleLink").textContent="Registrarse";
   }
+
+  try {
+    var _cd = document.getElementById('signupConsent');
+    if (_cd) _cd.style.display = (window._authMode === 'signup') ? 'block' : 'none';
+  } catch(e){}
 }
 function closeAuth(){document.getElementById("authOverlay").style.display="none";}
-function toggleAuthMode(){openAuth(_authMode==="login"?"signup":"login");}
+function toggleAuthMode(){openAuth(_authMode==="login"?"signup":"login");
+  try {
+    var _cd = document.getElementById('signupConsent');
+    if (_cd) _cd.style.display = (window._authMode === 'signup') ? 'block' : 'none';
+  } catch(e){}
+}
 function showAuthError(msg){var e=document.getElementById("authError");e.textContent=msg;e.style.display="block";}
 async function submitAuth(){
   // Pre-launch compliance: age + terms required for signup

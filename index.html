@@ -171,7 +171,18 @@
     <div class="social-login">
       <button class="social-btn social-btn-google" onclick="loginWithGoogle()">G  Continuar con Google</button>
       <div class="divider-or">o</div>
-      <button class="social-btn social-btn-email" onclick="openAuth('signup')">Crear cuenta con email</button>
+      
+<div id="signupConsent" style="display:none;margin:14px 0 8px;font-size:13px;color:rgba(255,255,255,.82);line-height:1.5">
+  <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;cursor:pointer">
+    <input type="checkbox" id="consentAge" style="margin-top:3px;flex-shrink:0;accent-color:#ff2255">
+    <span>Confirmo que soy <strong>mayor de 18 años</strong> y entiendo que esta plataforma contiene contenido para adultos.</span>
+  </label>
+  <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+    <input type="checkbox" id="consentTerms" style="margin-top:3px;flex-shrink:0;accent-color:#ff2255">
+    <span>Acepto los <a href="/terms.html" target="_blank" style="color:#ff2255">Términos</a>, la <a href="/privacy.html" target="_blank" style="color:#ff2255">Privacidad</a> y la <a href="/legal18.html" target="_blank" style="color:#ff2255">Declaración +18</a>.</span>
+  </label>
+</div>
+<button class="social-btn social-btn-email" onclick="openAuth('signup')">Crear cuenta con email</button>
     </div>
     <div class="hero-stats" id="heroStats">
       <div class="hero-stat"><div class="hero-stat-val" id="statUsers">-</div><div class="hero-stat-label">Creadores</div></div>
@@ -284,6 +295,21 @@ function closeAuth(){document.getElementById("authOverlay").style.display="none"
 function toggleAuthMode(){openAuth(_authMode==="login"?"signup":"login");}
 function showAuthError(msg){var e=document.getElementById("authError");e.textContent=msg;e.style.display="block";}
 async function submitAuth(){
+  // Pre-launch compliance: age + terms required for signup
+  if (window._authMode === 'signup') {
+    var consentDiv = document.getElementById('signupConsent');
+    if (consentDiv) consentDiv.style.display = 'block';
+    var ageOk = document.getElementById('consentAge') && document.getElementById('consentAge').checked;
+    var termsOk = document.getElementById('consentTerms') && document.getElementById('consentTerms').checked;
+    if (!ageOk || !termsOk) {
+      if (typeof showAuthError === 'function') showAuthError('Debes confirmar tu edad y aceptar los términos para crear una cuenta.');
+      return;
+    }
+  } else {
+    var consentDivLogin = document.getElementById('signupConsent');
+    if (consentDivLogin) consentDivLogin.style.display = 'none';
+  }
+
   var email=document.getElementById("authEmail").value.trim();
   var pass=document.getElementById("authPassword").value;
   var btn=document.getElementById("authSubmit");

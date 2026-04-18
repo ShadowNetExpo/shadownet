@@ -325,6 +325,8 @@ async function submitAuth(){
       if(taken&&taken.data){showAuthError("Ese nombre de usuario ya existe");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
       var r=await sb.auth.signUp({email:email,password:pass,options:{data:{username:username}}});
       if(r.error){showAuthError(r.error.message);btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
+      // Pre-launch compliance: log age + terms consent to audit table
+      if(r.data&&r.data.user){try{await sb.rpc('log_signup_consent',{p_user_id:r.data.user.id,p_age_confirmed:true,p_terms_accepted:true});}catch(_){}}
       if(r.data&&r.data.user&&!r.data.session){showAuthError("Revisa tu email para confirmar tu cuenta");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
       location.href="/feed.html";
     } else {

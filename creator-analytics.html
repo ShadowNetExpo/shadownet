@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Anti-Piracy Panel — SHADOWNET</title>
+<meta name="description" content="Panel de anti-piratería y análisis forensic para creadores de SHADOWNET">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/creator-analytics.html">
+<meta property="og:title" content="Anti-Piracy Panel — SHADOWNET">
+<meta property="og:description" content="Protege tu contenido: rastrea accesos, detecta sospechosos y reporta leaks">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:900px;margin:0 auto;padding:24px 20px}
+.intro{background:linear-gradient(135deg,rgba(255,8,68,0.1),rgba(255,177,153,0.05));border:1px solid rgba(255,8,68,0.3);border-radius:12px;padding:20px;margin-bottom:24px}
+.intro h2{font-size:20px;margin-bottom:8px;color:#fff}
+.intro p{color:#a0a0a0;font-size:14px;line-height:1.5}
+.section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:20px;margin-bottom:20px}
+.section h3{font-size:16px;margin-bottom:16px;color:#fff;display:flex;align-items:center;gap:8px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;padding:16px;text-align:center}
+.stat-value{font-size:28px;font-weight:700;color:#ff0844}
+.stat-label{font-size:12px;color:#888;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+.post-list{display:flex;flex-direction:column;gap:12px}
+.post-item{display:flex;align-items:center;gap:14px;padding:12px;background:#0f0f0f;border-radius:8px;border:1px solid #1f1f1f;cursor:pointer;transition:all 0.15s}
+.post-item:hover{border-color:#2f2f2f;background:#161616}
+.post-thumb{width:56px;height:56px;border-radius:6px;background:#222;flex-shrink:0;object-fit:cover}
+.post-info{flex:1;min-width:0}
+.post-title{font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.post-meta{font-size:12px;color:#888;margin-top:4px}
+.post-actions{display:flex;gap:8px;flex-shrink:0}
+.btn{background:#1a1a1a;color:#e5e5e5;border:1px solid #2f2f2f;padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:500;transition:all 0.15s}
+.btn:hover{background:#2a2a2a;border-color:#3f3f3f}
+.btn-danger{background:#ff0844;border-color:#ff0844;color:#fff}
+.btn-danger:hover{background:#e6073d;border-color:#e6073d}
+.empty{text-align:center;padding:40px 20px;color:#666}
+.loading{text-align:center;padding:20px;color:#888;font-size:13px}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:200;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal.open{display:flex}
+.modal-content{background:#141414;border:1px solid #2f2f2f;border-radius:14px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-header{padding:18px 20px;border-bottom:1px solid #1f1f1f;display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:16px;color:#fff;margin:0}
+.modal-close{background:none;border:none;color:#888;cursor:pointer;font-size:20px;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.modal-close:hover{color:#fff;background:#1f1f1f}
+.modal-body{padding:20px}
+.suspect-list{display:flex;flex-direction:column;gap:10px}
+.suspect{padding:14px;border-radius:8px;border:1px solid #2f2f2f;background:#0f0f0f}
+.suspect.high{border-color:rgba(255,8,68,0.5);background:linear-gradient(135deg,rgba(255,8,68,0.15),#0f0f0f)}
+.suspect-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.suspect-name{font-size:14px;color:#fff;font-weight:500}
+.suspect-score{font-size:13px;font-weight:700;padding:3px 10px;border-radius:12px;background:#1f1f1f;color:#e5e5e5}
+.suspect-score.high{background:#ff0844;color:#fff}
+.suspect-score.medium{background:#ff9900;color:#fff}
+.suspect-meta{font-size:12px;color:#888;display:flex;gap:16px;flex-wrap:wrap}
+.suspect-flags{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.flag{font-size:11px;background:#2f1414;border:1px solid #552233;color:#ff5577;padding:2px 8px;border-radius:10px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1f1f1f}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;color:#e5e5e5}
+.settings-desc{font-size:12px;color:#888;margin-top:2px}
+.toggle{position:relative;width:42px;height:24px;background:#1f1f1f;border-radius:12px;cursor:pointer;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:#ff0844}
+.toggle-knob{position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left 0.2s}
+.toggle.on .toggle-knob{left:20px}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844;text-decoration:underline}
+@media(max-width:600px){
+  .container{padding:16px 12px}
+  .post-actions{flex-direction:column}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/dashboard.html">←</a>
+  <h1>🛡️ Anti-Piracy</h1>
+  <a href="/settings.html">⚙️</a>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Debes iniciar sesión como creador para ver este panel. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="notCreator" class="auth-warning" style="display:none">
+  Este panel es solo para creadores verificados. Activa tu cuenta de creador en <a href="/settings.html">Configuración</a>.
+</div>
+
+<div id="mainContent" style="display:none">
+
+<div class="intro">
+  <h2>🔐 Protege tu contenido</h2>
+  <p>SHADOWNET registra automáticamente quién ve tu contenido premium. Si tu contenido se filtra (Telegram, Reddit, tube sites), usa el análisis forensic para identificar al responsable.</p>
+</div>
+
+<div class="section">
+  <h3>📊 Resumen (últimos 30 días)</h3>
+  <div class="stat-grid" id="statGrid">
+    <div class="stat"><div class="stat-value" id="totalAccess">-</div><div class="stat-label">Total Accesos</div></div>
+    <div class="stat"><div class="stat-value" id="uniqueFans">-</div><div class="stat-label">Fans Únicos</div></div>
+    <div class="stat"><div class="stat-value" id="suspiciousEvents">-</div><div class="stat-label">Eventos Sospechosos</div></div>
+    <div class="stat"><div class="stat-value" id="activeLeaks">-</div><div class="stat-label">Leaks Reportados</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>⚙️ Configuración de Protección</h3>
+  <div id="watermarkSettings">
+    <div class="loading">Cargando...</div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>📝 Tus Posts</h3>
+  <p style="font-size:13px;color:#888;margin-bottom:16px">Haz clic en "Ver Accesos" para ver quién consultó cada post. Si sospechas que uno se filtró, usa "Analizar Leak".</p>
+  <div id="postList" class="post-list">
+    <div class="loading">Cargando posts...</div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div id="accessModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Análisis de Accesos</h3>
+      <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">×</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <div class="loading">Analizando...</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  
+  const SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  
+  const sb = window.supabase.createClient(SB_URL, SB_KEY);
+  window.sb = sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  
+  if (!user) {
+    document.getElementById('authWarning').style.display = 'block';
+    return;
+  }
+  
+  // Check if creator
+  const { data: profile } = await sb.from('profiles').select('id,username,is_creator').eq('id', user.id).single();
+  
+  if (!profile?.is_creator) {
+    document.getElementById('notCreator').style.display = 'block';
+    return;
+  }
+  
+  document.getElementById('mainContent').style.display = 'block';
+  window.__creatorId = user.id;
+  
+  // ==== Load stats ====
+  await loadStats();
+  await loadWatermarkSettings();
+  await loadPosts();
+  
+  async function loadStats(){
+    try {
+      // Get access log count last 30d
+      const sinceDate = new Date(Date.now() - 30*24*60*60*1000).toISOString();
+      
+      const { count: totalAccess } = await sb
+        .from('content_access_log')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', user.id)
+        .gte('created_at', sinceDate);
+      
+      const { data: uniqueFans } = await sb
+        .from('content_access_log')
+        .select('user_id')
+        .eq('creator_id', user.id)
+        .gte('created_at', sinceDate);
+      const uniqueCount = new Set((uniqueFans||[]).map(r => r.user_id)).size;
+      
+      const { count: suspicious } = await sb
+        .from('content_access_log')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', user.id)
+        .in('access_type', ['screenshot_detected','devtools_detected','media_save_attempt'])
+        .gte('created_at', sinceDate);
+      
+      const { count: leaks } = await sb
+        .from('dmca_leak_reports')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', user.id);
+      
+      document.getElementById('totalAccess').textContent = totalAccess || 0;
+      document.getElementById('uniqueFans').textContent = uniqueCount;
+      document.getElementById('suspiciousEvents').textContent = suspicious || 0;
+      document.getElementById('activeLeaks').textContent = leaks || 0;
+    } catch(e) {
+      console.error('Stats error:', e);
+    }
+  }
+  
+  async function loadWatermarkSettings(){
+    const { data, error } = await sb
+      .from('creator_watermark_settings')
+      .select('*')
+      .eq('creator_id', user.id)
+      .maybeSingle();
+    
+    if (!data) {
+      document.getElementById('watermarkSettings').innerHTML = '<p style="color:#888">No hay configuración disponible.</p>';
+      return;
+    }
+    
+    window.__settings = data;
+    
+    const html = [
+      settingsRow('Watermark visible', 'Muestra tu @username en cada post premium', 'visible_watermark_enabled', data.visible_watermark_enabled),
+      settingsRow('Bloquear click derecho', 'Impide menú "Guardar imagen"', 'disable_right_click', data.disable_right_click),
+      settingsRow('Registrar fan ID en EXIF', 'Marca cada descarga con el ID del fan (invisible)', 'embed_fan_id_exif', data.embed_fan_id_exif),
+      settingsRow('Rate limit de descargas', 'Máximo ' + (data.max_downloads_per_hour||50) + '/hora por fan', 'rate_limit_downloads', data.rate_limit_downloads)
+    ].join('');
+    
+    document.getElementById('watermarkSettings').innerHTML = html;
+    
+    // Attach toggle handlers
+    document.querySelectorAll('[data-setting]').forEach(el => {
+      el.addEventListener('click', async () => {
+        const field = el.getAttribute('data-setting');
+        const newVal = !el.classList.contains('on');
+        el.classList.toggle('on');
+        await sb.from('creator_watermark_settings').update({ [field]: newVal }).eq('creator_id', user.id);
+      });
+    });
+  }
+  
+  function settingsRow(label, desc, field, value){
+    return '<div class="settings-row"><div><div class="settings-label">'+label+'</div><div class="settings-desc">'+desc+'</div></div><div class="toggle '+(value?'on':'')+'" data-setting="'+field+'" role="switch" aria-checked="'+(value?'true':'false')+'" tabindex="0"><div class="toggle-knob"></div></div></div>';
+  }
+  
+  async function loadPosts(){
+    const { data: posts, error } = await sb
+      .from('posts')
+      .select('id,caption,image_url,video_url,is_subscriber_only,is_ppv,ppv_price,created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    
+    const container = document.getElementById('postList');
+    
+    if (!posts || posts.length === 0) {
+      container.innerHTML = '<div class="empty">No tienes posts todavía. <a href="/editor.html" style="color:#ff0844">Crear primer post</a></div>';
+      return;
+    }
+    
+    // Get access counts for each post
+    const postIds = posts.map(p => p.id);
+    const { data: accessData } = await sb
+      .from('content_access_log')
+      .select('post_id')
+      .in('post_id', postIds);
+    
+    const accessCounts = {};
+    (accessData||[]).forEach(a => { accessCounts[a.post_id] = (accessCounts[a.post_id]||0) + 1; });
+    
+    container.innerHTML = posts.map(p => {
+      const count = accessCounts[p.id] || 0;
+      const thumb = p.image_url || p.video_url || '';
+      const premium = p.is_subscriber_only || p.is_ppv || p.ppv_price > 0;
+      const caption = (p.caption || 'Sin título').substring(0, 60);
+      const date = new Date(p.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+      
+      return '<div class="post-item">'+
+        (thumb ? '<img class="post-thumb" src="'+thumb+'" loading="lazy" alt="">' : '<div class="post-thumb"></div>')+
+        '<div class="post-info"><div class="post-title">'+escapeHtml(caption)+(premium?' 🔒':'')+'</div>'+
+        '<div class="post-meta">'+date+' · '+count+' accesos</div></div>'+
+        '<div class="post-actions">'+
+          '<button class="btn" onclick="viewAccess(\''+p.id+'\')">Ver</button>'+
+          '<button class="btn btn-danger" onclick="analyzeLeak(\''+p.id+'\')">🚨 Leak</button>'+
+        '</div></div>';
+    }).join('');
+  }
+  
+  window.viewAccess = async function(postId){
+    openModal('Accesos recientes a este post');
+    const body = document.getElementById('modalBody');
+    body.innerHTML = '<div class="loading">Cargando accesos...</div>';
+    
+    const { data, error } = await sb
+      .from('content_access_log')
+      .select('user_id,access_type,duration_ms,created_at,profiles:user_id(username)')
+      .eq('post_id', postId)
+      .order('created_at', { ascending: false })
+      .limit(30);
+    
+    if (!data || data.length === 0) {
+      body.innerHTML = '<div class="empty">Aún no hay accesos registrados en este post.</div>';
+      return;
+    }
+    
+    body.innerHTML = '<div class="suspect-list">' + data.map(row => {
+      const name = row.profiles?.username || 'Fan eliminado';
+      const when = new Date(row.created_at).toLocaleString('es-ES', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' });
+      const suspicious = ['screenshot_detected','devtools_detected','media_save_attempt'].includes(row.access_type);
+      return '<div class="suspect'+(suspicious?' high':'')+'">'+
+        '<div class="suspect-header"><span class="suspect-name">@'+escapeHtml(name)+'</span>'+
+        '<span class="suspect-score'+(suspicious?' high':'')+'">'+escapeHtml(row.access_type)+'</span></div>'+
+        '<div class="suspect-meta"><span>'+when+'</span>'+(row.duration_ms?'<span>'+Math.round(row.duration_ms/1000)+'s</span>':'')+'</div></div>';
+    }).join('') + '</div>';
+  };
+  
+  window.analyzeLeak = async function(postId){
+    if (!confirm('¿Estás seguro que quieres analizar un posible leak de este post? Se identificará al fan más sospechoso basado en patrones de acceso.')) return;
+    
+    openModal('🚨 Análisis Forensic de Leak');
+    const body = document.getElementById('modalBody');
+    body.innerHTML = '<div class="loading">Analizando accesos y calculando scores de sospecha...</div>';
+    
+    const { data, error } = await sb.rpc('analyze_potential_leak', { p_post_id: postId });
+    
+    if (error) {
+      body.innerHTML = '<div class="auth-warning">Error: '+error.message+'</div>';
+      return;
+    }
+    
+    if (!data || data.length === 0) {
+      body.innerHTML = '<div class="empty">No hay suficientes accesos para identificar sospechosos.<br><br>Aún así puedes reportar el leak con su URL para archivarlo.<br><br><button class="btn btn-danger" onclick="reportLeak(\''+postId+'\')">Reportar leak</button></div>';
+      return;
+    }
+    
+    const html = '<div style="font-size:13px;color:#888;margin-bottom:14px">Top sospechosos ordenados por score. Scores altos (>0.6) indican comportamiento consistente con filtración.</div>' +
+      '<div class="suspect-list">' + data.map(s => {
+        const score = parseFloat(s.suspicion_score);
+        const level = score >= 0.6 ? 'high' : (score >= 0.3 ? 'medium' : '');
+        const flagsObj = s.suspicious_behaviors || {};
+        const flagsList = [];
+        if (flagsObj.had_screenshot_detected) flagsList.push('📸 Screenshot');
+        if (flagsObj.had_devtools_detected) flagsList.push('🔧 DevTools');
+        if (flagsObj.had_save_attempt) flagsList.push('💾 Save attempt');
+        
+        return '<div class="suspect'+(level==='high'?' high':'')+'">'+
+          '<div class="suspect-header"><span class="suspect-name">@'+escapeHtml(s.fan_username||'unknown')+'</span>'+
+          '<span class="suspect-score '+level+'">'+Math.round(score*100)+'%</span></div>'+
+          '<div class="suspect-meta">'+
+            '<span>👁 '+s.access_count+' accesos</span>'+
+            '<span>🌐 '+s.unique_ips+' IPs</span>'+
+            (s.total_duration_ms?'<span>⏱ '+Math.round(s.total_duration_ms/1000)+'s</span>':'')+
+          '</div>'+
+          (flagsList.length ? '<div class="suspect-flags">'+flagsList.map(f=>'<span class="flag">'+f+'</span>').join('')+'</div>' : '')+
+          '</div>';
+      }).join('') + '</div>' +
+      '<div style="margin-top:20px;text-align:center"><button class="btn btn-danger" onclick="reportLeak(\''+postId+'\')">🚨 Reportar leak con estos sospechosos</button></div>';
+    
+    body.innerHTML = html;
+    window.__lastSuspects = data.filter(s => parseFloat(s.suspicion_score) >= 0.4).map(s => s.fan_id);
+  };
+  
+  window.reportLeak = async function(postId){
+    const leakUrl = prompt('URL donde viste el leak (Telegram, Reddit, etc.):');
+    if (!leakUrl) return;
+    
+    const platform = prompt('Plataforma (telegram / reddit / twitter / tube-site / other):', 'telegram') || 'other';
+    
+    const { error } = await sb.from('dmca_leak_reports').insert({
+      creator_id: user.id,
+      post_id: postId,
+      leak_url: leakUrl,
+      leak_platform: platform,
+      status: window.__lastSuspects && window.__lastSuspects.length > 0 ? 'suspect_identified' : 'investigating',
+      suspected_fan_ids: window.__lastSuspects || []
+    });
+    
+    if (error) {
+      alert('Error reportando leak: ' + error.message);
+      return;
+    }
+    alert('✅ Leak reportado. El equipo de SHADOWNET procesará el DMCA takedown en 24-48h.');
+    closeModal();
+    loadStats();
+  };
+  
+  function openModal(title){
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('accessModal').classList.add('open');
+  }
+  
+  window.closeModal = function(){
+    document.getElementById('accessModal').classList.remove('open');
+  };
+  
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  }
+  
+  // Close modal on backdrop click
+  document.getElementById('accessModal').addEventListener('click', (e) => {
+    if (e.target.id === 'accessModal') closeModal();
+  });
+  
+})();
+</script>
+</body>
+</html>

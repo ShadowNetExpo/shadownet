@@ -171,18 +171,7 @@
     <div class="social-login">
       <button class="social-btn social-btn-google" onclick="loginWithGoogle()">G  Continuar con Google</button>
       <div class="divider-or">o</div>
-      
-<div id="signupConsent" style="display:none;margin:14px 0 8px;font-size:13px;color:rgba(255,255,255,.82);line-height:1.5">
-  <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;cursor:pointer">
-    <input type="checkbox" id="consentAge" style="margin-top:3px;flex-shrink:0;accent-color:#ff2255">
-    <span>Confirmo que soy <strong>mayor de 18 años</strong> y entiendo que esta plataforma contiene contenido para adultos.</span>
-  </label>
-  <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
-    <input type="checkbox" id="consentTerms" style="margin-top:3px;flex-shrink:0;accent-color:#ff2255">
-    <span>Acepto los <a href="/terms.html" target="_blank" style="color:#ff2255">Términos</a>, la <a href="/privacy.html" target="_blank" style="color:#ff2255">Privacidad</a> y la <a href="/legal18.html" target="_blank" style="color:#ff2255">Declaración +18</a>.</span>
-  </label>
-</div>
-<button class="social-btn social-btn-email" onclick="openAuth('signup')">Crear cuenta con email</button>
+      <button class="social-btn social-btn-email" onclick="openAuth('signup')">Crear cuenta con email</button>
     </div>
     <div class="hero-stats" id="heroStats">
       <div class="hero-stat"><div class="hero-stat-val" id="statUsers">-</div><div class="hero-stat-label">Creadores</div></div>
@@ -375,6 +364,17 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
 </div>
 <div style="margin-bottom:14px">
 <input id="authPassword" type="password" placeholder="Contraseña (min 6 caracteres)" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box" autocomplete="current-password">
+</div>
+
+<div id="signupConsent" style="display:none;margin:14px 0 8px;font-size:13px;color:rgba(255,255,255,.82);line-height:1.5">
+  <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;cursor:pointer">
+    <input type="checkbox" id="consentAge" style="margin-top:3px;flex-shrink:0;accent-color:#ff2255">
+    <span>Confirmo que soy <strong>mayor de 18 años</strong> y entiendo que esta plataforma contiene contenido para adultos.</span>
+  </label>
+  <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+    <input type="checkbox" id="consentTerms" style="margin-top:3px;flex-shrink:0;accent-color:#ff2255">
+    <span>Acepto los <a href="/terms.html" target="_blank" style="color:#ff2255">Términos</a>, la <a href="/privacy.html" target="_blank" style="color:#ff2255">Privacidad</a> y la <a href="/legal18.html" target="_blank" style="color:#ff2255">Declaración +18</a>.</span>
+  </label>
 </div>
 <button id="authSubmit" onclick="submitAuth()" style="width:100%;padding:11px;background:linear-gradient(135deg,#ff2255,#ff0044);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Orbitron,monospace;letter-spacing:.05em">ENTRAR</button>
 <div id="forgotDiv" style="text-align:right;margin-top:6px"><a href="#" onclick="forgotPassword();return false" style="color:#5a8aaa;font-size:11px;text-decoration:none">Olvidé mi contraseña</a></div>

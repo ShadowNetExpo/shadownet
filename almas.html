@@ -216,27 +216,56 @@ var _NB="https://cdokplvoqivducsqrejt.supabase.co",_NK="eyJhbGciOiJIUzI1NiIsInR5
 <script>
 // Almas purchase via CCBill (server-priced tier system)
 window.buyAlmasTier = async function(tier){
+  const btn = document.querySelector('button[data-tier="'+tier+'"]');
+  let errDiv = document.getElementById('almasErr');
+  if (!errDiv) {
+    errDiv = document.createElement('div');
+    errDiv.id = 'almasErr';
+    errDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(255,34,85,.95);color:#fff;padding:14px 22px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.5);z-index:99999;display:none;max-width:92%;text-align:center;font-weight:600;font-size:14px;line-height:1.4';
+    document.body.appendChild(errDiv);
+  }
+  const showError = function(msg){
+    errDiv.textContent = msg;
+    errDiv.style.display = 'block';
+    setTimeout(function(){ errDiv.style.display = 'none'; }, 6000);
+  };
+  if (btn) btn.disabled = true;
   try {
     const sb = window.sb || window.supabase;
-    if (!sb?.auth) { alert('Por favor inicia sesion primero'); return; }
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { alert('Por favor inicia sesion primero'); location.href = '/index.html'; return; }
-    const btn = document.querySelector('button[data-tier="'+tier+'"]');
-    if (btn) btn.disabled = true;
-    const { data, error } = await sb.functions.invoke('ccbill-payment', {
-      body: { type: 'almas', tier: String(tier) }
+    if (!sb || !sb.auth) { showError('Por favor inicia sesion primero'); return; }
+    const sess = await sb.auth.getSession();
+    const session = sess && sess.data && sess.data.session;
+    if (!session) {
+      showError('Por favor inicia sesion primero');
+      setTimeout(function(){ location.href = '/index.html'; }, 1500);
+      return;
+    }
+    const r = await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/ccbill-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+        'apikey': 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su'
+      },
+      body: JSON.stringify({ type: 'almas', tier: String(tier) })
     });
-    if (error) throw error;
-    if (data?.url) {
+    let data = {};
+    try { data = await r.json(); } catch(e) {}
+    if (r.ok && data.url) {
       location.href = data.url;
+      return;
+    }
+    if (r.status === 503 && data.code === 'PAYMENTS_DISABLED') {
+      showError('Pagos con CCBill estaran disponibles pronto. Estamos completando la aprobacion final.');
+    } else if (data && data.error) {
+      showError(data.error);
     } else {
-      alert('Error iniciando pago: ' + (data?.error || 'desconocido'));
-      if (btn) btn.disabled = false;
+      showError('Error al iniciar el pago (' + r.status + ')');
     }
   } catch(e) {
     console.error('buyAlmasTier error', e);
-    alert('Error: ' + (e?.message || 'no se pudo iniciar el pago'));
-    const btn = document.querySelector('button[data-tier="'+tier+'"]');
+    showError('Error de conexion. Intenta de nuevo.');
+  } finally {
     if (btn) btn.disabled = false;
   }
 };

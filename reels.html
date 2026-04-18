@@ -461,6 +461,7 @@ function closeDrawers(){
   window.renderReel=function(reel){
     var el=origRender.apply(this,arguments);
     if(el){
+      if(reel&&reel.id){el.setAttribute("data-post-id",reel.id);if(reel.is_subscriber_only||reel.is_ppv||reel.ppv_price>0)el.setAttribute("data-premium","true");el.setAttribute("data-watermark","@"+(reel.username||""));}
       var video=el.querySelector("video");
       if(video)initVideoProgress(video,el);
       renderSoundBar(reel,el);
@@ -471,5 +472,7 @@ function closeDrawers(){
 })();
 
 </script>
+
+<script src="/antipiracy.js" defer></script>
 </body>
 </html>

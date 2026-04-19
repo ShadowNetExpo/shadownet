@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Promos y Trials — SHADOWNET</title>
+<meta name="description" content="Crea códigos de descuento y otorga pruebas gratis a tus fans">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/promos-trials.html">
+<meta property="og:title" content="Promos y Trials — SHADOWNET">
+<meta property="og:description" content="Descuentos y pruebas gratis para creators">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:800px;margin:0 auto;padding:24px 20px}
+.tabs{display:flex;gap:6px;margin-bottom:20px;background:#0f0f0f;padding:4px;border-radius:10px;border:1px solid #1f1f1f}
+.tab-btn{flex:1;background:none;border:none;color:#888;padding:10px 16px;font-size:14px;cursor:pointer;border-radius:7px;font-family:inherit;font-weight:500}
+.tab-btn.active{background:linear-gradient(135deg,#ff0844,#ff6b9d);color:#fff}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:20px;margin-bottom:20px}
+.section h3{font-size:16px;margin-bottom:8px;color:#fff}
+.section-desc{font-size:13px;color:#888;margin-bottom:16px;line-height:1.4}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.single{grid-template-columns:1fr}
+.form-field label{display:block;font-size:12px;color:#888;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
+input[type="text"],input[type="number"],select,textarea{width:100%;background:#0f0f0f;border:1.5px solid #1f1f1f;border-radius:8px;padding:10px 12px;color:#e5e5e5;font-family:inherit;font-size:14px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#ff0844}
+input[type="text"]{text-transform:uppercase}
+.hint{font-size:11px;color:#666;margin-top:3px}
+.btn{background:#1a1a1a;color:#e5e5e5;border:1px solid #2f2f2f;padding:10px 16px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500;transition:all 0.15s;font-family:inherit}
+.btn:hover{background:#2a2a2a;border-color:#3f3f3f}
+.btn-primary{background:linear-gradient(135deg,#ff0844,#ff6b9d);border-color:#ff0844;color:#fff;font-weight:600;width:100%;padding:12px 20px}
+.btn-primary:hover{background:linear-gradient(135deg,#e6073d,#e6618c)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:#0f0f0f;border:1px solid #1f1f1f;padding:14px;border-radius:8px}
+.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;flex-wrap:wrap}
+.item-title{font-size:14px;font-weight:600;color:#fff}
+.item-code{background:linear-gradient(135deg,rgba(255,8,68,0.15),rgba(255,107,157,0.1));border:1px solid rgba(255,8,68,0.3);padding:4px 10px;border-radius:6px;font-size:13px;font-weight:700;color:#ff6b9d;font-family:"SF Mono",Menlo,monospace;letter-spacing:1px}
+.item-discount{font-size:16px;font-weight:700;color:#ff0844}
+.item-meta{font-size:12px;color:#888;display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.item-meta strong{color:#ccc}
+.badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.badge.active{background:rgba(9,255,9,0.15);color:#55ff55;border:1px solid rgba(9,255,9,0.3)}
+.badge.expired{background:rgba(200,200,200,0.1);color:#888;border:1px solid #2f2f2f}
+.badge.exhausted{background:rgba(255,152,0,0.15);color:#ffa500;border:1px solid rgba(255,152,0,0.3)}
+.badge.pending{background:rgba(100,150,255,0.15);color:#66a0ff;border:1px solid rgba(100,150,255,0.3)}
+.badge.redeemed{background:rgba(9,255,9,0.15);color:#55ff55;border:1px solid rgba(9,255,9,0.3)}
+.empty{text-align:center;padding:30px 20px;color:#666;font-size:13px}
+.loading{text-align:center;padding:20px;color:#888;font-size:13px}
+.segment-select{margin-bottom:12px}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844}
+.success{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);padding:14px;border-radius:8px;color:#55ff55;font-size:14px;margin-bottom:16px;text-align:center}
+.error{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:14px;border-radius:8px;color:#ff5555;font-size:14px;margin-bottom:16px;text-align:center}
+.copy-btn{background:#2f2f2f;border:none;color:#e5e5e5;padding:4px 10px;border-radius:5px;font-size:11px;cursor:pointer;margin-left:8px;font-family:inherit}
+.copy-btn:hover{background:#3f3f3f}
+@media(max-width:600px){
+  .container{padding:16px 12px}
+  .form-row{grid-template-columns:1fr}
+  .item-header{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/dashboard.html">←</a>
+  <h1>🎟️ Promos y Trials</h1>
+  <a href="/messaging-tools.html">📬</a>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Debes iniciar sesión como creador. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="notCreator" class="auth-warning" style="display:none">
+  Solo creadores verificados. Actívate en <a href="/settings.html">Configuración</a>.
+</div>
+
+<div id="mainContent" style="display:none">
+
+<div id="feedback"></div>
+
+<div class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="codes" role="tab">🎟️ Códigos</button>
+  <button class="tab-btn" data-tab="trials" role="tab">⏱️ Trials</button>
+</div>
+
+<!-- === CODES TAB === -->
+<div class="tab-content active" id="tab-codes">
+  <div class="section">
+    <h3>Crear nuevo código</h3>
+    <div class="section-desc">Código alfanumérico de 3-20 caracteres. Descuento 1-90%. Máximo 100 códigos activos.</div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Código</label>
+        <input type="text" id="codeInput" maxlength="20" placeholder="WELCOME50" autocomplete="off">
+        <div class="hint">Solo letras/números · Mayúsculas auto</div>
+      </div>
+      <div class="form-field">
+        <label>Descuento %</label>
+        <input type="number" id="discountInput" min="1" max="90" value="50">
+        <div class="hint">Entre 1 y 90%</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Días de validez</label>
+        <input type="number" id="expiresInput" min="1" max="365" value="30">
+        <div class="hint">1 a 365 días</div>
+      </div>
+      <div class="form-field">
+        <label>Usos máximos (opcional)</label>
+        <input type="number" id="maxUsesInput" min="1" placeholder="100">
+        <div class="hint">Vacío = ilimitado</div>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-field">
+        <label>Descripción (opcional)</label>
+        <input type="text" id="descInput" maxlength="100" placeholder="Bienvenida 50% off primer mes" style="text-transform:none">
+      </div>
+    </div>
+    <button class="btn-primary" id="createBtn">✨ Crear código</button>
+  </div>
+
+  <div class="section">
+    <h3>Mis códigos</h3>
+    <div id="codesList" class="list">
+      <div class="loading">Cargando…</div>
+    </div>
+  </div>
+</div>
+
+<!-- === TRIALS TAB === -->
+<div class="tab-content" id="tab-trials">
+  <div class="section">
+    <h3>Otorgar trial gratis</h3>
+    <div class="section-desc">Regala X días de suscripción gratis a un segmento específico (ideal para reactivar inactivos o convertir followers).</div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Segmento</label>
+        <select id="segmentSelect">
+          <option value="followers_only">🎯 Solo follows (convertir)</option>
+          <option value="inactive_30d">😴 Inactivos 30d (reactivar)</option>
+          <option value="new">🆕 Nuevos</option>
+          <option value="expiring_soon">⏰ Por vencer (retener)</option>
+          <option value="vip_spenders">💰 VIP</option>
+          <option value="active">🔥 Activos</option>
+          <option value="all_fans">👥 Todos</option>
+        </select>
+        <div class="hint" id="segmentCount">Cargando…</div>
+      </div>
+      <div class="form-field">
+        <label>Días gratis</label>
+        <input type="number" id="daysInput" min="1" max="30" value="7">
+        <div class="hint">1 a 30 días</div>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-field">
+        <label>Razón (para tu registro)</label>
+        <select id="reasonSelect">
+          <option value="new_creator_gift">🎁 Regalo de nuevo creador</option>
+          <option value="churn_rescue">💔 Rescate churn</option>
+          <option value="campaign">📣 Campaña</option>
+          <option value="manual">✋ Manual</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" id="grantBtn">🎁 Otorgar trial</button>
+  </div>
+
+  <div class="section">
+    <h3>Trials otorgados</h3>
+    <div id="trialsList" class="list">
+      <div class="loading">Cargando…</div>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb = window.supabase.createClient(SB_URL, SB_KEY);
+  window.sb = sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { document.getElementById('authWarning').style.display = 'block'; return; }
+  
+  const { data: profile } = await sb.from('profiles').select('is_creator').eq('id', user.id).single();
+  if (!profile?.is_creator) { document.getElementById('notCreator').style.display = 'block'; return; }
+  
+  document.getElementById('mainContent').style.display = 'block';
+  window.__creatorId = user.id;
+  
+  // ==== Tabs ====
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+    });
+  });
+  
+  // ==== Feedback ====
+  function showFeedback(type, msg){
+    const fb = document.getElementById('feedback');
+    fb.innerHTML = '<div class="'+type+'">'+msg+'</div>';
+    setTimeout(() => { fb.innerHTML = ''; }, 6000);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+  
+  // ==== CODES ====
+  async function loadCodes(){
+    const container = document.getElementById('codesList');
+    const { data, error } = await sb.rpc('get_creator_promos');
+    if (error) { container.innerHTML = '<div class="error">Error: '+error.message+'</div>'; return; }
+    if (!data || data.length === 0) {
+      container.innerHTML = '<div class="empty">Aún no has creado códigos. Crea el primero arriba ↑</div>';
+      return;
+    }
+    container.innerHTML = data.map(c => {
+      const expired = c.is_expired;
+      const exhausted = c.max_uses && c.uses_count >= c.max_uses;
+      const badge = expired ? 'expired' : (exhausted ? 'exhausted' : 'active');
+      const badgeText = expired ? 'Expirado' : (exhausted ? 'Agotado' : 'Activo');
+      const expiresDate = new Date(c.expires_at).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'});
+      const usage = c.max_uses ? c.uses_count+'/'+c.max_uses : c.uses_count+' usos';
+      const desc = c.description ? escapeHtml(c.description) : '—';
+      return '<div class="item">'+
+        '<div class="item-header">'+
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+            '<span class="item-code">'+escapeHtml(c.code)+'</span>'+
+            '<button class="copy-btn" onclick="copyCode(\''+escapeHtml(c.code)+'\')">📋 Copiar</button>'+
+          '</div>'+
+          '<span class="item-discount">-'+c.discount_pct+'%</span>'+
+        '</div>'+
+        '<div style="font-size:13px;color:#ccc;margin-bottom:6px">'+desc+'</div>'+
+        '<div class="item-meta">'+
+          '<span>📅 Expira <strong>'+expiresDate+'</strong></span>'+
+          '<span>📊 <strong>'+usage+'</strong></span>'+
+          '<span>⏱️ <strong>'+c.duration_months+' mes'+(c.duration_months!==1?'es':'')+'</strong></span>'+
+          '<span class="badge '+badge+'">'+badgeText+'</span>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  
+  window.copyCode = async function(code){
+    try { await navigator.clipboard.writeText(code); showFeedback('success', '✅ '+code+' copiado al portapapeles'); }
+    catch(e) { showFeedback('error', 'No se pudo copiar'); }
+  };
+  
+  document.getElementById('createBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('createBtn');
+    const code = document.getElementById('codeInput').value.trim();
+    const discount = parseInt(document.getElementById('discountInput').value) || 0;
+    const expires = parseInt(document.getElementById('expiresInput').value) || 30;
+    const maxUsesRaw = document.getElementById('maxUsesInput').value;
+    const maxUses = maxUsesRaw ? parseInt(maxUsesRaw) : null;
+    const desc = document.getElementById('descInput').value.trim() || null;
+    
+    if (code.length < 3) { showFeedback('error', 'Código mínimo 3 caracteres'); return; }
+    if (discount < 1 || discount > 90) { showFeedback('error', 'Descuento entre 1 y 90%'); return; }
+    
+    btn.disabled = true; btn.textContent = '⏳ Creando...';
+    try {
+      const { data, error } = await sb.rpc('create_promo_code', {
+        p_code: code, p_discount_pct: discount,
+        p_expires_in_days: expires, p_max_uses: maxUses,
+        p_description: desc, p_applies_to: 'new_subs', p_duration_months: 1
+      });
+      if (error) throw error;
+      const created = data[0];
+      showFeedback('success', '✅ Código '+created.code+' creado ('+discount+'% off)');
+      document.getElementById('codeInput').value = '';
+      document.getElementById('descInput').value = '';
+      document.getElementById('maxUsesInput').value = '';
+      loadCodes();
+    } catch(e) { showFeedback('error', '❌ '+(e.message||e)); }
+    finally { btn.disabled = false; btn.textContent = '✨ Crear código'; }
+  });
+  
+  // ==== TRIALS ====
+  async function loadSegmentCount(){
+    const seg = document.getElementById('segmentSelect').value;
+    const el = document.getElementById('segmentCount');
+    el.textContent = 'Cargando…';
+    const { data } = await sb.rpc('get_segment_members', { p_creator_id: user.id, p_segment_type: seg });
+    const count = data?.length || 0;
+    el.textContent = count + ' fan'+(count!==1?'s':'')+' en este segmento';
+  }
+  
+  document.getElementById('segmentSelect').addEventListener('change', loadSegmentCount);
+  
+  async function loadTrials(){
+    const container = document.getElementById('trialsList');
+    const { data, error } = await sb.rpc('get_creator_free_trials', { p_limit: 50 });
+    if (error) { container.innerHTML = '<div class="error">Error: '+error.message+'</div>'; return; }
+    if (!data || data.length === 0) {
+      container.innerHTML = '<div class="empty">Aún no has otorgado trials.</div>';
+      return;
+    }
+    container.innerHTML = data.map(t => {
+      const date = new Date(t.granted_at).toLocaleDateString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      const statusLabel = t.status === 'redeemed' ? 'Canjeado' : (t.status === 'expired' ? 'Expirado' : 'Pendiente');
+      return '<div class="item">'+
+        '<div class="item-header">'+
+          '<span class="item-title">@'+escapeHtml(t.fan_username||'fan')+'</span>'+
+          '<span class="badge '+t.status+'">'+statusLabel+'</span>'+
+        '</div>'+
+        '<div class="item-meta">'+
+          '<span>⏱️ <strong>'+t.duration_days+' días</strong></span>'+
+          '<span>📅 Otorgado <strong>'+date+'</strong></span>'+
+          (t.status === 'pending' ? '<span>⏳ <strong>'+t.days_remaining+' días restantes</strong></span>' : '')+
+          (t.reason ? '<span>🏷️ '+escapeHtml(t.reason)+'</span>' : '')+
+          (t.campaign_segment ? '<span>🎯 '+escapeHtml(t.campaign_segment)+'</span>' : '')+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  
+  document.getElementById('grantBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('grantBtn');
+    const segment = document.getElementById('segmentSelect').value;
+    const days = parseInt(document.getElementById('daysInput').value) || 7;
+    const reason = document.getElementById('reasonSelect').value;
+    
+    if (days < 1 || days > 30) { showFeedback('error', 'Días entre 1 y 30'); return; }
+    
+    const countText = document.getElementById('segmentCount').textContent;
+    if (!confirm('¿Otorgar '+days+' días gratis a segmento "'+segment+'"?\n\n'+countText+'\n\nEsto NO se puede deshacer.')) return;
+    
+    btn.disabled = true; btn.textContent = '⏳ Otorgando...';
+    try {
+      const { data, error } = await sb.rpc('grant_free_trial', {
+        p_duration_days: days, p_fan_ids: null,
+        p_segment_type: segment, p_reason: reason
+      });
+      if (error) throw error;
+      const result = data[0];
+      showFeedback('success', '✅ '+result.granted_count+' trials otorgados ('+result.skipped_count+' saltados por duplicado)');
+      loadTrials();
+    } catch(e) { showFeedback('error', '❌ '+(e.message||e)); }
+    finally { btn.disabled = false; btn.textContent = '🎁 Otorgar trial'; }
+  });
+  
+  // Initial load
+  loadCodes();
+  loadTrials();
+  loadSegmentCount();
+})();
+</script>
+</body>
+</html>

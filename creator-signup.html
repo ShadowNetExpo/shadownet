@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Únete a SHADOWNET — Creator Signup</title>
+<meta name="description" content="Plataforma de creators latinos. 10% comisión, anti-piracy forense, mass DM, promos + trials, welcome DM automático. Todo gratis.">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/creator-signup.html">
+<meta property="og:title" content="Únete a SHADOWNET — 10% comisión, herramientas premium gratis">
+<meta property="og:description" content="Plataforma de creators latinos. Conservas el 90% de lo que ganas.">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;line-height:1.55}
+.hero{background:radial-gradient(circle at top,rgba(255,8,68,0.2),transparent 50%),#0a0a0a;padding:40px 20px 20px;text-align:center;border-bottom:1px solid #1f1f1f}
+.logo{font-size:13px;color:#ff6b9d;letter-spacing:2px;font-weight:700;text-transform:uppercase;margin-bottom:18px}
+.hero h1{font-size:32px;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,#fff,#ff6b9d 60%,#ff0844);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .sub{font-size:15px;color:#a0a0a0;max-width:560px;margin:0 auto 16px}
+.code-card{max-width:420px;margin:16px auto 0;background:linear-gradient(135deg,rgba(255,8,68,0.12),rgba(255,107,157,0.06));border:1.5px solid rgba(255,8,68,0.35);border-radius:12px;padding:14px 18px}
+.code-card.found{border-color:rgba(9,255,9,0.5);background:linear-gradient(135deg,rgba(9,255,9,0.08),rgba(9,255,9,0.03))}
+.code-card .label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.code-card .value{font-family:"SF Mono",Menlo,monospace;font-size:18px;font-weight:700;color:#ff6b9d;letter-spacing:2px}
+.code-card.found .value{color:#55ff55}
+.code-card .note{font-size:11px;color:#888;margin-top:6px}
+.container{max-width:960px;margin:0 auto;padding:20px 16px 60px}
+.perks{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:30px 0}
+.perk{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:18px}
+.perk .emoji{font-size:28px;margin-bottom:8px;line-height:1}
+.perk h3{font-size:15px;margin-bottom:6px;color:#fff;font-weight:700}
+.perk p{font-size:13px;color:#a0a0a0;line-height:1.5}
+.perk strong{color:#ff6b9d}
+.compare{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:20px;margin:30px 0;overflow-x:auto}
+.compare h2{font-size:16px;margin-bottom:14px;color:#fff}
+.compare table{width:100%;font-size:13px;border-collapse:collapse}
+.compare th{text-align:left;padding:10px 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#888;border-bottom:1px solid #1f1f1f}
+.compare th.us{color:#ff6b9d}
+.compare td{padding:10px 6px;border-bottom:1px solid #1f1f1f;color:#ccc}
+.compare td.us{color:#55ff55;font-weight:600}
+.compare td.them{color:#ff9090}
+.compare tr:last-child td{border-bottom:none}
+.signup-section{background:#141414;border:1.5px solid #ff0844;border-radius:14px;padding:24px;margin:30px 0;max-width:480px;margin-left:auto;margin-right:auto}
+.signup-section h2{font-size:18px;margin-bottom:4px;color:#fff}
+.signup-section p.lead{font-size:13px;color:#888;margin-bottom:16px}
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;font-weight:600}
+input[type="text"],input[type="email"],input[type="password"]{width:100%;background:#0a0a0a;border:1.5px solid #1f1f1f;border-radius:8px;padding:12px 14px;color:#fff;font-family:inherit;font-size:15px}
+input:focus{outline:none;border-color:#ff0844}
+.hint{font-size:11px;color:#666;margin-top:4px}
+.btn-signup{width:100%;background:linear-gradient(135deg,#ff0844,#ff6b9d);border:none;color:#fff;font-family:inherit;font-size:16px;font-weight:700;padding:14px;border-radius:8px;cursor:pointer;margin-top:8px;transition:all 0.15s}
+.btn-signup:hover{background:linear-gradient(135deg,#e6073d,#e6618c);transform:translateY(-1px)}
+.btn-signup:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.toc{font-size:11px;color:#666;text-align:center;margin-top:12px;line-height:1.5}
+.toc a{color:#ff6b9d;text-decoration:none}
+.feedback{padding:12px 14px;border-radius:8px;margin-bottom:14px;font-size:13px}
+.feedback.ok{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);color:#55ff55}
+.feedback.err{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);color:#ff5555}
+.login-link{text-align:center;font-size:13px;color:#888;margin-top:20px}
+.login-link a{color:#ff6b9d;text-decoration:none}
+.success-screen{text-align:center;padding:40px 20px;display:none}
+.success-screen.visible{display:block}
+.success-screen .check{font-size:60px;margin-bottom:14px}
+.success-screen h2{font-size:22px;margin-bottom:10px;color:#fff}
+.success-screen p{font-size:14px;color:#a0a0a0;margin-bottom:18px;max-width:420px;margin-left:auto;margin-right:auto}
+.success-screen .btn-cta{display:inline-block;background:linear-gradient(135deg,#ff0844,#ff6b9d);color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px}
+footer{text-align:center;padding:20px;color:#666;font-size:11px;border-top:1px solid #1f1f1f}
+footer a{color:#888;text-decoration:none;margin:0 8px}
+@media(max-width:600px){
+  .hero h1{font-size:24px}
+  .hero{padding:30px 16px 16px}
+  .compare table{font-size:12px}
+  .compare th,.compare td{padding:8px 4px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo">SHADOWNET</div>
+  <h1>Tu red. Tus reglas. El 90% es tuyo.</h1>
+  <p class="sub">La plataforma de creators latinos, hispanos, brasileños e italianos. Condiciones que OnlyFans nunca te va a dar.</p>
+  <div id="codeCard" class="code-card" style="display:none">
+    <div class="label">🎟️ Código personal reservado</div>
+    <div class="value" id="codeValue">—</div>
+    <div class="note" id="codeNote">Verificando…</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- Success state (hidden until signup completes) -->
+<div class="success-screen" id="successScreen">
+  <div class="check">🎉</div>
+  <h2>¡Bienvenida a SHADOWNET!</h2>
+  <p>Tu cuenta está lista. Ya eres creator verificada con todas las herramientas activas: anti-piracy, mass DM, promos, welcome DM. Y tu comisión es del 10%.</p>
+  <a href="/dashboard.html" class="btn-cta">🚀 Ir a mi dashboard</a>
+  <div style="margin-top:14px;font-size:12px;color:#666">También puedes empezar <a href="/settings.html" style="color:#ff6b9d">configurando tu perfil</a></div>
+</div>
+
+<!-- Main signup flow -->
+<div id="mainFlow">
+  <!-- Perks -->
+  <div class="perks">
+    <div class="perk">
+      <div class="emoji">💰</div>
+      <h3>10% comisión</h3>
+      <p>Conservas el <strong>90%</strong> de lo que ganas. OnlyFans te quita el 20%, nosotros el 10%. Para siempre.</p>
+    </div>
+    <div class="perk">
+      <div class="emoji">🛡️</div>
+      <h3>Anti-piracy forense</h3>
+      <p>Si alguien filtra tu contenido, <strong>identificamos quién fue</strong> con análisis forense. Luego DMCA automático.</p>
+    </div>
+    <div class="perk">
+      <div class="emoji">📬</div>
+      <h3>Mass DM con segmentos</h3>
+      <p>Envía mensajes a <strong>7 segmentos automáticos</strong>: fans activos, inactivos 30d, VIP, nuevos, a punto de vencer.</p>
+    </div>
+    <div class="perk">
+      <div class="emoji">🎟️</div>
+      <h3>Promos + trials gratis</h3>
+      <p>Códigos de descuento propios y <strong>trials de 1-30 días</strong> a fans específicos. Ideal para reactivar churn.</p>
+    </div>
+    <div class="perk">
+      <div class="emoji">👋</div>
+      <h3>Welcome DM automático</h3>
+      <p>Cada nuevo sub recibe <strong>tu mensaje personalizado</strong> al instante. Retention 3x más alta.</p>
+    </div>
+    <div class="perk">
+      <div class="emoji">💳</div>
+      <h3>Pagos en tu moneda</h3>
+      <p>Revolut, Binance Pay, Mercado Pago (próximamente). <strong>Sin Stripe</strong>. Directo a tu cuenta.</p>
+    </div>
+  </div>
+
+  <!-- Comparison -->
+  <div class="compare">
+    <h2>📊 SHADOWNET vs OnlyFans</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="us">SHADOWNET</th>
+          <th>OnlyFans</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Comisión</td>
+          <td class="us">10%</td>
+          <td class="them">20%</td>
+        </tr>
+        <tr>
+          <td>Anti-piracy forense</td>
+          <td class="us">✅ Gratis</td>
+          <td class="them">❌ $200+/mes</td>
+        </tr>
+        <tr>
+          <td>Mass DM con segmentos</td>
+          <td class="us">✅ Nativo</td>
+          <td class="them">❌ Herramienta externa</td>
+        </tr>
+        <tr>
+          <td>Promos + free trials</td>
+          <td class="us">✅ Built-in</td>
+          <td class="them">⚠️ Limitado</td>
+        </tr>
+        <tr>
+          <td>Welcome DM automático</td>
+          <td class="us">✅ 1 click</td>
+          <td class="them">❌ Manual</td>
+        </tr>
+        <tr>
+          <td>Payouts LATAM</td>
+          <td class="us">Revolut, Binance, MP</td>
+          <td class="them">Bank transfer USD</td>
+        </tr>
+        <tr>
+          <td>UI en tu idioma</td>
+          <td class="us">ES/PT/IT/EN</td>
+          <td class="them">Solo EN</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Signup form -->
+  <div class="signup-section">
+    <h2>🚀 Crear mi cuenta creator</h2>
+    <p class="lead">2 minutos. Usa tu email real — te mandamos el link de confirmación.</p>
+    <div id="feedback"></div>
+    <form id="signupForm" onsubmit="event.preventDefault(); doSignup();">
+      <div class="form-row">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="tu_handle" maxlength="30" required autocomplete="off" style="text-transform:lowercase">
+        <div class="hint">Letras, números, guión bajo. 3-30 chars.</div>
+      </div>
+      <div class="form-row">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="tu@email.com" required autocomplete="email">
+      </div>
+      <div class="form-row">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Mínimo 8 caracteres" minlength="8" required autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn-signup" id="btnSignup">Crear cuenta y activar mi 10% 🚀</button>
+      <div class="toc">
+        Al registrarte confirmas que tienes +18 años y aceptas los <a href="/terms.html" target="_blank">Términos</a> y <a href="/privacy.html" target="_blank">Privacidad</a>.
+      </div>
+    </form>
+    <div class="login-link">
+      ¿Ya tienes cuenta? <a href="/index.html">Iniciar sesión</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<footer>
+  <a href="/terms.html">Términos</a>·<a href="/privacy.html">Privacidad</a>·<a href="/legal18.html">+18</a>·<a href="/dmca.html">DMCA</a>
+  <div style="margin-top:6px">© 2026 SHADOWNET</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb=window.supabase.createClient(SB_URL,SB_KEY);
+  window.sb=sb;
+  
+  // Extract code from URL
+  const urlParams = new URLSearchParams(location.search);
+  const rawCode = (urlParams.get('code') || '').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  window.__signupCode = rawCode || null;
+  
+  // If code present, verify it
+  if (rawCode && rawCode.length >= 6) {
+    const card = document.getElementById('codeCard');
+    const value = document.getElementById('codeValue');
+    const note = document.getElementById('codeNote');
+    card.style.display = 'block';
+    value.textContent = rawCode;
+    note.textContent = 'Verificando código…';
+    
+    try {
+      const { data, error } = await sb.rpc('preview_outreach_code', { p_code: rawCode });
+      const r = data && data[0];
+      if (!r || !r.valid) {
+        note.textContent = '⚠️ Código inválido o expirado. Puedes registrarte igual.';
+      } else if (r.already_redeemed) {
+        note.textContent = '⚠️ Este código ya fue usado. Puedes registrarte igual.';
+        window.__signupCode = null;
+      } else {
+        card.classList.add('found');
+        note.textContent = '✅ Código válido · ' + r.platform + ' · Onboarding prioritario';
+      }
+    } catch(e) {
+      note.textContent = 'No se pudo verificar. Puedes registrarte igual.';
+    }
+  }
+  
+  // Username lowercase enforcement
+  document.getElementById('username').addEventListener('input', function(e){
+    e.target.value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,'');
+  });
+  
+  // If already logged in, offer to link code or go to dashboard
+  const { data:{ session } } = await sb.auth.getSession();
+  if (session) {
+    const fb = document.getElementById('feedback');
+    if (window.__signupCode) {
+      fb.innerHTML = '<div class="feedback ok">Ya tienes sesión. Linkeando tu código…</div>';
+      try {
+        const { data } = await sb.rpc('link_creator_signup_by_code', { p_code: window.__signupCode });
+        const r = data && data[0];
+        if (r && r.linked) {
+          showSuccessScreen();
+          return;
+        } else {
+          fb.innerHTML = '<div class="feedback err">No se pudo linkear: ' + (r?.message||'error') + '</div>';
+        }
+      } catch(e) {
+        fb.innerHTML = '<div class="feedback err">Error: ' + (e.message||e) + '</div>';
+      }
+    } else {
+      fb.innerHTML = '<div class="feedback ok">Ya tienes sesión. <a href="/dashboard.html" style="color:#55ff55;font-weight:600">Ir al dashboard →</a></div>';
+    }
+  }
+})();
+
+function showFeedback(type, msg){
+  document.getElementById('feedback').innerHTML = '<div class="feedback '+type+'">'+msg+'</div>';
+}
+
+function showSuccessScreen(){
+  document.getElementById('mainFlow').style.display = 'none';
+  document.getElementById('successScreen').classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function doSignup(){
+  const btn = document.getElementById('btnSignup');
+  const username = document.getElementById('username').value.trim().toLowerCase();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const password = document.getElementById('password').value;
+  
+  if (username.length < 3 || !/^[a-z0-9_]+$/.test(username)) {
+    showFeedback('err', 'Username inválido (3-30 chars, solo letras/números/_)');
+    return;
+  }
+  if (password.length < 8) {
+    showFeedback('err', 'Password mínimo 8 caracteres');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ Creando cuenta…';
+  
+  try {
+    const { data, error } = await window.sb.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username, signup_code: window.__signupCode || null },
+        emailRedirectTo: location.origin + '/dashboard.html'
+      }
+    });
+    
+    if (error) {
+      showFeedback('err', '❌ ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Crear cuenta y activar mi 10% 🚀';
+      return;
+    }
+    
+    // If session immediately available (email confirm disabled), try to link code
+    if (data.session && window.__signupCode) {
+      try {
+        await window.sb.rpc('link_creator_signup_by_code', { p_code: window.__signupCode });
+      } catch(e) { console.debug('Link deferred:', e); }
+      showSuccessScreen();
+      return;
+    }
+    
+    // Email confirmation required flow
+    showFeedback('ok', '✅ Cuenta creada. Revisa tu email para confirmar la dirección. Luego entras al dashboard.');
+    btn.textContent = '📧 Email enviado — revisa tu bandeja';
+    
+  } catch(e) {
+    showFeedback('err', '❌ Error: ' + (e.message || e));
+    btn.disabled = false;
+    btn.textContent = 'Crear cuenta y activar mi 10% 🚀';
+  }
+}
+window.doSignup = doSignup;
+</script>
+</body>
+</html>

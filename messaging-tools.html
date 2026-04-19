@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mensajes Masivos — SHADOWNET</title>
+<meta name="description" content="Envía mensajes segmentados a tus fans con targeting inteligente y PPV">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/messaging-tools.html">
+<meta property="og:title" content="Mensajes Masivos — SHADOWNET">
+<meta property="og:description" content="Mass messaging con segmentos inteligentes para creators">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:800px;margin:0 auto;padding:24px 20px}
+.section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:20px;margin-bottom:20px}
+.section h3{font-size:16px;margin-bottom:16px;color:#fff}
+.section-desc{font-size:13px;color:#888;margin-bottom:14px;line-height:1.4}
+.segment-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:8px}
+.segment-option{background:#0f0f0f;border:1.5px solid #1f1f1f;padding:14px 12px;border-radius:8px;cursor:pointer;transition:all 0.15s;text-align:left;color:#e5e5e5}
+.segment-option:hover{border-color:#2f2f2f;background:#181818}
+.segment-option.selected{border-color:#ff0844;background:linear-gradient(135deg,rgba(255,8,68,0.12),#0f0f0f)}
+.segment-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
+.segment-sub{font-size:11px;color:#888;line-height:1.3}
+.segment-count{font-size:14px;font-weight:700;color:#ff0844;margin-top:6px}
+.segment-count.loading{color:#666}
+textarea{width:100%;min-height:120px;background:#0f0f0f;border:1.5px solid #1f1f1f;border-radius:8px;padding:12px;color:#e5e5e5;font-family:inherit;font-size:14px;resize:vertical;line-height:1.5}
+textarea:focus{outline:none;border-color:#ff0844}
+.char-count{text-align:right;font-size:11px;color:#666;margin-top:4px}
+.char-count.near{color:#ff9900}
+.char-count.over{color:#ff0844}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1f1f1f;gap:12px}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;color:#e5e5e5;flex:1}
+.settings-desc{font-size:12px;color:#888;margin-top:2px}
+.toggle{position:relative;width:42px;height:24px;background:#1f1f1f;border-radius:12px;cursor:pointer;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:#ff0844}
+.toggle-knob{position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left 0.2s}
+.toggle.on .toggle-knob{left:20px}
+input[type="number"],input[type="text"]{background:#0f0f0f;border:1.5px solid #1f1f1f;border-radius:8px;padding:10px 12px;color:#e5e5e5;font-family:inherit;font-size:14px;width:120px}
+input[type="number"]:focus,input[type="text"]:focus{outline:none;border-color:#ff0844}
+.btn{background:#1a1a1a;color:#e5e5e5;border:1px solid #2f2f2f;padding:12px 20px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500;transition:all 0.15s;font-family:inherit}
+.btn:hover{background:#2a2a2a;border-color:#3f3f3f}
+.btn-primary{background:linear-gradient(135deg,#ff0844,#ff6b9d);border-color:#ff0844;color:#fff;font-weight:600;width:100%;padding:14px 20px;font-size:15px}
+.btn-primary:hover{background:linear-gradient(135deg,#e6073d,#e6618c);border-color:#e6073d}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.preview-box{background:#0a0a0a;border:1px dashed #2f2f2f;padding:16px;border-radius:8px;margin-top:12px}
+.preview-label{font-size:11px;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+.preview-content{white-space:pre-wrap;font-size:14px;color:#e5e5e5;line-height:1.5}
+.preview-ppv{display:inline-block;background:#ff0844;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;margin-top:8px}
+.history-item{background:#0f0f0f;border:1px solid #1f1f1f;padding:14px;border-radius:8px;margin-bottom:10px}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.history-segment{font-size:12px;color:#ff0844;font-weight:600}
+.history-date{font-size:12px;color:#666}
+.history-content{font-size:13px;color:#ccc;margin-bottom:10px;line-height:1.4}
+.history-stats{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:#888}
+.history-stat strong{color:#fff;font-size:13px}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844}
+.loading{text-align:center;padding:20px;color:#888;font-size:13px}
+.success{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);padding:14px;border-radius:8px;color:#55ff55;font-size:14px;margin-bottom:16px;text-align:center}
+.error{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:14px;border-radius:8px;color:#ff5555;font-size:14px;margin-bottom:16px;text-align:center}
+.ppv-row{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px;background:rgba(255,8,68,0.05);border-radius:8px;border:1px solid rgba(255,8,68,0.2)}
+.ppv-row label{font-size:13px;color:#e5e5e5}
+.empty{text-align:center;padding:30px;color:#666;font-size:13px}
+@media(max-width:600px){
+  .container{padding:16px 12px}
+  .segment-grid{grid-template-columns:repeat(2,1fr)}
+  .segment-option{padding:12px 10px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/dashboard.html">←</a>
+  <h1>📬 Mensajes Masivos</h1>
+  <a href="/creator-analytics.html">🛡️</a>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Debes iniciar sesión como creador. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="notCreator" class="auth-warning" style="display:none">
+  Solo creadores verificados. Actívate en <a href="/settings.html">Configuración</a>.
+</div>
+
+<div id="mainContent" style="display:none">
+
+<div id="feedback"></div>
+
+<div class="section">
+  <h3>🎯 Elige tu segmento</h3>
+  <div class="section-desc">Envía a un grupo específico de fans para maximizar engagement. Los segmentos se calculan automáticamente.</div>
+  <div class="segment-grid" id="segmentGrid">
+    <div class="segment-option" data-segment="all_fans">
+      <div class="segment-title">Todos los fans</div>
+      <div class="segment-sub">Subscribers + followers</div>
+      <div class="segment-count loading" data-count="all_fans">…</div>
+    </div>
+    <div class="segment-option" data-segment="active">
+      <div class="segment-title">🔥 Activos</div>
+      <div class="segment-sub">Vieron contenido últimos 7d</div>
+      <div class="segment-count loading" data-count="active">…</div>
+    </div>
+    <div class="segment-option" data-segment="inactive_30d">
+      <div class="segment-title">😴 Inactivos 30d</div>
+      <div class="segment-sub">No accedieron en 30d — reactivar</div>
+      <div class="segment-count loading" data-count="inactive_30d">…</div>
+    </div>
+    <div class="segment-option" data-segment="vip_spenders">
+      <div class="segment-title">💰 VIP</div>
+      <div class="segment-sub">Top 10% gastadores</div>
+      <div class="segment-count loading" data-count="vip_spenders">…</div>
+    </div>
+    <div class="segment-option" data-segment="new">
+      <div class="segment-title">🆕 Nuevos</div>
+      <div class="segment-sub">Se suscribieron últimos 7d</div>
+      <div class="segment-count loading" data-count="new">…</div>
+    </div>
+    <div class="segment-option" data-segment="expiring_soon">
+      <div class="segment-title">⏰ Por vencer</div>
+      <div class="segment-sub">Subs terminan en <7d</div>
+      <div class="segment-count loading" data-count="expiring_soon">…</div>
+    </div>
+    <div class="segment-option" data-segment="followers_only">
+      <div class="segment-title">🎯 Solo follows</div>
+      <div class="segment-sub">Nunca suscritos — convertir</div>
+      <div class="segment-count loading" data-count="followers_only">…</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>✍️ Escribe tu mensaje</h3>
+  <textarea id="msgContent" placeholder="Hola! Tengo algo especial para ti esta semana… 🔥
+
+Tips que funcionan:
+• Personal: habla de tú
+• Urgencia: 'últimas horas'
+• CTA claro: 'mira aquí'"></textarea>
+  <div class="char-count" id="charCount">0 / 2000</div>
+  
+  <div class="ppv-row">
+    <div class="settings-row" style="border:none;padding:0;width:100%">
+      <div>
+        <div class="settings-label">🔒 Contenido PPV (Pay-Per-View)</div>
+        <div class="settings-desc">El mensaje se bloquea — fans pagan Almas para verlo</div>
+      </div>
+      <div class="toggle" id="ppvToggle" role="switch" aria-checked="false" tabindex="0">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="ppvPriceRow" style="display:none;margin-top:12px">
+    <label style="font-size:13px;color:#e5e5e5;display:block;margin-bottom:6px">Precio en Almas (1–500):</label>
+    <input type="number" id="ppvPrice" min="1" max="500" value="20" placeholder="20">
+    <span style="font-size:12px;color:#888;margin-left:8px">≈ $<span id="ppvUsd">2.00</span> USD</span>
+  </div>
+</div>
+
+<div class="section" id="previewSection" style="display:none">
+  <h3>👁️ Vista previa</h3>
+  <div class="preview-box">
+    <div class="preview-label">Así lo verán tus fans:</div>
+    <div class="preview-content" id="previewContent">(Escribe algo arriba…)</div>
+    <div class="preview-ppv" id="previewPpv" style="display:none">🔒 PPV — <span id="previewPpvPrice">20</span> Almas</div>
+  </div>
+</div>
+
+<div class="section">
+  <button class="btn-primary" id="sendBtn" disabled>📤 Enviar ahora</button>
+  <div style="font-size:11px;color:#666;text-align:center;margin-top:10px">Rate limit: 10 mensajes/día · 1000 fans/envío máximo</div>
+</div>
+
+<div class="section">
+  <h3>📊 Historial de campañas</h3>
+  <div id="historyList">
+    <div class="loading">Cargando…</div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb = window.supabase.createClient(SB_URL, SB_KEY);
+  window.sb = sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { document.getElementById('authWarning').style.display = 'block'; return; }
+  
+  const { data: profile } = await sb.from('profiles').select('is_creator').eq('id', user.id).single();
+  if (!profile?.is_creator) { document.getElementById('notCreator').style.display = 'block'; return; }
+  
+  document.getElementById('mainContent').style.display = 'block';
+  window.__creatorId = user.id;
+  window.__selectedSegment = null;
+  window.__isPpv = false;
+  
+  // ==== Load segment counts ====
+  const segments = ['all_fans','active','inactive_30d','vip_spenders','new','expiring_soon','followers_only'];
+  await Promise.all(segments.map(async seg => {
+    try {
+      const { data, error } = await sb.rpc('get_segment_members', {
+        p_creator_id: user.id, p_segment_type: seg
+      });
+      const count = data?.length || 0;
+      const el = document.querySelector('[data-count="'+seg+'"]');
+      if (el) { el.textContent = count + (count === 1 ? ' fan' : ' fans'); el.classList.remove('loading'); }
+    } catch(e) { console.error('Segment error:', seg, e); }
+  }));
+  
+  // ==== Segment selection ====
+  document.querySelectorAll('.segment-option').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.segment-option').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+      window.__selectedSegment = el.getAttribute('data-segment');
+      updateSendButton();
+    });
+  });
+  
+  // ==== Message textarea ====
+  const msgEl = document.getElementById('msgContent');
+  const charCount = document.getElementById('charCount');
+  msgEl.addEventListener('input', () => {
+    const len = msgEl.value.length;
+    charCount.textContent = len + ' / 2000';
+    charCount.classList.toggle('near', len > 1700 && len <= 2000);
+    charCount.classList.toggle('over', len > 2000);
+    updatePreview();
+    updateSendButton();
+  });
+  
+  // ==== PPV toggle ====
+  const ppvToggle = document.getElementById('ppvToggle');
+  ppvToggle.addEventListener('click', () => {
+    window.__isPpv = !window.__isPpv;
+    ppvToggle.classList.toggle('on', window.__isPpv);
+    ppvToggle.setAttribute('aria-checked', window.__isPpv ? 'true' : 'false');
+    document.getElementById('ppvPriceRow').style.display = window.__isPpv ? 'block' : 'none';
+    updatePreview();
+  });
+  
+  const ppvPrice = document.getElementById('ppvPrice');
+  ppvPrice.addEventListener('input', () => {
+    const almas = parseInt(ppvPrice.value) || 0;
+    document.getElementById('ppvUsd').textContent = (almas * 0.10).toFixed(2);
+    updatePreview();
+  });
+  
+  function updatePreview(){
+    const content = msgEl.value.trim();
+    const preview = document.getElementById('previewSection');
+    if (!content) { preview.style.display = 'none'; return; }
+    preview.style.display = 'block';
+    document.getElementById('previewContent').textContent = content;
+    document.getElementById('previewPpv').style.display = window.__isPpv ? 'inline-block' : 'none';
+    document.getElementById('previewPpvPrice').textContent = ppvPrice.value;
+  }
+  
+  function updateSendButton(){
+    const btn = document.getElementById('sendBtn');
+    const contentOk = msgEl.value.trim().length >= 2 && msgEl.value.length <= 2000;
+    const segmentOk = !!window.__selectedSegment;
+    btn.disabled = !(contentOk && segmentOk);
+  }
+  
+  // ==== Send ====
+  document.getElementById('sendBtn').addEventListener('click', async () => {
+    const content = msgEl.value.trim();
+    const segment = window.__selectedSegment;
+    const segCount = parseInt(document.querySelector('[data-count="'+segment+'"]').textContent) || 0;
+    
+    if (!confirm('Enviar a '+segCount+' fans?\n\nSegmento: '+segment+'\n\nEsto NO se puede cancelar.')) return;
+    
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Enviando…';
+    
+    try {
+      const { data: queueData, error: queueErr } = await sb.rpc('queue_mass_message', {
+        p_content: content,
+        p_segment_type: segment,
+        p_media_url: null,
+        p_media_type: null,
+        p_is_ppv: window.__isPpv,
+        p_ppv_price: window.__isPpv ? parseInt(ppvPrice.value) : 0
+      });
+      
+      if (queueErr) throw queueErr;
+      
+      const mmId = queueData[0].mass_message_id;
+      
+      btn.textContent = '📤 Procesando entregas…';
+      
+      const { data: procData, error: procErr } = await sb.rpc('process_mass_message', {
+        p_mass_message_id: mmId
+      });
+      
+      if (procErr) throw procErr;
+      
+      const processed = procData[0]?.processed || 0;
+      const failed = procData[0]?.failed || 0;
+      
+      showFeedback('success', '✅ Mensaje enviado a ' + processed + ' fans' + (failed > 0 ? ' ('+failed+' fallaron)' : '') + '.');
+      
+      msgEl.value = '';
+      charCount.textContent = '0 / 2000';
+      document.getElementById('previewSection').style.display = 'none';
+      document.querySelectorAll('.segment-option').forEach(x => x.classList.remove('selected'));
+      window.__selectedSegment = null;
+      btn.textContent = '📤 Enviar ahora';
+      btn.disabled = true;
+      
+      loadHistory();
+      
+    } catch(e) {
+      showFeedback('error', '❌ Error: ' + (e.message || e));
+      btn.disabled = false;
+      btn.textContent = '📤 Enviar ahora';
+    }
+  });
+  
+  function showFeedback(type, msg){
+    const fb = document.getElementById('feedback');
+    fb.innerHTML = '<div class="'+type+'">'+msg+'</div>';
+    setTimeout(() => { fb.innerHTML = ''; }, 6000);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  // ==== Load history ====
+  async function loadHistory(){
+    const container = document.getElementById('historyList');
+    const { data, error } = await sb.rpc('get_mass_message_history', { p_limit: 15 });
+    
+    if (error) { container.innerHTML = '<div class="error">Error: '+error.message+'</div>'; return; }
+    if (!data || data.length === 0) {
+      container.innerHTML = '<div class="empty">Aún no has enviado mensajes masivos.<br>Envía el primero arriba ↑</div>';
+      return;
+    }
+    
+    container.innerHTML = data.map(m => {
+      const date = new Date(m.created_at).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      const preview = escapeHtml(m.content_preview || '').substring(0, 100);
+      const revenue = m.total_revenue_cents > 0 ? ' · 💰 $'+(m.total_revenue_cents/100).toFixed(2) : '';
+      
+      return '<div class="history-item">'+
+        '<div class="history-header">'+
+          '<span class="history-segment">'+escapeHtml(m.segment_type)+'</span>'+
+          '<span class="history-date">'+date+'</span>'+
+        '</div>'+
+        '<div class="history-content">'+preview+(m.content_preview && m.content_preview.length >= 80 ? '…' : '')+'</div>'+
+        '<div class="history-stats">'+
+          '<span class="history-stat">📨 <strong>'+m.delivered_count+'</strong>/'+m.recipient_count+' entregados</span>'+
+          '<span class="history-stat">👁️ <strong>'+m.opened_count+'</strong> abiertos ('+m.open_rate+'%)</span>'+
+          (m.is_ppv ? '<span class="history-stat">🔓 <strong>'+m.unlocked_count+'</strong> desbloquearon ('+m.unlock_rate+'%)</span>' : '')+
+          (revenue ? '<span class="history-stat">'+revenue+'</span>' : '')+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  }
+  
+  loadHistory();
+})();
+</script>
+</body>
+</html>

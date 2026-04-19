@@ -78,6 +78,25 @@ body{background:#080e1a;color:#e0e8f0;font-family:Inter,sans-serif;min-height:10
       <div class="kpi"><div class="kpi-val" id="k-posts">-</div><div class="kpi-lbl">Posts</div></div>
     </div>
 
+  <!-- Onboarding Checklist (auto-hides when complete) -->
+  <div class="sn-sec" id="onboarding-checklist" style="display:none;margin-top:16px;border:1.5px solid rgba(255,8,68,0.3);background:linear-gradient(135deg,rgba(255,8,68,0.05),rgba(255,107,157,0.03))">
+    <div class="sn-sec-t" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span>🚀 Primeros pasos para activar tu perfil</span>
+      <span id="onboarding-pct" style="font-size:13px;color:#ff6b9d;font-weight:600">0/7</span>
+    </div>
+    <div style="background:#0a0a0a;height:6px;border-radius:3px;overflow:hidden;margin:10px 0 16px">
+      <div id="onboarding-bar" style="background:linear-gradient(90deg,#ff0844,#ff6b9d);height:100%;width:0%;transition:width 0.4s"></div>
+    </div>
+    <div id="onboarding-intro" style="font-size:12px;color:#999;line-height:1.5;margin-bottom:12px">
+      Completa estos pasos antes de mandar DMs a creators. Un perfil vacío no convierte.
+    </div>
+    <div id="onboarding-steps" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #1f1f1f;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span style="font-size:11px;color:#666">El checklist desaparece cuando llegas a 7/7</span>
+      <button id="btn-dismiss-onboarding" style="background:transparent;border:1px solid #333;color:#666;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer">Ocultar hasta recargar</button>
+    </div>
+  </div>
+
   <!-- Creator Tools Section (added for anti-piracy panel access) -->
   <div class="sn-sec" style="margin-top:16px">
     <div class="sn-sec-t">Herramientas de Creator</div>
@@ -276,6 +295,61 @@ function dRender(){
 })();
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+    // ==== ONBOARDING CHECKLIST ====
+    (async function initOnboarding(){
+      if (sessionStorage.getItem('onboarding_dismissed') === '1') return;
+      const sb = window.sb || window.supabaseClient;
+      if (!sb) { setTimeout(initOnboarding, 500); return; }
+      
+      try {
+        const { data, error } = await sb.rpc('get_onboarding_checklist');
+        if (error) { console.debug('Onboarding RPC error:', error); return; }
+        if (!data || data.length === 0) return; // Not a creator
+        
+        const done = data[0].progress_done;
+        const total = data[0].progress_total;
+        
+        // Auto-hide if complete
+        if (done >= total) return;
+        
+        const wrap = document.getElementById('onboarding-checklist');
+        const stepsEl = document.getElementById('onboarding-steps');
+        const pctEl = document.getElementById('onboarding-pct');
+        const barEl = document.getElementById('onboarding-bar');
+        if (!wrap || !stepsEl) return;
+        
+        pctEl.textContent = done + '/' + total;
+        barEl.style.width = Math.round(100 * done / total) + '%';
+        
+        // Render steps
+        stepsEl.innerHTML = data.sort((a,b) => a.step_order - b.step_order).map(s => {
+          const icon = s.completed ? '✅' : '☐';
+          const textColor = s.completed ? '#55ff55' : '#fff';
+          const actionHtml = s.completed 
+            ? '<span style="color:#55ff55;font-size:11px;font-weight:600">Completado</span>'
+            : '<a href="' + s.action_url + '" style="background:#ff0844;color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap">' + s.action_label + ' →</a>';
+          return '<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px">' +
+            '<span style="font-size:18px;flex-shrink:0">' + icon + '</span>' +
+            '<div style="flex:1;min-width:0">' +
+              '<div style="font-size:13px;font-weight:600;color:' + textColor + '">' + s.label + '</div>' +
+              '<div style="font-size:11px;color:#888;line-height:1.4;margin-top:2px">' + s.description + '</div>' +
+            '</div>' +
+            actionHtml +
+          '</div>';
+        }).join('');
+        
+        wrap.style.display = 'block';
+        
+        const dismissBtn = document.getElementById('btn-dismiss-onboarding');
+        if (dismissBtn) {
+          dismissBtn.addEventListener('click', function(){
+            sessionStorage.setItem('onboarding_dismissed', '1');
+            wrap.style.display = 'none';
+          });
+        }
+      } catch(e) { console.debug('Onboarding init failed:', e); }
+    })();
+  </script>
 </body>
 </html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Outreach — SHADOWNET Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/outreach.html">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:1200px;margin:0 auto;padding:20px 16px}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:20px;border-radius:10px;color:#ff5555;text-align:center}
+.auth-warning a{color:#ff0844}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:16px}
+.stat{background:#141414;border:1px solid #1f1f1f;border-radius:10px;padding:12px;cursor:pointer;transition:border-color 0.15s}
+.stat:hover{border-color:#ff0844}
+.stat.active{border-color:#ff0844;background:rgba(255,8,68,0.08)}
+.stat-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.stat-value{font-size:22px;font-weight:700;color:#fff;line-height:1}
+.stat-pct{font-size:11px;color:#ff6b9d;margin-top:2px}
+.section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:16px;margin-bottom:16px}
+.section h3{font-size:14px;margin-bottom:12px;color:#fff;text-transform:uppercase;letter-spacing:0.5px}
+.form-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
+.form-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+input,select,textarea{width:100%;background:#0f0f0f;border:1.5px solid #1f1f1f;border-radius:6px;padding:8px 10px;color:#e5e5e5;font-family:inherit;font-size:13px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#ff0844}
+label{display:block;font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px}
+textarea{resize:vertical;min-height:50px}
+.btn{background:#1a1a1a;color:#e5e5e5;border:1px solid #2f2f2f;padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit}
+.btn:hover{background:#2a2a2a;border-color:#3f3f3f}
+.btn-primary{background:linear-gradient(135deg,#ff0844,#ff6b9d);border-color:#ff0844;color:#fff;font-weight:600}
+.btn-primary:hover{background:linear-gradient(135deg,#e6073d,#e6618c)}
+.btn-sm{padding:4px 8px;font-size:11px}
+details{background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;margin-bottom:16px}
+details summary{padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#fff;list-style:none;display:flex;justify-content:space-between}
+details summary::after{content:"+";color:#ff6b9d}
+details[open] summary::after{content:"−"}
+details[open] summary{border-bottom:1px solid #1f1f1f}
+details > div{padding:16px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.filters button.btn-clear{grid-column:1/-1;max-width:120px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:10px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#888;border-bottom:1px solid #1f1f1f;background:#0f0f0f;position:sticky;top:0}
+td{padding:10px 8px;border-bottom:1px solid #1f1f1f;vertical-align:top}
+tr:hover td{background:#0f0f0f}
+.handle{font-weight:600;color:#fff}
+.handle a{color:inherit;text-decoration:none}
+.handle a:hover{color:#ff6b9d}
+.platform-pill{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;background:#1f1f1f;color:#ccc;margin-right:4px}
+.status-pill{display:inline-block;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.s-pending{background:#1f1f1f;color:#888}
+.s-contacted{background:rgba(100,150,255,0.15);color:#66a0ff;border:1px solid rgba(100,150,255,0.3)}
+.s-follow_up_1,.s-follow_up_2{background:rgba(150,100,255,0.15);color:#a080ff;border:1px solid rgba(150,100,255,0.3)}
+.s-replied{background:rgba(255,177,9,0.15);color:#ffb109;border:1px solid rgba(255,177,9,0.3)}
+.s-interested{background:rgba(255,107,157,0.2);color:#ff6b9d;border:1px solid rgba(255,107,157,0.4)}
+.s-signed_up,.s-active{background:rgba(9,255,9,0.15);color:#55ff55;border:1px solid rgba(9,255,9,0.3)}
+.s-rejected,.s-unreachable,.s-blocked{background:rgba(100,100,100,0.15);color:#888;border:1px solid #2f2f2f}
+.tier-pill{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;text-transform:uppercase;background:rgba(255,8,68,0.1);color:#ff6b9d;border:1px solid rgba(255,8,68,0.2)}
+.feedback{padding:10px 14px;border-radius:6px;margin-bottom:12px;font-size:13px}
+.feedback.ok{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);color:#55ff55}
+.feedback.err{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);color:#ff5555}
+.empty{text-align:center;padding:40px 20px;color:#666;font-size:13px}
+.notes-cell{max-width:200px;font-size:11px;color:#888;white-space:pre-line;line-height:1.3}
+.status-select{background:#0f0f0f;border:1px solid #1f1f1f;border-radius:4px;padding:3px 6px;color:#e5e5e5;font-size:11px;font-family:inherit}
+.code-chip{display:inline-block;font-family:"SF Mono",Menlo,monospace;background:rgba(255,8,68,0.1);color:#ff6b9d;border:1px solid rgba(255,8,68,0.2);padding:1px 6px;border-radius:4px;font-size:10px;cursor:pointer}
+.code-chip:hover{background:rgba(255,8,68,0.15)}
+@media(max-width:768px){
+  table{font-size:11px}
+  th,td{padding:6px 4px}
+  .notes-cell{max-width:100px;font-size:10px}
+  .form-row,.form-row-3{grid-template-columns:1fr}
+  .container{padding:12px 8px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/dashboard.html">←</a>
+  <h1>🎯 Outreach Pipeline</h1>
+</div>
+
+<div class="container">
+  <div id="authWarning" class="auth-warning" style="display:none">
+    Solo admins. <a href="/dashboard.html">Volver</a>
+  </div>
+  
+  <div id="mainContent" style="display:none">
+    <div id="feedback"></div>
+    
+    <!-- Stats -->
+    <div class="stats" id="stats">
+      <div class="loading">Cargando stats…</div>
+    </div>
+    
+    <!-- Add creator form -->
+    <details>
+      <summary>➕ Añadir creator al pipeline</summary>
+      <div>
+        <div class="form-row">
+          <div>
+            <label>Platform</label>
+            <select id="addPlatform">
+              <option value="instagram">Instagram</option>
+              <option value="onlyfans">OnlyFans</option>
+              <option value="fansly">Fansly</option>
+              <option value="twitter">Twitter/X</option>
+              <option value="tiktok">TikTok</option>
+              <option value="telegram">Telegram</option>
+              <option value="reddit">Reddit</option>
+              <option value="other">Otra</option>
+            </select>
+          </div>
+          <div>
+            <label>Handle (sin @)</label>
+            <input type="text" id="addHandle" placeholder="username" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Nombre display</label>
+            <input type="text" id="addDisplay" placeholder="Nombre mostrado">
+          </div>
+          <div>
+            <label>Profile URL</label>
+            <input type="text" id="addUrl" placeholder="https://…">
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div>
+            <label>Followers</label>
+            <input type="number" id="addFollowers" min="0" placeholder="0">
+          </div>
+          <div>
+            <label>Idioma</label>
+            <select id="addLang">
+              <option value="es">Español</option>
+              <option value="pt">Portugués</option>
+              <option value="it">Italiano</option>
+              <option value="en">Inglés</option>
+              <option value="other">Otro</option>
+            </select>
+          </div>
+          <div>
+            <label>Country (ISO-2)</label>
+            <input type="text" id="addCountry" maxlength="2" placeholder="MX" style="text-transform:uppercase">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Niche</label>
+            <input type="text" id="addNiche" placeholder="latina, curves, etc.">
+          </div>
+          <div>
+            <label>Source (donde los encontré)</label>
+            <input type="text" id="addSource" placeholder="ig_hashtag, of_leaderboard, referral">
+          </div>
+        </div>
+        <div class="form-row">
+          <div style="grid-column:1/-1">
+            <label>Notas iniciales</label>
+            <textarea id="addNotes" placeholder="Contexto del creator…"></textarea>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnAdd">➕ Añadir al pipeline</button>
+      </div>
+    </details>
+    
+    <!-- Filters -->
+    <div class="section">
+      <h3>🔍 Filtros</h3>
+      <div class="filters">
+        <select id="fStatus">
+          <option value="">Todos los estados</option>
+          <option value="pending">Pending</option>
+          <option value="contacted">Contacted</option>
+          <option value="follow_up_1">Follow up 1</option>
+          <option value="follow_up_2">Follow up 2</option>
+          <option value="replied">Replied</option>
+          <option value="interested">Interested</option>
+          <option value="signed_up">Signed up</option>
+          <option value="active">Active</option>
+          <option value="rejected">Rejected</option>
+          <option value="unreachable">Unreachable</option>
+          <option value="blocked">Blocked</option>
+        </select>
+        <select id="fPlatform">
+          <option value="">Todas plataformas</option>
+          <option value="instagram">Instagram</option>
+          <option value="onlyfans">OnlyFans</option>
+          <option value="fansly">Fansly</option>
+          <option value="twitter">Twitter</option>
+          <option value="tiktok">TikTok</option>
+          <option value="telegram">Telegram</option>
+          <option value="reddit">Reddit</option>
+          <option value="other">Otra</option>
+        </select>
+        <select id="fLang">
+          <option value="">Todos idiomas</option>
+          <option value="es">Español</option>
+          <option value="pt">Portugués</option>
+          <option value="it">Italiano</option>
+          <option value="en">Inglés</option>
+        </select>
+        <input type="text" id="fSearch" placeholder="Buscar handle / nombre…">
+        <button class="btn btn-clear" id="btnClear">Limpiar</button>
+      </div>
+    </div>
+    
+    <!-- List -->
+    <div class="section">
+      <h3 id="listTitle">📋 Pipeline</h3>
+      <div style="overflow-x:auto">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th>Creator</th>
+              <th>Platform</th>
+              <th>Tier</th>
+              <th>Lang</th>
+              <th>Status</th>
+              <th>Código</th>
+              <th>Actividad</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="8" class="empty">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb=window.supabase.createClient(SB_URL,SB_KEY);
+  window.sb=sb;
+  
+  const { data:{ user } } = await sb.auth.getUser();
+  if (!user) { location.href='/index.html'; return; }
+  
+  const { data:profile } = await sb.from('profiles').select('is_admin').eq('id',user.id).single();
+  if (!profile?.is_admin) { document.getElementById('authWarning').style.display='block'; return; }
+  
+  document.getElementById('mainContent').style.display='block';
+  
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+  function showFb(type,msg){
+    document.getElementById('feedback').innerHTML='<div class="feedback '+type+'">'+esc(msg)+'</div>';
+    setTimeout(()=>{ document.getElementById('feedback').innerHTML=''; }, 5000);
+  }
+  
+  const STATUS_LABELS = {
+    pending:'Pending', contacted:'Contacted', follow_up_1:'FU1', follow_up_2:'FU2',
+    replied:'Replied', interested:'Interested', signed_up:'Signed Up', active:'Active',
+    rejected:'Rejected', unreachable:'Unreach.', blocked:'Blocked'
+  };
+  const STATUS_EMOJI = {
+    pending:'⏳', contacted:'📨', follow_up_1:'🔁', follow_up_2:'🔁🔁',
+    replied:'💬', interested:'🔥', signed_up:'✅', active:'🚀',
+    rejected:'❌', unreachable:'👻', blocked:'🚫'
+  };
+  
+  async function loadStats(){
+    const { data, error } = await sb.rpc('get_outreach_stats');
+    const el = document.getElementById('stats');
+    if (error) { el.innerHTML='<div class="feedback err">Error stats: '+esc(error.message)+'</div>'; return; }
+    if (!data || data.length===0) {
+      el.innerHTML='<div class="stat"><div class="stat-label">Total</div><div class="stat-value">0</div></div>';
+      return;
+    }
+    const total = data.reduce((s,r)=>s+Number(r.count), 0);
+    let html = '<div class="stat" data-filter="" style="border-color:#ff0844"><div class="stat-label">TOTAL</div><div class="stat-value">'+total+'</div></div>';
+    for (const r of data) {
+      html += '<div class="stat" data-filter="'+r.status+'"><div class="stat-label">'+(STATUS_EMOJI[r.status]||'')+' '+(STATUS_LABELS[r.status]||r.status)+'</div><div class="stat-value">'+r.count+'</div><div class="stat-pct">'+r.pct_of_total+'%</div></div>';
+    }
+    el.innerHTML = html;
+    
+    // Click stat to filter
+    el.querySelectorAll('.stat').forEach(s => {
+      s.addEventListener('click', () => {
+        const f = s.getAttribute('data-filter');
+        document.getElementById('fStatus').value = f;
+        loadList();
+      });
+    });
+  }
+  
+  async function loadList(){
+    const status = document.getElementById('fStatus').value || null;
+    const platform = document.getElementById('fPlatform').value || null;
+    const lang = document.getElementById('fLang').value || null;
+    const search = document.getElementById('fSearch').value.trim() || null;
+    
+    const { data, error } = await sb.rpc('list_outreach', {
+      p_status_filter: status, p_platform_filter: platform,
+      p_language_filter: lang, p_search: search,
+      p_limit: 200, p_offset: 0
+    });
+    
+    const tbody = document.getElementById('tbody');
+    const title = document.getElementById('listTitle');
+    
+    if (error) { tbody.innerHTML='<tr><td colspan="8" class="empty">Error: '+esc(error.message)+'</td></tr>'; return; }
+    if (!data || data.length===0) {
+      tbody.innerHTML='<tr><td colspan="8" class="empty">Sin resultados. Añade tu primer creator arriba ↑</td></tr>';
+      title.textContent = '📋 Pipeline (0)';
+      return;
+    }
+    title.textContent = '📋 Pipeline ('+data.length+')';
+    
+    tbody.innerHTML = data.map(r => {
+      const statusOpts = Object.keys(STATUS_LABELS).map(s =>
+        '<option value="'+s+'"'+(r.status===s?' selected':'')+'>'+STATUS_EMOJI[s]+' '+STATUS_LABELS[s]+'</option>'
+      ).join('');
+      const url = r.profile_url || (r.platform==='instagram' ? 'https://instagram.com/'+r.handle :
+                  r.platform==='onlyfans' ? 'https://onlyfans.com/'+r.handle :
+                  r.platform==='twitter' ? 'https://twitter.com/'+r.handle :
+                  r.platform==='tiktok' ? 'https://tiktok.com/@'+r.handle : '#');
+      const followers = r.follower_count ? r.follower_count.toLocaleString('en-US') : '—';
+      const daysAgo = r.days_since_activity != null ? r.days_since_activity+'d' : '—';
+      
+      return '<tr data-id="'+r.id+'">'+
+        '<td><div class="handle"><a href="'+esc(url)+'" target="_blank" rel="noopener">@'+esc(r.handle)+'</a></div>'+
+          '<div style="font-size:10px;color:#888">'+esc(r.display_name||'')+'</div>'+
+          '<div style="font-size:10px;color:#666">👥 '+followers+'</div></td>'+
+        '<td><span class="platform-pill">'+esc(r.platform)+'</span></td>'+
+        '<td>'+(r.tier ? '<span class="tier-pill">'+esc(r.tier)+'</span>' : '—')+'</td>'+
+        '<td><span style="font-size:11px;color:#888">'+esc(r.language||'—')+'</span></td>'+
+        '<td><select class="status-select" data-id="'+r.id+'">'+statusOpts+'</select></td>'+
+        '<td>'+(r.signup_code ? '<span class="code-chip" onclick="copyCode(\''+esc(r.signup_code)+'\')">'+esc(r.signup_code)+'</span>' : '—')+'</td>'+
+        '<td style="font-size:11px;color:#888">'+daysAgo+'</td>'+
+        '<td><div class="notes-cell">'+esc((r.notes||'').substring(0, 150))+'</div></td>'+
+      '</tr>';
+    }).join('');
+    
+    // Wire status selectors
+    tbody.querySelectorAll('.status-select').forEach(sel => {
+      sel.addEventListener('change', async (e) => {
+        const id = e.target.getAttribute('data-id');
+        const newStatus = e.target.value;
+        const note = prompt('Nota opcional para este cambio:', '');
+        const { data:result, error } = await sb.rpc('update_outreach_status', {
+          p_id: id, p_status: newStatus, p_notes: note || null
+        });
+        if (error) { showFb('err', 'Error: '+error.message); return; }
+        showFb('ok', '✅ Status actualizado: '+newStatus);
+        loadStats(); loadList();
+      });
+    });
+  }
+  
+  window.copyCode = async function(c){
+    try { await navigator.clipboard.writeText(c); showFb('ok', '✅ '+c+' copiado'); }
+    catch(e) { showFb('err', 'No se pudo copiar'); }
+  };
+  
+  // Add creator
+  document.getElementById('btnAdd').addEventListener('click', async () => {
+    const platform = document.getElementById('addPlatform').value;
+    const handle = document.getElementById('addHandle').value.trim();
+    const display = document.getElementById('addDisplay').value.trim() || null;
+    const url = document.getElementById('addUrl').value.trim() || null;
+    const followers = parseInt(document.getElementById('addFollowers').value) || null;
+    const lang = document.getElementById('addLang').value;
+    const country = document.getElementById('addCountry').value.trim().toUpperCase() || null;
+    const niche = document.getElementById('addNiche').value.trim() || null;
+    const source = document.getElementById('addSource').value.trim() || null;
+    const notes = document.getElementById('addNotes').value.trim() || null;
+    
+    if (!handle) { showFb('err', 'Handle requerido'); return; }
+    
+    const btn = document.getElementById('btnAdd');
+    btn.disabled = true; btn.textContent = '⏳ Añadiendo…';
+    try {
+      const { data, error } = await sb.rpc('add_creator_outreach', {
+        p_platform: platform, p_handle: handle,
+        p_display_name: display, p_profile_url: url,
+        p_follower_count: followers, p_language: lang,
+        p_country: country, p_niche: niche,
+        p_notes: notes, p_tags: null, p_pitch_variant: 'A',
+        p_source: source
+      });
+      if (error) throw error;
+      const result = data?.[0];
+      if (result?.is_duplicate) {
+        showFb('err', '⚠️ Ya existe @'+handle+' en '+platform);
+      } else {
+        showFb('ok', '✅ @'+handle+' añadido. Código: '+result.signup_code);
+        // Clear
+        ['addHandle','addDisplay','addUrl','addFollowers','addCountry','addNiche','addSource','addNotes'].forEach(id => document.getElementById(id).value = '');
+        loadStats(); loadList();
+      }
+    } catch(e) { showFb('err', '❌ ' + (e.message || e)); }
+    finally { btn.disabled = false; btn.textContent = '➕ Añadir al pipeline'; }
+  });
+  
+  // Filters
+  ['fStatus','fPlatform','fLang'].forEach(id => document.getElementById(id).addEventListener('change', loadList));
+  let sT; document.getElementById('fSearch').addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(loadList, 400); });
+  document.getElementById('btnClear').addEventListener('click', () => {
+    ['fStatus','fPlatform','fLang','fSearch'].forEach(id => document.getElementById(id).value = '');
+    loadList();
+  });
+  
+  // Initial load
+  loadStats();
+  loadList();
+})();
+</script>
+</body>
+</html>

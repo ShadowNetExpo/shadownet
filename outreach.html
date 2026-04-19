@@ -172,6 +172,84 @@ tr:hover td{background:#0f0f0f}
       </div>
     </details>
     
+    <!-- ICP Finder -->
+    <details id="icp-finder-section">
+      <summary>🔎 ICP Finder — búsquedas pre-configuradas (abre en tab nueva)</summary>
+      <div>
+        <div style="background:rgba(255,8,68,0.05);border:1px solid rgba(255,8,68,0.2);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:11px;color:#ccc;line-height:1.6">
+          💡 Tu ICP real: creators que ya monetizan en OF/Fansly, ES/PT/IT, 10k-200k followers, frustradas con el 20% commission. Estas búsquedas te devuelven handles calificados.
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px">
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/search?q=%22onlyfans.com%2F%22+latina+%22espa%C3%B1ol%22+site%3Atwitter.com">🔎 Twitter: OF latinas (ES)</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/search?q=%22fansly.com%2F%22+latina+espa%C3%B1ol+site%3Atwitter.com">🔎 Twitter: Fansly latinas</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/search?q=%22onlyfans.com%2F%22+brasileira+site%3Atwitter.com">🔎 Twitter: OF brasileiras</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/search?q=%22onlyfans.com%2F%22+italiana+site%3Atwitter.com">🔎 Twitter: OF italiane</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/search?q=%22linktr.ee%2F%22+latina+onlyfans+site%3Ainstagram.com">🔎 IG: linktr.ee + OF latina</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/search?q=%22allmylinks.com%22+latina+onlyfans">🔎 Google: allmylinks latinas</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/search?q=%22beacons.ai%22+latina+onlyfans">🔎 Google: beacons.ai latinas</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.reddit.com/r/OnlyFansAdvice/search?q=commission+20%25&restrict_sr=1">🔎 Reddit: quejas commission</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.reddit.com/r/onlyfans101/search?q=latina&restrict_sr=1">🔎 Reddit: OF 101 latina</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://twitter.com/search?q=%22onlyfans.com%22%20latina%20ES&src=typed_query&f=live">🔎 X live: OF latina</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://twitter.com/search?q=%22fansly.com%22%20br%C3%A9sil&src=typed_query&f=live">🔎 X live: Fansly BR</a>
+          <a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/search?q=top+onlyfans+latina+2026">🔎 Google: top OF latina 2026</a>
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:10px;line-height:1.5">
+          <strong style="color:#ff6b9d">Workflow sugerido:</strong> 1) Abres 2-3 búsquedas → 2) Copias 10-20 handles que se vean activos (check fecha último post) → 3) Pegas en "📦 Bulk Import" abajo → 4) Sistema crea filas con código único cada una
+        </div>
+      </div>
+    </details>
+    
+    <!-- Bulk Import -->
+    <details id="bulk-import-section">
+      <summary>📦 Bulk Import — pegá hasta 200 handles a la vez</summary>
+      <div>
+        <div style="background:rgba(255,8,68,0.05);border:1px solid rgba(255,8,68,0.2);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:11px;color:#ccc;line-height:1.6">
+          <strong>Formato:</strong> 1 handle por línea. Opcionales separados por <em>tab</em>: <code style="color:#ff6b9d">@handle</code> · <code style="color:#ff6b9d">@handle⇥followers</code> · <code style="color:#ff6b9d">@handle⇥followers⇥Display Name</code><br>
+          Líneas que empiezan con <code>#</code> se saltan. Duplicados se detectan automáticamente. Tier se auto-calcula por followers.
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Platform</label>
+            <select id="bulkPlatform">
+              <option value="instagram">Instagram</option>
+              <option value="onlyfans">OnlyFans</option>
+              <option value="fansly">Fansly</option>
+              <option value="twitter">Twitter/X</option>
+              <option value="tiktok">TikTok</option>
+              <option value="reddit">Reddit</option>
+              <option value="telegram">Telegram</option>
+              <option value="other">Otra</option>
+            </select>
+          </div>
+          <div>
+            <label>Idioma</label>
+            <select id="bulkLang">
+              <option value="es">Español</option>
+              <option value="pt">Portugués</option>
+              <option value="it">Italiano</option>
+              <option value="en">Inglés</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Source tag</label>
+            <input type="text" id="bulkSource" value="bulk_import" placeholder="ig_hashtag_latina_abril19">
+          </div>
+          <div>
+            <label>Niche (opcional)</label>
+            <input type="text" id="bulkNiche" placeholder="latina, curvy, etc.">
+          </div>
+        </div>
+        <label>Handles (uno por línea)</label>
+        <textarea id="bulkHandles" style="min-height:140px;font-family:SF Mono,Menlo,monospace;font-size:12px" placeholder="@handle1&#10;@handle2&#9;25000&#10;@handle3&#9;120000&#9;Mariana VIP&#10;# comment line - skipped"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:8px">
+          <span id="bulkLineCount" style="font-size:11px;color:#666">0 líneas</span>
+          <button class="btn btn-primary" id="btnBulkImport">📦 Importar batch</button>
+        </div>
+      </div>
+    </details>
+    
     <!-- Analytics -->
     <details id="analytics-section">
       <summary>📊 Analytics (funnel + A/B por variant/platform/tier)</summary>
@@ -479,6 +557,44 @@ tr:hover td{background:#0f0f0f}
     renderBreakdownTable('get_outreach_by_tier', 'tierBox', 'tier');
     renderStale();
   }
+  
+  // ==== BULK IMPORT ====
+  const bulkTa = document.getElementById('bulkHandles');
+  const bulkCount = document.getElementById('bulkLineCount');
+  function updateBulkCount(){
+    const lines = bulkTa.value.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+    bulkCount.textContent = lines.length + ' líneas válidas' + (lines.length > 200 ? ' (máx 200 — se cortará)' : '');
+    bulkCount.style.color = lines.length > 200 ? '#ff9900' : '#666';
+  }
+  bulkTa.addEventListener('input', updateBulkCount);
+  
+  document.getElementById('btnBulkImport').addEventListener('click', async () => {
+    const btn = document.getElementById('btnBulkImport');
+    const platform = document.getElementById('bulkPlatform').value;
+    const lang = document.getElementById('bulkLang').value;
+    const source = document.getElementById('bulkSource').value.trim() || 'bulk_import';
+    const niche = document.getElementById('bulkNiche').value.trim() || null;
+    const text = bulkTa.value;
+    if (text.trim().length === 0) { showFb('err', 'Pegá al menos un handle'); return; }
+    
+    btn.disabled = true; btn.textContent = '⏳ Importando…';
+    try {
+      const { data, error } = await sb.rpc('bulk_import_outreach', {
+        p_platform: platform, p_handles_text: text,
+        p_language: lang, p_source: source, p_niche: niche
+      });
+      if (error) throw error;
+      const r = data?.[0];
+      if (!r) { showFb('err', 'Respuesta vacía'); return; }
+      
+      const msg = '✅ ' + r.imported + ' importados, ' + r.skipped_duplicates + ' duplicados, ' + r.errors + ' errores';
+      showFb('ok', msg);
+      bulkTa.value = '';
+      updateBulkCount();
+      loadStats(); loadList();
+    } catch(e) { showFb('err', '❌ ' + (e.message || e)); }
+    finally { btn.disabled = false; btn.textContent = '📦 Importar batch'; }
+  });
   
   document.getElementById('btnRefreshAnalytics').addEventListener('click', loadAnalytics);
   // Auto-load when analytics section is opened

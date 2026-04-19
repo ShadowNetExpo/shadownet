@@ -172,6 +172,23 @@ tr:hover td{background:#0f0f0f}
       </div>
     </details>
     
+    <!-- Analytics -->
+    <details id="analytics-section">
+      <summary>📊 Analytics (funnel + A/B por variant/platform/tier)</summary>
+      <div>
+        <div id="fnlBox" style="margin-bottom:16px"></div>
+        <h4 style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">Por Pitch Variant</h4>
+        <div id="variantBox" style="margin-bottom:16px;overflow-x:auto"></div>
+        <h4 style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">Por Platform</h4>
+        <div id="platformBox" style="margin-bottom:16px;overflow-x:auto"></div>
+        <h4 style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">Por Tier</h4>
+        <div id="tierBox" style="margin-bottom:16px;overflow-x:auto"></div>
+        <h4 style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">🔄 Stale (sin respuesta &gt;4 días — follow up)</h4>
+        <div id="staleBox" style="overflow-x:auto"></div>
+        <button class="btn btn-sm" id="btnRefreshAnalytics" style="margin-top:12px">🔄 Refresh analytics</button>
+      </div>
+    </details>
+    
     <!-- Filters -->
     <div class="section">
       <h3>🔍 Filtros</h3>
@@ -418,6 +435,57 @@ tr:hover td{background:#0f0f0f}
   
   // Initial load
   window.loadOutreachList = loadList;
+  // ==== ANALYTICS ====
+  async function renderFunnel(){
+    const { data, error } = await sb.rpc('get_outreach_funnel');
+    const el = document.getElementById('fnlBox');
+    if (error || !data || data.length === 0) { el.innerHTML = '<div class="empty">Sin datos aún</div>'; return; }
+    const steps = data;
+    const maxCount = Math.max(...steps.map(s => Number(s.count))) || 1;
+    el.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px">' + steps.map(s => {
+      const w = Math.max(4, (Number(s.count)/maxCount)*100);
+      const label = s.stage.replace('_',' ').toUpperCase();
+      return '<div style="display:flex;align-items:center;gap:10px"><div style="width:85px;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px">'+label+'</div><div style="flex:1;background:#0f0f0f;height:26px;border-radius:4px;overflow:hidden;position:relative"><div style="background:linear-gradient(90deg,#ff0844,#ff6b9d);height:100%;width:'+w+'%;transition:width 0.4s"></div><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:#fff">'+s.count+'</span></div><div style="width:60px;font-size:11px;color:#ff6b9d;text-align:right">'+s.pct_of_prev+'%</div></div>';
+    }).join('') + '</div>';
+  }
+  
+  async function renderBreakdownTable(rpcName, elId, firstCol){
+    const { data, error } = await sb.rpc(rpcName);
+    const el = document.getElementById(elId);
+    if (error || !data || data.length === 0) { el.innerHTML = '<div class="empty">Sin datos</div>'; return; }
+    const headers = Object.keys(data[0]);
+    el.innerHTML = '<table style="font-size:12px;width:100%"><thead><tr>' + headers.map(h => '<th style="padding:8px;font-size:10px">'+h.replace(/_/g,' ').toUpperCase()+'</th>').join('') + '</tr></thead><tbody>' + 
+      data.map(r => '<tr>' + headers.map(h => {
+        let v = r[h];
+        if (v === null || v === undefined) v = '—';
+        else if (typeof v === 'number' && h.includes('rate')) v = v + '%';
+        return '<td style="padding:8px">'+esc(String(v))+'</td>';
+      }).join('') + '</tr>').join('') + '</tbody></table>';
+  }
+  
+  async function renderStale(){
+    const { data, error } = await sb.rpc('get_stale_outreach', { p_days_threshold: 4 });
+    const el = document.getElementById('staleBox');
+    if (error) { el.innerHTML = '<div class="empty">Error</div>'; return; }
+    if (!data || data.length === 0) { el.innerHTML = '<div class="empty">🎉 Ningún creator necesita follow up</div>'; return; }
+    el.innerHTML = '<table style="font-size:12px;width:100%"><thead><tr><th>Handle</th><th>Platform</th><th>Lang</th><th>Variant</th><th>Status</th><th>Days</th></tr></thead><tbody>' +
+      data.map(r => '<tr><td><a href="'+esc(r.profile_url||'#')+'" target="_blank" style="color:#ff6b9d;text-decoration:none">@'+esc(r.handle)+'</a></td><td>'+esc(r.platform)+'</td><td>'+esc(r.language||'—')+'</td><td>'+esc(r.pitch_variant||'—')+'</td><td>'+esc(r.status)+'</td><td style="color:#ff9900;font-weight:600">'+r.days_since_contact+'d</td></tr>').join('') + '</tbody></table>';
+  }
+  
+  async function loadAnalytics(){
+    renderFunnel();
+    renderBreakdownTable('get_outreach_by_variant', 'variantBox', 'variant');
+    renderBreakdownTable('get_outreach_by_platform', 'platformBox', 'platform');
+    renderBreakdownTable('get_outreach_by_tier', 'tierBox', 'tier');
+    renderStale();
+  }
+  
+  document.getElementById('btnRefreshAnalytics').addEventListener('click', loadAnalytics);
+  // Auto-load when analytics section is opened
+  document.getElementById('analytics-section').addEventListener('toggle', function(e){
+    if (e.target.open) loadAnalytics();
+  });
+  
   loadStats();
   loadList();
 })();

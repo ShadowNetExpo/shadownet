@@ -321,6 +321,7 @@ tr:hover td{background:#0f0f0f}
     }
     title.textContent = '📋 Pipeline ('+data.length+')';
     
+    window.__creators = {}; data.forEach(c => { window.__creators[c.id] = c; });
     tbody.innerHTML = data.map(r => {
       const statusOpts = Object.keys(STATUS_LABELS).map(s =>
         '<option value="'+s+'"'+(r.status===s?' selected':'')+'>'+STATUS_EMOJI[s]+' '+STATUS_LABELS[s]+'</option>'
@@ -335,7 +336,7 @@ tr:hover td{background:#0f0f0f}
       return '<tr data-id="'+r.id+'">'+
         '<td><div class="handle"><a href="'+esc(url)+'" target="_blank" rel="noopener">@'+esc(r.handle)+'</a></div>'+
           '<div style="font-size:10px;color:#888">'+esc(r.display_name||'')+'</div>'+
-          '<div style="font-size:10px;color:#666">👥 '+followers+'</div></td>'+
+          '<div style="font-size:10px;color:#666">👥 '+followers+'</div><div style="margin-top:6px"><button class="btn btn-sm" data-cid="'+r.id+'" onclick="window.showDmGenerator(window.__creators[this.dataset.cid])">📨 DM</button></div></td>'+
         '<td><span class="platform-pill">'+esc(r.platform)+'</span></td>'+
         '<td>'+(r.tier ? '<span class="tier-pill">'+esc(r.tier)+'</span>' : '—')+'</td>'+
         '<td><span style="font-size:11px;color:#888">'+esc(r.language||'—')+'</span></td>'+
@@ -416,9 +417,11 @@ tr:hover td{background:#0f0f0f}
   });
   
   // Initial load
+  window.loadOutreachList = loadList;
   loadStats();
   loadList();
 })();
 </script>
+<script src="/outreach-dm-generator.js" defer></script>
 </body>
 </html>

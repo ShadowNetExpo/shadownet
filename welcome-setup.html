@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mensaje de Bienvenida — SHADOWNET</title>
+<meta name="description" content="Configura un mensaje automático para nuevos suscriptores">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/welcome-setup.html">
+<meta property="og:title" content="Mensaje de Bienvenida — SHADOWNET">
+<meta property="og:description" content="Auto-DM para nuevos subscribers">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:720px;margin:0 auto;padding:24px 20px}
+.intro{background:linear-gradient(135deg,rgba(255,8,68,0.1),rgba(255,177,153,0.05));border:1px solid rgba(255,8,68,0.3);border-radius:12px;padding:20px;margin-bottom:24px}
+.intro h2{font-size:18px;margin-bottom:8px;color:#fff}
+.intro p{color:#a0a0a0;font-size:14px;line-height:1.5}
+.section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:20px;margin-bottom:20px}
+.section h3{font-size:16px;margin-bottom:16px;color:#fff}
+textarea{width:100%;min-height:160px;background:#0f0f0f;border:1.5px solid #1f1f1f;border-radius:8px;padding:14px;color:#e5e5e5;font-family:inherit;font-size:14px;resize:vertical;line-height:1.5}
+textarea:focus{outline:none;border-color:#ff0844}
+input[type="number"],input[type="text"]{width:100%;background:#0f0f0f;border:1.5px solid #1f1f1f;border-radius:8px;padding:10px 12px;color:#e5e5e5;font-family:inherit;font-size:14px}
+input:focus{outline:none;border-color:#ff0844}
+.char-count{text-align:right;font-size:11px;color:#666;margin-top:4px}
+.char-count.near{color:#ff9900}
+.char-count.over{color:#ff0844}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1f1f1f;gap:14px}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;color:#e5e5e5;flex:1}
+.settings-desc{font-size:12px;color:#888;margin-top:2px}
+.toggle{position:relative;width:42px;height:24px;background:#1f1f1f;border-radius:12px;cursor:pointer;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:#ff0844}
+.toggle-knob{position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left 0.2s}
+.toggle.on .toggle-knob{left:20px}
+.btn-primary{background:linear-gradient(135deg,#ff0844,#ff6b9d);border:none;color:#fff;font-weight:600;padding:14px 20px;border-radius:8px;width:100%;font-size:15px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn-primary:hover{background:linear-gradient(135deg,#e6073d,#e6618c)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.ppv-row{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px;background:rgba(255,8,68,0.05);border-radius:8px;border:1px solid rgba(255,8,68,0.2)}
+.preview-box{background:#0a0a0a;border:1px dashed #2f2f2f;padding:16px;border-radius:8px;margin-top:12px}
+.preview-label{font-size:11px;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+.preview-bubble{background:linear-gradient(135deg,rgba(255,8,68,0.15),rgba(255,107,157,0.08));border:1px solid rgba(255,8,68,0.3);padding:12px 16px;border-radius:16px 16px 16px 4px;font-size:14px;color:#fff;line-height:1.5;white-space:pre-wrap;max-width:90%}
+.preview-ppv-badge{display:inline-block;background:#ff0844;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;margin-top:6px}
+.tips{font-size:12px;color:#888;background:#0f0f0f;border:1px solid #1f1f1f;padding:12px 14px;border-radius:8px;margin-top:10px;line-height:1.5}
+.tips strong{color:#ff6b9d}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844}
+.success{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);padding:14px;border-radius:8px;color:#55ff55;font-size:14px;margin-bottom:16px;text-align:center}
+.error{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:14px;border-radius:8px;color:#ff5555;font-size:14px;margin-bottom:16px;text-align:center}
+@media(max-width:600px){ .container{padding:16px 12px} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/dashboard.html">←</a>
+  <h1>👋 Welcome DM</h1>
+  <a href="/promos-trials.html">🎟️</a>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Debes iniciar sesión como creador. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="notCreator" class="auth-warning" style="display:none">
+  Solo creadores. Actívate en <a href="/settings.html">Configuración</a>.
+</div>
+
+<div id="mainContent" style="display:none">
+
+<div id="feedback"></div>
+
+<div class="intro">
+  <h2>👋 Saluda a tus nuevos fans automáticamente</h2>
+  <p>Cuando alguien se suscribe por primera vez (pago o trial gratis), recibirá este mensaje tuyo al instante. Los creadores que usan welcome DM tienen <strong>3x más retención</strong>.</p>
+</div>
+
+<div class="section">
+  <div class="settings-row" style="margin-bottom:12px">
+    <div>
+      <div class="settings-label">Mensaje activado</div>
+      <div class="settings-desc">Se envía automáticamente a cada nuevo subscriber</div>
+    </div>
+    <div class="toggle on" id="enabledToggle" role="switch" aria-checked="true" tabindex="0">
+      <div class="toggle-knob"></div>
+    </div>
+  </div>
+  
+  <h3 style="margin-top:16px">Tu mensaje</h3>
+  <textarea id="msgText" placeholder="¡Hola amor! 🔥 Gracias por suscribirte.&#10;&#10;Tengo contenido NUEVO cada semana, y estoy aquí para chatear contigo cuando quieras.&#10;&#10;Si me cuentas qué te gusta, te mando algo especial hoy mismo 💋"></textarea>
+  <div class="char-count" id="charCount">0 / 2000</div>
+  
+  <div class="tips">
+    💡 <strong>Tips de creators top:</strong> Habla en primera persona · Haz una pregunta al final · Usa emojis · Si tienes PPV, ofrece un descuento en el primer mensaje · Personal, no formal
+  </div>
+  
+  <div class="ppv-row">
+    <div class="settings-row" style="border:none;padding:0;width:100%">
+      <div>
+        <div class="settings-label">🔒 Incluir contenido PPV</div>
+        <div class="settings-desc">Mensaje con foto/video bloqueado — fan paga Almas para ver</div>
+      </div>
+      <div class="toggle" id="ppvToggle" role="switch" aria-checked="false" tabindex="0">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="ppvPriceRow" style="display:none;margin-top:12px">
+    <label style="font-size:13px;color:#e5e5e5;display:block;margin-bottom:6px">Precio en Almas (1–500):</label>
+    <input type="number" id="ppvPrice" min="1" max="500" value="30">
+    <span style="font-size:12px;color:#888;margin-left:8px">≈ $<span id="ppvUsd">3.00</span> USD</span>
+    <div class="settings-desc" style="margin-top:10px">
+      <strong>Media URL (opcional)</strong>: pega el URL de la foto/video que quieres bloquear.
+    </div>
+    <input type="text" id="mediaUrl" placeholder="https://..." style="margin-top:6px;text-transform:none">
+  </div>
+</div>
+
+<div class="section">
+  <h3>👁️ Vista previa</h3>
+  <div class="preview-box">
+    <div class="preview-label">Así lo recibirá tu nuevo fan:</div>
+    <div class="preview-bubble" id="previewContent">(Escribe algo arriba…)</div>
+    <div class="preview-ppv-badge" id="previewPpv" style="display:none">🔒 PPV — <span id="previewPpvPrice">30</span> Almas para desbloquear</div>
+  </div>
+</div>
+
+<div class="section">
+  <button class="btn-primary" id="saveBtn">💾 Guardar mensaje</button>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb = window.supabase.createClient(SB_URL, SB_KEY);
+  window.sb = sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { document.getElementById('authWarning').style.display = 'block'; return; }
+  
+  const { data: profile } = await sb.from('profiles').select('is_creator').eq('id', user.id).single();
+  if (!profile?.is_creator) { document.getElementById('notCreator').style.display = 'block'; return; }
+  
+  document.getElementById('mainContent').style.display = 'block';
+  
+  // ==== Load current config ====
+  const { data: config } = await sb.rpc('get_welcome_message');
+  const cfg = config?.[0] || {};
+  
+  const msgEl = document.getElementById('msgText');
+  const charCount = document.getElementById('charCount');
+  const enabledToggle = document.getElementById('enabledToggle');
+  const ppvToggle = document.getElementById('ppvToggle');
+  const ppvPrice = document.getElementById('ppvPrice');
+  const mediaUrl = document.getElementById('mediaUrl');
+  
+  msgEl.value = cfg.welcome_text || '';
+  updateCharCount();
+  
+  if (cfg.enabled === false) {
+    enabledToggle.classList.remove('on');
+    enabledToggle.setAttribute('aria-checked', 'false');
+  }
+  
+  if (cfg.is_ppv) {
+    ppvToggle.classList.add('on');
+    ppvToggle.setAttribute('aria-checked', 'true');
+    document.getElementById('ppvPriceRow').style.display = 'block';
+    ppvPrice.value = cfg.ppv_price || 30;
+    mediaUrl.value = cfg.media_url || '';
+    document.getElementById('ppvUsd').textContent = ((cfg.ppv_price || 30) * 0.10).toFixed(2);
+  }
+  
+  updatePreview();
+  
+  // ==== Handlers ====
+  msgEl.addEventListener('input', () => { updateCharCount(); updatePreview(); });
+  enabledToggle.addEventListener('click', () => {
+    enabledToggle.classList.toggle('on');
+    enabledToggle.setAttribute('aria-checked', enabledToggle.classList.contains('on') ? 'true' : 'false');
+  });
+  ppvToggle.addEventListener('click', () => {
+    ppvToggle.classList.toggle('on');
+    const isOn = ppvToggle.classList.contains('on');
+    ppvToggle.setAttribute('aria-checked', isOn ? 'true' : 'false');
+    document.getElementById('ppvPriceRow').style.display = isOn ? 'block' : 'none';
+    updatePreview();
+  });
+  ppvPrice.addEventListener('input', () => {
+    const almas = parseInt(ppvPrice.value) || 0;
+    document.getElementById('ppvUsd').textContent = (almas * 0.10).toFixed(2);
+    updatePreview();
+  });
+  
+  function updateCharCount(){
+    const len = msgEl.value.length;
+    charCount.textContent = len + ' / 2000';
+    charCount.classList.toggle('near', len > 1700 && len <= 2000);
+    charCount.classList.toggle('over', len > 2000);
+  }
+  
+  function updatePreview(){
+    const text = msgEl.value.trim();
+    document.getElementById('previewContent').textContent = text || '(Escribe algo arriba…)';
+    const isPpv = ppvToggle.classList.contains('on');
+    document.getElementById('previewPpv').style.display = isPpv ? 'inline-block' : 'none';
+    document.getElementById('previewPpvPrice').textContent = ppvPrice.value || '30';
+  }
+  
+  function showFeedback(type, msg){
+    const fb = document.getElementById('feedback');
+    fb.innerHTML = '<div class="'+type+'">'+msg+'</div>';
+    setTimeout(() => { fb.innerHTML = ''; }, 5000);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  // ==== Save ====
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('saveBtn');
+    const text = msgEl.value.trim();
+    const enabled = enabledToggle.classList.contains('on');
+    const isPpv = ppvToggle.classList.contains('on');
+    const price = isPpv ? parseInt(ppvPrice.value) : 0;
+    const url = isPpv ? mediaUrl.value.trim() || null : null;
+    
+    if (text.length > 2000) { showFeedback('error', 'Máximo 2000 caracteres'); return; }
+    if (isPpv && (price < 1 || price > 500)) { showFeedback('error', 'Precio PPV entre 1 y 500 Almas'); return; }
+    
+    btn.disabled = true; btn.textContent = '⏳ Guardando…';
+    try {
+      const { data, error } = await sb.rpc('update_welcome_message', {
+        p_text: text,
+        p_enabled: enabled,
+        p_media_url: url,
+        p_media_type: url ? (url.match(/\.(mp4|mov|webm)$/i) ? 'video' : 'image') : null,
+        p_is_ppv: isPpv,
+        p_ppv_price: price
+      });
+      if (error) throw error;
+      showFeedback('success', enabled ? '✅ Mensaje activo — se enviará a cada nuevo subscriber' : '✅ Guardado (desactivado)');
+    } catch(e) { showFeedback('error', '❌ ' + (e.message || e)); }
+    finally { btn.disabled = false; btn.textContent = '💾 Guardar mensaje'; }
+  });
+})();
+</script>
+</body>
+</html>

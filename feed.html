@@ -702,12 +702,7 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 <button class="submit-btn" id="submitPostBtn" onclick="submitPost()">Publicar</button>
     </div>
   </div>
-  <div class="tabs">
-    <button class="tab active" id="tabAll" onclick="var c=document.getElementById('postsContainer');if(c)c.innerHTML='';loadRankedFeed('all',c,0)">Global</button>
-    <button class="tab" id="tabFollowing" onclick="var c=document.getElementById('postsContainer');if(c)c.innerHTML='';loadRankedFeed('following',c,0)">Siguiendo</button>
-    <button class="tab" id="tabTrending" onclick="var c=document.getElementById('postsContainer');if(c)c.innerHTML='';loadRankedFeed('trending',c,0)">&#128293; Trending</button>
-    <button class="tab" id="tabSaved" onclick="loadFeed('saved')">&#128278; Guardados</button>
-  </div>
+  <!-- legacy tabs removed, using .sn-feed-tabs below -->
   <div class="sn-feed-tabs"><div class="sn-feed-tab active" id="tab-para-ti" onclick="switchFeedTab('para-ti')">&#9889; PARA TI</div><div class="sn-feed-tab" id="tab-sig" onclick="switchFeedTab('sig')">SIGUIENDO</div></div>
 <div id="feedContainer">
 <!-- EN VIVO AHORA -->
@@ -2304,7 +2299,7 @@ function goLiveNow(){
   function checkUnread(){
     if(!window.sb||!window.currentUser){setTimeout(checkUnread,1000);return;}
     window.sb.from('notifications').select('id',{count:'exact',head:true}).eq('user_id',window.currentUser.id).eq('read',false).then(function(r){
-      if(r.count>0) document.getElementById('notifDot').style.display='block';
+      var _nd2=document.getElementById('notifDot');if(r.count>0&&_nd2)_nd2.style.display='block';
     });
   }
   setTimeout(checkUnread, 1500);

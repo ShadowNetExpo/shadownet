@@ -685,7 +685,7 @@ async function saveProfile(){
   var updates={username:username,bio:bio};
   if(pendingAvatarFile){
     var ext=pendingAvatarFile.name.split('.').pop();
-    var path='avatars/'+currentUser.id+'/avatar.'+ext;
+    var path=currentUser.id+'/avatars/avatar.'+ext;
     var up=await sb.storage.from('media').upload(path,pendingAvatarFile,{upsert:true});
     if(!up.error) updates.avatar_url=sb.storage.from('media').getPublicUrl(path).data.publicUrl;
   }

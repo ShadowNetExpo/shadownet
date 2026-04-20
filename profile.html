@@ -408,7 +408,19 @@ sb.auth.getSession().then(function(r){
   if(u) loadByUsername(u);
   else if(id) loadById(id);
   else if(currentUser) loadById(currentUser.id);
-  else window.location.href="/";
+  else {
+    // Retry once in case session token hasn't loaded yet
+    setTimeout(function(){
+      sb.auth.getSession().then(function(r2){
+        if(r2.data.session){
+          currentUser = r2.data.session.user;
+          loadById(currentUser.id);
+        } else {
+          window.location.href="/";
+        }
+      });
+    }, 800);
+  }
 });
 
 async function loadByUsername(username){
@@ -864,7 +876,7 @@ async function submitPost(){
     if(_postFile){
       fill.style.width = '30%';
       var ext = _postFile.name.split('.').pop().toLowerCase() || 'jpg';
-      var path = 'posts/' + window.currentUser.id + '/' + Date.now() + '.' + ext;
+      var path = window.currentUser.id + '/posts/' + Date.now() + '.' + ext;
       var upResult = await window.sb.storage.from('media').upload(path, _postFile, {upsert:true, contentType:_postFile.type});
       if(upResult.error) throw new Error('Upload: ' + upResult.error.message);
       fill.style.width = '70%';

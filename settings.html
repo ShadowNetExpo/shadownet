@@ -691,7 +691,7 @@ async function saveProfile(){
   }
   if(pendingCoverFile){
     var ext2=pendingCoverFile.name.split('.').pop();
-    var path2='covers/'+currentUser.id+'/cover.'+ext2;
+    var path2=currentUser.id+'/covers/cover.'+ext2;
     var up2=await sb.storage.from('media').upload(path2,pendingCoverFile,{upsert:true});
     if(!up2.error) updates.cover_url=sb.storage.from('media').getPublicUrl(path2).data.publicUrl;
   }

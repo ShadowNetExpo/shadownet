@@ -14,7 +14,7 @@
         if(r.active&&r.active.scriptURL&&r.active.scriptURL.indexOf('sw.js')>-1){
           // Only unregister if it's an old version (not v5)
           r.active.postMessage({type:'GET_VERSION'});
-        }
+        }        
       });
     });
   }

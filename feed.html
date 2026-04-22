@@ -2082,7 +2082,34 @@ async function sendTip(){
   }
 }
 </script>
-
+<script>
+   document.addEventListener('DOMContentLoaded',function(){
+     setTimeout(async function(){
+            var pid = new URLSearchParams(location.search).get('post');
+            if(!pid) return;
+            for(var i=0;i<40 && !window.sb;i++) await new Promise(r=>setTimeout(r,100));
+       if(!window.sb) return;
+       var r = await sb.from('posts').select('*').eq('id',pid).maybeSingle();
+            if(!r.data) return;
+            var pr = await sb.from('profiles').select('id,username,avatar_url,verification_status').eq('id',r.data.user_id).maybeSingle();
+            for(var j=0;j<50;j++){
+         var c = document.getElementById('feedContainer');
+                     if(c && c.children.length && c.children[0].className !== 'loader') break;
+                     await new Promise(res=>setTimeout(res,200));
+   }
+       var container = document.getElementById('feedContainer');
+       if(!container || typeof buildPostCard !== 'function') return;
+            var card = buildPostCard(r.data, pr.data, false, false);
+            var h = document.createElement('div');
+            h.style.cssText='padding:12px 16px;background:rgba(255,34,85,.15);border-left:3px solid #ff2255;margin-bottom:12px;color:#e8f4ff;font-family:Rajdhani,sans-serif;font-size:13px';
+            h.innerHTML='\uD83D\uDCCC Post destacado &middot; <a href="/feed.html" style="color:#5a8aaa">volver al feed</a>';
+            container.insertBefore(card, container.firstChild);
+            container.insertBefore(h, container.firstChild);
+       setTimeout(function(){card.scrollIntoView({behavior:'smooth',block:'start'});},300);
+     }, 500);
+   });
+</script>
+</script>
 <!-- Report Modal -->
 <!-- Report Modal -->
 <div class="report-modal" id="reportModal">

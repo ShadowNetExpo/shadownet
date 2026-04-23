@@ -121,3 +121,33 @@
   }
 
 })();
+
+
+// ====================================================================
+// Legal footer auto-injection (2026-04-23): ensures every page that
+// loads push.js has the mandatory legal links (Terms, Privacy, DMCA,
+// +18, 2257, Cookies) visible, for CCBill AUP compliance.
+// ====================================================================
+(function(){
+  function inject(){
+    if(document.querySelector('.sn-legal-footer-injected'))return;
+    if(document.querySelector('.fnav'))return;
+    var existingFooter = document.querySelector('.footer');
+    if(existingFooter && existingFooter.querySelector('a[href*="terms.html"]'))return;
+    var f = document.createElement('div');
+    f.className = 'sn-legal-footer-injected';
+    f.style.cssText = 'padding:20px 16px;text-align:center;border-top:1px solid #0d2744;margin:40px 0 72px;font-size:11px;color:#5a8aaa;font-family:Rajdhani,sans-serif;letter-spacing:.03em';
+    f.innerHTML = '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:6px">'+
+      '<a href="/terms.html" style="color:#00e5ff;text-decoration:none">T&eacute;rminos</a>'+
+      '<a href="/privacy.html" style="color:#00e5ff;text-decoration:none">Privacidad</a>'+
+      '<a href="/dmca.html" style="color:#00e5ff;text-decoration:none">DMCA</a>'+
+      '<a href="/legal18.html" style="color:#00e5ff;text-decoration:none">+18</a>'+
+      '<a href="/2257.html" style="color:#00e5ff;text-decoration:none">2257</a>'+
+      '<a href="/cookies.html" style="color:#00e5ff;text-decoration:none">Cookies</a>'+
+      '</div>'+
+      '<div style="opacity:.7">\u00a9 2026 SHADOWNET</div>';
+    document.body.appendChild(f);
+  }
+  if(document.readyState === 'loading')document.addEventListener('DOMContentLoaded', inject);
+  else inject();
+})();

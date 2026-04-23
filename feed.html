@@ -2057,29 +2057,17 @@ function selectTipAmount(amt, el){
 async function sendTip(){
   if(!currentUser||!_tipPostId||!_tipCreatorId)return;
   var custom=parseFloat(document.getElementById("tipCustomInp").value);
-  var amount=custom>0?custom:_tipAmount;
-  if(amount<1){showToast("Propina minima: $1",true);return;}
+  var amount=Math.floor(custom>0?custom:_tipAmount);
+  if(amount<1){showToast("Propina minima: 1 Alma",true);return;}
   var msg=document.getElementById("tipMsgInp").value.trim();
-
-  // Save tip to DB
-  await sb.from("post_tips").insert({post_id:_tipPostId,from_user_id:currentUser.id,to_user_id:_tipCreatorId,amount:amount,message:msg||null});
-  // Update tips total on post
-  await sb.from("posts").update({tips_total:amount}).eq("id",_tipPostId);
-  // Notify creator
-  await sb.from("notifications").insert({user_id:_tipCreatorId,from_user_id:currentUser.id,type:"tip",message:"@"+(currentProfile?.username||"alguien")+" te envio una propina de $"+amount.toFixed(2)+(msg?" con mensaje: "+msg:"")});
-
-  document.getElementById("tipModal").classList.remove("open");
-  showToast("\uD83D\uDCB0 Propina de $"+amount.toFixed(2)+" enviada a @"+_tipCreatorUsername+"!");
-
-  // Open PayPal
-  if(_tipCreatorId){
-    sb.from("profiles").select("paypal_email").eq("id",_tipCreatorId).single().then(function(r){
-      if(r.data?.paypal_email){
-        var handle=r.data.paypal_email.replace(/@.*/,"");
-        window.open("https://www.paypal.com/paypalme/"+handle+"/"+amount,"_blank");
-      }
-    });
-  }
+  // v2 (2026-04-23): atomic send_almas_tip RPC validates coin balance server-side,
+  // splits 90/10, and inserts tip + transaction + notification in one transaction.
+  try{
+    var r=await sb.rpc("send_almas_tip",{p_post_id:_tipPostId,p_amount:amount,p_message:msg||null});
+    if(r.error){showToast(r.error.message||"Error al enviar propina",true);return;}
+    document.getElementById("tipModal").classList.remove("open");
+    showToast("\uD83D\uDCB0 Propina de "+amount+" Almas enviada a @"+_tipCreatorUsername+"!");
+  }catch(e){showToast("Error: "+e.message,true);}
 }
 </script>
 <script>

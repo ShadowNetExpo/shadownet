@@ -1139,17 +1139,13 @@ async function loadSubRequests(){
   }).join("");
 }
 async function reviewSubRequest(reqId,status){
-  var r=await sb.from("subscription_requests").update({status:status,reviewed_at:new Date().toISOString()}).eq("id",reqId);
-  if(r.error){alert("Error: "+r.error.message);return;}
-  if(status==="approved"){
-    // Get the request to create subscription
-    var req=await sb.from("subscription_requests").select("requester_id,creator_id").eq("id",reqId).single();
-    if(req.data){
-      await sb.from("subscriptions").insert({subscriber_id:req.data.requester_id,creator_id:req.data.creator_id,status:"active",active:true});
-    }
-    showToast("Solicitud aprobada");
-  } else showToast("Solicitud rechazada");
-  loadSubRequests();
+  // v2 (2026-04-23): use SECURITY DEFINER RPCs. Direct inserts to subscriptions are now blocked
+  // by RLS (subs_insert_free_or_admin). RPC validates caller is the creator and pending status.
+  var rpcName = status === 'approved' ? 'approve_subscription_request' : 'deny_subscription_request';
+  var r = await sb.rpc(rpcName, {p_request_id: reqId});
+  if(r.error){showToast(r.error.message||'Error al procesar',true);return;}
+  showToast(status==='approved'?'\u2705 Solicitud aprobada':'\u274C Solicitud denegada');
+  loadRequests();
 }
 setTimeout(loadSubRequests,2000);
 </script>

@@ -482,20 +482,15 @@ function openWithdrawal(){
   document.getElementById('withdrawalModal').classList.add('open');
 }
 async function submitWithdrawal(){
-  var method=document.getElementById('withdrawMethod').value;
-  var account=document.getElementById('withdrawAccount').value.trim();
-  var msg=document.getElementById('withdrawMsg');
-  if(!account){msg.textContent='Ingresa tu cuenta de pago';msg.style.color='#ff2255';msg.style.display='block';return;}
-  var earnings=parseFloat(profileData.total_earnings||0);
-  var withdrawn=parseFloat(profileData.total_withdrawn||0);
-  var available=Math.max(0,earnings-withdrawn);
-  if(available<10){msg.textContent='Mínimo de retiro: $10.00';msg.style.color='#ff2255';msg.style.display='block';return;}
-  var r=await sb.from('withdrawals').insert({user_id:currentUser.id,amount:available,method:method,account_info:account,status:'pending'});
-  if(r.error){msg.textContent='Error: '+r.error.message;msg.style.color='#ff2255';msg.style.display='block';return;}
-  await sb.from('profiles').update({total_withdrawn:withdrawn+available}).eq('id',currentUser.id);
-  document.getElementById('withdrawalModal').classList.remove('open');
-  showToast('\u2713 Solicitud de retiro enviada');
-  setTimeout(loadStats,500);
+  var method=document.getElementById('wMethod').value;
+  var account=document.getElementById('wAccount').value.trim();
+  if(!account){showToast('Completa los datos de la cuenta',true);return;}
+  // v2 (2026-04-23): use request_withdrawal RPC - server validates balance, enforces $10 min,
+  // blocks concurrent pending requests. Client can no longer manipulate amount via DevTools.
+  var r=await sb.rpc('request_withdrawal',{p_method:method,p_account_info:account});
+  if(r.error){showToast(r.error.message||'Error al procesar solicitud',true);return;}
+  showToast('\uD83D\uDCB0 Solicitud enviada - procesaremos en 24-48h');
+  loadStats();
 }
 function showToast(msg,err){
   var t=document.getElementById('toast');

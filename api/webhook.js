@@ -1,4 +1,8 @@
-// SHADOWNET - Stripe Webhook - proxies to Supabase Edge Function
+// DEPRECATED: Stripe webhook proxy removed. CCBill webhook is handled directly by Supabase edge function `ccbill-webhook`.
+// This file will be deleted in a future cleanup. Kept temporarily to avoid breaking Vercel routing.
+export default function handler(req, res) {
+    res.status(410).json({ error: 'Gone. Stripe webhook removed. CCBill uses /functions/v1/ccbill-webhook directly.' });
+}/ SHADOWNET - Stripe Webhook - proxies to Supabase Edge Function
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin','*');
   if(req.method==='OPTIONS') return res.status(200).end();

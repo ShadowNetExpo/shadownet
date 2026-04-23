@@ -1,4 +1,8 @@
-// SHADOWNET - Payment Intent API - sin npm packages
+// DEPRECATED: Stripe payment endpoint removed. SHADOWNET uses CCBill exclusively via Supabase edge function `ccbill-payment`.
+// This file will be deleted in a future cleanup. Kept temporarily to avoid breaking Vercel build.
+export default function handler(req, res) {
+    res.status(410).json({ error: 'Gone. Stripe payments removed. Use /functions/v1/ccbill-payment instead.' });
+}/ SHADOWNET - Payment Intent API - sin npm packages
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin','*');
   res.setHeader('Access-Control-Allow-Methods','POST,OPTIONS');

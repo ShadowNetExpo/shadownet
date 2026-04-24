@@ -1,153 +1,70 @@
-// SHADOWNET Push Notifications v1.0
-// Incluir este script en todas las páginas después de cargar Supabase
-(function(){
-  var SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
-  var SB_ANON = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-  var VAPID_PUBLIC = 'BMtl_qRtn-9QKUaeV9URWIqk0LruwXL6m7_RgmyhVl1bUq20Vw72lwCGN0OUI3ChQ7k4j_qtZ77QEz_eAjPcDsk';
-  var EDGE_URL = SB_URL + '/functions/v1/send-push';
+// SHADOWNET Push Notifications + Legal Footer + Age Gate v3
+// Include this script on every page after Supabase client is loaded.
 
-  // Convertir clave VAPID a Uint8Array para PushManager
-  function urlB64ToUint8Array(base64String) {
-    var padding = '='.repeat((4 - base64String.length % 4) % 4);
-    var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    var rawData = window.atob(base64);
-    return Uint8Array.from(rawData, function(c){ return c.charCodeAt(0); });
-  }
-
-  // Registrar el service worker
-  async function registerSW() {
-    if (!('serviceWorker' in navigator)) return null;
-    try {
-      var reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-      return reg;
-    } catch(e) {
-      console.warn('[Push] SW register failed:', e);
-      return null;
-    }
-  }
-
-  // Suscribir al usuario
-  async function subscribeToPush(userId, userToken) {
-    var reg = await registerSW();
-    if (!reg) return;
-
-    if (!('PushManager' in window)) return;
-
-    // Pedir permiso
-    var permission = await Notification.requestPermission();
-    if (permission !== 'granted') return;
-
-    try {
-      var sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC)
-      });
-
-      var subJson = sub.toJSON();
-      var endpoint = subJson.endpoint;
-      var p256dh = subJson.keys.p256dh;
-      var auth = subJson.keys.auth;
-
-      // Guardar suscripción en Supabase
-      var resp = await fetch(SB_URL + '/rest/v1/push_subscriptions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SB_ANON,
-          'Authorization': 'Bearer ' + userToken,
-          'Prefer': 'resolution=merge-duplicates'
-        },
-        body: JSON.stringify({ user_id: userId, endpoint: endpoint, p256dh: p256dh, auth: auth })
-      });
-
-      if (resp.ok || resp.status === 201 || resp.status === 204) {
-        console.log('[Push] Suscripción guardada');
-        localStorage.setItem('sn_push_subscribed', '1');
-      }
-    } catch(e) {
-      console.warn('[Push] Subscribe failed:', e);
-    }
-  }
-
-  // Inicializar push cuando el usuario está autenticado
-  async function initPush() {
-    // Esperar a que window.sb esté disponible
-    if (!window.sb) { setTimeout(initPush, 800); return; }
-
-    // Si ya está suscrito, solo registrar SW
-    if (localStorage.getItem('sn_push_subscribed') === '1') {
-      registerSW();
-      return;
-    }
-
-    var session = await window.sb.auth.getSession();
-    if (!session.data || !session.data.session) return;
-
-    var userId = session.data.session.user.id;
-    var token = session.data.session.access_token;
-
-    // Solicitar suscripción (no bloquear si el usuario rechaza)
-    setTimeout(function() {
-      subscribeToPush(userId, token);
-    }, 3000); // Esperar 3s para no interrumpir la carga
-  }
-
-  // Función global para enviar push (usar en el servidor, no en cliente)
-  window.snPush = {
-    init: initPush,
-    // Llamada desde el servidor/admin para enviar push
-    send: async function(userId, title, message, url, token) {
-      if (!token) {
-        var s = await window.sb.auth.getSession();
-        token = s.data?.session?.access_token;
-      }
-      return fetch(EDGE_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token,
-          'apikey': SB_ANON
-        },
-        body: JSON.stringify({ user_id: userId, title: title, message: message, url: url || '/feed.html' })
-      }).then(function(r){ return r.json(); });
-    }
-  };
-
-  // Auto-inicializar cuando el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPush);
-  } else {
-    initPush();
-  }
-
+(function ageGate(){
+  try {
+    if (sessionStorage.getItem('sn-age-confirmed') === '1') return;
+    if (localStorage.getItem('sn-age-confirmed') === '1') { sessionStorage.setItem('sn-age-confirmed','1'); return; }
+    // Skip gate on pure legal pages
+    var path = location.pathname.toLowerCase();
+    var skip = ['/terms.html','/privacy.html','/dmca.html','/legal18.html','/2257.html','/complaints.html','/anti-trafficking.html','/creator-agreement.html'];
+    if (skip.indexOf(path) >= 0) return;
+    var css = '.sn-age-gate{position:fixed;inset:0;background:#01020c;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:20px;font-family:"Rajdhani",system-ui,sans-serif}.sn-age-box{max-width:440px;background:#0a0e18;border:1px solid #ff2255;border-radius:12px;padding:32px 28px;text-align:center;color:#e8f4ff;box-shadow:0 0 60px rgba(255,34,85,.3)}.sn-age-title{font-family:"Orbitron",system-ui,sans-serif;font-size:22px;color:#ff2255;margin:0 0 12px;letter-spacing:.08em}.sn-age-body{font-size:14px;line-height:1.6;margin:0 0 22px;color:#c8d8e8}.sn-age-btns{display:flex;gap:12px;justify-content:center}.sn-age-btn{flex:1;max-width:160px;padding:12px 16px;border:none;border-radius:8px;font-family:"Orbitron",system-ui,sans-serif;font-size:13px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase}.sn-age-yes{background:#ff2255;color:#fff}.sn-age-no{background:transparent;color:#c8d8e8;border:1px solid #394b66}.sn-age-yes:hover{background:#e01a49}.sn-age-no:hover{background:#1a2640}.sn-age-foot{font-size:11px;color:#5a7590;margin-top:18px}';
+    var s = document.createElement('style'); s.textContent = css; document.head.appendChild(s);
+    var overlay = document.createElement('div'); overlay.className = 'sn-age-gate';
+    overlay.innerHTML = '<div class="sn-age-box"><h2 class="sn-age-title">Contenido para adultos</h2><p class="sn-age-body">Este sitio contiene material para adultos. Debes tener <strong>18 a\u00f1os o m\u00e1s</strong> y aceptar nuestros <a href="/terms.html" style="color:#00e5ff">T\u00e9rminos</a> y <a href="/privacy.html" style="color:#00e5ff">Privacidad</a> para continuar.</p><div class="sn-age-btns"><button class="sn-age-btn sn-age-no" id="snAgeNo">No, soy menor</button><button class="sn-age-btn sn-age-yes" id="snAgeYes">S\u00ed, tengo 18+</button></div><div class="sn-age-foot">Al entrar confirmas que eres mayor de edad en tu jurisdicci\u00f3n.</div></div>';
+    var mount = function(){
+      document.body.appendChild(overlay);
+      document.getElementById('snAgeYes').onclick = function(){
+        try { localStorage.setItem('sn-age-confirmed','1'); sessionStorage.setItem('sn-age-confirmed','1'); } catch(e){}
+        overlay.remove();
+      };
+      document.getElementById('snAgeNo').onclick = function(){
+        location.replace('https://www.google.com/');
+      };
+    };
+    if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+  } catch(e) { console.warn('age-gate', e); }
 })();
 
+(function legalFooter(){
+  try {
+    if (document.querySelector('.sn-legal-footer-injected') || document.querySelector('.fnav')) return;
+    var mount = function(){
+      if (document.querySelector('.sn-legal-footer-injected') || document.querySelector('.fnav')) return;
+      var css = '.sn-legal-footer-injected{padding:20px 16px 24px;margin-top:30px;border-top:1px solid #0d2744;text-align:center;font-family:"Rajdhani",system-ui,sans-serif;color:#5a7590}.sn-legal-footer-injected a{color:#5a8aaa;text-decoration:none;margin:0 8px;font-size:12px;line-height:2}.sn-legal-footer-injected a:hover{color:#00e5ff}.sn-legal-footer-injected .sn-copy{display:block;margin-top:10px;font-size:11px;color:#394b66}';
+      var s = document.createElement('style'); s.textContent = css; document.head.appendChild(s);
+      var f = document.createElement('footer'); f.className = 'sn-legal-footer-injected';
+      f.innerHTML = '<a href="/terms.html">T\u00e9rminos</a>·<a href="/privacy.html">Privacidad</a>·<a href="/dmca.html">DMCA</a>·<a href="/legal18.html">+18</a>·<a href="/2257.html">2257</a>·<a href="/complaints.html">Complaints</a>·<a href="/anti-trafficking.html">Anti-Trafficking</a>·<a href="/creator-agreement.html">Creator Agreement</a><span class="sn-copy">© 2026 SHADOWNET · Operated by Luis Martusciello, Italy</span>';
+      document.body.appendChild(f);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  } catch(e) { console.warn('legal-footer', e); }
+})();
 
-// ====================================================================
-// Legal footer auto-injection (2026-04-23): ensures every page that
-// loads push.js has the mandatory legal links (Terms, Privacy, DMCA,
-// +18, 2257, Cookies) visible, for CCBill AUP compliance.
-// ====================================================================
-(function(){
-  function inject(){
-    if(document.querySelector('.sn-legal-footer-injected'))return;
-    if(document.querySelector('.fnav'))return;
-    var existingFooter = document.querySelector('.footer');
-    if(existingFooter && existingFooter.querySelector('a[href*="terms.html"]'))return;
-    var f = document.createElement('div');
-    f.className = 'sn-legal-footer-injected';
-    f.style.cssText = 'padding:20px 16px;text-align:center;border-top:1px solid #0d2744;margin:40px 0 72px;font-size:11px;color:#5a8aaa;font-family:Rajdhani,sans-serif;letter-spacing:.03em';
-    f.innerHTML = '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:6px">'+
-      '<a href="/terms.html" style="color:#00e5ff;text-decoration:none">T&eacute;rminos</a>'+
-      '<a href="/privacy.html" style="color:#00e5ff;text-decoration:none">Privacidad</a>'+
-      '<a href="/dmca.html" style="color:#00e5ff;text-decoration:none">DMCA</a>'+
-      '<a href="/legal18.html" style="color:#00e5ff;text-decoration:none">+18</a>'+
-      '<a href="/2257.html" style="color:#00e5ff;text-decoration:none">2257</a>'+
-      '<a href="/cookies.html" style="color:#00e5ff;text-decoration:none">Cookies</a>'+
-      '</div>'+
-      '<div style="opacity:.7">\u00a9 2026 SHADOWNET</div>';
-    document.body.appendChild(f);
-  }
-  if(document.readyState === 'loading')document.addEventListener('DOMContentLoaded', inject);
-  else inject();
+// Push notifications subscription
+(async function pushNotifications(){
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (!window.sb || !window.sb.auth) return;
+  try {
+    var sess = await window.sb.auth.getSession();
+    if (!sess || !sess.data || !sess.data.session) return;
+    var userId = sess.data.session.user.id;
+    var reg = await navigator.serviceWorker.register('/sw.js').catch(function(){ return null; });
+    if (!reg) return;
+    var existing = await reg.pushManager.getSubscription();
+    if (existing) return;
+    if (Notification.permission === 'denied') return;
+    if (Notification.permission === 'default') {
+      var perm = await Notification.requestPermission();
+      if (perm !== 'granted') return;
+    }
+    var settings = await window.sb.from('platform_settings').select('value').eq('key','vapid_public_key').single();
+    if (!settings || !settings.data || !settings.data.value) return;
+    var vapidKey = settings.data.value;
+    function urlB64ToUint8(b64){ var pad='='.repeat((4-b64.length%4)%4); var s=(b64+pad).replace(/-/g,'+').replace(/_/g,'/'); var raw=atob(s); var out=new Uint8Array(raw.length); for(var i=0;i<raw.length;i++) out[i]=raw.charCodeAt(i); return out; }
+    var sub = await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey: urlB64ToUint8(vapidKey)});
+    var j = sub.toJSON();
+    await window.sb.from('push_subscriptions').upsert({user_id: userId, endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth}, {onConflict:'endpoint'});
+  } catch(e) { console.warn('push', e); }
 })();

@@ -1,4 +1,4 @@
-var CACHE='shadownet-v5';
+var CACHE='shadownet-v6';
 var URLS=['/','/feed.html','/explore.html','/reels.html','/profile.html','/messages.html','/settings.html','/editor.html','/live.html','/stats.html','/notifications.html','/search.html','/dashboard.html','/stories.html','/almas.html','/leaderboard.html','/sounds.html','/sound.html','/creator-signup.html','/creator-analytics.html','/welcome-setup.html','/messaging-tools.html','/promos-trials.html','/outreach.html','/admin.html','/landing.html','/index.html','/legal18.html','/soporte.html','/cookies.html','/privacy.html','/terms.html','/dmca.html','/sn-design.css','/manifest.json','/icon.svg','/push.js','/antipiracy.js','/profile-enhancer.js','/outreach-dm-generator.js'];
 
 self.addEventListener('install', function(e) {

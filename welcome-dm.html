@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Mensaje de Bienvenida — SHADOWNET</title>
+<meta name="description" content="Configura un DM automático que se envía cuando alguien se suscribe por primera vez">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/welcome-dm.html">
+<meta property="og:title" content="Welcome DM — SHADOWNET">
+<meta property="og:description" content="DM automático a nuevos suscriptores">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:720px;margin:0 auto;padding:24px 20px}
+.section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:20px;margin-bottom:20px}
+.section h3{font-size:16px;margin-bottom:8px;color:#fff}
+.section-desc{font-size:13px;color:#888;margin-bottom:16px;line-height:1.4}
+.info-box{background:rgba(100,150,255,0.08);border:1px solid rgba(100,150,255,0.25);border-radius:10px;padding:14px 16px;font-size:13px;color:#a5bfff;margin-bottom:20px;line-height:1.5}
+.info-box strong{color:#cfdaff}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #1f1f1f;gap:12px}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;color:#e5e5e5;flex:1}
+.settings-desc{font-size:12px;color:#888;margin-top:3px}
+.toggle{position:relative;width:44px;height:24px;background:#1f1f1f;border-radius:12px;cursor:pointer;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:#ff0844}
+.toggle-knob{position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left 0.2s}
+.toggle.on .toggle-knob{left:22px}
+textarea{width:100%;min-height:140px;background:#0f0f0f;border:1.5px solid #1f1f1f;border-radius:8px;padding:12px;color:#e5e5e5;font-family:inherit;font-size:14px;resize:vertical;line-height:1.5}
+textarea:focus{outline:none;border-color:#ff0844}
+.char-count{text-align:right;font-size:11px;color:#666;margin-top:6px}
+.char-count.near{color:#ff9900}
+.char-count.over{color:#ff0844}
+input[type="number"]{background:#0f0f0f;border:1.5px solid #1f1f1f;border-radius:8px;padding:10px 12px;color:#e5e5e5;font-family:inherit;font-size:14px;width:140px}
+input[type="number"]:focus{outline:none;border-color:#ff0844}
+.media-area{margin-top:10px;padding:16px;border:1.5px dashed #2f2f2f;border-radius:10px;text-align:center;cursor:pointer;transition:all 0.15s}
+.media-area:hover{border-color:#ff0844;background:rgba(255,8,68,0.04)}
+.media-area.has-media{border-style:solid;padding:8px;cursor:default}
+.media-preview{max-width:100%;max-height:240px;border-radius:8px;display:block;margin:0 auto}
+.media-actions{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.media-hint{font-size:12px;color:#888;margin-top:6px}
+input[type="file"]{display:none}
+.btn{background:#1a1a1a;color:#e5e5e5;border:1px solid #2f2f2f;padding:10px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit;transition:all 0.15s}
+.btn:hover{background:#2a2a2a;border-color:#3f3f3f}
+.btn-danger{background:rgba(255,50,50,0.1);border-color:rgba(255,50,50,0.3);color:#ff7070}
+.btn-danger:hover{background:rgba(255,50,50,0.15)}
+.btn-primary{background:linear-gradient(135deg,#ff0844,#ff6b9d);border-color:#ff0844;color:#fff;font-weight:600;width:100%;padding:14px 20px;font-size:15px}
+.btn-primary:hover{background:linear-gradient(135deg,#e6073d,#e6618c)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.ppv-block{display:none;margin-top:14px;padding:14px;background:rgba(255,8,68,0.05);border:1px solid rgba(255,8,68,0.2);border-radius:8px}
+.ppv-block.show{display:block}
+.ppv-block label{font-size:13px;color:#e5e5e5;display:block;margin-bottom:8px}
+.preview-section{background:linear-gradient(135deg,#0d0d0d,#1a0a12);border:1px solid #2a1520;border-radius:12px;padding:20px;margin-bottom:20px}
+.preview-title{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px}
+.dm-bubble{background:linear-gradient(135deg,#1a1a1a,#222);border-radius:16px 16px 16px 4px;padding:14px 16px;max-width:80%;margin-bottom:8px}
+.dm-bubble-sender{font-size:11px;color:#ff6b9d;margin-bottom:4px;font-weight:600}
+.dm-bubble-text{font-size:14px;line-height:1.5;color:#e5e5e5;white-space:pre-wrap;word-break:break-word}
+.dm-bubble-media{margin-top:8px;border-radius:8px;overflow:hidden;max-width:240px}
+.dm-bubble-media img,.dm-bubble-media video{max-width:100%;display:block}
+.dm-ppv-locked{background:rgba(255,8,68,0.1);border:1px solid rgba(255,8,68,0.3);padding:18px;text-align:center;border-radius:10px;margin-top:8px}
+.dm-ppv-locked-icon{font-size:24px;margin-bottom:6px}
+.dm-ppv-locked-text{font-size:12px;color:#ff6b9d;font-weight:600;margin-bottom:8px}
+.dm-ppv-locked-btn{background:linear-gradient(135deg,#ff0844,#ff6b9d);border:none;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer}
+.status-bar{background:rgba(9,255,9,0.08);border:1px solid rgba(9,255,9,0.25);padding:10px 14px;border-radius:8px;font-size:13px;color:#55ff55;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.status-bar.off{background:rgba(200,200,200,0.05);border-color:#2f2f2f;color:#888}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844}
+.success{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);padding:14px;border-radius:8px;color:#55ff55;font-size:14px;margin-bottom:16px;text-align:center}
+.error{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:14px;border-radius:8px;color:#ff5555;font-size:14px;margin-bottom:16px;text-align:center}
+.template-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tpl-chip{background:#0f0f0f;border:1px solid #2f2f2f;color:#aaa;padding:7px 12px;border-radius:16px;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.tpl-chip:hover{border-color:#ff0844;color:#fff;background:rgba(255,8,68,0.1)}
+@media(max-width:600px){
+  .container{padding:16px 12px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/dashboard.html">&larr;</a>
+  <h1>💬 Mensaje de Bienvenida</h1>
+  <a href="/messaging-tools.html">📬</a>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Debes iniciar sesión como creador. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="notCreator" class="auth-warning" style="display:none">
+  Solo creadores verificados. Actívate en <a href="/settings.html">Configuración</a>.
+</div>
+
+<div id="mainContent" style="display:none">
+
+<div id="feedback"></div>
+
+<div class="info-box">
+  <strong>🤖 ¿Cómo funciona?</strong><br>
+  Cuando un fan se suscribe por primera vez, recibe automáticamente este DM de tu parte.
+  Úsalo para dar la bienvenida, ofrecer un regalo inicial, o vender contenido exclusivo PPV.
+</div>
+
+<div class="status-bar" id="statusBar">
+  <span>⏳ Cargando estado...</span>
+</div>
+
+<div class="section">
+  <h3>✍️ Mensaje de bienvenida</h3>
+  <div class="section-desc">Este texto se envía tal cual. Puedes usar emojis 🔥 y saltos de línea para personalizar.</div>
+  <textarea id="msgContent" placeholder="Hola! Gracias por suscribirte 💕 Aquí tienes un regalo de bienvenida..." maxlength="2000"></textarea>
+  <div class="char-count" id="charCount">0 / 2000</div>
+  
+  <div class="template-chips">
+    <button class="tpl-chip" data-tpl="friendly">💕 Amigable</button>
+    <button class="tpl-chip" data-tpl="teaser">🔥 Teaser PPV</button>
+    <button class="tpl-chip" data-tpl="gift">🎁 Regalo</button>
+    <button class="tpl-chip" data-tpl="exclusive">⭐ Exclusivo</button>
+  </div>
+</div>
+
+<div class="section">
+  <h3>📎 Media (opcional)</h3>
+  <div class="section-desc">Adjunta una foto o video al mensaje de bienvenida.</div>
+  <div class="media-area" id="mediaArea" onclick="document.getElementById('mediaInput').click()">
+    <div id="mediaPlaceholder">
+      <div style="font-size:32px;opacity:0.5">📷</div>
+      <div style="font-size:13px;color:#aaa;margin-top:8px">Toca para subir foto o video</div>
+      <div class="media-hint">JPG, PNG, WebP, MP4 · Max 50MB</div>
+    </div>
+    <div id="mediaPreviewWrap" style="display:none">
+      <div id="mediaPreview"></div>
+      <div class="media-actions">
+        <button class="btn btn-danger" onclick="event.stopPropagation();removeMedia()">🗑️ Quitar</button>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="mediaInput" accept="image/*,video/*">
+</div>
+
+<div class="section">
+  <h3>💰 PPV (Pay-Per-View)</h3>
+  <div class="settings-row">
+    <div>
+      <div class="settings-label">🔒 Cobrar por ver el mensaje</div>
+      <div class="settings-desc">El fan paga Almas para desbloquear el contenido. Ideal para contenido premium.</div>
+    </div>
+    <div class="toggle" id="ppvToggle" role="switch" aria-checked="false" tabindex="0">
+      <div class="toggle-knob"></div>
+    </div>
+  </div>
+  <div class="ppv-block" id="ppvBlock">
+    <label>Precio en Almas (1-500):</label>
+    <input type="number" id="ppvPrice" min="1" max="500" value="20">
+    <span style="font-size:12px;color:#888;margin-left:8px">≈ $<span id="ppvUsd">2.00</span> USD</span>
+  </div>
+</div>
+
+<div class="section">
+  <h3>⚙️ Activación</h3>
+  <div class="settings-row">
+    <div>
+      <div class="settings-label">✅ Enviar automáticamente a nuevos subs</div>
+      <div class="settings-desc">Al desactivar, los nuevos suscriptores no recibirán DM automático.</div>
+    </div>
+    <div class="toggle on" id="enabledToggle" role="switch" aria-checked="true" tabindex="0">
+      <div class="toggle-knob"></div>
+    </div>
+  </div>
+</div>
+
+<div class="preview-section">
+  <div class="preview-title">👁️ Vista previa (así lo verá un nuevo suscriptor)</div>
+  <div id="previewContainer">
+    <div class="dm-bubble">
+      <div class="dm-bubble-sender" id="previewSender">@tu_usuario</div>
+      <div class="dm-bubble-text" id="previewText" style="color:#666;font-style:italic">Escribe un mensaje arriba...</div>
+    </div>
+  </div>
+</div>
+
+<button class="btn-primary" id="saveBtn">💾 Guardar cambios</button>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb = window.supabase.createClient(SB_URL, SB_KEY);
+  window.sb = sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { document.getElementById('authWarning').style.display = 'block'; return; }
+  
+  const { data: profile } = await sb.from('profiles').select('is_creator,username').eq('id', user.id).single();
+  if (!profile || !profile.is_creator) { document.getElementById('notCreator').style.display = 'block'; return; }
+  
+  document.getElementById('mainContent').style.display = 'block';
+  window.__creatorId = user.id;
+  window.__username = profile.username || 'tu_usuario';
+  document.getElementById('previewSender').textContent = '@' + window.__username;
+  
+  const state = { enabled: true, isPpv: false, mediaUrl: null, mediaType: null, mediaFile: null };
+  
+  function showFeedback(type, msg){
+    const fb = document.getElementById('feedback');
+    fb.innerHTML = '<div class="'+type+'">'+msg+'</div>';
+    setTimeout(function(){ fb.innerHTML = ''; }, 5000);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  // === Load current state from DB ===
+  const { data: wmData, error: wmErr } = await sb.rpc('get_welcome_message');
+  if (!wmErr && wmData && wmData.length > 0) {
+    const wm = wmData[0];
+    document.getElementById('msgContent').value = wm.welcome_text || '';
+    state.enabled = !!wm.enabled;
+    state.isPpv = !!wm.is_ppv;
+    state.mediaUrl = wm.media_url || null;
+    state.mediaType = wm.media_type || null;
+    if (state.isPpv) {
+      document.getElementById('ppvToggle').classList.add('on');
+      document.getElementById('ppvBlock').classList.add('show');
+      document.getElementById('ppvPrice').value = wm.ppv_price || 20;
+    }
+    if (!state.enabled) {
+      document.getElementById('enabledToggle').classList.remove('on');
+      document.getElementById('enabledToggle').setAttribute('aria-checked', 'false');
+    }
+    if (state.mediaUrl) {
+      showMediaPreview(state.mediaUrl, state.mediaType);
+    }
+  }
+  
+  updateStatus();
+  updateCharCount();
+  updatePreview();
+  updatePpvUsd();
+  
+  // === Textarea ===
+  const msgEl = document.getElementById('msgContent');
+  msgEl.addEventListener('input', function(){
+    updateCharCount();
+    updatePreview();
+  });
+  
+  function updateCharCount(){
+    const len = msgEl.value.length;
+    const cc = document.getElementById('charCount');
+    cc.textContent = len + ' / 2000';
+    cc.classList.toggle('near', len > 1700 && len <= 2000);
+    cc.classList.toggle('over', len > 2000);
+  }
+  
+  // === Templates ===
+  const TEMPLATES = {
+    friendly: 'Hola! Gracias por suscribirte 💕\n\nNo te imaginas lo feliz que me hace tenerte aquí. Voy a hacer todo para que valga la pena cada peso invertido 😘\n\nCualquier cosa me escribes por aquí, te respondo personalmente 💌',
+    teaser: 'Hey! 🔥 Gracias por suscribirte.\n\nTe mando este contenido exclusivo que NO está en el feed. Desbloquéalo abajo y dime qué te parece 😏',
+    gift: 'Bienvenido/a! 🎁\n\nComo regalo de bienvenida te mando este video que no vas a ver en ningún otro lado. Disfrútalo 🔥\n\n(Tip: respóndeme para recibir sorpresas personalizadas)',
+    exclusive: '✨ Bienvenido/a al club exclusivo ✨\n\nAquí te mando el primer contenido VIP. Es solo para ti.\n\nCualquier petición especial me la haces por aquí, soy muy creativa 😈'
+  };
+  
+  document.querySelectorAll('.tpl-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      const tpl = chip.getAttribute('data-tpl');
+      const text = TEMPLATES[tpl];
+      if (text) {
+        msgEl.value = text.replace(/\\n/g, '\n');
+        updateCharCount();
+        updatePreview();
+        msgEl.focus();
+      }
+    });
+  });
+  
+  // === PPV toggle ===
+  const ppvToggle = document.getElementById('ppvToggle');
+  ppvToggle.addEventListener('click', function(){
+    state.isPpv = !state.isPpv;
+    ppvToggle.classList.toggle('on', state.isPpv);
+    ppvToggle.setAttribute('aria-checked', state.isPpv ? 'true' : 'false');
+    document.getElementById('ppvBlock').classList.toggle('show', state.isPpv);
+    updatePreview();
+  });
+  
+  document.getElementById('ppvPrice').addEventListener('input', function(){
+    updatePpvUsd();
+    updatePreview();
+  });
+  
+  function updatePpvUsd(){
+    const almas = parseInt(document.getElementById('ppvPrice').value) || 0;
+    document.getElementById('ppvUsd').textContent = (almas * 0.10).toFixed(2);
+  }
+  
+  // === Enabled toggle ===
+  const enToggle = document.getElementById('enabledToggle');
+  enToggle.addEventListener('click', function(){
+    state.enabled = !state.enabled;
+    enToggle.classList.toggle('on', state.enabled);
+    enToggle.setAttribute('aria-checked', state.enabled ? 'true' : 'false');
+    updateStatus();
+  });
+  
+  function updateStatus(){
+    const sb_el = document.getElementById('statusBar');
+    if (state.enabled) {
+      sb_el.classList.remove('off');
+      sb_el.innerHTML = '<span>✅ Activo — Se envía automáticamente a nuevos suscriptores</span>';
+    } else {
+      sb_el.classList.add('off');
+      sb_el.innerHTML = '<span>⚪ Desactivado — No se envía a nuevos subs</span>';
+    }
+  }
+  
+  // === Media upload ===
+  document.getElementById('mediaInput').addEventListener('change', async function(e){
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 50*1024*1024) { showFeedback('error', 'Archivo muy grande (max 50MB)'); return; }
+    
+    state.mediaFile = file;
+    const url = URL.createObjectURL(file);
+    const type = file.type.startsWith('video') ? 'video' : 'image';
+    showMediaPreview(url, type);
+  });
+  
+  function showMediaPreview(url, type){
+    document.getElementById('mediaPlaceholder').style.display = 'none';
+    document.getElementById('mediaPreviewWrap').style.display = 'block';
+    document.getElementById('mediaArea').classList.add('has-media');
+    const preview = document.getElementById('mediaPreview');
+    if (type === 'video') {
+      preview.innerHTML = '<video src="'+url+'" class="media-preview" controls muted playsinline></video>';
+    } else {
+      preview.innerHTML = '<img src="'+url+'" class="media-preview" alt="preview">';
+    }
+    state.mediaUrl = url;
+    state.mediaType = type;
+    updatePreview();
+  }
+  
+  window.removeMedia = function(){
+    state.mediaFile = null;
+    state.mediaUrl = null;
+    state.mediaType = null;
+    document.getElementById('mediaInput').value = '';
+    document.getElementById('mediaPlaceholder').style.display = 'block';
+    document.getElementById('mediaPreviewWrap').style.display = 'none';
+    document.getElementById('mediaArea').classList.remove('has-media');
+    updatePreview();
+  };
+  
+  // === Preview ===
+  function updatePreview(){
+    const text = msgEl.value.trim();
+    const textEl = document.getElementById('previewText');
+    if (!text) {
+      textEl.textContent = 'Escribe un mensaje arriba...';
+      textEl.style.color = '#666';
+      textEl.style.fontStyle = 'italic';
+    } else {
+      textEl.textContent = text;
+      textEl.style.color = '#e5e5e5';
+      textEl.style.fontStyle = 'normal';
+    }
+    
+    // Rebuild preview with media
+    const container = document.getElementById('previewContainer');
+    let mediaHtml = '';
+    if (state.mediaUrl && state.mediaType) {
+      if (state.isPpv) {
+        mediaHtml = '<div class="dm-ppv-locked">'+
+          '<div class="dm-ppv-locked-icon">🔒</div>'+
+          '<div class="dm-ppv-locked-text">Contenido PPV</div>'+
+          '<button class="dm-ppv-locked-btn">Desbloquear '+(document.getElementById('ppvPrice').value || 20)+' Almas</button>'+
+        '</div>';
+      } else if (state.mediaType === 'video') {
+        mediaHtml = '<div class="dm-bubble-media"><video src="'+state.mediaUrl+'" muted playsinline loop autoplay></video></div>';
+      } else {
+        mediaHtml = '<div class="dm-bubble-media"><img src="'+state.mediaUrl+'" alt=""></div>';
+      }
+    }
+    
+    container.innerHTML = '<div class="dm-bubble">'+
+      '<div class="dm-bubble-sender">@'+window.__username+'</div>'+
+      '<div class="dm-bubble-text">'+(text ? escapeHtml(text) : '<span style="color:#666;font-style:italic">Escribe un mensaje arriba...</span>')+'</div>'+
+      mediaHtml+
+    '</div>';
+  }
+  
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; });
+  }
+  
+  // === Save ===
+  document.getElementById('saveBtn').addEventListener('click', async function(){
+    const btn = document.getElementById('saveBtn');
+    const text = msgEl.value.trim();
+    
+    if (text.length > 2000) { showFeedback('error', 'Mensaje muy largo (max 2000)'); return; }
+    if (state.isPpv) {
+      const price = parseInt(document.getElementById('ppvPrice').value);
+      if (!price || price < 1 || price > 500) { showFeedback('error', 'Precio PPV debe estar entre 1 y 500 Almas'); return; }
+    }
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Guardando...';
+    
+    try {
+      // Upload media if changed
+      let mediaUrl = state.mediaUrl;
+      let mediaType = state.mediaType;
+      if (state.mediaFile) {
+        btn.textContent = '📤 Subiendo media...';
+        const ext = state.mediaFile.name.split('.').pop().toLowerCase();
+        const folder = state.mediaType === 'video' ? 'welcome-videos' : 'welcome-images';
+        const path = folder + '/' + user.id + '/' + Date.now() + '.' + ext;
+        const up = await sb.storage.from('media').upload(path, state.mediaFile, { contentType: state.mediaFile.type, upsert: false });
+        if (up.error) throw up.error;
+        const pub = sb.storage.from('media').getPublicUrl(path);
+        mediaUrl = pub.data.publicUrl;
+      } else if (state.mediaUrl && state.mediaUrl.startsWith('blob:')) {
+        // User had media preview but didn't save: keep what was in DB before
+        mediaUrl = null;
+        mediaType = null;
+      }
+      
+      btn.textContent = '💾 Guardando configuración...';
+      const { data, error } = await sb.rpc('update_welcome_message', {
+        p_text: text || null,
+        p_enabled: state.enabled,
+        p_media_url: mediaUrl,
+        p_media_type: mediaType,
+        p_is_ppv: state.isPpv,
+        p_ppv_price: state.isPpv ? parseInt(document.getElementById('ppvPrice').value) : 0
+      });
+      
+      if (error) throw error;
+      
+      showFeedback('success', '✅ Mensaje de bienvenida guardado');
+      // Reset state.mediaFile so next save doesn't re-upload
+      state.mediaFile = null;
+      state.mediaUrl = mediaUrl;
+      state.mediaType = mediaType;
+    } catch(e) {
+      showFeedback('error', '❌ Error: ' + (e.message || e));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Guardar cambios';
+    }
+  });
+})();
+</script>
+</body>
+  </html>

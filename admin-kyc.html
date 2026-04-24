@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin KYC Review — SHADOWNET</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#01020c;color:#e8f4ff;font-family:Rajdhani,sans-serif;line-height:1.5;padding:24px;max-width:900px;margin:0 auto}h1{font-family:Orbitron,sans-serif;font-size:22px;color:#ff2255;margin-bottom:20px}.gate{background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.4);padding:20px;border-radius:8px;margin-bottom:20px}.card{background:#0a0e18;border:1px solid #0d2744;border-radius:10px;padding:18px;margin-bottom:14px}.card h3{font-family:Orbitron,sans-serif;font-size:14px;color:#00e5ff;margin-bottom:6px}.row{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:#c8d8e8;margin:8px 0}.row b{color:#7aa5c0;margin-right:4px}.doc-link{display:inline-block;padding:8px 14px;background:#00e5ff22;border:1px solid #00e5ff;color:#00e5ff;border-radius:6px;text-decoration:none;font-size:12px;margin:8px 0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.form-grid input{background:#01020c;border:1px solid #0d2744;color:#e8f4ff;padding:8px 10px;border-radius:6px;font-family:inherit;font-size:13px}.form-grid input:focus{outline:none;border-color:#00e5ff}.btns{display:flex;gap:8px;margin-top:10px}button{font-family:Orbitron,sans-serif;font-size:12px;letter-spacing:.08em;padding:10px 16px;border:none;border-radius:6px;cursor:pointer;text-transform:uppercase}.approve{background:#22ff88;color:#01020c}.reject{background:#ff2255;color:#fff}.reject:hover{background:#e01a49}.approve:hover{background:#12dd70}.muted{color:#5a7590;font-size:13px;text-align:center;padding:30px}a{color:#00e5ff}</style>
+</head>
+<body>
+<h1>Admin KYC Review</h1>
+<div id="gate" class="gate" style="display:none">Verificando permisos de administrador...</div>
+<div id="list"></div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+const SUPABASE_URL="https://cdokplvoqivducsqrejt.supabase.co";
+const SUPABASE_KEY="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+window.sb=sb;
+async function init(){
+  const g=document.getElementById("gate");
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){location.href="/";return;}
+  const {data:prof}=await sb.from("profiles").select("is_admin").eq("id",session.user.id).single();
+  if(!prof||!prof.is_admin){g.style.display="block";g.innerHTML="Acceso denegado. Esta página es solo para administradores.";return;}
+  g.style.display="none";
+  await load();
+}
+async function load(){
+  const list=document.getElementById("list");
+  list.innerHTML='<div class="muted">Cargando...</div>';
+  const {data,error}=await sb.rpc("get_pending_verifications");
+  if(error){list.innerHTML='<div class="muted">Error: '+error.message+"</div>";return;}
+  if(!data||data.length===0){list.innerHTML='<div class="muted">No hay verificaciones pendientes.</div>';return;}
+  list.innerHTML="";
+  for(const v of data){
+    const {data:signed}=await sb.storage.from("kyc-documents").createSignedUrl(v.document_path,600);
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`
+      <h3>@${escape(v.username||"unknown")} — ${escape(v.display_name||"")}</h3>
+      <div class="row"><div><b>Email:</b>${escape(v.email||"")}</div><div><b>User ID:</b>${v.user_id}</div></div>
+      <div class="row"><b>Enviado:</b>${new Date(v.submitted_at).toLocaleString()}</div>
+      ${signed?.signedUrl?`<a class="doc-link" href="${signed.signedUrl}" target="_blank">→ Abrir documento (10 min)</a>`:'<div class="muted">No se puede generar link del documento.</div>'}
+      <div class="form-grid">
+        <input placeholder="Tipo de documento (passport/id-card/driver-license)" data-f="doctype" value="passport">
+        <input placeholder="Nombre legal completo" data-f="fullname">
+        <input placeholder="Fecha de nacimiento (YYYY-MM-DD)" data-f="dob" type="date">
+        <input placeholder="Nacionalidad (ej. IT)" data-f="nationality" value="IT">
+      </div>
+      <div class="btns">
+        <button class="approve" data-uid="${v.user_id}">Aprobar</button>
+        <button class="reject" data-uid="${v.user_id}">Rechazar</button>
+      </div>
+    `;
+    list.appendChild(card);
+    card.querySelector(".approve").onclick=async(e)=>{await approve(card,v.user_id);};
+    card.querySelector(".reject").onclick=async(e)=>{await reject(card,v.user_id);};
+  }
+}
+function escape(s){return(s||"").toString().replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
+async function approve(card,uid){
+  const get=f=>card.querySelector(`[data-f="${f}"]`).value.trim();
+  const doctype=get("doctype"),fullname=get("fullname"),dob=get("dob"),nat=get("nationality");
+  if(!doctype||!fullname||!dob){alert("Faltan campos obligatorios");return;}
+  const hash=await sha256(fullname+"|"+dob);
+  const {data,error}=await sb.rpc("approve_age_verification",{p_user_id:uid,p_document_type:doctype,p_full_legal_name:fullname,p_date_of_birth:dob,p_nationality:nat||null,p_document_number_hash:hash});
+  if(error){alert("Error: "+error.message);return;}
+  if(!data?.ok){alert("Error: "+(data?.error||"desconocido"));return;}
+  alert("Aprobado");await load();
+}
+async function reject(card,uid){
+  const reason=prompt("Motivo del rechazo:");
+  if(!reason)return;
+  const {data,error}=await sb.rpc("reject_age_verification",{p_user_id:uid,p_reason:reason});
+  if(error){alert("Error: "+error.message);return;}
+  alert("Rechazado");await load();
+}
+async function sha256(s){const buf=new TextEncoder().encode(s);const h=await crypto.subtle.digest("SHA-256",buf);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,"0")).join("");}
+
+init();
+</script>
+</body>
+  </html>

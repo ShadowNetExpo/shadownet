@@ -359,16 +359,22 @@ input[type="checkbox"]{transition:all .2s}
 <p style="font-size:11px;color:#5a8aaa;margin-top:10px">Requisitos: Verificar identidad (KYC) + ser mayor de 18 años</p>
 </div>
 </div>
-<div class="section" id="kycSection" style="margin-top:16px">
-  <div class="section-head">
-    <span class="section-icon">📋</span>
-    <div>
-      <span class="section-title">VERIFICACIÓN DE IDENTIDAD</span>
-      <div class="section-subtitle">Requerida para activar lives y monetización</div>
-<div style="padding:18px"><div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.2);border-radius:10px;padding:14px;margin-bottom:14px"><div style="font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;color:#ffa500;margin-bottom:6px">Requisitos para verificación</div><div style="font-size:12px;color:#888;line-height:1.7">• Ser mayor de 18 años<br>• Documento de identidad válido (DNI, pasaporte o licencia)<br>• Selfie sosteniendo tu documento<br>• La verificación es obligatoria para: vender contenido, recibir pagos, hacer lives y abrir tienda<br>• Cumplimiento con regulación 2257 (contenido adulto)</div></div><div class="field"><label class="field-label">Documento de identidad</label><label style="display:flex;align-items:center;justify-content:center;height:80px;border:2px dashed #0d2744;border-radius:10px;cursor:pointer;color:#5a8aaa;font-size:12px" onclick="document.getElementById('kycDocInp').click()">📋 Subir foto de tu documento<input type="file" id="kycDocInp" accept="image/*" style="display:none" onchange="kycPreview(this,'kycDocPrev')"></label><div id="kycDocPrev" style="margin-top:8px"></div></div><div class="field"><label class="field-label">Selfie con documento</label><label style="display:flex;align-items:center;justify-content:center;height:80px;border:2px dashed #0d2744;border-radius:10px;cursor:pointer;color:#5a8aaa;font-size:12px" onclick="document.getElementById('kycSelfieInp').click()">🤳 Subir selfie sosteniendo tu documento<input type="file" id="kycSelfieInp" accept="image/*" style="display:none" onchange="kycPreview(this,'kycSelfiePrev')"></label><div id="kycSelfiePrev" style="margin-top:8px"></div></div><div class="field"><label class="field-label">Fecha de nacimiento</label><input type="date" id="kycDob" class="field-input" max="2008-01-01"></div><div style="display:flex;align-items:flex-start;gap:8px;margin:12px 0"><input type="checkbox" id="kycTerms" style="margin-top:3px"><label for="kycTerms" style="font-size:11px;color:#888;line-height:1.5">Confirmo que soy mayor de 18 años, que la información proporcionada es verdadera, y acepto los Términos de Servicio y la Política de Privacidad de SHADOWNET. Entiendo que la verificación es necesaria para cumplir con las regulaciones aplicables (incluida 18 U.S.C. § 2257).</label></div><button onclick="submitKYC()" style="width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:8px">ENVIAR VERIFICACIÓN</button></div>
-</div>
+<div class="section" style="margin-top:16px">
+  <div class="section-head"><span class="section-title">Verificación de identidad</span></div>
+  <div class="section-body">
+    <div id="kycStatusLabel" style="margin-bottom:12px;padding:10px 14px;border-radius:8px;background:rgba(255,34,85,.08);border:1px solid rgba(255,34,85,.3);color:#ff2255;font-size:13px">Cargando estado...</div>
+    <div style="font-size:13px;color:#aab6c4;line-height:1.6;margin-bottom:12px">
+      Para publicar contenido debes verificar tu edad e identidad. Sube una foto de tu documento oficial (pasaporte, DNI o licencia de conducir).<br>
+      <span style="color:#ffa500">• Ser mayor de 18 años<br>• Documento oficial con foto y fecha de nacimiento visibles<br>• Selfie sosteniendo el documento (opcional, acelera la revisión)</span>
+    </div>
+    <div id="kycUploadArea">
+      <label class="field-label" for="kycFile">Documento de identidad</label>
+      <input type="file" id="kycFile" accept="image/jpeg,image/png,image/webp,application/pdf" style="width:100%;padding:10px;background:#01020c;border:1px solid #0d2744;border-radius:8px;color:#e8f4ff;margin-bottom:10px;font-family:inherit;font-size:13px">
+      <button id="kycSubmitBtn" onclick="submitKYC()" style="width:100%;padding:12px;background:#ff2255;color:#fff;border:none;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase">Enviar para verificación</button>
+      <div id="kycUploadMsg" style="margin-top:10px;font-size:12px;color:#5a7590"></div>
     </div>
   </div>
+</div>
 
   <!-- Formulario de verificación (solo si no verificado) -->
   <div id="kyc-form" style="display:none;margin-top:16px">
@@ -1105,6 +1111,43 @@ function copyRefLink(){
 }
 // Load on page ready
 setTimeout(function(){loadReferralData();},2000);
+
+// KYC upload + status
+async function loadKYCStatus(){
+  var lbl=document.getElementById("kycStatusLabel"); if(!lbl)return;
+  try{
+    var {data:{session}}=await sb.auth.getSession(); if(!session){return;}
+    var {data:prof}=await sb.from("profiles").select("verification_status,verification_rejection_reason").eq("id",session.user.id).single();
+    var status=(prof&&prof.verification_status)||"unverified";
+    var area=document.getElementById("kycUploadArea");
+    if(status==="verified"){lbl.textContent="✓ Identidad verificada";lbl.style.background="rgba(34,255,136,.1)";lbl.style.borderColor="#22ff88";lbl.style.color="#22ff88";if(area)area.style.display="none";}
+    else if(status==="pending"){lbl.textContent="⏳ En revisión. Un administrador revisará tu documento en 1-2 días hábiles.";lbl.style.background="rgba(255,165,0,.1)";lbl.style.borderColor="#ffa500";lbl.style.color="#ffa500";if(area)area.style.display="none";}
+    else if(status==="rejected"){var reason=(prof&&prof.verification_rejection_reason)||"Motivo no especificado";lbl.innerHTML="✗ Verificación rechazada.<br><span style='font-size:12px;opacity:.85'>Motivo: "+escapeHtml(reason)+"<\/span><br><span style='font-size:12px;opacity:.85'>Sube un nuevo documento para reintentarlo.<\/span>";lbl.style.background="rgba(255,34,85,.1)";lbl.style.borderColor="#ff2255";lbl.style.color="#ff2255";}
+    else{lbl.textContent="⚠ Sin verificar. Sube tu documento para poder publicar contenido.";}
+  }catch(e){console.warn("loadKYCStatus",e);}
+}
+function escapeHtml(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+async function submitKYC(){
+  var fileInput=document.getElementById("kycFile"),msg=document.getElementById("kycUploadMsg"),btn=document.getElementById("kycSubmitBtn");
+  if(!fileInput||!fileInput.files||fileInput.files.length===0){msg.textContent="Selecciona un archivo primero.";msg.style.color="#ff2255";return;}
+  var file=fileInput.files[0];
+  if(file.size>10*1024*1024){msg.textContent="El archivo no puede superar 10MB.";msg.style.color="#ff2255";return;}
+  btn.disabled=true;btn.style.opacity="0.5";msg.textContent="Subiendo documento...";msg.style.color="#ffa500";
+  try{
+    var {data:{session}}=await sb.auth.getSession(); if(!session){msg.textContent="Sesión expirada.";msg.style.color="#ff2255";btn.disabled=false;btn.style.opacity="1";return;}
+    var uid=session.user.id;
+    var ext=(file.name.split(".").pop()||"jpg").toLowerCase();
+    var path="kyc/"+uid+"/id-"+Date.now()+"."+ext;
+    var {error:upErr}=await sb.storage.from("documents").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
+    if(upErr){msg.textContent="Error al subir: "+upErr.message;msg.style.color="#ff2255";btn.disabled=false;btn.style.opacity="1";return;}
+    var {data:rpcRes,error:rpcErr}=await sb.rpc("submit_age_verification",{p_document_path:path});
+    if(rpcErr){msg.textContent="Error al registrar: "+rpcErr.message;msg.style.color="#ff2255";btn.disabled=false;btn.style.opacity="1";return;}
+    if(rpcRes&&!rpcRes.ok){msg.textContent="Error: "+(rpcRes.error||"desconocido");msg.style.color="#ff2255";btn.disabled=false;btn.style.opacity="1";return;}
+    msg.textContent="✓ Documento enviado. Un administrador lo revisará pronto.";msg.style.color="#22ff88";
+    setTimeout(loadKYCStatus,1500);
+  }catch(e){msg.textContent="Error: "+e.message;msg.style.color="#ff2255";btn.disabled=false;btn.style.opacity="1";}
+}
+if(typeof sb!=="undefined"){loadKYCStatus();}else{setTimeout(function check(){if(typeof sb!=="undefined")loadKYCStatus();else setTimeout(check,300);},300);}
 </script>
 </body>
 </html>

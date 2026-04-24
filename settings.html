@@ -412,7 +412,6 @@ input[type="checkbox"]{transition:all .2s}
 <script>
 // \u2500\u2500 KYC VERIFICATION \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 var _kycDocFile = null, _kycSelfieFile = null;
-
 function kycPreview(type, input) {
   var file = input.files && input.files[0];
   if (!file) return;
@@ -434,7 +433,6 @@ function kycPreview(type, input) {
   };
   reader.readAsDataURL(file);
 }
-
 async function submitKYC() {
   var msg = document.getElementById('kyc-msg');
   var btn = document.getElementById('kyc-submit-btn');
@@ -479,7 +477,6 @@ async function submitKYC() {
     showKycMsg('Error: ' + e.message, false);
   }
 }
-
 function showKycMsg(text, ok) {
   var el = document.getElementById('kyc-msg');
   el.textContent = text;
@@ -488,7 +485,6 @@ function showKycMsg(text, ok) {
   el.style.color = ok ? '#00ff88' : '#ff6680';
   el.style.display = 'block';
 }
-
 function renderKycStatus(status, rejectionReason) {
   var block = document.getElementById('kyc-status-block');
   if (!block) return;
@@ -540,60 +536,6 @@ function renderKycStatus(status, rejectionReason) {
 
 
   </div>
-<div class="section" id="shopSection" style="margin-top:16px">
-<div class="wrap">
-<div class="section-head"><span class="section-icon">🛒</span><span class="section-title">MI TIENDA</span></div>
-<div class="section-body" id="shopSectionBody">
-<p style="font-size:13px;color:#8a9bb0;margin-bottom:12px">Abre tu tienda para vender productos, contenido exclusivo y merch.</p>
-<div style="margin-bottom:10px"><label class="field-label">Nombre de la tienda</label><input class="field-input" id="shopNameInput" placeholder="Mi Tienda"></div>
-<div style="margin-bottom:14px"><label class="field-label">Descripción</label><textarea class="field-input" id="shopDescInput" placeholder="Describe tu tienda..." rows="2" style="resize:vertical"></textarea></div>
-<button onclick="createShop()" style="width:100%;padding:12px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">🛒 Crear tienda</button>
-</div>
-</div>
-
-
-<!-- SEGURIDAD -->
-  <div class="section">
-    <div class="section-head"><span class="section-icon"></span><span class="section-title">SEGURIDAD</span></div>
-    <div class="section-body">
-      <div class="field-row">
-        <div class="field">
-          <label class="field-label">Nueva contraseña</label>
-          <input type="password" class="field-input" id="pwInp" placeholder="Mnimo 8 caracteres">
-        </div>
-        <div class="field">
-          <label class="field-label">Confirmar contraseña</label>
-          <input type="password" class="field-input" id="pw2Inp" placeholder="Repite la contraseña">
-        </div>
-      </div>
-      <button class="save-btn" onclick="changePassword()"> Cambiar contraseña</button>
-    </div>
-  </div>
-
-  <!-- NOTIFICACIONES -->
-  <div class="section">
-    <div class="section-head"><span class="section-icon"></span><span class="section-title">NOTIFICACIONES</span></div>
-    <div class="section-body">
-      <div class="toggle-row"><div><div class="toggle-label">Likes en mis posts</div></div><button class="toggle on" id="togLikes" onclick="this.classList.toggle('on')"></button></div>
-      <div class="toggle-row"><div><div class="toggle-label">Comentarios</div></div><button class="toggle on" id="togComments" onclick="this.classList.toggle('on')"></button></div>
-      <div class="toggle-row"><div><div class="toggle-label">Nuevos seguidores</div></div><button class="toggle on" id="togFollows" onclick="this.classList.toggle('on')"></button></div>
-      <div class="toggle-row"><div><div class="toggle-label">Mensajes directos</div></div><button class="toggle on" id="togDMs" onclick="this.classList.toggle('on')"></button></div>
-      <div class="toggle-row"><div><div class="toggle-label">Nuevos suscriptores</div><div class="toggle-sub">Solo creadores</div></div><button class="toggle on" id="togSubs" onclick="this.classList.toggle('on')"></button></div>
-      <button class="save-btn" style="margin-top:14px" onclick="saveNotifPrefs()"> Guardar preferencias</button>
-    </div>
-  </div>
-
-  <!-- CUENTA -->
-  <div class="section">
-    <div class="section-head"><span class="section-icon"></span><span class="section-title">CUENTA</span></div>
-    <div class="section-body">
-      <div style="font-size:13px;color:#5a8aaa;margin-bottom:14px">Sesión iniciada como <strong id="sessionEmail" style="color:#c8d8e8">...</strong></div>
-      <button class="outline-btn" onclick="confirmLogout()" style="margin-top:0"> Cerrar sesión</button>
-      <button class="danger-btn" onclick="confirmDelete()"> Eliminar cuenta</button>
-    </div>
-  </div>
-
-</div>
 
 <div class="toast" id="toast"></div>
 
@@ -639,7 +581,6 @@ sb.auth.getSession().then(function(r){
   document.getElementById('sessionEmail').textContent=currentUser.email;
   loadProfile();
 });
-
 async function loadProfile(){
   if(!currentUser)return;
   var r=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
@@ -680,7 +621,6 @@ async function loadProfile(){
   if(params.get('payment')==='success'){showToast(' Pago configurado correctamente!');// CCBill status}
   if(params.get('payment')==='refresh'){showToast('Reintenta configurar tu cuenta de pagos',true);}
 }
-
 async function saveProfile(){
   var btn=document.getElementById('saveProfileBtn');
   btn.disabled=true;btn.textContent='Guardando...';
@@ -704,7 +644,6 @@ async function saveProfile(){
   btn.disabled=false;btn.textContent=' Guardar Perfil';
   if(r.error){showToast('Error: '+r.error.message,true);}else{showToast(' Perfil actualizado!');pendingAvatarFile=null;pendingCoverFile=null;}
 }
-
 function selectPayMethod(method){
   document.querySelectorAll('.pay-tab').forEach(function(t){
     var on = t.id==='tab_'+method;
@@ -724,7 +663,6 @@ async function saveCreatorSettings(){
   var r=await sb.from('profiles').update({subscription_price:price,paypal_email:paypal}).eq('id',currentUser.id);
   showToast(r.error?'Error: '+r.error.message:' Configuracin guardada!');
 }
-
 async function changePassword(){
   var pw=document.getElementById('pwInp').value;
   var pw2=document.getElementById('pw2Inp').value;
@@ -734,14 +672,12 @@ async function changePassword(){
   var r=await sb.auth.updateUser({password:pw});
   if(r.error){showToast('Error: '+r.error.message,true);}else{showToast(' Contraseña cambiada!');document.getElementById('pwInp').value='';document.getElementById('pw2Inp').value='';}
 }
-
 async function saveNotifPrefs(){
   function isOn(id){var el=document.getElementById(id);return el?el.classList.contains('on'):true;}
   var prefs={notif_likes:isOn('togLikes'),notif_comments:isOn('togComments'),notif_follows:isOn('togFollows'),notif_messages:isOn('togDMs'),notif_subs:isOn('togSubs'),notif_tips:true};
   var r=await sb.from('profiles').update(prefs).eq('id',currentUser.id);
   showToast(r.error?'Error: '+r.error.message:' Preferencias guardadas');
 }
-
 async function connectCCBill(){window.open('https://www.ccbill.com/contact','_blank');}
 async function _old_connectCCBill(){
   var sess=await sb.auth.getSession();
@@ -761,7 +697,6 @@ async function _old_connectCCBill(){
     if(btn){btn.disabled=false;btn.textContent=' Solicitar cuenta CCBill';}
   }
 }
-
 async function loadPaymentStatus(){
   var sess=await sb.auth.getSession();
   if(!sess.data.session)return;
@@ -786,7 +721,6 @@ async function loadPaymentStatus(){
     }
   }catch(e){box.innerHTML='No se pudo verificar estado de CCBill';}
 }
-
 async function requestWithdraw(){
   var pending=parseFloat(document.getElementById('pendingBalance').textContent.replace('$',''))||0;
   if(pending<10){showToast('Mnimo $10 para retirar',true);return;}
@@ -806,11 +740,9 @@ async function requestWithdraw(){
   showToast(' Retiro procesado! Neto: $'+parseFloat(d.net_amount).toFixed(2));
   loadProfile();
 }
-
 function confirmLogout(){
   if(confirm('Cerrar sesión?')){sb.auth.signOut().then(function(){window.location.href='/';});}
 }
-
 function confirmDelete(){
   var c1=confirm('Seguro que quieres eliminar tu cuenta? Esta accin es irreversible.');
   if(!c1)return;
@@ -818,7 +750,6 @@ function confirmDelete(){
   if(!c2)return;
   showToast('Contacta a soporte para eliminar tu cuenta: info80806@gmail.com');
 }
-
 function showToast(msg,err){
   var t=document.getElementById('toast');t.textContent=msg;
   t.style.borderColor=err?'#ff2255':'#00ff88';t.style.color=err?'#ff2255':'#00ff88';
@@ -1088,7 +1019,6 @@ window.snShareRef=function(){
   if(navigator.share){navigator.share({title:"\u00DAnete a SHADOWNET",text:"Te invito a SHADOWNET - la plataforma para creadores sin l\u00EDmites",url:url}).catch(function(){});}
   else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){if(window.showToast)showToast("\u2705 Link copiado");});}
 };
-
 </script>
 
 <div class="sn-nov" id="sn-nov" onclick="snNC()"></div>
@@ -1109,21 +1039,11 @@ var _NB="https://cdokplvoqivducsqrejt.supabase.co",_NK="sb_publishable_9M1y678W_
   if(r.error){alert("Error: "+r.error.message);btn.disabled=false;btn.textContent="\u2B50 Activar modo creador";return;}
   alert("\u2705 Modo creador activado! Ahora puedes monetizar.");location.reload();
 }
-async function createShop(){
-  var name=document.getElementById("shopNameInput").value.trim();
-  var desc=document.getElementById("shopDescInput").value.trim();
-  if(!name){alert("Ingresa un nombre para tu tienda");return;}
-  var r=await sb.from("shops").insert({owner_id:currentUser.id,shop_name:name,description:desc||null}).select("id").single();
-  if(r.error){if(r.error.message.includes("duplicate"))alert("Ya tienes una tienda.");else alert("Error: "+r.error.message);return;}
-  alert("\uD83D\uDED2 Tienda creada! Ve a Shop para administrarla.");location.href="/shop.html";
-}
-
 async function togglePrivate(){var t=document.getElementById("privateToggle");t.classList.toggle("active");var priv=t.classList.contains("active");var s=await sb.auth.getSession();if(s.data.session){await sb.from("profiles").update({is_private:priv}).eq("id",s.data.session.user.id);showToast(priv?"Cuenta privada activada":"Cuenta pública activada");}}
 function toggleHideActivity(){var t=document.getElementById("hideActivityToggle");t.classList.toggle("active");showToast("Preferencia guardada");}
 function toggleDM(){var t=document.getElementById("dmToggle");t.classList.toggle("active");showToast("Preferencia guardada");}
 async function loadPrivacySettings(){if(typeof sb==="undefined")return;var s=await sb.auth.getSession();if(s.data.session){var r=await sb.from("profiles").select("is_private").eq("id",s.data.session.user.id).single();if(r.data&&r.data.is_private){document.getElementById("privateToggle").classList.add("active");}}}
 if(typeof sb!=="undefined")loadPrivacySettings();else document.addEventListener("DOMContentLoaded",function(){if(typeof sb!=="undefined")loadPrivacySettings();});
-
 async function loadSubRequests(){
   if(typeof sb==="undefined")return;var s=await sb.auth.getSession();if(!s.data.session)return;
   var uid=s.data.session.user.id;
@@ -1185,7 +1105,6 @@ function copyRefLink(){
 }
 // Load on page ready
 setTimeout(function(){loadReferralData();},2000);
-
 </script>
 </body>
 </html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Highlights — SHADOWNET</title>
+<meta name="description" content="Gestiona tus story highlights organizados por temas">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/highlights-manager.html">
+<meta property="og:title" content="Highlights — SHADOWNET">
+<meta property="og:description" content="Gestiona tus story highlights">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh;padding-bottom:80px}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:720px;margin:0 auto;padding:24px 20px}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844}
+
+.info-box{background:rgba(100,150,255,0.08);border:1px solid rgba(100,150,255,0.25);border-radius:10px;padding:14px 16px;font-size:13px;color:#a5bfff;margin-bottom:20px;line-height:1.5}
+.info-box strong{color:#cfdaff}
+
+/* Highlights grid (Instagram-style circles) */
+.highlights-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:14px;margin-bottom:24px}
+.highlight-card{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:transform 0.15s}
+.highlight-card:hover{transform:scale(1.04)}
+.highlight-circle{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#ff0844,#ff6b9d);padding:3px;position:relative;overflow:hidden}
+.highlight-circle-inner{width:100%;height:100%;border-radius:50%;background:#0a0a0a;padding:2px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.highlight-circle-inner img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.highlight-circle-emoji{font-size:32px}
+.highlight-title{font-size:11px;color:#ccc;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.highlight-item-count{position:absolute;bottom:2px;right:2px;background:#ff0844;color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:2px 6px;border:2px solid #0a0a0a}
+
+.add-highlight{background:transparent;border:2px dashed #2f2f2f;border-radius:50%;width:76px;height:76px;display:flex;align-items:center;justify-content:center;color:#888;font-size:32px;cursor:pointer;transition:all 0.15s}
+.add-highlight:hover{border-color:#ff0844;color:#ff6b9d;background:rgba(255,8,68,0.04)}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:#141414;border:1px solid #1f1f1f;border-radius:14px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:16px 20px;border-bottom:1px solid #1f1f1f;display:flex;align-items:center;gap:12px}
+.modal-title{flex:1;font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;color:#888;font-size:22px;cursor:pointer;padding:4px 8px}
+.modal-close:hover{color:#fff}
+.modal-body{padding:20px}
+
+.form-row{margin-bottom:14px}
+.form-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+.form-input{width:100%;background:#0a0a0a;border:1px solid #2f2f2f;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none}
+.form-input:focus{border-color:#ff0844}
+
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:8px}
+.emoji-btn{background:#0a0a0a;border:1.5px solid #2f2f2f;border-radius:8px;font-size:22px;padding:8px 0;cursor:pointer;transition:all 0.15s}
+.emoji-btn:hover{border-color:#ff0844;background:rgba(255,8,68,0.08)}
+.emoji-btn.selected{border-color:#ff0844;background:rgba(255,8,68,0.15)}
+
+.cover-upload{display:flex;align-items:center;gap:12px;padding:12px;background:#0a0a0a;border:1.5px dashed #2f2f2f;border-radius:8px;cursor:pointer;transition:all 0.15s}
+.cover-upload:hover{border-color:#ff0844}
+.cover-preview{width:56px;height:56px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:24px}
+.cover-upload-text{flex:1;font-size:13px;color:#aaa}
+
+.btn-primary{width:100%;background:linear-gradient(135deg,#ff0844,#ff6b9d);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:16px}
+.btn-primary:hover{background:linear-gradient(135deg,#e6073d,#e6618c)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.btn-danger{background:rgba(255,50,50,0.1);border:1px solid rgba(255,50,50,0.3);color:#ff7070;padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn-danger:hover{background:rgba(255,50,50,0.18)}
+
+/* Items grid (inside highlight detail modal) */
+.items-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.items-title{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:0.5px}
+.items-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.item-card{aspect-ratio:9/16;background:#1a1a1a;border-radius:8px;overflow:hidden;position:relative;cursor:pointer}
+.item-card img,.item-card video{width:100%;height:100%;object-fit:cover}
+.item-delete{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:1}
+.item-add-tile{aspect-ratio:9/16;background:#0a0a0a;border:1.5px dashed #2f2f2f;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#888;font-size:11px;cursor:pointer;transition:all 0.15s}
+.item-add-tile:hover{border-color:#ff0844;color:#ff6b9d;background:rgba(255,8,68,0.04)}
+.item-add-tile span{font-size:26px;margin-bottom:4px}
+
+.highlight-meta{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px;background:#0a0a0a;border-radius:8px}
+.highlight-meta-emoji{font-size:28px}
+.highlight-meta-name{flex:1;font-size:16px;font-weight:700}
+.highlight-meta-count{font-size:12px;color:#888}
+
+.empty-state{text-align:center;padding:40px 20px;color:#666;font-size:14px}
+.success{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);padding:12px;border-radius:8px;color:#55ff55;font-size:13px;margin-bottom:12px;text-align:center}
+.error-msg{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:12px;border-radius:8px;color:#ff5555;font-size:13px;margin-bottom:12px;text-align:center}
+
+/* Bottom nav */
+.sn-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,0.97);border-top:1px solid #0d2744;display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:900}
+.sn-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;color:#5a8aaa;font-size:9px;text-decoration:none;text-transform:uppercase}
+.sn-nav-item:hover,.sn-nav-item.active{color:#ff2255}
+.sn-nav-icon{font-size:22px;line-height:1}
+.sn-nav-create{font-size:28px;color:#ff2255;font-weight:800}
+.sn-nav-avatar{width:22px;height:22px;border-radius:50%;background:#333}
+
+input[type="file"]{display:none}
+
+@media(max-width:600px){
+  .container{padding:16px 12px}
+  .highlight-circle,.add-highlight{width:68px;height:68px}
+  .highlight-circle-emoji{font-size:28px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/profile.html">&larr;</a>
+  <h1>📸 Highlights</h1>
+  <a href="/stories.html">📖</a>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Inicia sesión como creador. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="notCreator" class="auth-warning" style="display:none">
+  Solo creadores verificados pueden crear highlights. <a href="/settings.html">Verifícate</a>
+</div>
+
+<div id="mainContent" style="display:none">
+  <div id="feedback"></div>
+  
+  <div class="info-box">
+    <strong>📸 ¿Qué son los highlights?</strong><br>
+    Colecciones de contenido que aparecen permanentemente en tu perfil (a diferencia de las stories de 24h).
+    Organiza tus mejores momentos por temas: "Viajes", "Behind the scenes", "Reviews", etc.
+  </div>
+  
+  <div class="highlights-grid" id="highlightsGrid">
+    <div class="empty-state" style="grid-column:1/-1">⏳ Cargando...</div>
+  </div>
+</div>
+</div>
+
+<!-- Create/Edit Highlight Modal -->
+<div class="modal-backdrop" id="createModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="createModalTitle">Nuevo Highlight</div>
+      <button class="modal-close" onclick="closeModal('createModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" id="highlightTitleInput" placeholder="Ej: Viajes, Behind the scenes..." maxlength="30">
+      </div>
+      
+      <div class="form-row">
+        <label class="form-label">Emoji</label>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
+      
+      <div class="form-row">
+        <label class="form-label">Imagen de portada (opcional)</label>
+        <div class="cover-upload" onclick="document.getElementById('coverFileInput').click()">
+          <div class="cover-preview" id="coverPreview">📸</div>
+          <div class="cover-upload-text" id="coverText">Toca para subir imagen</div>
+        </div>
+        <input type="file" id="coverFileInput" accept="image/*">
+      </div>
+      
+      <button class="btn-primary" id="saveHighlightBtn">Crear Highlight</button>
+    </div>
+  </div>
+</div>
+
+<!-- View/Edit Items Modal -->
+<div class="modal-backdrop" id="itemsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Contenido</div>
+      <button class="modal-close" onclick="closeModal('itemsModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="highlight-meta" id="itemsMeta"></div>
+      
+      <div class="items-header">
+        <div class="items-title">Items</div>
+        <button class="btn-danger" id="deleteHighlightBtn">🗑 Eliminar highlight</button>
+      </div>
+      
+      <div class="items-grid" id="itemsGrid">
+        <div class="empty-state" style="grid-column:1/-1">⏳ Cargando...</div>
+      </div>
+      
+      <input type="file" id="itemFileInput" accept="image/*,video/*">
+    </div>
+  </div>
+</div>
+
+<nav class="sn-nav">
+  <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">🏠</span>Inicio</a>
+  <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">🔍</span>Explorar</a>
+  <a class="sn-nav-item" href="/editor.html"><span class="sn-nav-create">+</span></a>
+  <a class="sn-nav-item" href="/reels.html"><span class="sn-nav-icon">▶</span>Reels</a>
+  <a class="sn-nav-item active" href="/profile.html"><div class="sn-nav-avatar">👤</div>Perfil</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb=window.supabase.createClient(SB_URL,SB_KEY);
+  window.sb=sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { document.getElementById('authWarning').style.display='block'; return; }
+  
+  const { data: profile } = await sb.from('profiles').select('is_creator,verification_status').eq('id',user.id).single();
+  if (!profile || !profile.is_creator) { document.getElementById('notCreator').style.display='block'; return; }
+  
+  document.getElementById('mainContent').style.display='block';
+  
+  const EMOJIS = ['📸','✈️','🏖','🍕','💪','🎨','🎬','🎵','👗','💄','💻','📚','🏆','⚽','🎮','🚗','🌸','🔥','💎','⭐','❤️','🌙','☀️','🌈','🎉','🎁','💋','👑'];
+  
+  let highlights = [];
+  let editingId = null; // currently edited highlight id (null = new)
+  let coverFile = null;
+  let selectedEmoji = '📸';
+  
+  // Helpers
+  function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+  function showFeedback(type, msg){
+    const fb=document.getElementById('feedback');
+    fb.innerHTML='<div class="'+type+'">'+msg+'</div>';
+    setTimeout(function(){fb.innerHTML='';},4000);
+  }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+  window.closeModal = closeModal;
+  
+  function renderEmojiGrid(){
+    const grid=document.getElementById('emojiGrid');
+    grid.innerHTML = EMOJIS.map(function(e){
+      return '<button class="emoji-btn" data-emoji="'+e+'">'+e+'</button>';
+    }).join('');
+    grid.querySelectorAll('.emoji-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        grid.querySelectorAll('.emoji-btn').forEach(function(b){ b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        selectedEmoji = btn.dataset.emoji;
+      });
+    });
+    // Pre-select first
+    grid.children[0].classList.add('selected');
+  }
+  renderEmojiGrid();
+  
+  async function loadHighlights(){
+    const grid = document.getElementById('highlightsGrid');
+    const { data, error } = await sb.from('story_highlights')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    if (error) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Error: '+escapeHtml(error.message)+'</div>'; return; }
+    highlights = data || [];
+    
+    // Fetch item counts for each highlight
+    const counts = {};
+    if (highlights.length) {
+      const ids = highlights.map(function(h){ return h.id; });
+      const { data: items } = await sb.from('highlight_items').select('highlight_id').in('highlight_id', ids);
+      (items||[]).forEach(function(it){ counts[it.highlight_id] = (counts[it.highlight_id]||0) + 1; });
+    }
+    
+    // Render
+    grid.innerHTML = highlights.map(function(h){
+      const cnt = counts[h.id] || 0;
+      const cover = h.cover_url 
+        ? '<img src="'+escapeHtml(h.cover_url)+'" alt="">'
+        : '<span class="highlight-circle-emoji">'+(h.emoji || '📸')+'</span>';
+      return '<div class="highlight-card" data-id="'+h.id+'">'+
+        '<div class="highlight-circle">'+
+          '<div class="highlight-circle-inner">'+cover+'</div>'+
+          (cnt > 0 ? '<div class="highlight-item-count">'+cnt+'</div>' : '')+
+        '</div>'+
+        '<div class="highlight-title">'+escapeHtml(h.title || '')+'</div>'+
+      '</div>';
+    }).join('') + 
+      '<div class="highlight-card" id="addHighlightCard">'+
+        '<div class="add-highlight">+</div>'+
+        '<div class="highlight-title">Nuevo</div>'+
+      '</div>';
+    
+    // Wire click handlers
+    grid.querySelectorAll('.highlight-card[data-id]').forEach(function(card){
+      card.addEventListener('click', function(){ openItemsModal(card.dataset.id); });
+    });
+    document.getElementById('addHighlightCard').addEventListener('click', openCreateModal);
+    
+    if (!highlights.length) {
+      // Keep add button visible as the only item
+    }
+  }
+  
+  function openCreateModal(){
+    editingId = null;
+    coverFile = null;
+    selectedEmoji = '📸';
+    document.getElementById('createModalTitle').textContent = 'Nuevo Highlight';
+    document.getElementById('highlightTitleInput').value = '';
+    document.getElementById('coverPreview').innerHTML = '📸';
+    document.getElementById('coverText').textContent = 'Toca para subir imagen';
+    document.getElementById('saveHighlightBtn').textContent = 'Crear Highlight';
+    document.querySelectorAll('.emoji-btn').forEach(function(b,i){ b.classList.toggle('selected', i===0); });
+    document.getElementById('createModal').classList.add('open');
+  }
+  
+  // Cover upload
+  document.getElementById('coverFileInput').addEventListener('change', function(e){
+    const f = e.target.files[0];
+    if (!f) return;
+    if (f.size > 10*1024*1024) { showFeedback('error-msg', 'Imagen muy grande (max 10MB)'); return; }
+    coverFile = f;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      document.getElementById('coverPreview').innerHTML = '<img src="'+ev.target.result+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+    };
+    reader.readAsDataURL(f);
+    document.getElementById('coverText').textContent = f.name;
+  });
+  
+  // Save highlight
+  document.getElementById('saveHighlightBtn').addEventListener('click', async function(){
+    const btn = document.getElementById('saveHighlightBtn');
+    const title = document.getElementById('highlightTitleInput').value.trim();
+    if (!title || title.length < 2) { showFeedback('error-msg', 'Nombre requerido (mín 2 chars)'); return; }
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Guardando...';
+    
+    try {
+      let coverUrl = null;
+      if (coverFile) {
+        btn.textContent = '📤 Subiendo portada...';
+        const ext = coverFile.name.split('.').pop().toLowerCase();
+        const path = 'highlights/covers/' + user.id + '/' + Date.now() + '.' + ext;
+        const up = await sb.storage.from('media').upload(path, coverFile, { contentType: coverFile.type, upsert: false });
+        if (up.error) throw up.error;
+        coverUrl = sb.storage.from('media').getPublicUrl(path).data.publicUrl;
+      }
+      
+      const payload = { user_id: user.id, title: title, emoji: selectedEmoji };
+      if (coverUrl) payload.cover_url = coverUrl;
+      
+      if (editingId) {
+        const { error } = await sb.from('story_highlights').update(payload).eq('id', editingId);
+        if (error) throw error;
+      } else {
+        const { error } = await sb.from('story_highlights').insert(payload);
+        if (error) throw error;
+      }
+      
+      closeModal('createModal');
+      showFeedback('success', '✅ Highlight guardado');
+      await loadHighlights();
+    } catch(e) {
+      showFeedback('error-msg', 'Error: '+(e.message||e));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Crear Highlight';
+    }
+  });
+  
+  // Items modal
+  let currentHighlight = null;
+  async function openItemsModal(highlightId){
+    currentHighlight = highlights.find(function(h){ return h.id === highlightId; });
+    if (!currentHighlight) return;
+    document.getElementById('itemsMeta').innerHTML = 
+      '<div class="highlight-meta-emoji">'+(currentHighlight.emoji||'📸')+'</div>'+
+      '<div class="highlight-meta-name">'+escapeHtml(currentHighlight.title)+'</div>'+
+      '<div class="highlight-meta-count" id="currentHighlightCount">...</div>';
+    document.getElementById('itemsModal').classList.add('open');
+    await loadItems();
+  }
+  
+  async function loadItems(){
+    if (!currentHighlight) return;
+    const { data, error } = await sb.from('highlight_items')
+      .select('*')
+      .eq('highlight_id', currentHighlight.id)
+      .order('created_at', { ascending: false });
+    const itemsGrid = document.getElementById('itemsGrid');
+    if (error) { itemsGrid.innerHTML = '<div class="empty-state">Error: '+escapeHtml(error.message)+'</div>'; return; }
+    const items = data || [];
+    document.getElementById('currentHighlightCount').textContent = items.length + ' items';
+    
+    itemsGrid.innerHTML = items.map(function(it){
+      const media = it.media_type === 'video'
+        ? '<video src="'+escapeHtml(it.media_url)+'" muted playsinline></video>'
+        : '<img src="'+escapeHtml(it.media_url)+'" alt="">';
+      return '<div class="item-card" data-id="'+it.id+'">'+media+
+        '<button class="item-delete" data-id="'+it.id+'">×</button>'+
+      '</div>';
+    }).join('') + 
+      '<div class="item-add-tile" id="addItemTile"><span>+</span>Agregar</div>';
+    
+    // Wire delete
+    itemsGrid.querySelectorAll('.item-delete').forEach(function(btn){
+      btn.addEventListener('click', async function(e){
+        e.stopPropagation();
+        if (!confirm('¿Eliminar este item?')) return;
+        const { error } = await sb.from('highlight_items').delete().eq('id', btn.dataset.id);
+        if (error) { showFeedback('error-msg', 'Error: '+error.message); return; }
+        await loadItems();
+        await loadHighlights(); // update counts on main grid
+      });
+    });
+    // Wire add
+    document.getElementById('addItemTile').addEventListener('click', function(){
+      document.getElementById('itemFileInput').click();
+    });
+  }
+  
+  // Item file upload
+  document.getElementById('itemFileInput').addEventListener('change', async function(e){
+    const f = e.target.files[0];
+    if (!f || !currentHighlight) return;
+    if (f.size > 50*1024*1024) { showFeedback('error-msg', 'Archivo muy grande (max 50MB)'); return; }
+    
+    try {
+      const ext = f.name.split('.').pop().toLowerCase();
+      const folder = f.type.startsWith('video') ? 'videos' : 'images';
+      const path = 'highlights/items/' + user.id + '/' + folder + '/' + Date.now() + '.' + ext;
+      const up = await sb.storage.from('media').upload(path, f, { contentType: f.type, upsert: false });
+      if (up.error) throw up.error;
+      const url = sb.storage.from('media').getPublicUrl(path).data.publicUrl;
+      const mediaType = f.type.startsWith('video') ? 'video' : 'image';
+      
+      const { error } = await sb.from('highlight_items').insert({
+        highlight_id: currentHighlight.id,
+        media_url: url,
+        media_type: mediaType
+      });
+      if (error) throw error;
+      
+      document.getElementById('itemFileInput').value='';
+      showFeedback('success', '✅ Item agregado');
+      await loadItems();
+      await loadHighlights();
+    } catch(err) {
+      showFeedback('error-msg', 'Error: '+(err.message||err));
+    }
+  });
+  
+  // Delete highlight
+  document.getElementById('deleteHighlightBtn').addEventListener('click', async function(){
+    if (!currentHighlight) return;
+    if (!confirm('¿Eliminar "'+currentHighlight.title+'" y todos sus items?\n\nEsta acción no se puede deshacer.')) return;
+    
+    try {
+      // Delete items first (FK cascade might handle but be explicit)
+      await sb.from('highlight_items').delete().eq('highlight_id', currentHighlight.id);
+      await sb.from('highlight_stories').delete().eq('highlight_id', currentHighlight.id);
+      const { error } = await sb.from('story_highlights').delete().eq('id', currentHighlight.id);
+      if (error) throw error;
+      
+      closeModal('itemsModal');
+      showFeedback('success', '✅ Highlight eliminado');
+      await loadHighlights();
+    } catch(e) {
+      showFeedback('error-msg', 'Error: '+(e.message||e));
+    }
+  });
+  
+  await loadHighlights();
+})();
+</script>
+</body>
+  </html>

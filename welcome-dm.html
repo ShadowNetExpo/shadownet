@@ -278,7 +278,7 @@ input[type="file"]{display:none}
       const tpl = chip.getAttribute('data-tpl');
       const text = TEMPLATES[tpl];
       if (text) {
-        msgEl.value = text.replace(/\\n/g, '\n');
+        msgEl.value = text.split('\\n').join(String.fromCharCode(10));
         updateCharCount();
         updatePreview();
         msgEl.focus();

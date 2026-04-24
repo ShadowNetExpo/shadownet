@@ -38,7 +38,7 @@ async function load(){
   if(!data||data.length===0){list.innerHTML='<div class="muted">No hay verificaciones pendientes.</div>';return;}
   list.innerHTML="";
   for(const v of data){
-    const {data:signed}=await sb.storage.from("kyc-documents").createSignedUrl(v.document_path,600);
+    const {data:signed}=await sb.storage.from("documents").createSignedUrl(v.document_path,600);
     const card=document.createElement("div");
     card.className="card";
     card.innerHTML=`

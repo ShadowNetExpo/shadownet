@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Close Friends — SHADOWNET</title>
+<meta name="description" content="Gestiona tu lista de amigos cercanos para contenido exclusivo">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/close-friends.html">
+<meta property="og:title" content="Close Friends — SHADOWNET">
+<meta property="og:description" content="Tu lista privada de amigos cercanos">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh;padding-bottom:80px}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#00c853,#a5d6a7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:600px;margin:0 auto;padding:20px}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844}
+.info-box{background:rgba(0,200,83,0.08);border:1px solid rgba(0,200,83,0.25);border-radius:10px;padding:14px 16px;font-size:13px;color:#a5d6a7;margin-bottom:20px;line-height:1.5}
+.info-box strong{color:#c8f7c8}
+
+/* Search */
+.search-wrap{background:#141414;border:1px solid #1f1f1f;border-radius:10px;padding:12px;margin-bottom:20px}
+.search-input{width:100%;background:#0a0a0a;border:1px solid #2f2f2f;border-radius:8px;padding:10px 14px;color:#fff;font-size:14px;outline:none;font-family:inherit}
+.search-input:focus{border-color:#00c853}
+.search-results{margin-top:12px;max-height:280px;overflow-y:auto}
+.search-result{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;transition:background 0.15s;cursor:pointer}
+.search-result:hover{background:rgba(0,200,83,0.05)}
+.sr-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;overflow:hidden;flex-shrink:0}
+.sr-avatar img{width:100%;height:100%;object-fit:cover}
+.sr-name{flex:1;font-size:13px;font-weight:600}
+.sr-btn{background:linear-gradient(135deg,#00c853,#4caf50);color:#000;border:none;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:700;font-family:inherit}
+.sr-btn:hover{opacity:0.9}
+.sr-btn.added{background:#1f1f1f;color:#666;cursor:default}
+
+/* Friends list */
+.friends-header{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;padding-left:4px}
+.friends-title{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px}
+.friends-count{font-size:12px;color:#00c853;font-weight:700}
+.friends-list{background:#141414;border:1px solid #1f1f1f;border-radius:12px;overflow:hidden}
+.friend-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #1f1f1f}
+.friend-row:last-child{border-bottom:none}
+.friend-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;overflow:hidden;flex-shrink:0;border:2px solid #00c853}
+.friend-avatar img{width:100%;height:100%;object-fit:cover}
+.friend-info{flex:1;min-width:0}
+.friend-name{font-size:14px;font-weight:700;color:#fff}
+.friend-added{font-size:11px;color:#888;margin-top:2px}
+.friend-remove{background:rgba(255,50,50,0.1);border:1px solid rgba(255,50,50,0.3);color:#ff7070;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600}
+.friend-remove:hover{background:rgba(255,50,50,0.18)}
+
+.empty-state{text-align:center;padding:40px 20px;color:#666;font-size:14px}
+
+/* Bottom nav */
+.sn-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,0.97);border-top:1px solid #0d2744;display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:900}
+.sn-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;color:#5a8aaa;font-size:9px;text-decoration:none;text-transform:uppercase}
+.sn-nav-item:hover,.sn-nav-item.active{color:#ff2255}
+.sn-nav-icon{font-size:22px;line-height:1}
+.sn-nav-create{font-size:28px;color:#ff2255;font-weight:800}
+.sn-nav-avatar{width:22px;height:22px;border-radius:50%;background:#333}
+
+.success{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);padding:10px;border-radius:8px;color:#55ff55;font-size:13px;margin-bottom:12px;text-align:center}
+.error-msg{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:10px;border-radius:8px;color:#ff5555;font-size:13px;margin-bottom:12px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/profile.html">&larr;</a>
+  <h1>💚 Close Friends</h1>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Inicia sesión. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="mainContent" style="display:none">
+<div id="feedback"></div>
+
+<div class="info-box">
+  <strong>💚 ¿Qué es Close Friends?</strong><br>
+  Tu lista privada de fans con acceso a stories exclusivas (marcadas con 💚). 
+  Solo tú puedes ver esta lista, y los elegidos no reciben notificación.
+</div>
+
+<div class="search-wrap">
+  <input class="search-input" id="searchInput" placeholder="Buscar usuarios por @username..." autocomplete="off">
+  <div id="searchResults" class="search-results"></div>
+</div>
+
+<div class="friends-header">
+  <span class="friends-title">Mis close friends:</span>
+  <span class="friends-count" id="friendCount">0</span>
+</div>
+
+<div id="friendsList">
+  <div class="empty-state">⏳ Cargando...</div>
+</div>
+
+</div>
+</div>
+
+<nav class="sn-nav">
+  <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">🏠</span>Inicio</a>
+  <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">🔍</span>Explorar</a>
+  <a class="sn-nav-item" href="/editor.html"><span class="sn-nav-create">+</span></a>
+  <a class="sn-nav-item" href="/reels.html"><span class="sn-nav-icon">▶</span>Reels</a>
+  <a class="sn-nav-item active" href="/profile.html"><div class="sn-nav-avatar">👤</div>Perfil</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb=window.supabase.createClient(SB_URL,SB_KEY);
+  window.sb=sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { document.getElementById('authWarning').style.display='block'; return; }
+  
+  document.getElementById('mainContent').style.display='block';
+  
+  let friendIds = new Set();
+  let searchTimer = null;
+  
+  function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+  function showFeedback(type, msg){
+    const fb=document.getElementById('feedback');
+    fb.innerHTML='<div class="'+type+'">'+msg+'</div>';
+    setTimeout(function(){fb.innerHTML='';},3500);
+  }
+  function getTimeAgo(ts){
+    if (!ts) return '';
+    const d = (Date.now() - new Date(ts).getTime())/1000;
+    if (d < 60) return 'recién';
+    if (d < 3600) return 'hace ' + Math.floor(d/60) + 'm';
+    if (d < 86400) return 'hace ' + Math.floor(d/3600) + 'h';
+    return 'hace ' + Math.floor(d/86400) + 'd';
+  }
+  
+  async function loadFriends(){
+    const { data, error } = await sb.from('close_friends')
+      .select('id,friend_id,created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    
+    const list = document.getElementById('friendsList');
+    if (error) { list.innerHTML = '<div class="empty-state">Error: '+escapeHtml(error.message)+'</div>'; return; }
+    
+    const rows = data || [];
+    friendIds = new Set(rows.map(function(r){ return r.friend_id; }));
+    document.getElementById('friendCount').textContent = rows.length;
+    
+    if (!rows.length) {
+      list.innerHTML = '<div class="empty-state">Aún no tienes close friends. Busca arriba para agregar.</div>';
+      return;
+    }
+    
+    // Fetch profiles
+    const ids = rows.map(function(r){ return r.friend_id; });
+    const { data: profiles } = await sb.from('profiles').select('id,username,display_name,avatar_url').in('id', ids);
+    const pm = {};
+    (profiles||[]).forEach(function(p){ pm[p.id] = p; });
+    
+    list.innerHTML = '<div class="friends-list">' + rows.map(function(r){
+      const p = pm[r.friend_id] || { username: 'usuario' };
+      const avHtml = p.avatar_url 
+        ? '<img src="'+escapeHtml(p.avatar_url)+'" alt="">'
+        : escapeHtml((p.username||'?').charAt(0).toUpperCase());
+      return '<div class="friend-row">'+
+        '<div class="friend-avatar">'+avHtml+'</div>'+
+        '<div class="friend-info">'+
+          '<div class="friend-name">@'+escapeHtml(p.username||'usuario')+'</div>'+
+          '<div class="friend-added">Agregado '+getTimeAgo(r.created_at)+'</div>'+
+        '</div>'+
+        '<button class="friend-remove" data-id="'+r.id+'">Quitar</button>'+
+      '</div>';
+    }).join('') + '</div>';
+    
+    list.querySelectorAll('.friend-remove').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if (!confirm('¿Quitar a este usuario de close friends?')) return;
+        const { error } = await sb.from('close_friends').delete().eq('id', btn.dataset.id);
+        if (error) { showFeedback('error-msg', 'Error: '+error.message); return; }
+        showFeedback('success', '✅ Usuario quitado');
+        await loadFriends();
+      });
+    });
+  }
+  
+  // Search users
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', function(){
+    clearTimeout(searchTimer);
+    const q = searchInput.value.trim();
+    if (!q || q.length < 2) { document.getElementById('searchResults').innerHTML = ''; return; }
+    searchTimer = setTimeout(async function(){
+      const { data } = await sb.from('profiles')
+        .select('id,username,avatar_url')
+        .ilike('username', '%'+q+'%')
+        .neq('id', user.id)
+        .limit(8);
+      const res = document.getElementById('searchResults');
+      if (!data || !data.length) { res.innerHTML = '<div class="empty-state" style="padding:20px">Sin resultados</div>'; return; }
+      res.innerHTML = data.map(function(u){
+        const alreadyAdded = friendIds.has(u.id);
+        const avHtml = u.avatar_url 
+          ? '<img src="'+escapeHtml(u.avatar_url)+'" alt="">'
+          : escapeHtml((u.username||'?').charAt(0).toUpperCase());
+        return '<div class="search-result">'+
+          '<div class="sr-avatar">'+avHtml+'</div>'+
+          '<div class="sr-name">@'+escapeHtml(u.username||'usuario')+'</div>'+
+          (alreadyAdded 
+            ? '<button class="sr-btn added" disabled>✓ Agregado</button>'
+            : '<button class="sr-btn" data-uid="'+u.id+'">+ Agregar</button>'
+          )+
+        '</div>';
+      }).join('');
+      
+      res.querySelectorAll('.sr-btn[data-uid]').forEach(function(btn){
+        btn.addEventListener('click', async function(){
+          btn.disabled = true;
+          btn.textContent = '⏳';
+          const { error } = await sb.from('close_friends').insert({
+            user_id: user.id,
+            friend_id: btn.dataset.uid
+          });
+          if (error) {
+            btn.disabled = false;
+            btn.textContent = '+ Agregar';
+            showFeedback('error-msg', 'Error: '+error.message);
+            return;
+          }
+          btn.className = 'sr-btn added';
+          btn.textContent = '✓ Agregado';
+          friendIds.add(btn.dataset.uid);
+          showFeedback('success', '✅ Agregado a close friends');
+          loadFriends(); // refresh list
+        });
+      });
+    }, 250);
+  });
+  
+  await loadFriends();
+})();
+</script>
+</body>
+  </html>

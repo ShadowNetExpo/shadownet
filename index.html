@@ -325,7 +325,8 @@ async function submitAuth(){
       var r=await sb.auth.signUp({email:email,password:pass,options:{data:{username:username}}});
       if(r.error){showAuthError(r.error.message);btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
       // Pre-launch compliance: log age + terms consent to audit table
-      if(r.data&&r.data.user){try{await sb.rpc('log_signup_consent',{p_user_id:r.data.user.id,p_age_confirmed:true,p_terms_accepted:true});}catch(_){}}
+      if(r.data&&r.data.user){try{await sb.rpc('log_signup_consent',{p_user_id:r.data.user.id,p_age_confirmed:true,p_terms_accepted:true});
+      var imgOk=document.getElementById('consentImagePublic'); if(imgOk&&imgOk.checked){try{await sb.from('consent_log').insert({user_id:r.data.user.id,consent_type:'creator_image_publication',granted:true,version:'1.0'});}catch(e){}}}catch(_){}}
       if(r.data&&r.data.user&&!r.data.session){showAuthError("Revisa tu email para confirmar tu cuenta");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}
       location.href="/feed.html";
     } else {
@@ -375,6 +376,10 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
   <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
     <input type="checkbox" id="consentTerms" style="margin-top:3px;flex-shrink:0;accent-color:#ff2255">
     <span>Acepto los <a href="/terms.html" target="_blank" style="color:#ff2255">Términos</a>, la <a href="/privacy.html" target="_blank" style="color:#ff2255">Privacidad</a>, la <a href="/dmca.html" target="_blank" style="color:#ff2255">DMCA</a>, la <a href="/2257.html" target="_blank" style="color:#ff2255">2257</a> y la <a href="/legal18.html" target="_blank" style="color:#ff2255">Declaración +18</a>.</span>
+  </label>
+  <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin-top:8px">
+    <input type="checkbox" id="consentImagePublic">
+    <span>Si me convierto en creador/a, consiento que mis imágenes sean usadas y mostradas públicamente en SHADOWNET conforme al <a href="/creator-agreement.html" target="_blank" style="color:#ff2255">Content Provider Agreement</a>.</span>
   </label>
 </div>
 <button id="authSubmit" onclick="submitAuth()" style="width:100%;padding:11px;background:linear-gradient(135deg,#ff2255,#ff0044);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Orbitron,monospace;letter-spacing:.05em">ENTRAR</button>

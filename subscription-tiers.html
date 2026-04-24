@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Niveles de Suscripción — SHADOWNET</title>
+<meta name="description" content="Gestiona tus niveles de suscripción con precios y beneficios personalizados">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/subscription-tiers.html">
+<meta property="og:title" content="Niveles de Suscripción — SHADOWNET">
+<meta property="og:description" content="Gestiona tus tiers de suscripción">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:960px;margin:0 auto;padding:24px 20px}
+.section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:20px;margin-bottom:20px}
+.info-box{background:rgba(100,150,255,0.08);border:1px solid rgba(100,150,255,0.25);border-radius:10px;padding:14px 16px;font-size:13px;color:#a5bfff;margin-bottom:20px;line-height:1.5}
+.info-box strong{color:#cfdaff}
+.tiers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.tier-card{background:#0f0f0f;border:2px solid #1f1f1f;border-radius:14px;padding:18px;position:relative;transition:all 0.2s}
+.tier-card:hover{border-color:#2f2f2f}
+.tier-card.disabled{opacity:0.55}
+.tier-card .badge-stripe{position:absolute;top:0;left:0;right:0;height:6px;border-radius:12px 12px 0 0}
+.tier-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-top:8px}
+.tier-name-input{flex:1;background:transparent;border:none;color:#fff;font-size:16px;font-weight:700;padding:4px;outline:none;border-bottom:1px dashed transparent;transition:border-color 0.15s}
+.tier-name-input:focus,.tier-name-input:hover{border-bottom-color:#ff0844}
+.tier-price-row{display:flex;align-items:baseline;gap:4px;margin-bottom:10px}
+.tier-price-sign{font-size:20px;color:#aaa}
+.tier-price-input{background:transparent;border:none;color:#ff6b9d;font-size:28px;font-weight:800;width:72px;outline:none;padding:2px 0;font-family:inherit}
+.tier-price-input:focus{border-bottom:1px dashed #ff0844}
+.tier-price-per{font-size:13px;color:#888}
+.tier-desc-input{width:100%;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:6px;color:#ccc;font-size:12px;padding:6px 8px;min-height:50px;resize:vertical;margin-bottom:10px;outline:none;font-family:inherit}
+.tier-desc-input:focus{border-color:#ff0844}
+.perks-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.perk-row{display:flex;align-items:center;gap:6px}
+.perk-input{flex:1;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:6px;color:#e5e5e5;font-size:12px;padding:6px 8px;outline:none}
+.perk-input:focus{border-color:#ff0844}
+.perk-remove{background:none;border:none;color:#ff0844;font-size:14px;cursor:pointer;padding:2px 6px}
+.perk-add{background:rgba(255,8,68,0.1);border:1px dashed rgba(255,8,68,0.3);color:#ff6b9d;border-radius:6px;padding:6px;font-size:11px;cursor:pointer;text-align:center;font-family:inherit;transition:all 0.15s}
+.perk-add:hover{background:rgba(255,8,68,0.15);border-style:solid}
+.tier-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #1f1f1f}
+.tier-meta{font-size:11px;color:#666}
+.tier-meta strong{color:#ccc}
+.color-picker{width:26px;height:26px;border-radius:6px;border:2px solid #2f2f2f;cursor:pointer;padding:0;background:#ff2255}
+.toggle{position:relative;width:36px;height:20px;background:#1f1f1f;border-radius:10px;cursor:pointer;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:#55ff55}
+.toggle-knob{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left 0.2s}
+.toggle.on .toggle-knob{left:18px}
+.tier-actions{display:flex;gap:6px;margin-top:10px;justify-content:flex-end}
+.btn-sm{background:#1a1a1a;border:1px solid #2f2f2f;color:#e5e5e5;padding:5px 10px;border-radius:5px;font-size:11px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn-sm:hover{background:#2a2a2a}
+.btn-sm.danger{color:#ff7070;border-color:rgba(255,50,50,0.3)}
+.btn-sm.danger:hover{background:rgba(255,50,50,0.1)}
+.btn-sm.primary{background:linear-gradient(135deg,#ff0844,#ff6b9d);border-color:#ff0844;color:#fff;font-weight:600}
+.btn-sm.primary:hover{background:linear-gradient(135deg,#e6073d,#e6618c)}
+.btn-sm:disabled{opacity:0.4;cursor:not-allowed}
+.add-tier-card{background:transparent;border:2px dashed #2f2f2f;border-radius:14px;padding:32px 18px;text-align:center;cursor:pointer;transition:all 0.15s;color:#888;font-size:14px;font-weight:500}
+.add-tier-card:hover{border-color:#ff0844;background:rgba(255,8,68,0.04);color:#ff6b9d}
+.add-tier-icon{font-size:32px;margin-bottom:6px;display:block}
+.tier-status{position:absolute;top:12px;right:12px;font-size:10px;padding:3px 8px;border-radius:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.tier-status.active{background:rgba(9,255,9,0.15);color:#55ff55;border:1px solid rgba(9,255,9,0.3)}
+.tier-status.inactive{background:rgba(200,200,200,0.1);color:#888;border:1px solid #2f2f2f}
+.preview-box{background:linear-gradient(135deg,#0d0d0d,#1a0a12);border:1px solid #2a1520;border-radius:12px;padding:20px}
+.preview-title{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px}
+.preview-tiers{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}
+.preview-tier{flex:0 0 200px;background:#1a1a1a;border-radius:12px;padding:16px;border:2px solid #2a1520;position:relative}
+.preview-tier-bg{position:absolute;top:0;left:0;right:0;height:4px;border-radius:10px 10px 0 0}
+.preview-tier-name{font-size:13px;font-weight:700;color:#fff;margin:6px 0 4px}
+.preview-tier-price{font-size:22px;font-weight:800;color:#ff6b9d;margin-bottom:8px}
+.preview-tier-desc{font-size:11px;color:#aaa;margin-bottom:8px;line-height:1.4;min-height:30px}
+.preview-perks{font-size:10px;color:#ccc;line-height:1.5}
+.preview-perks li{list-style:none;padding-left:14px;position:relative}
+.preview-perks li::before{content:'✓';position:absolute;left:0;color:#55ff55}
+.preview-subscribe-btn{background:linear-gradient(135deg,#ff0844,#ff6b9d);color:#fff;border:none;padding:8px;border-radius:8px;width:100%;margin-top:10px;font-weight:700;font-size:12px;font-family:inherit}
+.empty-state{text-align:center;padding:40px 20px;color:#666;font-size:14px}
+.save-bar{position:sticky;bottom:0;background:linear-gradient(to top,rgba(10,10,10,0.98),rgba(10,10,10,0.9));border-top:1px solid #1f1f1f;padding:16px;margin:-20px -20px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;border-radius:0 0 12px 12px}
+.save-bar-info{font-size:12px;color:#aaa}
+.save-bar-info strong{color:#fff}
+.btn-primary{background:linear-gradient(135deg,#ff0844,#ff6b9d);border:1px solid #ff0844;color:#fff;font-weight:700;padding:10px 24px;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-primary:hover{background:linear-gradient(135deg,#e6073d,#e6618c)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844}
+.success{background:rgba(9,255,9,0.1);border:1px solid rgba(9,255,9,0.3);padding:14px;border-radius:8px;color:#55ff55;font-size:14px;margin-bottom:16px;text-align:center}
+.error{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:14px;border-radius:8px;color:#ff5555;font-size:14px;margin-bottom:16px;text-align:center}
+.dirty-indicator{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff9900;margin-right:6px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+@media(max-width:600px){
+  .container{padding:16px 12px}
+  .tiers-grid{grid-template-columns:1fr}
+  .preview-tier{flex:0 0 180px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/dashboard.html">&larr;</a>
+  <h1>💎 Niveles de Suscripción</h1>
+  <a href="/promos-trials.html">🎟️</a>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Debes iniciar sesión como creador. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="notCreator" class="auth-warning" style="display:none">
+  Solo creadores verificados. Actívate en <a href="/settings.html">Configuración</a>.
+</div>
+
+<div id="mainContent" style="display:none">
+
+<div id="feedback"></div>
+
+<div class="info-box">
+  <strong>💎 ¿Cómo funciona?</strong><br>
+  Crea hasta 4 niveles de suscripción con diferentes precios y beneficios.
+  Los fans pueden elegir el tier que más les convenga (como Twitch o Fansly).
+  Los cambios se aplican al guardar. Elimina un tier solo si no tiene suscriptores activos.
+</div>
+
+<div class="section">
+  <div class="tiers-grid" id="tiersGrid">
+    <div class="empty-state">⏳ Cargando tus tiers...</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="preview-title">👁️ Vista previa (así lo verán tus fans en tu perfil)</div>
+  <div class="preview-box">
+    <div class="preview-tiers" id="previewTiers">
+      <div style="color:#666;font-size:13px;padding:20px">Crea tu primer tier para ver la vista previa</div>
+    </div>
+  </div>
+</div>
+
+<div class="save-bar">
+  <div class="save-bar-info" id="saveBarInfo">
+    <strong id="tierCount">0</strong>/4 tiers configurados
+  </div>
+  <button class="btn-primary" id="saveBtn" disabled>💾 Guardar todos los cambios</button>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL = 'https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY = 'sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb = window.supabase.createClient(SB_URL, SB_KEY);
+  window.sb = sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { document.getElementById('authWarning').style.display = 'block'; return; }
+  
+  const { data: profile } = await sb.from('profiles').select('is_creator,username').eq('id', user.id).single();
+  if (!profile || !profile.is_creator) { document.getElementById('notCreator').style.display = 'block'; return; }
+  
+  document.getElementById('mainContent').style.display = 'block';
+  
+  let tiers = [];
+  let deletedIds = [];
+  let dirty = false;
+  
+  const SUGGESTED_COLORS = ['#ff2255','#e91e63','#9c27b0','#673ab7','#3f51b5','#2196f3','#00bcd4','#00ff88','#ffaa00','#ff5722','#795548','#607d8b'];
+  
+  function showFeedback(type, msg){
+    const fb = document.getElementById('feedback');
+    fb.innerHTML = '<div class="'+type+'">'+msg+'</div>';
+    setTimeout(function(){ fb.innerHTML = ''; }, 5000);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; });
+  }
+  
+  function markDirty(){
+    dirty = true;
+    document.getElementById('saveBtn').disabled = false;
+    document.getElementById('saveBarInfo').innerHTML = '<span class="dirty-indicator"></span><strong>'+tiers.length+'</strong>/4 tiers · <span style="color:#ff9900">cambios sin guardar</span>';
+  }
+  
+  function clearDirty(){
+    dirty = false;
+    document.getElementById('saveBtn').disabled = true;
+    document.getElementById('saveBarInfo').innerHTML = '<strong>'+tiers.length+'</strong>/4 tiers configurados';
+  }
+  
+  async function loadTiers(){
+    const { data, error } = await sb.from('subscription_tiers')
+      .select('*')
+      .eq('creator_id', user.id)
+      .order('sort_order', { ascending: true })
+      .order('price', { ascending: true });
+    
+    if (error) {
+      document.getElementById('tiersGrid').innerHTML = '<div class="error">Error: '+escapeHtml(error.message)+'</div>';
+      return;
+    }
+    
+    tiers = (data || []).map(function(t, i){
+      let perks = t.perks || t.benefits || [];
+      if (typeof perks === 'string') { try { perks = JSON.parse(perks); } catch(e) { perks = []; } }
+      if (!Array.isArray(perks)) perks = [];
+      return {
+        id: t.id,
+        name: t.name || '',
+        price: parseFloat(t.price) || 0,
+        description: t.description || '',
+        perks: perks,
+        badge_color: t.badge_color || SUGGESTED_COLORS[i % SUGGESTED_COLORS.length],
+        is_active: t.is_active !== false,
+        sort_order: t.sort_order || i,
+        subscriber_count: t.subscriber_count || 0,
+        _new: false,
+        _dirty: false
+      };
+    });
+    
+    renderAll();
+    clearDirty();
+  }
+  
+  function renderAll(){
+    renderTiers();
+    renderPreview();
+  }
+  
+  function renderTiers(){
+    const grid = document.getElementById('tiersGrid');
+    grid.innerHTML = '';
+    
+    tiers.forEach(function(tier, idx){
+      const card = document.createElement('div');
+      card.className = 'tier-card' + (tier.is_active ? '' : ' disabled');
+      card.innerHTML = '<div class="badge-stripe" style="background:'+tier.badge_color+'"></div>'+
+        '<div class="tier-status '+(tier.is_active?'active':'inactive')+'">'+(tier.is_active?'Activo':'Inactivo')+'</div>'+
+        '<div class="tier-header">'+
+          '<input class="tier-name-input" placeholder="Nombre del tier" maxlength="40" value="'+escapeHtml(tier.name)+'" data-idx="'+idx+'" data-field="name">'+
+        '</div>'+
+        '<div class="tier-price-row">'+
+          '<span class="tier-price-sign">$</span>'+
+          '<input class="tier-price-input" type="number" min="0.99" max="499.99" step="0.01" value="'+tier.price+'" data-idx="'+idx+'" data-field="price">'+
+          '<span class="tier-price-per">/mes</span>'+
+        '</div>'+
+        '<textarea class="tier-desc-input" placeholder="Qué incluye este tier..." maxlength="200" data-idx="'+idx+'" data-field="description">'+escapeHtml(tier.description)+'</textarea>'+
+        '<div style="font-size:10px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Beneficios</div>'+
+        '<div class="perks-list" id="perksList-'+idx+'"></div>'+
+        '<button class="perk-add" data-idx="'+idx+'">+ Añadir beneficio</button>'+
+        '<div class="tier-footer">'+
+          '<div class="tier-meta">👥 <strong>'+tier.subscriber_count+'</strong> subs</div>'+
+          '<div style="display:flex;align-items:center;gap:6px">'+
+            '<input type="color" class="color-picker" value="'+tier.badge_color+'" data-idx="'+idx+'" data-field="badge_color" title="Color del badge">'+
+            '<div class="toggle '+(tier.is_active?'on':'')+'" data-idx="'+idx+'" data-field="is_active"><div class="toggle-knob"></div></div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="tier-actions">'+
+          (tier.subscriber_count === 0 ? '<button class="btn-sm danger" data-action="delete" data-idx="'+idx+'">🗑️ Eliminar</button>' : '<button class="btn-sm" disabled title="Tiene suscriptores activos">🔒 Protegido</button>')+
+        '</div>';
+      grid.appendChild(card);
+      
+      // Render perks
+      renderPerks(idx);
+    });
+    
+    // Add tier card
+    if (tiers.length < 4) {
+      const addCard = document.createElement('div');
+      addCard.className = 'add-tier-card';
+      addCard.innerHTML = '<span class="add-tier-icon">+</span>Añadir tier<br><span style="font-size:11px;opacity:0.7">Hasta 4 tiers</span>';
+      addCard.addEventListener('click', addNewTier);
+      grid.appendChild(addCard);
+    }
+    
+    attachEventListeners();
+    document.getElementById('tierCount').textContent = tiers.length;
+  }
+  
+  function renderPerks(idx){
+    const container = document.getElementById('perksList-'+idx);
+    const tier = tiers[idx];
+    container.innerHTML = '';
+    tier.perks.forEach(function(perk, pIdx){
+      const row = document.createElement('div');
+      row.className = 'perk-row';
+      row.innerHTML = '<input class="perk-input" placeholder="Ej: Fotos exclusivas" maxlength="80" value="'+escapeHtml(perk)+'" data-idx="'+idx+'" data-perk-idx="'+pIdx+'">'+
+        '<button class="perk-remove" data-idx="'+idx+'" data-perk-idx="'+pIdx+'" title="Eliminar">&times;</button>';
+      container.appendChild(row);
+    });
+  }
+  
+  function attachEventListeners(){
+    // Field inputs
+    document.querySelectorAll('[data-field]').forEach(function(el){
+      const field = el.getAttribute('data-field');
+      const idx = parseInt(el.getAttribute('data-idx'));
+      if (field === 'is_active') {
+        el.addEventListener('click', function(){
+          tiers[idx].is_active = !tiers[idx].is_active;
+          tiers[idx]._dirty = true;
+          markDirty();
+          renderAll();
+        });
+      } else {
+        const evt = el.type === 'color' ? 'input' : 'input';
+        el.addEventListener(evt, function(){
+          let val = el.value;
+          if (field === 'price') val = parseFloat(val) || 0;
+          tiers[idx][field] = val;
+          tiers[idx]._dirty = true;
+          markDirty();
+          if (field === 'name' || field === 'price' || field === 'description' || field === 'badge_color') renderPreview();
+        });
+      }
+    });
+    
+    // Perks inputs
+    document.querySelectorAll('.perk-input').forEach(function(el){
+      const idx = parseInt(el.getAttribute('data-idx'));
+      const pIdx = parseInt(el.getAttribute('data-perk-idx'));
+      el.addEventListener('input', function(){
+        tiers[idx].perks[pIdx] = el.value;
+        tiers[idx]._dirty = true;
+        markDirty();
+        renderPreview();
+      });
+    });
+    
+    document.querySelectorAll('.perk-remove').forEach(function(el){
+      el.addEventListener('click', function(){
+        const idx = parseInt(el.getAttribute('data-idx'));
+        const pIdx = parseInt(el.getAttribute('data-perk-idx'));
+        tiers[idx].perks.splice(pIdx, 1);
+        tiers[idx]._dirty = true;
+        markDirty();
+        renderPerks(idx);
+        renderPreview();
+      });
+    });
+    
+    document.querySelectorAll('.perk-add').forEach(function(el){
+      el.addEventListener('click', function(){
+        const idx = parseInt(el.getAttribute('data-idx'));
+        if (tiers[idx].perks.length >= 8) { showFeedback('error', 'Max 8 beneficios por tier'); return; }
+        tiers[idx].perks.push('');
+        tiers[idx]._dirty = true;
+        markDirty();
+        renderPerks(idx);
+      });
+    });
+    
+    // Delete action
+    document.querySelectorAll('[data-action="delete"]').forEach(function(el){
+      el.addEventListener('click', function(){
+        const idx = parseInt(el.getAttribute('data-idx'));
+        const tier = tiers[idx];
+        if (!confirm('¿Eliminar tier "'+tier.name+'"?\n\nEsta acción NO se puede deshacer.')) return;
+        if (tier.id && !tier._new) deletedIds.push(tier.id);
+        tiers.splice(idx, 1);
+        markDirty();
+        renderAll();
+      });
+    });
+  }
+  
+  function addNewTier(){
+    if (tiers.length >= 4) { showFeedback('error', 'Maximo 4 tiers'); return; }
+    const defaultPrices = [4.99, 9.99, 19.99, 49.99];
+    const defaultNames = ['Fan', 'Super Fan', 'VIP', 'Elite'];
+    const i = tiers.length;
+    tiers.push({
+      id: null,
+      name: defaultNames[i] || 'Tier '+(i+1),
+      price: defaultPrices[i] || 29.99,
+      description: '',
+      perks: ['Acceso al contenido exclusivo'],
+      badge_color: SUGGESTED_COLORS[i % SUGGESTED_COLORS.length],
+      is_active: true,
+      sort_order: i,
+      subscriber_count: 0,
+      _new: true,
+      _dirty: true
+    });
+    markDirty();
+    renderAll();
+  }
+  
+  function renderPreview(){
+    const container = document.getElementById('previewTiers');
+    if (tiers.length === 0) {
+      container.innerHTML = '<div style="color:#666;font-size:13px;padding:20px">Crea tu primer tier para ver la vista previa</div>';
+      return;
+    }
+    
+    container.innerHTML = tiers.filter(function(t){return t.is_active;}).map(function(tier){
+      const perks = tier.perks.filter(function(p){return p && p.trim();}).slice(0, 5);
+      const perksHtml = perks.length > 0 
+        ? '<ul class="preview-perks">'+perks.map(function(p){return '<li>'+escapeHtml(p)+'</li>';}).join('')+'</ul>'
+        : '<div style="font-size:10px;color:#666">Sin beneficios aún</div>';
+      return '<div class="preview-tier">'+
+        '<div class="preview-tier-bg" style="background:'+tier.badge_color+'"></div>'+
+        '<div class="preview-tier-name">'+escapeHtml(tier.name || '(sin nombre)')+'</div>'+
+        '<div class="preview-tier-price">$'+tier.price.toFixed(2)+'<span style="font-size:11px;color:#888">/mes</span></div>'+
+        '<div class="preview-tier-desc">'+escapeHtml(tier.description || '')+'</div>'+
+        perksHtml+
+        '<button class="preview-subscribe-btn">Suscribirse</button>'+
+      '</div>';
+    }).join('');
+    
+    if (container.innerHTML === '') container.innerHTML = '<div style="color:#666;font-size:13px;padding:20px">Activa al menos un tier para preview</div>';
+  }
+  
+  // Save all changes
+  document.getElementById('saveBtn').addEventListener('click', async function(){
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Guardando...';
+    
+    // Validate
+    for (let i = 0; i < tiers.length; i++) {
+      const t = tiers[i];
+      if (!t.name || t.name.length < 2) { showFeedback('error', 'Tier '+(i+1)+': nombre vacío'); btn.disabled = false; btn.textContent = '💾 Guardar'; return; }
+      if (!t.price || t.price < 0.99) { showFeedback('error', 'Tier "'+t.name+'": precio minimo $0.99'); btn.disabled = false; btn.textContent = '💾 Guardar'; return; }
+      if (t.price > 499.99) { showFeedback('error', 'Tier "'+t.name+'": precio maximo $499.99'); btn.disabled = false; btn.textContent = '💾 Guardar'; return; }
+    }
+    
+    try {
+      // Delete removed tiers
+      if (deletedIds.length > 0) {
+        btn.textContent = '🗑️ Eliminando...';
+        const { error } = await sb.from('subscription_tiers').delete().in('id', deletedIds);
+        if (error) throw error;
+        deletedIds = [];
+      }
+      
+      // Upsert existing + insert new
+      btn.textContent = '💾 Guardando tiers...';
+      for (let i = 0; i < tiers.length; i++) {
+        const t = tiers[i];
+        if (!t._dirty && !t._new) continue;
+        
+        const payload = {
+          creator_id: user.id,
+          name: t.name,
+          price: t.price,
+          description: t.description || null,
+          perks: t.perks.filter(function(p){return p && p.trim();}),
+          badge_color: t.badge_color,
+          is_active: t.is_active,
+          sort_order: i
+        };
+        
+        if (t._new || !t.id) {
+          const { data, error } = await sb.from('subscription_tiers').insert(payload).select('id').single();
+          if (error) throw error;
+          t.id = data.id;
+          t._new = false;
+        } else {
+          const { error } = await sb.from('subscription_tiers').update(payload).eq('id', t.id);
+          if (error) throw error;
+        }
+        t._dirty = false;
+      }
+      
+      showFeedback('success', '✅ '+tiers.length+' tier'+(tiers.length!==1?'s':'')+' guardado'+(tiers.length!==1?'s':''));
+      clearDirty();
+      // Reload to get subscriber_count from triggers if any
+      await loadTiers();
+    } catch(e) {
+      showFeedback('error', '❌ Error: ' + (e.message || e));
+      btn.disabled = false;
+    }
+    btn.textContent = '💾 Guardar todos los cambios';
+  });
+  
+  await loadTiers();
+})();
+</script>
+</body>
+  </html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Mi Rango — SHADOWNET</title>
+<meta name="description" content="Tu rango de fan y perks desbloqueados con cada creator">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/fan-rank.html">
+<meta property="og:title" content="Mi Rango — SHADOWNET">
+<meta property="og:description" content="Sube de rango, desbloquea perks">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh;padding-bottom:80px}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #1f1f1f;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header a{color:#e5e5e5;text-decoration:none;font-size:14px;opacity:0.7}
+.header a:hover{opacity:1}
+.header h1{font-size:18px;font-weight:700;flex:1;margin:0;background:linear-gradient(90deg,#ff0844,#ffb199);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.container{max-width:720px;margin:0 auto;padding:24px 20px}
+.auth-warning{background:rgba(255,9,9,0.1);border:1px solid rgba(255,9,9,0.3);padding:16px;border-radius:8px;margin-bottom:20px;text-align:center;color:#ff5555}
+.auth-warning a{color:#ff0844}
+
+/* === Main rank card === */
+.rank-main{background:linear-gradient(135deg,#0d0d0d,#1a0a12);border:1px solid #2a1520;border-radius:16px;padding:32px 24px;margin-bottom:24px;text-align:center;position:relative;overflow:hidden}
+.rank-main::before{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,8,68,0.08) 0%,transparent 50%);pointer-events:none}
+.rank-badge-big{font-size:72px;line-height:1;margin-bottom:12px;filter:drop-shadow(0 0 24px currentColor);position:relative;z-index:1}
+.rank-name{font-size:28px;font-weight:800;margin-bottom:6px;position:relative;z-index:1}
+.rank-level-text{font-size:13px;color:#888;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px;position:relative;z-index:1}
+.rank-points{font-size:40px;font-weight:800;color:#fff;margin-bottom:4px;position:relative;z-index:1}
+.rank-points-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;position:relative;z-index:1}
+
+/* Creator selector */
+.creator-select-wrap{margin-bottom:20px;background:#141414;border:1px solid #1f1f1f;border-radius:10px;padding:14px}
+.creator-select-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.creator-select{width:100%;background:#0a0a0a;border:1px solid #2f2f2f;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;cursor:pointer}
+.creator-select:focus{border-color:#ff0844}
+
+/* Progress bar */
+.progress-section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:18px;margin-bottom:20px}
+.progress-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.progress-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px}
+.progress-value{font-size:13px;color:#ff6b9d;font-weight:600}
+.progress-bar-bg{background:#0a0a0a;height:10px;border-radius:5px;overflow:hidden;margin-bottom:10px}
+.progress-bar-fill{background:linear-gradient(90deg,#ff0844,#ff6b9d);height:100%;border-radius:5px;transition:width 0.8s ease;min-width:4px}
+.progress-next{font-size:12px;color:#aaa;display:flex;justify-content:space-between;align-items:center}
+.progress-next strong{color:#fff}
+
+/* Perks */
+.perks-section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:18px;margin-bottom:20px}
+.section-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.perk-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1f1f1f;font-size:13px}
+.perk-item:last-child{border-bottom:none}
+.perk-icon{color:#55ff55;font-size:14px;flex-shrink:0}
+
+/* All tiers list */
+.tiers-list{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:18px;margin-bottom:20px}
+.tier-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;margin-bottom:6px;background:#0a0a0a;border:1px solid transparent}
+.tier-row.current{border-color:#ff0844;background:rgba(255,8,68,0.08)}
+.tier-row.locked{opacity:0.5}
+.tier-emoji{font-size:28px;flex-shrink:0}
+.tier-info{flex:1}
+.tier-name{font-size:14px;font-weight:700}
+.tier-req{font-size:11px;color:#888;margin-top:2px}
+.tier-status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:4px 8px;border-radius:10px}
+.tier-status.achieved{background:rgba(9,255,9,0.15);color:#55ff55}
+.tier-status.current{background:rgba(255,8,68,0.15);color:#ff6b9d}
+.tier-status.locked{background:#1f1f1f;color:#666}
+
+/* Action breakdown */
+.actions-section{background:#141414;border:1px solid #1f1f1f;border-radius:12px;padding:18px}
+.action-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1f1f1f;font-size:13px}
+.action-row:last-child{border-bottom:none}
+.action-name{color:#ccc}
+.action-points{color:#ff6b9d;font-weight:700}
+
+.empty{text-align:center;padding:40px 20px;color:#666;font-size:14px}
+
+/* Bottom nav */
+.sn-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,0.97);border-top:1px solid #0d2744;display:flex;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:900;backdrop-filter:blur(16px)}
+.sn-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border:none;background:none;color:#5a8aaa;font-size:9px;text-transform:uppercase;letter-spacing:.06em;text-decoration:none}
+.sn-nav-item:hover,.sn-nav-item.active{color:#ff2255}
+.sn-nav-icon{font-size:22px;line-height:1}
+.sn-nav-create{font-size:28px;line-height:1;color:#ff2255;font-weight:800}
+.sn-nav-avatar{width:22px;height:22px;border-radius:50%;background:#333}
+
+@media(max-width:600px){
+  .container{padding:16px 12px}
+  .rank-badge-big{font-size:56px}
+  .rank-name{font-size:22px}
+  .rank-points{font-size:32px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/profile.html">&larr;</a>
+  <h1>🏆 Mi Rango</h1>
+  <a href="/leaderboard.html">📊</a>
+</div>
+
+<div class="container">
+
+<div id="authWarning" class="auth-warning" style="display:none">
+  Inicia sesión para ver tu rango. <a href="/index.html">Iniciar sesión</a>
+</div>
+
+<div id="mainContent" style="display:none">
+
+<div class="creator-select-wrap">
+  <div class="creator-select-label">Rango con este creator:</div>
+  <select id="creatorSelect" class="creator-select">
+    <option value="">— Rango global —</option>
+  </select>
+</div>
+
+<div id="rankDisplay" class="empty">⏳ Cargando tu rango...</div>
+
+</div>
+</div>
+
+<nav class="sn-nav">
+  <a class="sn-nav-item" href="/feed.html"><span class="sn-nav-icon">🏠</span>Inicio</a>
+  <a class="sn-nav-item" href="/explore.html"><span class="sn-nav-icon">🔍</span>Explorar</a>
+  <a class="sn-nav-item" href="/editor.html"><span class="sn-nav-create">+</span></a>
+  <a class="sn-nav-item" href="/reels.html"><span class="sn-nav-icon">▶</span>Reels</a>
+  <a class="sn-nav-item active" href="/profile.html"><div class="sn-nav-avatar">👤</div>Perfil</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+  const SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
+  const SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+  const sb=window.supabase.createClient(SB_URL,SB_KEY);
+  window.sb=sb;
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { document.getElementById('authWarning').style.display='block'; return; }
+  
+  document.getElementById('mainContent').style.display='block';
+  
+  // Helpers
+  function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+  
+  // Load creators the user follows (or subscribes to)
+  async function loadCreators(){
+    const sel = document.getElementById('creatorSelect');
+    const { data: followed } = await sb.from('follows').select('following_id').eq('follower_id', user.id);
+    const ids = (followed||[]).map(f => f.following_id);
+    if (!ids.length) return;
+    const { data: profiles } = await sb.from('profiles').select('id,username,display_name,avatar_url').in('id', ids).eq('is_creator', true);
+    (profiles||[]).forEach(function(p){
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = '@' + (p.username || 'creator');
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', function(){ loadRank(sel.value); });
+  }
+  
+  // Load rank data (optional: per creator or global)
+  async function loadRank(creatorId){
+    const display = document.getElementById('rankDisplay');
+    display.innerHTML = '<div class="empty">⏳ Cargando...</div>';
+    
+    let rank;
+    if (creatorId) {
+      const r = await sb.rpc('get_fan_rank', { p_fan_id: user.id, p_creator_id: creatorId });
+      if (r.error) { display.innerHTML = '<div class="empty">Error: ' + escapeHtml(r.error.message) + '</div>'; return; }
+      rank = r.data;
+    } else {
+      // Global: sum all points across all creators
+      const { data: logs } = await sb.from('fan_points_log').select('points').eq('user_id', user.id);
+      const totalPoints = (logs||[]).reduce(function(s,r){ return s + (r.points||0); }, 0);
+      // Determine rank by querying tiers
+      const { data: tiers } = await sb.from('fan_rank_tiers').select('*').order('min_points', { ascending: true });
+      let cur = tiers[0];
+      let next = null;
+      for (let i = 0; i < tiers.length; i++) {
+        if (tiers[i].min_points <= totalPoints) cur = tiers[i];
+        else { next = tiers[i]; break; }
+      }
+      rank = {
+        points: totalPoints,
+        rank_level: cur.rank_level,
+        rank_name: cur.name,
+        badge_emoji: cur.badge_emoji,
+        badge_color: cur.badge_color,
+        perks: cur.perks || [],
+        next_rank_name: next ? next.name : null,
+        next_rank_points: next ? next.min_points : null,
+        progress_pct: next ? Math.round((totalPoints / next.min_points) * 100) : 100
+      };
+    }
+    
+    // Action breakdown
+    let actionsQuery = sb.from('fan_points_log').select('action,points').eq('user_id', user.id);
+    if (creatorId) actionsQuery = actionsQuery.eq('creator_id', creatorId);
+    const { data: actionsRaw } = await actionsQuery;
+    const actionMap = {};
+    (actionsRaw||[]).forEach(function(r){ actionMap[r.action] = (actionMap[r.action]||0) + r.points; });
+    const actionsList = Object.entries(actionMap).sort(function(a,b){ return b[1]-a[1]; });
+    
+    // Load all tiers for the full list
+    const { data: allTiers } = await sb.from('fan_rank_tiers').select('*').order('rank_level');
+    
+    // Action labels
+    const actionLabels = {
+      'subscription':'💎 Suscripciones',
+      'like':'❤️ Likes',
+      'ppv_purchase':'🔓 Contenido PPV',
+      'initial':'🌟 Bienvenida',
+      'follow':'👤 Follows',
+      'tip':'💰 Tips',
+      'comment':'💬 Comentarios'
+    };
+    
+    // Render
+    display.innerHTML = 
+      '<div class="rank-main">' +
+        '<div class="rank-badge-big" style="color:' + rank.badge_color + '">' + rank.badge_emoji + '</div>' +
+        '<div class="rank-name">' + escapeHtml(rank.rank_name) + '</div>' +
+        '<div class="rank-level-text">Nivel ' + rank.rank_level + '</div>' +
+        '<div class="rank-points">' + rank.points.toLocaleString() + '</div>' +
+        '<div class="rank-points-label">Puntos acumulados</div>' +
+      '</div>' +
+      (rank.next_rank_name ?
+        '<div class="progress-section">' +
+          '<div class="progress-header">' +
+            '<span class="progress-label">Progreso a ' + escapeHtml(rank.next_rank_name) + '</span>' +
+            '<span class="progress-value">' + rank.progress_pct + '%</span>' +
+          '</div>' +
+          '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + Math.min(rank.progress_pct, 100) + '%"></div></div>' +
+          '<div class="progress-next">Faltan <strong>' + (rank.next_rank_points - rank.points).toLocaleString() + ' pts</strong> para subir</div>' +
+        '</div>' 
+        : '<div class="progress-section" style="text-align:center"><div style="font-size:14px;color:#55ff55;font-weight:700">👑 ¡Rango máximo alcanzado!</div></div>'
+      ) +
+      '<div class="perks-section">' +
+        '<div class="section-title">✨ Perks desbloqueados</div>' +
+        (rank.perks && rank.perks.length ? rank.perks.map(function(p){
+          return '<div class="perk-item"><span class="perk-icon">✓</span>' + escapeHtml(p) + '</div>';
+        }).join('') : '<div class="empty">Sin perks aún</div>') +
+      '</div>' +
+      '<div class="tiers-list">' +
+        '<div class="section-title">🎯 Todos los niveles</div>' +
+        (allTiers||[]).map(function(t){
+          const isCurrent = t.rank_level === rank.rank_level;
+          const isAchieved = t.min_points <= rank.points && !isCurrent;
+          const cls = isCurrent ? 'current' : (isAchieved ? '' : 'locked');
+          const statusCls = isCurrent ? 'current' : (isAchieved ? 'achieved' : 'locked');
+          const statusText = isCurrent ? 'Tú' : (isAchieved ? '✓ Desbloqueado' : '🔒 Bloqueado');
+          return '<div class="tier-row ' + cls + '">' +
+            '<div class="tier-emoji">' + t.badge_emoji + '</div>' +
+            '<div class="tier-info">' +
+              '<div class="tier-name">' + escapeHtml(t.name) + '</div>' +
+              '<div class="tier-req">' + t.min_points.toLocaleString() + ' pts</div>' +
+            '</div>' +
+            '<div class="tier-status ' + statusCls + '">' + statusText + '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+      (actionsList.length ?
+        '<div class="actions-section">' +
+          '<div class="section-title">📊 Cómo ganaste puntos</div>' +
+          actionsList.map(function(e){
+            return '<div class="action-row">' +
+              '<span class="action-name">' + (actionLabels[e[0]] || e[0]) + '</span>' +
+              '<span class="action-points">+' + e[1].toLocaleString() + '</span>' +
+            '</div>';
+          }).join('') +
+        '</div>' 
+        : ''
+      );
+  }
+  
+  await loadCreators();
+  await loadRank(null);
+})();
+</script>
+</body>
+                                                       </html>

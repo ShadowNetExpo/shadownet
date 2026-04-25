@@ -553,6 +553,10 @@ header{position:sticky;top:0;z-index:100;padding:12px 20px;background:rgba(1,2,1
 
 /* === STORIES BAR === */
 .stories-bar{display:flex;gap:12px;padding:12px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-bottom:1px solid #0d2744}
+.story-ring.live{background:linear-gradient(135deg,#ff2255,#ff0066,#aa0030);animation:liveRingPulse 1.6s ease-in-out infinite;box-shadow:0 0 16px rgba(255,34,85,.55)}
+@keyframes liveRingPulse{0%,100%{transform:scale(1);box-shadow:0 0 12px rgba(255,34,85,.5)}50%{transform:scale(1.06);box-shadow:0 0 22px rgba(255,34,85,.85)}}
+.story-live-tag{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#ff2255;color:#fff;font-size:8.5px;font-weight:900;letter-spacing:.06em;padding:1px 6px;border-radius:6px;border:1.5px solid #070f1e;font-family:Rajdhani,sans-serif;line-height:1.2;white-space:nowrap;pointer-events:none;text-transform:uppercase;box-shadow:0 0 8px rgba(255,34,85,.6)}
+.story-name.live{color:#ff2255;font-weight:800}
 .stories-bar::-webkit-scrollbar{display:none}
 .story-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex-shrink:0;width:68px}
 .story-ring{width:60px;height:60px;border-radius:50%;padding:3px;background:linear-gradient(135deg,#ff2255,#833ab4,#00e5ff);position:relative}
@@ -3426,6 +3430,68 @@ function openStoryCreator(){
   input.click();
 }
 setTimeout(function(){loadStories();},2000);
+
+// === LIVE DISCOVERY STRIP ===
+async function renderLiveStrip(){
+  try {
+    var r = await sb.from('live_streams').select('host_id,started_at').eq('is_active', true).order('started_at',{ascending:false}).limit(20);
+    if (!r.data || !r.data.length) {
+      // remove any stale live items if no one is live now
+      document.querySelectorAll('.story-item.live').forEach(function(el){el.remove();});
+      return;
+    }
+    var hostIds = r.data.map(function(x){return x.host_id;});
+    var p = await sb.from('profiles').select('id,username,avatar_url').in('id', hostIds);
+    var profMap = {};
+    (p.data||[]).forEach(function(pr){profMap[pr.id]=pr;});
+    var bar = document.getElementById('storiesBar');
+    if (!bar) return;
+    // Remove any prior live items so we re-render fresh
+    bar.querySelectorAll('.story-item.live').forEach(function(el){el.remove();});
+    // Get the "Tu historia" first child to insert AFTER it
+    var firstChild = bar.firstElementChild;
+    r.data.forEach(function(row){
+      var prof = profMap[row.host_id];
+      if (!prof) return;
+      // Skip if it's the current user (they're hosting themselves, no need to "watch" their own live from feed)
+      if (window.currentUser && prof.id === window.currentUser.id) return;
+      var item = document.createElement('div');
+      item.className = 'story-item live';
+      item.onclick = function(){ window.location.href = '/live.html?creator=' + encodeURIComponent(prof.username); };
+      var avHTML = prof.avatar_url 
+        ? '<img src="' + prof.avatar_url + '" alt="" onerror="this.remove()">'
+        : (prof.username||'?').charAt(0).toUpperCase();
+      item.innerHTML = '<div class="story-ring live" style="position:relative">' +
+        '<div class="story-avatar">' + avHTML + '</div>' +
+        '<div class="story-live-tag">EN VIVO</div>' +
+        '</div>' +
+        '<div class="story-name live">@' + (prof.username||'live') + '</div>';
+      // Insert after "Tu historia" (firstChild) so live shows prominently right after
+      if (firstChild && firstChild.nextSibling) {
+        bar.insertBefore(item, firstChild.nextSibling);
+      } else {
+        bar.appendChild(item);
+      }
+    });
+  } catch(e) { console.warn('[liveStrip]', e); }
+}
+setTimeout(function(){renderLiveStrip();}, 2200);
+// Refresh every 30 seconds to catch new lives + dead lives
+setInterval(function(){renderLiveStrip();}, 30000);
+// Realtime: catch live state changes
+(function(){
+  function attachLiveRealtime(){
+    if (!window.sb || !window.sb.channel) { setTimeout(attachLiveRealtime, 1000); return; }
+    try {
+      window.sb.channel('live-strip-feed')
+        .on('postgres_changes', {event:'*', schema:'public', table:'live_streams'}, function(){
+          renderLiveStrip();
+        }).subscribe();
+    } catch(e){}
+  }
+  attachLiveRealtime();
+})();
+
 
 
 // === SCHEDULED POSTS ===

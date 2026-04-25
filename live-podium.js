@@ -323,19 +323,27 @@
       await guestClient.publish([guestVideoTrack, guestAudioTrack]);
       
       // CRITICAL: leave the audience agoraClient to avoid 2 clients in same channel.
-      // The guest now uses guestClient for everything (publish + subscribe).
       try {
         if (window.agoraClient && !iAmHost) {
           await window.agoraClient.leave();
-          console.log('[podium] left audience client, now using guestClient');
         }
       } catch(e){ console.warn('[podium] failed to leave audience:', e); }
 
       var leaveBtn = document.getElementById('spLeaveBtn');
       if (leaveBtn) leaveBtn.classList.add('visible');
 
-      // Force re-render after leaving the audience client
-      setTimeout(renderGrid, 300);
+      // Re-render and then render the guest's OWN cell with their local track via bypass
+      setTimeout(function(){
+        renderGrid();
+        setTimeout(function(){
+          // Render my own video locally in my cell
+          var myUid = uidForGuest(window.currentUser.id);
+          var myCell = document.getElementById('sp-cell-vid-' + myUid);
+          if (myCell && guestVideoTrack && guestVideoTrack.getMediaStreamTrack) {
+            playTrackInContainer(guestVideoTrack, myCell, true /*muted local*/);
+          }
+        }, 300);
+      }, 300);
     } catch(e) {
       console.error('[podium] guest publish error:', e);
       alert('Error al unirse al podio: ' + e.message);
@@ -400,13 +408,15 @@
   function handleSubscribed(user, mediaType){
     if (mediaType === 'video') {
       renderGrid();
-      // Render after grid creates the cell
+      // Render after grid creates the cell - use bypass for reliability
       setTimeout(function(){
         var el = document.getElementById('sp-cell-vid-' + user.uid);
-        if (el && user.videoTrack) {
+        if (el && user.videoTrack && user.videoTrack.getMediaStreamTrack) {
+          playTrackInContainer(user.videoTrack, el, false);
+        } else if (el && user.videoTrack && user.videoTrack.play) {
           try { user.videoTrack.play(el); } catch(e){}
         }
-      }, 60);
+      }, 250);
     } else if (mediaType === 'audio') {
       try { user.audioTrack.play(); } catch(e){}
       subAudioPlayers[user.uid] = user.audioTrack;
@@ -453,21 +463,29 @@
         liveVid.style.position = ''; liveVid.style.left=''; liveVid.style.top='';
         liveVid.style.width=''; liveVid.style.height='';
         liveVid.style.display = '';
-        // Re-play the track back into the original container
+        // Re-play the track back into the original #liveVideo via srcObject bypass
         setTimeout(function(){
           try {
+            var lv2 = document.getElementById('liveVideo');
+            if (!lv2) return;
             if (iAmHost) {
-              var lv = window.localVideoTrack;
-              if (!lv) {
+              var t = window.localVideoTrack;
+              if (!t) {
                 var lt = (window.agoraClient && window.agoraClient.localTracks) || [];
-                lv = lt.find && lt.find(function(t){ return t.trackMediaType === 'video'; });
+                t = lt.find && lt.find(function(x){ return x.trackMediaType === 'video'; });
               }
-              if (lv && lv.play) lv.play('liveVideo');
+              if (t && t.getMediaStreamTrack) {
+                lv2.srcObject = new MediaStream([t.getMediaStreamTrack()]);
+                lv2.muted = true; lv2.play().catch(function(){});
+              }
             } else {
               var clientRef = (myGuestRole === 'active' && guestClient) ? guestClient : window.agoraClient;
               var rs = (clientRef && clientRef.remoteUsers) || [];
               var hr = rs.find && rs.find(function(u){ return u.videoTrack; });
-              if (hr && hr.videoTrack) hr.videoTrack.play('liveVideo');
+              if (hr && hr.videoTrack && hr.videoTrack.getMediaStreamTrack) {
+                lv2.srcObject = new MediaStream([hr.videoTrack.getMediaStreamTrack()]);
+                lv2.play().catch(function(){});
+              }
             }
           } catch(e){ console.warn('[podium] restore replay err:', e); }
         }, 250);
@@ -506,24 +524,29 @@
     // Hide original #liveVideo (don't remove, we'll restore it on teardown)
     var liveVid = document.getElementById('liveVideo');
     if (liveVid) liveVid.style.display = 'none';
-    // Re-play the host's video track in the new container
+    // Re-play the host's video track in the new container.
+    // BYPASS: Agora's track.play() has a stale videoElement bug after multiple re-mounts.
+    // We use the raw MediaStreamTrack and srcObject directly which always works.
     setTimeout(function(){
       try {
         if (iAmHost) {
-          // Use global localVideoTrack from live.html (more reliable than client.localTracks)
           var lv = window.localVideoTrack;
           if (!lv) {
             var lt = (window.agoraClient && window.agoraClient.localTracks) || [];
             lv = lt.find && lt.find(function(t){ return t.trackMediaType === 'video'; });
           }
-          if (lv && lv.play) lv.play(hostVidDiv);
-          else console.warn('[podium] no local video track to play');
+          if (lv && lv.getMediaStreamTrack) {
+            playTrackInContainer(lv, hostVidDiv, true /*muted*/);
+          } else { console.warn('[podium] no local video track'); }
         } else {
-          // For viewer: prefer guestClient (if I'm an active guest) over agoraClient
           var clientRef = (myGuestRole === 'active' && guestClient) ? guestClient : window.agoraClient;
           var rs = (clientRef && clientRef.remoteUsers) || [];
           var hr = rs.find && rs.find(function(u){ return u.videoTrack; });
-          if (hr && hr.videoTrack) hr.videoTrack.play(hostVidDiv);
+          if (hr && hr.videoTrack && hr.videoTrack.getMediaStreamTrack) {
+            playTrackInContainer(hr.videoTrack, hostVidDiv, false);
+          } else if (hr && hr.videoTrack && hr.videoTrack.play) {
+            try { hr.videoTrack.play(hostVidDiv); } catch(e) { console.warn('[podium] remote play err', e); }
+          }
         }
       } catch(e){ console.warn('[podium] host replay err:', e); }
     }, 250);
@@ -553,6 +576,33 @@
         if (ru && ru.videoTrack) try { ru.videoTrack.play(subVideoEls[uid]); } catch(e){}
       }
     });
+  }
+
+  // Helper: render an Agora video track into a DOM container by bypassing
+  // Agora's broken track.play() (stale videoElement bug after multiple re-mounts).
+  // Uses raw MediaStreamTrack via srcObject which always works.
+  function playTrackInContainer(agoraTrack, container, muted){
+    if (!agoraTrack || !container) return;
+    try {
+      var mst = agoraTrack.getMediaStreamTrack();
+      if (!mst) return;
+      // Reuse existing video element if present, else create
+      var v = container.querySelector('video.sp-bypass-video');
+      if (!v) {
+        v = document.createElement('video');
+        v.className = 'sp-bypass-video';
+        v.autoplay = true;
+        v.playsInline = true;
+        v.setAttribute('playsinline', '');
+        v.setAttribute('webkit-playsinline', '');
+        v.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+        container.innerHTML = '';
+        container.appendChild(v);
+      }
+      v.muted = !!muted;
+      v.srcObject = new MediaStream([mst]);
+      v.play().catch(function(e){ console.warn('[podium] video.play() err:', e); });
+    } catch(e){ console.warn('[podium] playTrackInContainer err:', e); }
   }
 
   // Map user_id (uuid) to a stable Agora UID. Server signs token with uid=0 (any),

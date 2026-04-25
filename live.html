@@ -690,7 +690,7 @@ function endLive(){
   (document.getElementById("endViewers")||{}).textContent =maxViewers;
   (document.getElementById("endDuration")||{}).textContent =Math.floor(e/60)+"m "+e%60+"s";
   (document.getElementById("endGifts")||{}).textContent =totalGiftsReceived;
-  var _es=document.getElementById("endScreen");if(_es)_es.classList.add("show");
+  var _es=document.getElementById("endScreen");if(_es)_es.classList.add("active");
 
   // Mark live as ended in DB
   (function(){

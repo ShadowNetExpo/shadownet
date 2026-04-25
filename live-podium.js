@@ -425,6 +425,21 @@
       if (liveVid) {
         liveVid.style.position = ''; liveVid.style.left=''; liveVid.style.top='';
         liveVid.style.width=''; liveVid.style.height='';
+        liveVid.style.display = '';
+        // Re-play the track back into the original container
+        setTimeout(function(){
+          try {
+            if (iAmHost) {
+              var lt = (window.agoraClient && window.agoraClient.localTracks) || [];
+              var lv = lt.find && lt.find(function(t){ return t.trackMediaType === 'video'; });
+              if (lv) lv.play(liveVid);
+            } else {
+              var rs = (window.agoraClient && window.agoraClient.remoteUsers) || [];
+              var hr = rs.find && rs.find(function(u){ return u.videoTrack; });
+              if (hr && hr.videoTrack) hr.videoTrack.play(liveVid);
+            }
+          } catch(e){ console.warn('[podium] restore replay err:', e); }
+        }, 80);
       }
       wrap.style.gridTemplateColumns = '';
       wrap.style.gridTemplateRows = '';
@@ -438,22 +453,42 @@
     wrap.style.gridTemplateColumns = 'repeat('+g.cols+', 1fr)';
     wrap.style.gridTemplateRows = 'repeat('+g.rows+', 1fr)';
 
-    // Host cell: reuse the existing #liveVideo element by wrapping
+    // Host cell: do NOT move #liveVideo (breaks Agora track binding).
+    // Instead, create a new container, hide #liveVideo, and re-play the local/remote track.
     var hostCell = document.createElement('div');
     hostCell.className = 'sp-cell';
     hostCell.id = 'sp-cell-host';
     var hostName = (iAmHost ? (window.currentProfile && window.currentProfile.username) : (profileCache[hostId] && profileCache[hostId].username)) || 'host';
-    hostCell.innerHTML = '<div class="sp-cell-host">HOST</div>' +
-      '<div class="sp-cell-name">@'+esc(hostName)+'</div>';
-    // Move existing liveVideo into the cell (if not already there)
-    var liveVid = document.getElementById('liveVideo');
-    if (liveVid && liveVid.parentElement !== hostCell) {
-      liveVid.style.position='relative';
-      liveVid.style.left=''; liveVid.style.top='';
-      liveVid.style.width='100%'; liveVid.style.height='100%';
-      hostCell.insertBefore(liveVid, hostCell.firstChild);
-    }
+    var hostVidDiv = document.createElement('div');
+    hostVidDiv.id = 'sp-cell-vid-host';
+    hostVidDiv.style.cssText = 'width:100%;height:100%;background:#000';
+    hostCell.appendChild(hostVidDiv);
+    var hostBadge = document.createElement('div');
+    hostBadge.className = 'sp-cell-host';
+    hostBadge.textContent = 'HOST';
+    hostCell.appendChild(hostBadge);
+    var hostNameEl = document.createElement('div');
+    hostNameEl.className = 'sp-cell-name';
+    hostNameEl.textContent = '@' + hostName;
+    hostCell.appendChild(hostNameEl);
     wrap.appendChild(hostCell);
+    // Hide original #liveVideo (don't remove, we'll restore it on teardown)
+    var liveVid = document.getElementById('liveVideo');
+    if (liveVid) liveVid.style.display = 'none';
+    // Re-play the host's video track in the new container
+    setTimeout(function(){
+      try {
+        if (iAmHost) {
+          var lt = (window.agoraClient && window.agoraClient.localTracks) || [];
+          var lv = lt.find && lt.find(function(t){ return t.trackMediaType === 'video'; });
+          if (lv) lv.play(hostVidDiv);
+        } else {
+          var rs = (window.agoraClient && window.agoraClient.remoteUsers) || [];
+          var hr = rs.find && rs.find(function(u){ return u.videoTrack; });
+          if (hr && hr.videoTrack) hr.videoTrack.play(hostVidDiv);
+        }
+      } catch(e){ console.warn('[podium] host replay err:', e); }
+    }, 80);
 
     // Guest cells
     active.sort(function(a,b){ return (a.position||0) - (b.position||0); });

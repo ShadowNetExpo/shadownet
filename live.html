@@ -792,7 +792,7 @@ document.addEventListener("DOMContentLoaded",function(){
   <audio id="sn-viewer-audio" autoplay></audio>
   <div class="sn-viewer-overlay">
     <div class="sn-viewer-top">
-      <button class="sn-viewer-back" onclick="history.back()">&#8592;</button>
+      <div style="display:flex;gap:8px;align-items:center"><button class="sn-viewer-back" onclick="history.back()">&#8592;</button><button class="sn-viewer-back" title="Reportar este live" onclick="(function(){var h=new URLSearchParams(location.search).get('host');if(h&&window.snOpenReport)window.snOpenReport({type:'user',id:h});else if(window.showToastMsg)showToastMsg('Funci\u00f3n no disponible',true);})()">&#128681;</button></div>
       <div class="sn-viewer-host-info">
         <img id="sn-viewer-avatar" class="sn-viewer-avatar" src="" alt="">
         <div>

@@ -305,10 +305,10 @@
       var resp = await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
-        body: JSON.stringify({channel: hostChannel, uid: window.currentUser.id, role:'host'})
+        body: JSON.stringify({channel: hostChannel, uid: window.currentUser.id, role:'guest', numericUid: uidForGuest(window.currentUser.id)})
       });
       var d = await resp.json();
-      if (!d.token || !d.appId) { console.warn('[podium] no token', d); return; }
+      if (!d.token || !d.appId) { console.warn('[podium] no token', d); alert('Error obteniendo token: ' + (d.error||'unknown')); return; }
 
       guestClient = window.AgoraRTC.createClient({mode:'live', codec:'vp8'});
       await guestClient.setClientRole('host');
@@ -319,7 +319,7 @@
       guestVideoTrack = await window.AgoraRTC.createCameraVideoTrack({encoderConfig:{width:480,height:640,frameRate:24,bitrateMin:300,bitrateMax:1000}});
       guestAudioTrack = await window.AgoraRTC.createMicrophoneAudioTrack({encoderConfig:'speech_standard'});
 
-      await guestClient.join(d.appId, hostChannel, d.token, 0);
+      await guestClient.join(d.appId, hostChannel, d.token, uidForGuest(window.currentUser.id));
       await guestClient.publish([guestVideoTrack, guestAudioTrack]);
 
       var leaveBtn = document.getElementById('spLeaveBtn');
@@ -485,7 +485,15 @@
   // Map user_id (uuid) to a stable Agora UID. Server signs token with uid=0 (any),
   // and Agora assigns a numeric uid at join time. The mapping below is best-effort
   // and only used for rendering; the cell looks up by the actual remote user uid.
-  function uidForGuest(userId){ return userId; }
+  function uidForGuest(userId){
+    if (!userId) return 0;
+    // Strip hyphens, take first 8 hex chars -> 32-bit unsigned
+    var hex = String(userId).replace(/-/g, '').substring(0, 8);
+    var n = parseInt(hex, 16);
+    if (isNaN(n) || n <= 0) n = 1;
+    if (n >= 4294967295) n = n % 4294967294 + 1;
+    return n;
+  }
 
   // ---------- attach host subscribers when ready ----------
   if (typeof window !== 'undefined') {

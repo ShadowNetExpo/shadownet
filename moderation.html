@@ -155,42 +155,21 @@ async function loadReports(){
   var listEl = document.getElementById('modList');
   listEl.innerHTML = '<div class="mod-loading">Cargando...</div>';
   
-  // For pending: use RPC. For other tabs: query reports table directly (admin RLS allows it).
-  if (currentTab === 'pending') {
-    var r = await sb.rpc('get_pending_reports', { p_limit: 100, p_offset: 0 });
-    if (r.error) {
-      if (r.error.message && r.error.message.indexOf('forbidden') >= 0) {
-        listEl.innerHTML = '<div class="mod-noaccess"><div class="mod-noaccess-icon">🔒</div><div class="mod-noaccess-txt">Acceso denegado</div><div class="mod-noaccess-sub">Esta sección es solo para administradores.</div></div>';
-      } else {
-        listEl.innerHTML = '<div class="mod-empty">Error: ' + esc(r.error.message) + '</div>';
-      }
-      return;
+  var r = await sb.rpc('get_reports_by_status', { 
+    p_status: currentTab, 
+    p_limit: 100, 
+    p_offset: 0 
+  });
+  if (r.error) {
+    var msg = r.error.message || '';
+    if (msg.indexOf('forbidden') >= 0 || msg.indexOf('admin') >= 0) {
+      listEl.innerHTML = '<div class="mod-noaccess"><div class="mod-noaccess-icon">🔒</div><div class="mod-noaccess-txt">Acceso denegado</div><div class="mod-noaccess-sub">Esta sección es solo para administradores.</div></div>';
+    } else {
+      listEl.innerHTML = '<div class="mod-empty">Error: ' + esc(msg) + '</div>';
     }
-    renderRows(r.data || []);
-  } else {
-    var r2 = await fetch(SB+'/rest/v1/reports?status=eq.'+currentTab+'&order=reviewed_at.desc.nullslast,created_at.desc&limit=100&select=id,content_type,content_id,reason,description,created_at,reviewed_at,status,action_taken,admin_note,reporter:reporter_id(id,username,avatar_url),reported:reported_user_id(id,username,avatar_url)', {
-      headers: {'apikey':AK,'Authorization':'Bearer '+window._tok}
-    });
-    if (!r2.ok) {
-      listEl.innerHTML = '<div class="mod-empty">Error: ' + r2.status + '</div>';
-      return;
-    }
-    var data = await r2.json();
-    // Normalize to RPC shape
-    var rows = (data||[]).map(function(d){
-      return {
-        id: d.id, content_type: d.content_type, content_id: d.content_id,
-        reason: d.reason, description: d.description, created_at: d.created_at,
-        reporter_username: d.reporter && d.reporter.username,
-        reporter_avatar: d.reporter && d.reporter.avatar_url,
-        reported_username: d.reported && d.reported.username,
-        reported_avatar: d.reported && d.reported.avatar_url,
-        status: d.status, action_taken: d.action_taken, admin_note: d.admin_note,
-        reviewed_at: d.reviewed_at
-      };
-    });
-    renderRows(rows);
+    return;
   }
+  renderRows(r.data || []);
   loadStats();
 }
 

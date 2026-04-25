@@ -376,10 +376,24 @@ function dRender(){
       }
       _uid=s.data.session.user.id;
       _tok=s.data.session.access_token;
-      // Load unread notifications badge
-      fetch(_SB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_AK,"Authorization":"Bearer "+_tok},body:JSON.stringify({p_user_id:_uid})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});
-      if(!_NCh){_NCh=window.sb.channel("notif:"+_uid).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_uid},function(p){var n=p.new;if(!n)return;var b=document.getElementById("sn-nbc");var cur=parseInt((b&&b.textContent)||"0")||0;snNSB(cur+1);}).subscribe();}
-      dRender();
+      // Creator-only guard: this dashboard is for creators. Fans get redirected to /profile.html
+      fetch(_SB+"/rest/v1/profiles?id=eq."+_uid+"&select=role,is_creator,is_admin",{headers:{"apikey":_AK,"Authorization":"Bearer "+_tok}}).then(function(r){return r.json();}).then(function(d){
+        var p = d && d[0] || {};
+        var isCreator = (p.role === 'creator') || p.is_creator === true || p.is_admin === true;
+        if (!isCreator) {
+          alert('Este dashboard es para creadores. Te redirigimos a tu perfil.\nSi quer\u00e9s convertirte en creador, ve a Configuraci\u00f3n > Cuenta.');
+          location.replace('/profile.html');
+          return;
+        }
+        // Load unread notifications badge
+        fetch(_SB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_AK,"Authorization":"Bearer "+_tok},body:JSON.stringify({p_user_id:_uid})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});
+        if(!_NCh){_NCh=window.sb.channel("notif:"+_uid).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_uid},function(p){var n=p.new;if(!n)return;var b=document.getElementById("sn-nbc");var cur=parseInt((b&&b.textContent)||"0")||0;snNSB(cur+1);}).subscribe();}
+        dRender();
+      }).catch(function(e){
+        console.warn('[dash] guard fetch err:', e);
+        // On network error, allow through to avoid locking out legitimate creators
+        dRender();
+      });
     });
   }
   // Load Supabase

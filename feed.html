@@ -3434,6 +3434,8 @@ setTimeout(function(){loadStories();},2000);
 // === LIVE DISCOVERY STRIP ===
 async function renderLiveStrip(){
   try {
+    // Cleanup stale lives first (any live with no heartbeat in 90s gets closed)
+    try { await sb.rpc('cleanup_stale_lives'); } catch(_){}
     var r = await sb.from('live_streams').select('host_id,started_at').eq('is_active', true).order('started_at',{ascending:false}).limit(20);
     if (!r.data || !r.data.length) {
       // remove any stale live items if no one is live now

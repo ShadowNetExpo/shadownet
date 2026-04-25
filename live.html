@@ -455,7 +455,7 @@ async function initAgoraHost(){
     agoraClient=AgoraRTC.createClient({mode:"live",codec:"vp8"});
     await agoraClient.setClientRole("host");
     localVideoTrack=await AgoraRTC.createCameraVideoTrack({facingMode:currentFacingMode,encoderConfig:{width:720,height:1280,frameRate:30,bitrateMin:600,bitrateMax:2000}});
-    localAudioTrack=await AgoraRTC.createMicrophoneAudioTrack({encoderConfig:"speech_standard"});
+    localAudioTrack=await AgoraRTC.createMicrophoneAudioTrack({encoderConfig:"speech_standard",AEC:true,AGC:true,ANS:true});
     await (async function(){var s=await sb.auth.getSession();var t=s.data&&s.data.session&&s.data.session.access_token;var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({channel:AGORA_CHANNEL,uid:currentUser.id,role:'host'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,0);})();
     await agoraClient.publish([localVideoTrack,localAudioTrack]);
     localVideoTrack.play("liveVideo");
@@ -1605,10 +1605,20 @@ function startCountdown(){
     else{
       clearInterval(interval);
       btn.innerHTML='LIVE!';
-      // Stop pre-live camera
-      if(_preLiveStream){_preLiveStream.getTracks().forEach(function(t){t.stop();});}
-      // Hide pre-live, show main live
-      document.getElementById('preLiveOverlay').classList.add('hidden');
+      // Stop pre-live camera FULLY: stop all tracks + clear srcObject + null the ref
+      try {
+        if(_preLiveStream){
+          _preLiveStream.getTracks().forEach(function(t){ try{t.stop();}catch(_){} });
+          _preLiveStream = null;
+        }
+        var pv = document.getElementById('preLiveVideo');
+        if(pv){ try{ pv.srcObject = null; pv.pause(); }catch(_){}}
+      } catch(_){}
+      // Small delay to let the OS release the camera before Agora grabs it
+      setTimeout(function(){
+        document.getElementById('preLiveOverlay').classList.add('hidden');
+      }, 150);
+      // (the rest continues immediately - go() can wait for getUserMedia)
       // Store title
       window._liveTitle = document.getElementById('preLiveTitle').value || 'Live de ' + (window.currentUser ? window.currentUser.email.split('@')[0] : 'Creador');
       window._liveCategory = document.querySelector('.pre-live-cat.active') ? document.querySelector('.pre-live-cat.active').textContent : 'General';

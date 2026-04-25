@@ -706,7 +706,7 @@ window._snStartHeartbeat = function(){
   if(window._snHeartbeatTimer) return;
   window._snHeartbeatTimer = setInterval(function(){
     if(window.sb && window.sb.rpc){
-      try { window.sb.rpc('live_heartbeat').catch(function(){}); } catch(_){}
+      try { window.sb.rpc('live_heartbeat').catch(function(e){console.warn('[live] heartbeat err:',e);}); } catch(e){console.warn('[live] heartbeat sync err:',e);}
     }
   }, 20000);
 };
@@ -731,8 +731,8 @@ window._snStartHeartbeat = function(){
           method:'POST', keepalive:true,
           headers:{'Content-Type':'application/json','apikey':AK,'Authorization':'Bearer '+tok},
           body: JSON.stringify({})
-        }).catch(function(){});
-      }).catch(function(){});
+        }).catch(function(e){console.warn('[live] unload close err:',e);});
+      }).catch(function(e){console.warn('[live] unload session err:',e);});
     } catch(_){}
   }
   // pagehide is more reliable than beforeunload on mobile
@@ -1072,8 +1072,9 @@ sb.auth.getSession().then(async function(r){
     initAgoraHost();
     startLiveTimer();
     subscribeLiveChannel();
-    // Save live to DB
-    await sb.from('live_streams').insert({host_id:currentUser.id,title:currentProfile.username+' en vivo',is_active:true,started_at:new Date().toISOString()}).catch(function(){});
+    // NOTE: live_streams row creation is now handled by the agora-token edge function (v28+)
+    // which sets all required fields including agora_channel and last_heartbeat_at.
+    // Doing it again here was causing silent conflicts and stale heartbeat values.
     // Start heartbeat to keep is_active=true (cleanup_stale_lives kills lives w/o heartbeat in 90s)
     if(window._snStartHeartbeat) window._snStartHeartbeat();
   }

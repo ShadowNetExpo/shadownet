@@ -195,6 +195,25 @@ body{background:#080e1a;color:#e0e8f0;font-family:Inter,sans-serif;min-height:10
     </div>
   </div>
   <div class="sn-sec">
+    <div class="sn-sec-t">💰 Almas últimos 30 días</div>
+    <div class="sn-card" style="padding:16px">
+      <div id="d-almas-chart" style="height:140px;position:relative"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:#5a8aaa;font-family:Rajdhani,sans-serif">
+        <span>30d</span>
+        <span id="d-almas-30d-total" style="color:#ffaa00;font-weight:800"></span>
+        <span>hoy</span>
+      </div>
+    </div>
+  </div>
+  <div class="sn-sec">
+    <div class="sn-sec-t">📹 Lives este mes</div>
+    <div class="sn-card" style="display:flex;justify-content:space-around;text-align:center;padding:14px">
+      <div><div class="kpi-val" id="d-lives-count" style="font-size:22px">-</div><div class="kpi-lbl">Sesiones</div></div>
+      <div><div class="kpi-val" id="d-lives-mins" style="font-size:22px">-</div><div class="kpi-lbl">Minutos</div></div>
+      <div><div class="kpi-val" id="d-lives-status" style="font-size:22px">-</div><div class="kpi-lbl">Estado</div></div>
+    </div>
+  </div>
+  <div class="sn-sec">
     <div class="sn-sec-t">Top Posts</div>
     <div class="sn-card" id="d-posts"><div class="sn-empty">Cargando...</div></div>
   </div>
@@ -238,19 +257,66 @@ function dKPIs(){
   }).catch(function(){});
 }
 function dEarnings(){
-  var start=new Date();start.setDate(1);start.setHours(0,0,0,0);
-  var since=start.toISOString();
-  Promise.all([
-    fetch(_SB+"/rest/v1/subscriptions?creator_id=eq."+_uid+"&created_at=gte."+since+"&select=amount",{headers:{"apikey":_AK,"Authorization":"Bearer "+_tok}}).then(function(r){return r.json();}),
-    fetch(_SB+"/rest/v1/ppv_purchases?creator_id=eq."+_uid+"&created_at=gte."+since+"&select=almas_amount",{headers:{"apikey":_AK,"Authorization":"Bearer "+_tok}}).then(function(r){return r.json();})
-  ]).then(function(results){
-    var subAmt=(results[0]||[]).reduce(function(s,r){return s+parseFloat(r.amount||0);},0);
-    var ppvAmt=(results[1]||[]).reduce(function(s,r){return s+parseFloat(r.almas_amount||0)*0.9;},0);
-    document.getElementById("e-subs").textContent=subAmt.toFixed(2)+"\u20AC";
-    document.getElementById("e-ppv").textContent=ppvAmt.toFixed(0)+" Almas";
-    document.getElementById("e-tips").textContent="-";
-    document.getElementById("e-total").textContent=(subAmt>0?(subAmt.toFixed(2)+"\u20AC"):"")+(ppvAmt>0?" + "+ppvAmt.toFixed(0)+" Almas":"") || "0";
-  }).catch(function(){});
+  // Single consolidated RPC for: earnings this month, daily chart, lives stats
+  fetch(_SB+"/rest/v1/rpc/get_creator_dashboard_stats",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","apikey":_AK,"Authorization":"Bearer "+_tok},
+    body:JSON.stringify({p_creator_id:_uid})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(!d) return;
+    var em = d.earnings_this_month || {};
+    var lv = d.lives || {};
+    var subEur = parseFloat(em.subs_eur||0);
+    var ppvAlmas = parseInt(em.ppv_almas||0,10);
+    var tipsAlmas = parseInt(em.tips_almas||0,10);
+    var giftsAlmas = parseInt(em.gifts_almas||0,10);
+    document.getElementById("e-subs").textContent = subEur.toFixed(2) + "\u20AC";
+    document.getElementById("e-ppv").textContent = ppvAlmas + " Almas";
+    document.getElementById("e-tips").textContent = (tipsAlmas + giftsAlmas) + " Almas";
+    var totalAlmas = ppvAlmas + tipsAlmas + giftsAlmas;
+    var totalLine = (subEur>0 ? subEur.toFixed(2)+"\u20AC" : "") + (totalAlmas>0 ? (subEur>0?" + ":"")+totalAlmas+" Almas" : "");
+    document.getElementById("e-total").textContent = totalLine || "0";
+    // Lives widget
+    var lc=document.getElementById("d-lives-count"), lm=document.getElementById("d-lives-mins"), ls=document.getElementById("d-lives-status");
+    if(lc) lc.textContent = lv.sessions_count || 0;
+    if(lm) lm.textContent = lv.total_minutes || 0;
+    if(ls) ls.innerHTML = lv.currently_live ? '<span style="color:#ff2255">EN VIVO</span>' : '<span style="color:#5a8aaa">Offline</span>';
+    // Almas chart
+    drawAlmasChart(d.daily || []);
+  }).catch(function(e){console.warn("[dash] stats err:",e);});
+}
+
+function drawAlmasChart(daily){
+  var c = document.getElementById("d-almas-chart");
+  if(!c) return;
+  var w = c.clientWidth || 320, h = 140, pad = 6;
+  var max = 1;
+  daily.forEach(function(p){ if(p.total > max) max = p.total; });
+  var sum30 = daily.reduce(function(s,p){return s+(p.total||0);},0);
+  var totalEl = document.getElementById("d-almas-30d-total");
+  if(totalEl) totalEl.textContent = sum30 + " Almas";
+  if(daily.length === 0){ c.innerHTML = '<div style="text-align:center;padding:40px;color:#333;font-family:Rajdhani,sans-serif;font-size:13px">Sin datos a\u00fan</div>'; return; }
+  var step = (w - pad*2) / Math.max(1, daily.length-1);
+  var pts = daily.map(function(p,i){
+    var x = pad + i*step;
+    var y = h - pad - ((p.total||0)/max) * (h - pad*2);
+    return [x,y,p];
+  });
+  var line = pts.map(function(p,i){return (i===0?"M":"L")+p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ");
+  var area = line + " L"+pts[pts.length-1][0].toFixed(1)+","+(h-pad)+" L"+pts[0][0].toFixed(1)+","+(h-pad)+" Z";
+  var dots = pts.map(function(p){
+    if((p[2].total||0)===0) return '';
+    return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.5" fill="#ffaa00"><title>'+p[2].d+': '+p[2].total+' Almas</title></circle>';
+  }).join('');
+  c.innerHTML = '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="width:100%;height:100%;display:block">' +
+    '<defs><linearGradient id="dchart" x1="0" x2="0" y1="0" y2="1">' +
+      '<stop offset="0%" stop-color="#ffaa00" stop-opacity="0.45"/>' +
+      '<stop offset="100%" stop-color="#ffaa00" stop-opacity="0"/>' +
+    '</linearGradient></defs>' +
+    '<path d="'+area+'" fill="url(#dchart)"/>' +
+    '<path d="'+line+'" fill="none" stroke="#ffaa00" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+    dots +
+  '</svg>';
 }
 function dPosts(){
   fetch(_SB+"/rest/v1/posts?user_id=eq."+_uid+"&order=like_count.desc&limit=5&select=content,image_url,like_count,comment_count,view_count",{headers:{"apikey":_AK,"Authorization":"Bearer "+_tok}})

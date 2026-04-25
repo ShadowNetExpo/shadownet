@@ -693,26 +693,52 @@ function endLive(){
   (document.getElementById("endGifts")||{}).textContent =totalGiftsReceived;
   var _es=document.getElementById("endScreen");if(_es)_es.classList.add("active");
 
-  // Mark live as ended in DB
-  (function(){
-    var SB='https://cdokplvoqivducsqrejt.supabase.co';
-    var AK='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-    if(window.sb && window.sb.auth){
+  // Mark live as ended in DB - use end_my_live RPC (no params, closes all my active lives)
+  if(window.sb && window.sb.rpc){
+    try { window.sb.rpc('end_my_live').then(function(){console.log('[live] closed');}).catch(function(e){console.warn('end_my_live err:',e);}); } catch(_){}
+  }
+  // Stop heartbeat
+  if(window._snHeartbeatTimer){ clearInterval(window._snHeartbeatTimer); window._snHeartbeatTimer = null; }
+}
+
+// === HOST: heartbeat every 20s while live so cleanup_stale_lives doesn't kill us ===
+window._snStartHeartbeat = function(){
+  if(window._snHeartbeatTimer) return;
+  window._snHeartbeatTimer = setInterval(function(){
+    if(window.sb && window.sb.rpc){
+      try { window.sb.rpc('live_heartbeat').catch(function(){}); } catch(_){}
+    }
+  }, 20000);
+};
+
+// === HOST: close live when tab closes / nav away (backup for endLive() not called) ===
+(function(){
+  function closeOnUnload(){
+    try {
+      // Only act if I'm a host (not a viewer); _creatorParam is set for viewers
+      if(window._creatorParam) return;
+      if(!window.currentUser || !window.sb) return;
+      // Use sendBeacon so the request flies even after page unload
+      var SB='https://cdokplvoqivducsqrejt.supabase.co';
+      var AK='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
       window.sb.auth.getSession().then(function(s){
         if(!s.data||!s.data.session) return;
-        var uid=s.data.session.user.id;
-        var tok=s.data.session.access_token;
-        // Get the channel from the agora-token response stored globally
-        var ch = window._snLiveChannel || '';
-        fetch(SB+'/rest/v1/rpc/end_live_stream',{
-          method:'POST',
+        var tok = s.data.session.access_token;
+        var url = SB+'/rest/v1/rpc/end_my_live';
+        var blob = new Blob([JSON.stringify({})], {type:'application/json'});
+        // sendBeacon doesn't support headers, so we use fetch keepalive instead
+        fetch(url, {
+          method:'POST', keepalive:true,
           headers:{'Content-Type':'application/json','apikey':AK,'Authorization':'Bearer '+tok},
-          body:JSON.stringify({p_host_id:uid, p_channel:ch})
-        }).catch(function(e){console.warn('end live err:',e);});
+          body: JSON.stringify({})
+        }).catch(function(){});
       }).catch(function(){});
-    }
-  })();
-}
+    } catch(_){}
+  }
+  // pagehide is more reliable than beforeunload on mobile
+  window.addEventListener('pagehide', closeOnUnload);
+  window.addEventListener('beforeunload', closeOnUnload);
+})();
 
 // \u2500\u2500 PANELS / TOAST \u2500\u2500
 function openPanel(id){document.querySelectorAll(".live-panel").forEach(function(p){p.classList.remove("open");});document.getElementById(id)?.classList.add("open");}
@@ -1048,6 +1074,8 @@ sb.auth.getSession().then(async function(r){
     subscribeLiveChannel();
     // Save live to DB
     await sb.from('live_streams').insert({host_id:currentUser.id,title:currentProfile.username+' en vivo',is_active:true,started_at:new Date().toISOString()}).catch(function(){});
+    // Start heartbeat to keep is_active=true (cleanup_stale_lives kills lives w/o heartbeat in 90s)
+    if(window._snStartHeartbeat) window._snStartHeartbeat();
   }
 });
 </script>

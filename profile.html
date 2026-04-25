@@ -511,6 +511,17 @@ function renderProfile(p){
     dmBtn.textContent="Mensaje";
     dmBtn.addEventListener("click",function(){window.location.href="/messages.html?with="+p.username;});
     actions.appendChild(dmBtn);
+    // Reportar usuario (non-own profiles)
+    var repBtn=document.createElement("button");
+    repBtn.className="action-btn";
+    repBtn.title="Reportar usuario";
+    repBtn.style.padding="8px 12px";
+    repBtn.textContent="\uD83D\uDEA9";
+    repBtn.addEventListener("click",function(){
+      if(window.snOpenReport)window.snOpenReport({type:'user',id:p.id});
+      else if(window.showToast)showToast('Funci\u00f3n no disponible',true);
+    });
+    actions.appendChild(repBtn);
   }
 
   var subSec=document.getElementById("profileSubSection");

@@ -3100,26 +3100,42 @@ function showOnboarding(){
   document.getElementById('onboardModal').classList.add('open');
 }
 
-function saveOnboarding(){
-  if(_onboardSelected.length < 3 || !currentUser) return;
-  var promises = _onboardSelected.map(function(cat){
-    return window.sb.from('user_interests').upsert({
-      user_id: currentUser.id,
-      category: cat,
-      weight: 2.0,
-      source: 'onboarding'
-    }, {onConflict: 'user_id,category'});
-  });
-  Promise.all(promises).then(function(){
-    window.sb.from('profiles').update({onboarded_interests: true}).eq('id', currentUser.id);
-    document.getElementById('onboardModal').classList.remove('open');
-    if(typeof showToast === 'function') showToast('\u2713 Feed personalizado');
-    if(typeof loadRankedFeed === 'function') loadRankedFeed('all', document.getElementById('feed') || document.querySelector('.feed'), 0);
+function _markOnboardedRetry(uid, attempt){
+  attempt = attempt || 1;
+  return window.sb.from('profiles').update({onboarded_interests: true}).eq('id', uid).then(function(r){
+    if(r && r.error){
+      console.warn('[onboarding] update err attempt '+attempt+':', r.error);
+      if(attempt < 3){ return new Promise(function(res){ setTimeout(function(){ _markOnboardedRetry(uid, attempt+1).then(res); }, 700*attempt); }); }
+    }
+    return r;
+  }).catch(function(e){
+    console.warn('[onboarding] catch attempt '+attempt+':', e);
+    if(attempt < 3){ return new Promise(function(res){ setTimeout(function(){ _markOnboardedRetry(uid, attempt+1).then(res); }, 700*attempt); }); }
   });
 }
 
-function skipOnboarding(){
-  window.sb.from('profiles').update({onboarded_interests: true}).eq('id', currentUser.id);
+async function saveOnboarding(){
+  if(_onboardSelected.length < 3 || !currentUser) return;
+  try {
+    var promises = _onboardSelected.map(function(cat){
+      return window.sb.from('user_interests').upsert({
+        user_id: currentUser.id,
+        category: cat,
+        weight: 2.0,
+        source: 'onboarding'
+      }, {onConflict: 'user_id,category'});
+    });
+    await Promise.all(promises);
+    await _markOnboardedRetry(currentUser.id);
+    document.getElementById('onboardModal').classList.remove('open');
+    if(typeof showToast === 'function') showToast('\u2713 Feed personalizado');
+    if(typeof loadRankedFeed === 'function') loadRankedFeed('all', document.getElementById('feed') || document.querySelector('.feed'), 0);
+  } catch(e){ console.warn('[onboarding] saveOnboarding err:', e); }
+}
+
+async function skipOnboarding(){
+  if(!currentUser) return;
+  try { await _markOnboardedRetry(currentUser.id); } catch(_){}
   document.getElementById('onboardModal').classList.remove('open');
 }
 

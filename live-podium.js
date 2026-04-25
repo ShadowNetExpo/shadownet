@@ -321,11 +321,21 @@
 
       await guestClient.join(d.appId, hostChannel, d.token, uidForGuest(window.currentUser.id));
       await guestClient.publish([guestVideoTrack, guestAudioTrack]);
+      
+      // CRITICAL: leave the audience agoraClient to avoid 2 clients in same channel.
+      // The guest now uses guestClient for everything (publish + subscribe).
+      try {
+        if (window.agoraClient && !iAmHost) {
+          await window.agoraClient.leave();
+          console.log('[podium] left audience client, now using guestClient');
+        }
+      } catch(e){ console.warn('[podium] failed to leave audience:', e); }
 
       var leaveBtn = document.getElementById('spLeaveBtn');
       if (leaveBtn) leaveBtn.classList.add('visible');
 
-      renderGrid(); // include my own cell
+      // Force re-render after leaving the audience client
+      setTimeout(renderGrid, 300);
     } catch(e) {
       console.error('[podium] guest publish error:', e);
       alert('Error al unirse al podio: ' + e.message);
@@ -342,6 +352,23 @@
   async function leaveAsGuest(){
     if (!liveStreamId || !window.currentUser) return;
     teardownGuestPublisher();
+    // Re-join the audience client so the viewer can keep watching the live
+    try {
+      if (window.agoraClient && !iAmHost && hostChannel && window.AGORA_APP_ID) {
+        var sess = await window.sb.auth.getSession();
+        var tok = sess.data && sess.data.session && sess.data.session.access_token;
+        var resp = await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
+          body: JSON.stringify({channel: hostChannel, uid: String(window.currentUser.id), role:'viewer'})
+        });
+        var d = await resp.json();
+        if (d.token && d.appId) {
+          await window.agoraClient.setClientRole('audience', {level:1});
+          await window.agoraClient.join(d.appId, hostChannel, d.token, 0);
+        }
+      }
+    } catch(e){ console.warn('[podium] re-join audience err:', e); }
     await window.sb.rpc('leave_podium_seat', { p_live_stream_id: liveStreamId });
     var b = document.getElementById('spLeaveBtn'); if (b) b.classList.remove('visible');
   }
@@ -430,16 +457,20 @@
         setTimeout(function(){
           try {
             if (iAmHost) {
-              var lt = (window.agoraClient && window.agoraClient.localTracks) || [];
-              var lv = lt.find && lt.find(function(t){ return t.trackMediaType === 'video'; });
-              if (lv) lv.play(liveVid);
+              var lv = window.localVideoTrack;
+              if (!lv) {
+                var lt = (window.agoraClient && window.agoraClient.localTracks) || [];
+                lv = lt.find && lt.find(function(t){ return t.trackMediaType === 'video'; });
+              }
+              if (lv && lv.play) lv.play('liveVideo');
             } else {
-              var rs = (window.agoraClient && window.agoraClient.remoteUsers) || [];
+              var clientRef = (myGuestRole === 'active' && guestClient) ? guestClient : window.agoraClient;
+              var rs = (clientRef && clientRef.remoteUsers) || [];
               var hr = rs.find && rs.find(function(u){ return u.videoTrack; });
-              if (hr && hr.videoTrack) hr.videoTrack.play(liveVid);
+              if (hr && hr.videoTrack) hr.videoTrack.play('liveVideo');
             }
           } catch(e){ console.warn('[podium] restore replay err:', e); }
-        }, 80);
+        }, 250);
       }
       wrap.style.gridTemplateColumns = '';
       wrap.style.gridTemplateRows = '';
@@ -479,16 +510,23 @@
     setTimeout(function(){
       try {
         if (iAmHost) {
-          var lt = (window.agoraClient && window.agoraClient.localTracks) || [];
-          var lv = lt.find && lt.find(function(t){ return t.trackMediaType === 'video'; });
-          if (lv) lv.play(hostVidDiv);
+          // Use global localVideoTrack from live.html (more reliable than client.localTracks)
+          var lv = window.localVideoTrack;
+          if (!lv) {
+            var lt = (window.agoraClient && window.agoraClient.localTracks) || [];
+            lv = lt.find && lt.find(function(t){ return t.trackMediaType === 'video'; });
+          }
+          if (lv && lv.play) lv.play(hostVidDiv);
+          else console.warn('[podium] no local video track to play');
         } else {
-          var rs = (window.agoraClient && window.agoraClient.remoteUsers) || [];
+          // For viewer: prefer guestClient (if I'm an active guest) over agoraClient
+          var clientRef = (myGuestRole === 'active' && guestClient) ? guestClient : window.agoraClient;
+          var rs = (clientRef && clientRef.remoteUsers) || [];
           var hr = rs.find && rs.find(function(u){ return u.videoTrack; });
           if (hr && hr.videoTrack) hr.videoTrack.play(hostVidDiv);
         }
       } catch(e){ console.warn('[podium] host replay err:', e); }
-    }, 80);
+    }, 250);
 
     // Guest cells
     active.sort(function(a,b){ return (a.position||0) - (b.position||0); });

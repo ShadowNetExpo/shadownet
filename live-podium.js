@@ -317,7 +317,7 @@
       guestClient.on('user-left', onRemoteLeft);
 
       guestVideoTrack = await window.AgoraRTC.createCameraVideoTrack({encoderConfig:{width:480,height:640,frameRate:24,bitrateMin:300,bitrateMax:1000}});
-      guestAudioTrack = await window.AgoraRTC.createMicrophoneAudioTrack({encoderConfig:'speech_standard'});
+      guestAudioTrack = await window.AgoraRTC.createMicrophoneAudioTrack({encoderConfig:'speech_standard',AEC:true,AGC:true,ANS:true});
 
       await guestClient.join(d.appId, hostChannel, d.token, uidForGuest(window.currentUser.id));
       await guestClient.publish([guestVideoTrack, guestAudioTrack]);

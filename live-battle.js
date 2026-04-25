@@ -122,6 +122,44 @@
     if (!selectedOpponent) return;
     var btn = document.getElementById('lbStartBtn');
     btn.disabled = true;
+    btn.textContent = 'Verificando...';
+    
+    // Check mutual exclusion: I or my opponent cannot have an active podium
+    try {
+      var meCheck = await window.sb.rpc('host_has_active_battle', { p_host: window.currentUser.id });
+      if (meCheck.data) {
+        btn.disabled = false;
+        btn.textContent = 'Ya estas en otra batalla';
+        return;
+      }
+      // Check my podium
+      var myStream = await window.sb.from('live_streams').select('id').eq('host_id', window.currentUser.id).eq('is_active', true).maybeSingle();
+      if (myStream.data) {
+        var myPod = await window.sb.rpc('stream_has_active_podium', { p_stream_id: myStream.data.id });
+        if (myPod.data) {
+          btn.disabled = false;
+          btn.textContent = 'Cierra el podio para batallar';
+          return;
+        }
+      }
+      // Check opponent's podium
+      var oppStream = await window.sb.from('live_streams').select('id').eq('host_id', selectedOpponent.host_id).eq('is_active', true).maybeSingle();
+      if (oppStream.data) {
+        var oppPod = await window.sb.rpc('stream_has_active_podium', { p_stream_id: oppStream.data.id });
+        if (oppPod.data) {
+          btn.disabled = false;
+          btn.textContent = 'Oponente tiene podio activo';
+          return;
+        }
+      }
+      var oppBattle = await window.sb.rpc('host_has_active_battle', { p_host: selectedOpponent.host_id });
+      if (oppBattle.data) {
+        btn.disabled = false;
+        btn.textContent = 'Oponente ya esta en una batalla';
+        return;
+      }
+    } catch(e) { console.warn('[lb] precheck err:', e); }
+    
     btn.textContent = 'Enviando invitacion...';
     var ins = await window.sb.from('live_battles').insert({
       stream_a_id: currentStreamChannel,
@@ -206,16 +244,32 @@
   async function respondInvite(p, accepted){
     var el = document.getElementById('lbInvite');
     if (el) el.remove();
+    var realAccepted = accepted;
     if (accepted){
-      await window.sb.from('live_battles').update({ status: 'active', started_at: new Date().toISOString() }).eq('id', p.battle_id);
+      var upd = await window.sb.from('live_battles').update({ status: 'active', started_at: new Date().toISOString() }).eq('id', p.battle_id);
+      if (upd.error) {
+        console.warn('[lb] accept update failed:', upd.error);
+        // Most likely cause: my podium has active guests. Show user-friendly toast.
+        var msg = upd.error.message || '';
+        if (msg.indexOf('podium') >= 0 || msg.indexOf('battle') >= 0) {
+          if (window.showToastMsg) window.showToastMsg('No puedes batallar con podio activo', true);
+          else alert('No puedes batallar con invitados en el podio. Termina el podio primero.');
+        } else {
+          if (window.showToastMsg) window.showToastMsg('Error: ' + msg, true);
+          else alert('Error al aceptar: ' + msg);
+        }
+        realAccepted = false;
+        // Mark the battle as declined so the inviter knows
+        await window.sb.from('live_battles').update({ status: 'declined' }).eq('id', p.battle_id);
+      }
     } else {
       await window.sb.from('live_battles').update({ status: 'declined' }).eq('id', p.battle_id);
     }
     var ch = window.sb.channel('battle-response-' + p.battle_id);
     await ch.subscribe();
-    ch.send({ type: 'broadcast', event: 'battle_response', payload: { accepted: accepted, from: window.currentUser.id } });
+    ch.send({ type: 'broadcast', event: 'battle_response', payload: { accepted: realAccepted, from: window.currentUser.id } });
     setTimeout(function(){ try{ch.unsubscribe();}catch(e){} }, 2000);
-    if (accepted){ startActiveBattle(p.battle_id); }
+    if (realAccepted){ startActiveBattle(p.battle_id); }
   }
 
   async function startActiveBattle(battleId){

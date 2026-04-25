@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#ff2255">
+<meta name="robots" content="noindex,nofollow">
+<title>Moderación &mdash; SHADOWNET</title>
+<meta property="og:title" content="Moderación &mdash; SHADOWNET">
+<meta property="og:description" content="Cola de reportes pendientes">
+<meta property="og:image" content="https://cdokplvoqivducsqrejt.supabase.co/storage/v1/object/public/media/assets/og-image.png">
+<meta property="og:url" content="https://shadownet-xi.vercel.app/moderation.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://shadownet-xi.vercel.app/moderation.html">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/sn-design.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080e1a;color:#e0e8f0;font-family:Inter,sans-serif;min-height:100vh;padding-bottom:40px}
+.hd{display:flex;align-items:center;padding:16px 18px;background:#080e1a;border-bottom:1px solid #0d2744;position:sticky;top:0;z-index:100;gap:12px}
+.hd-title{flex:1;font-family:Rajdhani,sans-serif;font-weight:900;font-size:20px;color:#fff}
+.hd-badge{background:rgba(255,34,85,.2);color:#ff2255;border:1px solid rgba(255,34,85,.4);padding:4px 10px;border-radius:14px;font-size:11px;font-weight:800;font-family:Rajdhani,sans-serif;letter-spacing:.04em}
+.hd-back{background:rgba(255,255,255,.08);border:none;color:#fff;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px}
+.main{padding:16px;max-width:760px;margin:0 auto}
+.empty{text-align:center;padding:60px 20px;color:#5a8aaa;font-family:Rajdhani,sans-serif;font-size:14px}
+.empty .ico{font-size:48px;margin-bottom:12px;opacity:.4}
+.report{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:12px;padding:14px;margin-bottom:12px}
+.report.dup{border-color:rgba(255,170,0,.4);background:linear-gradient(135deg,#0d0d1a,rgba(255,170,0,.04))}
+.r-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.r-reason{background:rgba(255,34,85,.15);color:#ff2255;border:1px solid rgba(255,34,85,.3);padding:4px 10px;border-radius:14px;font-size:11px;font-weight:800;font-family:Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.r-type{background:rgba(0,229,255,.12);color:#00e5ff;border:1px solid rgba(0,229,255,.25);padding:4px 10px;border-radius:14px;font-size:10px;font-weight:700;font-family:Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.r-dup{background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.4);padding:4px 8px;border-radius:14px;font-size:10px;font-weight:800;font-family:Rajdhani,sans-serif}
+.r-time{margin-left:auto;font-size:11px;color:#5a8aaa;font-family:Rajdhani,sans-serif}
+.r-row{display:flex;align-items:center;gap:8px;font-size:13px;margin:4px 0;color:#ccc}
+.r-row b{color:#888;font-weight:600;min-width:80px;font-family:Rajdhani,sans-serif;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.r-user{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);padding:3px 10px;border-radius:14px;color:#fff;font-weight:600;font-size:12px;font-family:Rajdhani,sans-serif}
+.r-user img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+.r-cid{font-family:monospace;font-size:11px;color:#5a8aaa;background:#141420;padding:3px 8px;border-radius:6px;word-break:break-all}
+.r-desc{margin-top:10px;padding:10px;background:#141420;border-radius:8px;font-size:13px;color:#ccc;line-height:1.5;border-left:3px solid #5a8aaa}
+.r-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.r-btn{padding:8px 14px;border:none;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:11px;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:transform .12s}
+.r-btn:active{transform:scale(.95)}
+.r-btn.dismiss{background:rgba(90,138,170,.15);color:#5a8aaa;border:1px solid #1a1a2e}
+.r-btn.warn{background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.r-btn.remove{background:rgba(255,34,85,.18);color:#ff2255;border:1px solid rgba(255,34,85,.4)}
+.r-btn.suspend{background:rgba(170,0,40,.25);color:#ff5577;border:1px solid rgba(170,0,40,.5)}
+.r-btn.ban{background:rgba(170,0,40,.5);color:#fff;border:1px solid #aa0028}
+.r-btn.view{background:rgba(0,229,255,.12);color:#00e5ff;border:1px solid rgba(0,229,255,.3)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0d0d1a;border:1px solid #1a1a2e;border-radius:10px;padding:10px 18px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.toast.ok{border-color:rgba(0,200,83,.5);color:#00c853}
+.toast.err{border-color:rgba(255,34,85,.5);color:#ff2255}
+.guard{display:flex;align-items:center;justify-content:center;min-height:60vh;padding:40px;text-align:center;color:#888;font-family:Rajdhani,sans-serif}
+.guard .ico{font-size:48px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="hd">
+  <button class="hd-back" onclick="history.length>1?history.back():location.href='/'">&larr;</button>
+  <div class="hd-title">🚩 Moderación</div>
+  <div class="hd-badge" id="m-count">- pendientes</div>
+</div>
+<div class="main" id="m-main">
+  <div class="empty"><div class="ico">⏳</div>Cargando...</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SB='https://cdokplvoqivducsqrejt.supabase.co';
+const AK='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
+const sb=supabase.createClient(SB,AK);
+window.sb=sb;
+
+let _uid=null,_tok=null;
+
+function toast(msg, kind){
+  const t=document.createElement('div');
+  t.className='toast '+(kind||'');
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+
+function fmtTime(iso){
+  const s=Math.floor((Date.now()-new Date(iso))/1000);
+  if(s<60)return 'ahora';
+  if(s<3600)return Math.floor(s/60)+'m';
+  if(s<86400)return Math.floor(s/3600)+'h';
+  return Math.floor(s/86400)+'d';
+}
+
+const REASONS={spam:'📢 Spam',harassment:'😤 Acoso',hate:'💢 Odio',violence:'🔪 Violencia',sexual_minors:'🚨 Sexual menores',illegal:'⚠️ Ilegal',copyright:'© Copyright',impersonation:'🎭 Suplantación',self_harm:'💔 Autolesión',other:'… Otro'};
+const TYPES={post:'POST',comment:'COMMENT',user:'USER',live:'LIVE',message:'DM',story:'STORY'};
+
+function viewLink(r){
+  if(r.content_type==='post')return '/feed.html?post='+r.content_id;
+  if(r.content_type==='user')return '/profile.html?u='+(r.reported_user&&r.reported_user.username||'');
+  if(r.content_type==='comment')return '/feed.html?post='+r.content_id;
+  return null;
+}
+
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));}
+
+function render(reports){
+  const el=document.getElementById('m-main');
+  document.getElementById('m-count').textContent=reports.length+' pendientes';
+  if(!reports.length){
+    el.innerHTML='<div class="empty"><div class="ico">✅</div>Sin reportes pendientes</div>';
+    return;
+  }
+  el.innerHTML='';
+  reports.forEach(r=>{
+    const card=document.createElement('div');
+    card.className='report'+(r.duplicate_count>1?' dup':'');
+    card.dataset.id=r.id;
+    let html='<div class="r-head">';
+    html+='<span class="r-reason">'+(REASONS[r.reason]||r.reason)+'</span>';
+    html+='<span class="r-type">'+(TYPES[r.content_type]||r.content_type)+'</span>';
+    if(r.duplicate_count>1)html+='<span class="r-dup">🔁 '+r.duplicate_count+' reportes</span>';
+    html+='<span class="r-time">'+fmtTime(r.created_at)+'</span>';
+    html+='</div>';
+    if(r.reporter){
+      html+='<div class="r-row"><b>Reportador</b><span class="r-user">';
+      if(r.reporter.avatar_url)html+='<img src="'+escapeHtml(r.reporter.avatar_url)+'">';
+      else html+='👤';
+      html+='@'+escapeHtml(r.reporter.username||'?')+'</span></div>';
+    }
+    if(r.reported_user){
+      html+='<div class="r-row"><b>Reportado</b><span class="r-user">';
+      if(r.reported_user.avatar_url)html+='<img src="'+escapeHtml(r.reported_user.avatar_url)+'">';
+      else html+='👤';
+      html+='@'+escapeHtml(r.reported_user.username||'?')+'</span></div>';
+    }
+    html+='<div class="r-row"><b>ID</b><span class="r-cid">'+escapeHtml(r.content_id)+'</span></div>';
+    if(r.description)html+='<div class="r-desc">'+escapeHtml(r.description)+'</div>';
+    html+='<div class="r-actions">';
+    const vl=viewLink(r);
+    if(vl)html+='<a class="r-btn view" href="'+vl+'" target="_blank">👁 Ver</a>';
+    html+='<button class="r-btn dismiss" data-act="dismissed">Desestimar</button>';
+    html+='<button class="r-btn warn" data-act="warned">Avisar</button>';
+    html+='<button class="r-btn remove" data-act="content_removed">Eliminar contenido</button>';
+    html+='<button class="r-btn suspend" data-act="user_suspended">Suspender</button>';
+    html+='<button class="r-btn ban" data-act="user_banned">Banear</button>';
+    html+='</div>';
+    card.innerHTML=html;
+    card.querySelectorAll('button[data-act]').forEach(b=>{
+      b.onclick=()=>resolve(r.id, b.dataset.act, card);
+    });
+    el.appendChild(card);
+  });
+}
+
+async function resolve(reportId, action, card){
+  let note=null;
+  if(action==='content_removed'||action==='user_suspended'||action==='user_banned'){
+    note=prompt('Nota interna (opcional):','');
+    if(note===null)return;
+  }
+  const r=await fetch(SB+'/rest/v1/rpc/resolve_report',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':AK,'Authorization':'Bearer '+_tok},
+    body:JSON.stringify({p_report_id:reportId,p_action_taken:action,p_admin_note:note||null})
+  });
+  const j=await r.json();
+  if(j&&j.ok){
+    toast('Resuelto: '+action,'ok');
+    card.style.transition='all .3s';
+    card.style.opacity='0';
+    card.style.transform='translateX(20px)';
+    setTimeout(()=>{card.remove();load();},300);
+  } else {
+    toast(j&&j.error||'Error','err');
+  }
+}
+
+async function load(){
+  const r=await fetch(SB+'/rest/v1/rpc/get_pending_reports',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':AK,'Authorization':'Bearer '+_tok},
+    body:JSON.stringify({p_limit:50})
+  });
+  if(r.status===403||r.status===401){
+    document.getElementById('m-main').innerHTML='<div class="guard"><div><div class="ico">🔒</div>Solo administradores</div></div>';
+    document.getElementById('m-count').style.display='none';
+    return;
+  }
+  const j=await r.json();
+  if(Array.isArray(j))render(j);
+  else if(j&&j.message)toast(j.message,'err');
+}
+
+(async ()=>{
+  const s=await sb.auth.getSession();
+  if(!s.data||!s.data.session){location.href='/';return;}
+  _uid=s.data.session.user.id;
+  _tok=s.data.session.access_token;
+  load();
+  // Refresh every 30s
+  setInterval(load, 30000);
+})();
+</script>
+</body>
+</html>

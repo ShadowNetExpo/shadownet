@@ -1589,8 +1589,8 @@ function startCountdown(){
     }
   }, 1000);
 }
-// Only show pre-live for hosts (not viewers)
-if(!new URLSearchParams(location.search).get('stream')){
+// Only show pre-live for hosts (not viewers, not stream replays)
+if(!new URLSearchParams(location.search).get('stream') && !new URLSearchParams(location.search).get('creator')){
   document.getElementById('preLiveOverlay').classList.remove('hidden');
   initPreLive();
 } else {

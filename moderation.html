@@ -7,154 +7,281 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Moderación &mdash; SHADOWNET</title>
 <link rel="manifest" href="/manifest.json">
-<link rel="canonical" href="https://shadownet-xi.vercel.app/moderation.html">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/sn-design.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#080e1a;color:#e0e8f0;font-family:Rajdhani,sans-serif;min-height:100vh;padding-bottom:40px}
-.hd{display:flex;align-items:center;padding:14px 18px;background:#080e1a;border-bottom:1px solid #1a2845;position:sticky;top:0;z-index:10;gap:10px}
-.hd-back{background:rgba(255,255,255,.06);border:1px solid #1a2845;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer}
-.hd-title{flex:1;font-family:Orbitron,sans-serif;font-weight:900;font-size:16px;color:#ff2255;letter-spacing:.08em}
-.hd-count{font-size:12px;color:#5a8aaa;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.3);border-radius:14px;padding:4px 10px;font-weight:700}
-.main{max-width:760px;margin:0 auto;padding:16px}
-.empty{text-align:center;padding:60px 20px;color:#5a8aaa;font-size:14px}
-.empty-emoji{font-size:48px;margin-bottom:12px;opacity:.6}
-.no-admin{text-align:center;padding:60px 20px;color:#ff6680}
-.list{display:flex;flex-direction:column;gap:12px}
-.report{background:#0d152a;border:1px solid #1a2845;border-radius:14px;padding:14px;transition:border-color .2s}
-.report:hover{border-color:rgba(255,34,85,.3)}
-.r-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.r-emoji{font-size:22px;flex-shrink:0}
-.r-title{flex:1;font-weight:800;font-size:14px;color:#fff}
-.r-time{font-size:11px;color:#5a8aaa;font-weight:600}
-.r-reason{display:inline-flex;align-items:center;gap:5px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.3);color:#ff6680;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:8px}
-.r-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;font-size:11px;color:#5a8aaa}
-.r-meta-pill{background:rgba(255,255,255,.04);border:1px solid #1a2845;border-radius:10px;padding:3px 9px;font-weight:600}
-.r-desc{background:rgba(0,0,0,.3);border-left:3px solid #ff2255;padding:8px 12px;border-radius:0 8px 8px 0;font-size:13px;color:#ccc;margin:8px 0;line-height:1.5;font-style:italic}
-.r-people{display:flex;justify-content:space-between;gap:10px;margin:10px 0;padding:8px;background:rgba(0,0,0,.2);border-radius:8px}
-.person{display:flex;align-items:center;gap:7px;font-size:12px}
-.person-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff2255,#800011);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;overflow:hidden;flex-shrink:0}
-.person-av img{width:100%;height:100%;object-fit:cover}
-.person-name{font-weight:700;color:#ccc}
-.person-lbl{font-size:9px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
-.r-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:10px}
-.act{padding:9px;border:none;border-radius:9px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:transform .15s}
-.act:hover{transform:scale(1.02)}.act:active{transform:scale(.97)}
-.act-dismiss{background:transparent;color:#5a8aaa;border:1px solid #1a2845}
-.act-warn{background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
-.act-remove{background:rgba(255,34,85,.18);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
-.act-ban{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff}
-.r-link{display:inline-block;margin-top:6px;font-size:11px;color:#5a8aaa;text-decoration:none}
-.r-link:hover{color:#ff6680}
+body{background:#080e1a;color:#e0e8f0;font-family:Rajdhani,sans-serif;min-height:100vh;padding-bottom:60px}
+.mod-hd{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;padding:14px 16px;background:#080e1a;border-bottom:1px solid #1a2845}
+.mod-back{background:rgba(255,255,255,.06);border:1px solid #1a2845;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mod-title{flex:1;font-family:Orbitron,sans-serif;font-size:16px;font-weight:900;letter-spacing:.08em;color:#ff2255}
+.mod-tabs{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid #1a2845;background:#0a1020}
+.mod-tab{flex:1;padding:7px 10px;background:transparent;border:1px solid #1a2845;color:#5a8aaa;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:all .15s}
+.mod-tab.active{background:rgba(255,34,85,.12);border-color:#ff2255;color:#ff2255}
+.mod-main{padding:14px 16px;max-width:780px;margin:0 auto}
+.mod-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.mod-stat{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:12px;padding:12px;text-align:center}
+.mod-stat-val{font-family:Orbitron,sans-serif;font-weight:900;font-size:22px;color:#fff}
+.mod-stat-lbl{font-size:10px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.06em;margin-top:3px;font-weight:700}
+.mod-list{display:flex;flex-direction:column;gap:10px}
+.mod-row{background:#0d0d1a;border:1px solid #1a2845;border-radius:12px;padding:14px;transition:border-color .15s}
+.mod-row:hover{border-color:#2a3855}
+.mod-row-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.mod-reason{padding:3px 10px;background:rgba(255,34,85,.12);border:1px solid rgba(255,34,85,.3);color:#ff6680;border-radius:14px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.mod-reason.r-spam{background:rgba(255,170,0,.12);border-color:rgba(255,170,0,.3);color:#ffaa00}
+.mod-reason.r-harassment{background:rgba(255,34,85,.18);border-color:rgba(255,34,85,.5);color:#ff2255}
+.mod-reason.r-sexual_minor{background:rgba(255,34,85,.3);border-color:#ff2255;color:#fff;font-weight:900}
+.mod-reason.r-violence{background:rgba(255,34,85,.18);border-color:rgba(255,34,85,.5);color:#ff2255}
+.mod-reason.r-fraud{background:rgba(170,85,255,.12);border-color:rgba(170,85,255,.3);color:#aa55ff}
+.mod-type{padding:3px 8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:#00e5ff;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase}
+.mod-time{margin-left:auto;font-size:11px;color:#5a8aaa}
+.mod-row-body{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.mod-party{display:flex;align-items:center;gap:8px;padding:8px;background:rgba(7,15,30,.6);border-radius:8px;cursor:pointer;text-decoration:none;color:inherit}
+.mod-party:hover{background:rgba(255,255,255,.04)}
+.mod-party-av{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#1a2845}
+.mod-party-info{min-width:0;flex:1}
+.mod-party-lbl{font-size:9px;color:#5a8aaa;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.mod-party-name{font-size:13px;color:#fff;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mod-desc{font-size:13px;color:#c8d8e8;background:rgba(7,15,30,.6);border-left:2px solid #ff2255;padding:8px 10px;border-radius:0 8px 8px 0;margin-bottom:10px;line-height:1.4;white-space:pre-wrap;word-break:break-word}
+.mod-actions{display:flex;gap:6px;flex-wrap:wrap}
+.mod-action{padding:7px 12px;border-radius:8px;font-family:Rajdhani,sans-serif;font-weight:800;font-size:11px;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;border:none;transition:all .15s}
+.mod-action:active{transform:scale(.96)}
+.mod-action-dismiss{background:rgba(255,255,255,.04);color:#5a8aaa;border:1px solid #1a2845}
+.mod-action-dismiss:hover{color:#fff;border-color:#5a8aaa}
+.mod-action-warn{background:rgba(255,170,0,.12);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.mod-action-warn:hover{background:rgba(255,170,0,.2)}
+.mod-action-remove{background:rgba(255,34,85,.12);color:#ff6680;border:1px solid rgba(255,34,85,.3)}
+.mod-action-remove:hover{background:rgba(255,34,85,.2);color:#ff2255}
+.mod-action-ban{background:linear-gradient(135deg,#ff2255,#cc0030);color:#fff}
+.mod-action-ban:hover{box-shadow:0 2px 12px rgba(255,34,85,.4)}
+.mod-empty{text-align:center;padding:48px 20px;color:#444;font-size:14px}
+.mod-loading{text-align:center;padding:32px;color:#5a8aaa;font-size:13px}
+.mod-content-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#00e5ff;text-decoration:none;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+.mod-content-link:hover{color:#33eeff}
+.mod-toast{position:fixed;top:74px;left:50%;transform:translateX(-50%);background:#070f1e;border:1px solid #00ff88;color:#00ff88;border-radius:10px;padding:10px 18px;font-weight:700;font-size:12px;z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.4);animation:modToastIn .25s}
+.mod-toast.error{border-color:#ff2255;color:#ff2255}
+@keyframes modToastIn{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+.mod-noaccess{padding:60px 20px;text-align:center}
+.mod-noaccess-icon{font-size:48px;margin-bottom:14px}
+.mod-noaccess-txt{font-size:18px;color:#fff;font-weight:800;margin-bottom:8px}
+.mod-noaccess-sub{font-size:13px;color:#5a8aaa}
 </style>
 </head>
 <body>
-<div class="hd">
-  <button class="hd-back" onclick="history.length>1?history.back():location.href='/'">&larr;</button>
-  <div class="hd-title">🚩 MODERACIÓN</div>
-  <div class="hd-count" id="hdcount">0 pendientes</div>
+<div class="mod-hd">
+  <button class="mod-back" onclick="history.length>1?history.back():location.href='/'">←</button>
+  <div class="mod-title">🚩 MODERACIÓN</div>
+  <button class="mod-back" onclick="loadReports()" title="Refrescar">↻</button>
 </div>
-<div class="main" id="main">
-  <div class="empty">Cargando...</div>
+<div class="mod-tabs" id="modTabs">
+  <button class="mod-tab active" data-status="pending" onclick="setTab('pending')">Pendientes</button>
+  <button class="mod-tab" data-status="actioned" onclick="setTab('actioned')">Actuados</button>
+  <button class="mod-tab" data-status="dismissed" onclick="setTab('dismissed')">Descartados</button>
+</div>
+<div class="mod-main">
+  <div class="mod-stats">
+    <div class="mod-stat"><div class="mod-stat-val" id="statPending">-</div><div class="mod-stat-lbl">Pendientes</div></div>
+    <div class="mod-stat"><div class="mod-stat-val" id="statActioned">-</div><div class="mod-stat-lbl">Actuados</div></div>
+    <div class="mod-stat"><div class="mod-stat-val" id="statDismissed">-</div><div class="mod-stat-lbl">Descartados</div></div>
+  </div>
+  <div class="mod-list" id="modList"><div class="mod-loading">Cargando...</div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-var SB_URL='https://cdokplvoqivducsqrejt.supabase.co';
-var SB_KEY='sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su';
-var sb=supabase.createClient(SB_URL,SB_KEY);
-window.sb=sb;
-var REASON_LABEL = {
-  spam:'Spam', harassment:'Acoso', sexual_minor:'Sexual con menor', violence:'Violencia',
-  fraud:'Fraude', impersonation:'Suplantación', copyright:'Copyright', self_harm:'Autolesión', other:'Otro'
-};
-var REASON_EMOJI = {
-  spam:'📢', harassment:'😡', sexual_minor:'🚫', violence:'⚠️',
-  fraud:'💰', impersonation:'🎭', copyright:'©️', self_harm:'💔', other:'…'
-};
-var TYPE_LABEL = { post:'Post', comment:'Comentario', user:'Usuario', live:'Live', message:'Mensaje' };
+var SB="https://cdokplvoqivducsqrejt.supabase.co", AK="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su";
+var sb = supabase.createClient(SB, AK);
+window.sb = sb;
+var currentTab = 'pending';
+var currentUid = null;
+
+function showToast(msg, isErr){
+  var t = document.createElement('div');
+  t.className = 'mod-toast' + (isErr ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3000);
+}
+
+function reasonLabel(r){
+  return ({
+    spam:'Spam', harassment:'Acoso', sexual_minor:'⚠ Menor', 
+    violence:'Violencia', fraud:'Estafa', impersonation:'Suplantación',
+    copyright:'Copyright', self_harm:'Auto-daño', other:'Otro'
+  })[r] || r;
+}
+
+function typeLabel(t){
+  return ({post:'Post', comment:'Comentario', user:'Usuario', live:'Live', message:'Mensaje'})[t] || t;
+}
 
 function timeAgo(ts){
-  var s=Math.floor((Date.now()-new Date(ts))/1000);
-  if(s<60) return 'ahora';
-  if(s<3600) return Math.floor(s/60)+'m';
-  if(s<86400) return Math.floor(s/3600)+'h';
+  var s = Math.floor((Date.now() - new Date(ts).getTime())/1000);
+  if (s < 60) return s+'s';
+  if (s < 3600) return Math.floor(s/60)+'m';
+  if (s < 86400) return Math.floor(s/3600)+'h';
   return Math.floor(s/86400)+'d';
 }
-function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+
+function esc(s){
+  return String(s||'').replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+
+function contentLink(row){
+  if (row.content_type === 'post') return '/feed.html?post=' + encodeURIComponent(row.content_id);
+  if (row.content_type === 'user' && row.reported_username) return '/profile.html?u=' + encodeURIComponent(row.reported_username);
+  if (row.content_type === 'live' && row.reported_username) return '/live.html?creator=' + encodeURIComponent(row.reported_username);
+  return null;
+}
+
+async function loadStats(){
+  // Just count manually since the RPC is paginated
+  var statuses = ['pending','actioned','dismissed'];
+  for (var i = 0; i < statuses.length; i++){
+    var s = statuses[i];
+    var r = await fetch(SB+'/rest/v1/reports?status=eq.'+s+'&select=id', {
+      headers: {'apikey':AK,'Authorization':'Bearer '+(window._tok||AK),'Prefer':'count=exact','Range':'0-0'}
+    });
+    var range = r.headers.get('Content-Range') || '0/0';
+    var c = parseInt(range.split('/')[1]||'0', 10);
+    var el = document.getElementById('stat' + s.charAt(0).toUpperCase() + s.slice(1));
+    if (el) el.textContent = c;
+  }
+}
 
 async function loadReports(){
-  var main = document.getElementById('main');
-  var sess = await sb.auth.getSession();
-  if(!sess.data || !sess.data.session){
-    main.innerHTML = '<div class="no-admin"><div class="empty-emoji">🔐</div>Necesitas iniciar sesión</div>';
+  var listEl = document.getElementById('modList');
+  listEl.innerHTML = '<div class="mod-loading">Cargando...</div>';
+  
+  // For pending: use RPC. For other tabs: query reports table directly (admin RLS allows it).
+  if (currentTab === 'pending') {
+    var r = await sb.rpc('get_pending_reports', { p_limit: 100, p_offset: 0 });
+    if (r.error) {
+      if (r.error.message && r.error.message.indexOf('forbidden') >= 0) {
+        listEl.innerHTML = '<div class="mod-noaccess"><div class="mod-noaccess-icon">🔒</div><div class="mod-noaccess-txt">Acceso denegado</div><div class="mod-noaccess-sub">Esta sección es solo para administradores.</div></div>';
+      } else {
+        listEl.innerHTML = '<div class="mod-empty">Error: ' + esc(r.error.message) + '</div>';
+      }
+      return;
+    }
+    renderRows(r.data || []);
+  } else {
+    var r2 = await fetch(SB+'/rest/v1/reports?status=eq.'+currentTab+'&order=reviewed_at.desc.nullslast,created_at.desc&limit=100&select=id,content_type,content_id,reason,description,created_at,reviewed_at,status,action_taken,admin_note,reporter:reporter_id(id,username,avatar_url),reported:reported_user_id(id,username,avatar_url)', {
+      headers: {'apikey':AK,'Authorization':'Bearer '+window._tok}
+    });
+    if (!r2.ok) {
+      listEl.innerHTML = '<div class="mod-empty">Error: ' + r2.status + '</div>';
+      return;
+    }
+    var data = await r2.json();
+    // Normalize to RPC shape
+    var rows = (data||[]).map(function(d){
+      return {
+        id: d.id, content_type: d.content_type, content_id: d.content_id,
+        reason: d.reason, description: d.description, created_at: d.created_at,
+        reporter_username: d.reporter && d.reporter.username,
+        reporter_avatar: d.reporter && d.reporter.avatar_url,
+        reported_username: d.reported && d.reported.username,
+        reported_avatar: d.reported && d.reported.avatar_url,
+        status: d.status, action_taken: d.action_taken, admin_note: d.admin_note,
+        reviewed_at: d.reviewed_at
+      };
+    });
+    renderRows(rows);
+  }
+  loadStats();
+}
+
+function renderRows(rows){
+  var listEl = document.getElementById('modList');
+  if (!rows.length) {
+    listEl.innerHTML = '<div class="mod-empty">No hay reportes ' + (currentTab==='pending'?'pendientes':currentTab) + '.</div>';
     return;
   }
-  var r = await sb.rpc('get_pending_reports', {p_limit:100, p_offset:0});
-  if(r.error){
-    main.innerHTML = '<div class="no-admin"><div class="empty-emoji">⛔</div>'+(r.error.message.indexOf('forbidden')>=0?'Solo administradores pueden acceder.':'Error: '+esc(r.error.message))+'</div>';
-    return;
-  }
-  var rows = r.data || [];
-  document.getElementById('hdcount').textContent = rows.length+' pendiente'+(rows.length===1?'':'s');
-  if(rows.length===0){
-    main.innerHTML = '<div class="empty"><div class="empty-emoji">✨</div>Cola vacía. Todo bajo control.</div>';
-    return;
-  }
-  var html = '<div class="list">';
-  rows.forEach(function(rp){
-    var emoji = REASON_EMOJI[rp.reason] || '🚩';
-    var rlbl = REASON_LABEL[rp.reason] || rp.reason;
-    var typeLbl = TYPE_LABEL[rp.content_type] || rp.content_type;
-    var deepLink = '';
-    if (rp.content_type==='post') deepLink = '/feed.html?post='+encodeURIComponent(rp.content_id);
-    else if (rp.content_type==='user' && rp.reported_username) deepLink = '/profile.html?u='+encodeURIComponent(rp.reported_username);
-    else if (rp.content_type==='live' && rp.reported_username) deepLink = '/live.html?creator='+encodeURIComponent(rp.reported_username);
-    var repAvHtml = rp.reporter_avatar ? '<img src="'+esc(rp.reporter_avatar)+'">' : esc((rp.reporter_username||'?').charAt(0).toUpperCase());
-    var tgtAvHtml = rp.reported_avatar ? '<img src="'+esc(rp.reported_avatar)+'">' : esc((rp.reported_username||'?').charAt(0).toUpperCase());
-    html += '<div class="report" data-id="'+rp.id+'">';
-    html += '<div class="r-head"><span class="r-emoji">'+emoji+'</span><span class="r-title">'+typeLbl+' &middot; '+esc(rlbl)+'</span><span class="r-time">'+timeAgo(rp.created_at)+'</span></div>';
-    html += '<div class="r-people">';
-    html += '<div class="person"><div class="person-av">'+repAvHtml+'</div><div><div class="person-lbl">Reportador</div><div class="person-name">@'+esc(rp.reporter_username||'?')+'</div></div></div>';
-    html += '<div class="person" style="text-align:right"><div><div class="person-lbl">Reportado</div><div class="person-name">@'+esc(rp.reported_username||'?')+'</div></div><div class="person-av">'+tgtAvHtml+'</div></div>';
+  listEl.innerHTML = '';
+  rows.forEach(function(row){
+    var div = document.createElement('div');
+    div.className = 'mod-row';
+    div.dataset.id = row.id;
+    var link = contentLink(row);
+    var html = '<div class="mod-row-head">';
+    html += '<span class="mod-reason r-' + esc(row.reason) + '">' + esc(reasonLabel(row.reason)) + '</span>';
+    html += '<span class="mod-type">' + esc(typeLabel(row.content_type)) + '</span>';
+    html += '<span class="mod-time">' + timeAgo(row.created_at) + '</span>';
     html += '</div>';
-    if (rp.description) html += '<div class="r-desc">'+esc(rp.description)+'</div>';
-    html += '<div class="r-meta"><span class="r-meta-pill">ID: '+esc(rp.content_id.substring(0,12))+'…</span></div>';
-    if (deepLink) html += '<a class="r-link" href="'+deepLink+'" target="_blank" rel="noopener">Ver contenido →</a>';
-    html += '<div class="r-actions">';
-    html += '<button class="act act-dismiss" data-act="dismissed" data-id="'+rp.id+'">Desestimar</button>';
-    html += '<button class="act act-warn" data-act="warn" data-id="'+rp.id+'">Advertir</button>';
-    html += '<button class="act act-remove" data-act="remove_content" data-id="'+rp.id+'">Eliminar</button>';
-    html += '<button class="act act-ban" data-act="ban_user" data-id="'+rp.id+'">Banear</button>';
-    html += '</div></div>';
-  });
-  html += '</div>';
-  main.innerHTML = html;
-  main.querySelectorAll('.act').forEach(function(b){
-    b.addEventListener('click', function(){ resolve(b.dataset.id, b.dataset.act, b); });
+    if (link) html += '<a href="' + esc(link) + '" target="_blank" class="mod-content-link">↗ Ver contenido</a>';
+    html += '<div class="mod-row-body">';
+    html += '<a href="/profile.html?u=' + esc(row.reporter_username||'') + '" class="mod-party"><img class="mod-party-av" src="' + esc(row.reporter_avatar || ('https://api.dicebear.com/7.x/personas/svg?seed=' + (row.reporter_username||'r'))) + '"><div class="mod-party-info"><div class="mod-party-lbl">Reporta</div><div class="mod-party-name">@' + esc(row.reporter_username||'?') + '</div></div></a>';
+    if (row.reported_username) {
+      html += '<a href="/profile.html?u=' + esc(row.reported_username) + '" class="mod-party"><img class="mod-party-av" src="' + esc(row.reported_avatar || ('https://api.dicebear.com/7.x/personas/svg?seed=' + row.reported_username)) + '"><div class="mod-party-info"><div class="mod-party-lbl">Reportado</div><div class="mod-party-name">@' + esc(row.reported_username) + '</div></div></a>';
+    } else {
+      html += '<div class="mod-party"><div class="mod-party-info"><div class="mod-party-lbl">Reportado</div><div class="mod-party-name">—</div></div></div>';
+    }
+    html += '</div>';
+    if (row.description) html += '<div class="mod-desc">' + esc(row.description) + '</div>';
+    if (row.action_taken) html += '<div style="font-size:11px;color:#5a8aaa;margin-bottom:8px"><b style="color:#fff">Acción:</b> ' + esc(row.action_taken) + (row.admin_note?(' — ' + esc(row.admin_note)):'') + '</div>';
+    if (row.status === 'pending') {
+      html += '<div class="mod-actions">';
+      html += '<button class="mod-action mod-action-dismiss" data-act="dismissed">Descartar</button>';
+      html += '<button class="mod-action mod-action-warn" data-act="warn">Advertir</button>';
+      html += '<button class="mod-action mod-action-remove" data-act="remove_content">Eliminar contenido</button>';
+      html += '<button class="mod-action mod-action-ban" data-act="ban_user">Banear usuario</button>';
+      html += '</div>';
+    }
+    div.innerHTML = html;
+    div.querySelectorAll('.mod-action').forEach(function(b){
+      b.onclick = function(){ resolveReport(row.id, b.dataset.act, div); };
+    });
+    listEl.appendChild(div);
   });
 }
 
-async function resolve(reportId, action, btn){
+async function resolveReport(reportId, action, rowEl){
   var note = null;
-  if (action==='ban_user' || action==='remove_content') {
-    note = prompt('Nota (opcional) para el log:', '');
-    if (note===null) return;
+  if (action === 'warn' || action === 'ban_user' || action === 'remove_content') {
+    note = prompt('Nota (opcional, visible en historial):') || '';
   }
-  btn.disabled = true; btn.textContent = '...';
-  var r = await sb.rpc('resolve_report', {
-    p_report_id: reportId, p_action_taken: action, p_admin_note: note || null
-  });
-  if (r.error) { alert('Error: '+r.error.message); btn.disabled=false; return; }
-  if (r.data && !r.data.ok) { alert('Error: '+(r.data.error||'desconocido')); btn.disabled=false; return; }
-  // Remove the row
-  var card = btn.closest('.report');
-  if (card) card.style.opacity='0';
-  setTimeout(function(){ if (card) card.remove(); var rest = document.querySelectorAll('.report').length; document.getElementById('hdcount').textContent = rest+' pendiente'+(rest===1?'':'s'); if (rest===0) loadReports(); }, 250);
+  var btn = rowEl.querySelectorAll('.mod-action');
+  btn.forEach(function(b){ b.disabled = true; b.style.opacity = .5; });
+  var r = await sb.rpc('resolve_report', { p_report_id: reportId, p_action_taken: action, p_admin_note: note });
+  if (r.error || !r.data || !r.data.ok) {
+    showToast('Error: ' + (r.error ? r.error.message : (r.data && r.data.error)), true);
+    btn.forEach(function(b){ b.disabled = false; b.style.opacity = 1; });
+    return;
+  }
+  showToast('✓ Reporte ' + (action==='dismissed'?'descartado':'actuado'));
+  rowEl.style.transition = 'all .3s';
+  rowEl.style.opacity = '0';
+  rowEl.style.transform = 'translateX(40px)';
+  setTimeout(function(){ rowEl.remove(); loadStats(); }, 300);
 }
 
-document.addEventListener('DOMContentLoaded', loadReports);
+function setTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.mod-tab').forEach(function(b){
+    b.classList.toggle('active', b.dataset.status === tab);
+  });
+  loadReports();
+}
+
+(async function init(){
+  var s = await sb.auth.getSession();
+  if (!s.data || !s.data.session) { location.replace('/'); return; }
+  currentUid = s.data.session.user.id;
+  window._tok = s.data.session.access_token;
+  // Quick admin check via profile
+  var pr = await fetch(SB+'/rest/v1/profiles?id=eq.'+currentUid+'&select=is_admin', {
+    headers:{'apikey':AK,'Authorization':'Bearer '+window._tok}
+  }).then(function(r){return r.json();});
+  if (!pr || !pr[0] || !pr[0].is_admin) {
+    document.querySelector('.mod-main').innerHTML = '<div class="mod-noaccess"><div class="mod-noaccess-icon">🔒</div><div class="mod-noaccess-txt">Acceso denegado</div><div class="mod-noaccess-sub">Esta página es solo para administradores.</div></div>';
+    document.querySelectorAll('.mod-tab').forEach(function(t){t.style.display='none';});
+    return;
+  }
+  loadReports();
+})();
 </script>
 </body>
 </html>

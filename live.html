@@ -509,7 +509,7 @@ async function initViewer(){
     await (async function(){var s=await sb.auth.getSession();var t=s.data&&s.data.session&&s.data.session.access_token;var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({channel:AGORA_CHANNEL,uid:String(uid),role:'viewer'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,0);})();
     (document.getElementById("liveSubtitle")||{}).textContent ="Esperando al creador...";
     subscribeLiveChannelViewer(creator.id);
-    sb.from('live_streams').select('id,host_id').eq('host_id',creator.id).eq('is_active',true).maybeSingle().then(function(r){if(r.data&&window.snPodiumInit)window.snPodiumInit({liveStreamId:r.data.id,hostId:r.data.host_id});});
+    (function(){var t=0,iv=setInterval(function(){t++;if(t>30){clearInterval(iv);return;}sb.from('live_streams').select('id,host_id').eq('host_id',creator.id).eq('is_active',true).maybeSingle().then(function(r){if(r.data&&window.snPodiumInit){clearInterval(iv);window.snPodiumInit({liveStreamId:r.data.id,hostId:r.data.host_id});}});},1000);})();
   }catch(e){showToastMsg("Error conexi\u00F3n: "+e.message,true);}
 }
 
@@ -1049,7 +1049,7 @@ sb.auth.getSession().then(async function(r){
     subscribeLiveChannel();
     // Save live to DB
     await sb.from('live_streams').insert({host_id:currentUser.id,title:currentProfile.username+' en vivo',is_active:true,started_at:new Date().toISOString()}).catch(function(){});
-    setTimeout(function(){sb.from('live_streams').select('id,host_id').eq('host_id',currentUser.id).eq('is_active',true).maybeSingle().then(function(r){if(r.data&&window.snPodiumInit)window.snPodiumInit({liveStreamId:r.data.id,hostId:r.data.host_id});});},2500);
+    (function(){var t=0,iv=setInterval(function(){t++;if(t>30){clearInterval(iv);return;}sb.from('live_streams').select('id,host_id').eq('host_id',currentUser.id).eq('is_active',true).maybeSingle().then(function(r){if(r.data&&window.snPodiumInit){clearInterval(iv);window.snPodiumInit({liveStreamId:r.data.id,hostId:r.data.host_id});}});},1000);})();
   }
 });
 </script>

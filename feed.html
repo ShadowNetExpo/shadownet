@@ -2294,13 +2294,13 @@ function openLiveStaging(){
     navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(function(stream){
       var v=document.getElementById('livePreviewVideo');
       if(v){v.srcObject=stream;window.__stageStream=stream;}
-    }).catch(function(){});
+    }).catch(function(e){console.warn("[silent]",e);});
   } else {
     modal.style.display='flex';
     navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(function(stream){
       var v=document.getElementById('livePreviewVideo');
       if(v){v.srcObject=stream;window.__stageStream=stream;}
-    }).catch(function(){});
+    }).catch(function(e){console.warn("[silent]",e);});
   }
 }
 function closeLiveStaging(){
@@ -2359,7 +2359,7 @@ function goLiveNow(){
     var doFetch=function(t){
       fetch(SB+'/rest/v1/live_streams?is_active=eq.true&select=id,host_id,title,viewer_count,agora_channel,profiles(username,avatar_url)&order=viewer_count.desc',{headers:{'apikey':AK,'Authorization':'Bearer '+t}})
       .then(function(r){return r.json();})
-      .then(function(data){renderLive(data);}).catch(function(){});
+      .then(function(data){renderLive(data);}).catch(function(e){console.warn("[silent]",e);});
     };
     if(window.sb){window.sb.auth.getSession().then(function(s){if(s.data&&s.data.session)tok=s.data.session.access_token;doFetch(tok);}).catch(function(){doFetch(tok);});}
     else{doFetch(tok);}
@@ -2487,7 +2487,7 @@ function goLiveNow(){
     }).then(function(r){
       var count = parseInt(r.headers.get('Content-Range')?.split('/')[1]||'0',10)||0;
       updateBadge(count);
-    }).catch(function(){});
+    }).catch(function(e){console.warn("[silent]",e);});
   }
 
   // --- REALTIME SUBSCRIPTION ---
@@ -2529,7 +2529,7 @@ function goLiveNow(){
       var tok = session.access_token;
       fetchUnreadCount(tok);
       subscribeToNotifications(currentUserId, tok);
-    }).catch(function(){});
+    }).catch(function(e){console.warn("[silent]",e);});
   }
 
   if(document.readyState==='loading'){
@@ -2567,7 +2567,7 @@ window.buildCard=function(p){
   var dt=document.createElement("div");dt.style.cssText="font-size:11px;color:#555";dt.textContent=ts;
   info.appendChild(nm);info.appendChild(dt);header.appendChild(img);header.appendChild(info);var mnb=document.createElement("button");mnb.style.cssText="background:none;border:none;color:#888;cursor:pointer;font-size:18px;margin-left:auto;padding:4px 8px;line-height:1";mnb.innerHTML="\u22EF";mnb.title="M\u00E1s opciones";mnb.onclick=function(ev){ev.stopPropagation();snPostMenu(p.id,p.user_id,mnb);};header.appendChild(mnb);if(window.currentUser&&p.user_id!==window.currentUser.id){var flb=document.createElement("button");flb.style.cssText="background:none;border:1px solid #ff2255;color:#ff2255;border-radius:20px;padding:3px 12px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;cursor:pointer;margin-left:auto;white-space:nowrap";flb.textContent="Seguir";flb.onclick=function(ev){ev.stopPropagation();snFollowUser(p.user_id,flb);};header.appendChild(flb);}el.appendChild(header);
   if(p.content){var ct=document.createElement("div");ct.style.cssText="color:#ddd;font-size:14px;line-height:1.6;margin-bottom:8px";ct.textContent=p.content;el.appendChild(ct);}
-  if(p.video_url){var vw=document.createElement("div");vw.className="sn-pv-wrap";var vid=document.createElement("video");vid.className="sn-pv";vid.src=p.video_url;vid.loop=true;vid.setAttribute("playsinline","");vid.preload="metadata";vid.style.pointerEvents="none";if(p.video_thumbnail)vid.poster=p.video_thumbnail;var vpb=document.createElement("div");vpb.className="sn-pv-play";vpb.innerHTML="\u25B6";vw.appendChild(vid);vw.appendChild(vpb);if(p.video_duration){var vd=document.createElement("div");vd.className="sn-pv-dur";vd.textContent=Math.floor(p.video_duration/60)+":"+(p.video_duration%60<10?"0":"")+p.video_duration%60;vw.appendChild(vd);}vw.onclick=function(){if(vid.paused){vid.play();vpb.style.opacity="0";}else{vid.pause();vpb.style.opacity="1";}};el.appendChild(vw);setTimeout(function(){fetch(SB+"/rest/v1/rpc/increment_post_views",{method:"POST",headers:{"Content-Type":"application/json","apikey":AK},body:JSON.stringify({p_post_id:p.id})}).catch(function(){});},2000);}
+  if(p.video_url){var vw=document.createElement("div");vw.className="sn-pv-wrap";var vid=document.createElement("video");vid.className="sn-pv";vid.src=p.video_url;vid.loop=true;vid.setAttribute("playsinline","");vid.preload="metadata";vid.style.pointerEvents="none";if(p.video_thumbnail)vid.poster=p.video_thumbnail;var vpb=document.createElement("div");vpb.className="sn-pv-play";vpb.innerHTML="\u25B6";vw.appendChild(vid);vw.appendChild(vpb);if(p.video_duration){var vd=document.createElement("div");vd.className="sn-pv-dur";vd.textContent=Math.floor(p.video_duration/60)+":"+(p.video_duration%60<10?"0":"")+p.video_duration%60;vw.appendChild(vd);}vw.onclick=function(){if(vid.paused){vid.play();vpb.style.opacity="0";}else{vid.pause();vpb.style.opacity="1";}};el.appendChild(vw);setTimeout(function(){fetch(SB+"/rest/v1/rpc/increment_post_views",{method:"POST",headers:{"Content-Type":"application/json","apikey":AK},body:JSON.stringify({p_post_id:p.id})}).catch(function(e){console.warn("[silent]",e);});},2000);}
   var imgs=p.media_urls||(p.media_url?[p.media_url]:[]);if(!p.video_url&&imgs.length){var ig=document.createElement("div");ig.style.cssText="display:grid;grid-template-columns:"+(imgs.length>1?"repeat(2,1fr)":"1fr")+";gap:4px;border-radius:12px;overflow:hidden;margin:10px 0";imgs.forEach(function(u){var im=document.createElement("img");im.src=u;im.style.cssText="width:100%;aspect-ratio:1;object-fit:cover";im.loading="lazy";ig.appendChild(im);});el.appendChild(ig);}
   if(p.hashtags&&p.hashtags.length){var hw=document.createElement("div");hw.className="sn-ht-wrap";p.hashtags.forEach(function(t){var hb=document.createElement("button");hb.className="sn-ht";hb.setAttribute("data-htag",t);hb.textContent="#"+t;hw.appendChild(hb);});el.appendChild(hw);}
   var ab=document.createElement("div");ab.style.cssText="display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:10px;border-top:1px solid #1a1a2e";
@@ -2578,7 +2578,7 @@ window.buildCard=function(p){
   var shb=document.createElement("button");shb.style.cssText="background:none;border:none;color:#888;display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px";shb.innerHTML="\uD83D\uDD17";shb.title="Compartir";shb.onclick=function(){snSharePost(p.id);};var svb=document.createElement("button");svb.style.cssText="background:none;border:none;color:#888;display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px";svb.innerHTML="\uD83D\uDD16";svb.title="Guardar";svb.onclick=function(){snSavePost(p.id,svb);};ab.appendChild(lkb);ab.appendChild(cmb);ab.appendChild(shb);ab.appendChild(svb);ab.appendChild(sp);if(p.tip_total>0){var ts2=document.createElement("span");ts2.style.cssText="font-size:11px;color:#ffa500";ts2.innerHTML="\uD83D\uDC8E "+p.tip_total+" Almas";ab.appendChild(ts2);}ab.appendChild(tb);
   el.appendChild(ab);return el;
 };
-window.openTip=function(id){_tipId=id;_tipAmt=0;document.querySelectorAll(".sn-tip-amt").forEach(function(b){b.classList.remove("sel");});document.getElementById("sn-tip-go").disabled=true;if(window.sb){window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;fetch(SB+"/rest/v1/profiles?id=eq."+s.data.session.user.id+"&select=coins_balance",{headers:{"apikey":AK,"Authorization":"Bearer "+s.data.session.access_token}}).then(function(r){return r.json();}).then(function(d){if(d[0])document.getElementById("sn-tip-bal").textContent="Tu saldo: "+(d[0].coins_balance||0)+" Almas";}).catch(function(){});}).catch(function(){});}document.getElementById("sn-tip-modal").classList.add("open");};
+window.openTip=function(id){_tipId=id;_tipAmt=0;document.querySelectorAll(".sn-tip-amt").forEach(function(b){b.classList.remove("sel");});document.getElementById("sn-tip-go").disabled=true;if(window.sb){window.sb.auth.getSession().then(function(s){if(!s.data||!s.data.session)return;fetch(SB+"/rest/v1/profiles?id=eq."+s.data.session.user.id+"&select=coins_balance",{headers:{"apikey":AK,"Authorization":"Bearer "+s.data.session.access_token}}).then(function(r){return r.json();}).then(function(d){if(d[0])document.getElementById("sn-tip-bal").textContent="Tu saldo: "+(d[0].coins_balance||0)+" Almas";}).catch(function(e){console.warn("[silent]",e);});}).catch(function(e){console.warn("[silent]",e);});}document.getElementById("sn-tip-modal").classList.add("open");};
 window.closeTip=function(){document.getElementById("sn-tip-modal").classList.remove("open");_tipId=null;_tipAmt=0;};
 window.selTip=function(a){_tipAmt=a;document.querySelectorAll(".sn-tip-amt").forEach(function(b){b.classList.toggle("sel",parseInt(b.textContent)===a);});document.getElementById("sn-tip-go").disabled=false;};
 window.sendTip=async function(){if(!_tipId||!_tipAmt)return;var btn=document.getElementById("sn-tip-go");btn.disabled=true;btn.textContent="Enviando...";try{var s=await window.sb.auth.getSession();if(!s.data||!s.data.session){btn.textContent="Inicia sesi\u00F3n";return;}var r=await fetch(SB+"/rest/v1/rpc/tip_post",{method:"POST",headers:{"Content-Type":"application/json","apikey":AK,"Authorization":"Bearer "+s.data.session.access_token},body:JSON.stringify({p_from_user:s.data.session.user.id,p_post_id:_tipId,p_almas:_tipAmt})});var d=await r.json();if(d.ok){if(window.showToast)showToast("\uD83D\uDC8E "+_tipAmt+" Almas enviadas!");closeTip();}else{btn.textContent="Error: "+(d.error||"Intenta de nuevo");btn.disabled=false;}}catch(err){btn.textContent="Error de conexi\u00F3n";btn.disabled=false;}};
@@ -2631,7 +2631,7 @@ window.snLoadComments=async function(pid,sec){
 };
 window.snSharePost=function(pid){
   var url=location.origin+'/feed.html?post='+pid;
-  if(navigator.share){navigator.share({title:'SHADOWNET',url:url}).catch(function(){});}
+  if(navigator.share){navigator.share({title:'SHADOWNET',url:url}).catch(function(e){console.warn("[silent]",e);});}
   else if(navigator.clipboard){navigator.clipboard.writeText(url);if(window.showToast)showToast('\uD83D\uDD17 Link copiado');}
   else{prompt('Copia este enlace:',url);}
 };
@@ -2727,7 +2727,7 @@ window.snPPVOpen=function(postId,price,title){
   if(window.sb){window.sb.auth.getSession().then(function(s){
     if(!s.data||!s.data.session)return;
     fetch(_PPVSB+"/rest/v1/profiles?id=eq."+s.data.session.user.id+"&select=coins_balance",{headers:{"apikey":_PPVAK,"Authorization":"Bearer "+s.data.session.access_token}})
-    .then(function(r){return r.json();}).then(function(d){var el=document.getElementById("sn-ppv-balance");if(el&&d[0])el.textContent=d[0].coins_balance||0;}).catch(function(){});
+    .then(function(r){return r.json();}).then(function(d){var el=document.getElementById("sn-ppv-balance");if(el&&d[0])el.textContent=d[0].coins_balance||0;}).catch(function(e){console.warn("[silent]",e);});
   });}
 };
 window.snPPVClose=function(){document.getElementById("sn-ppv-modal").classList.remove("open");_ppvPostId=null;};
@@ -2849,16 +2849,16 @@ function snNL(){
     });
     var unread=ns.filter(function(n){return !n.is_read;}).length;
     snNSB(unread);
-  }).catch(function(){});
+  }).catch(function(e){console.warn("[silent]",e);});
 }
 window.snNO=function(){document.getElementById("sn-np").classList.add("open");document.getElementById("sn-nov").classList.add("on");snNL();};
 window.snNC=function(){document.getElementById("sn-np").classList.remove("open");document.getElementById("sn-nov").classList.remove("on");};
 window.snNMR=function(){
   if(!_NU||!_NT)return;
-  fetch(_NB+"/rest/v1/rpc/mark_notifications_read",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(){snNL();}).catch(function(){});
+  fetch(_NB+"/rest/v1/rpc/mark_notifications_read",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})}).then(function(){snNL();}).catch(function(e){console.warn("[silent]",e);});
 };
 function snNTP(n){
-  fetch(_NB+"/rest/v1/notifications?id=eq."+n.id,{method:"PATCH",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({is_read:true})}).catch(function(){});
+  fetch(_NB+"/rest/v1/notifications?id=eq."+n.id,{method:"PATCH",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({is_read:true})}).catch(function(e){console.warn("[silent]",e);});
   var d=n.data||{};
   if(d.conversation_id)location.href="messages.html";
   else if(n.from_username)location.href="profile.html?u="+encodeURIComponent(n.from_username);
@@ -2871,7 +2871,7 @@ function snNTP(n){
       if(!s.data||!s.data.session)return;
       _NU=s.data.session.user.id;_NT=s.data.session.access_token;
       fetch(_NB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_NK,"Authorization":"Bearer "+_NT},body:JSON.stringify({p_user_id:_NU})})
-        .then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});
+        .then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(e){console.warn("[silent]",e);});
       if(!_NCh){
         _NCh=window.sb.channel("notif:"+_NU)
           .on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_NU},function(p){
@@ -2986,7 +2986,7 @@ function endWatchTimer(postId) {
     p_watch_ms: ms,
     p_total_ms: 0,
     p_looped: false
-  }).catch(function(){});
+  }).catch(function(e){console.warn("[silent]",e);});
 }
 
 // == NOT INTERESTED ==
@@ -3006,7 +3006,7 @@ function markNotInterested(postId) {
     p_user_id: window._currentUserId,
     p_category: 'entertainment',
     p_action: 'not_interested'
-  }).catch(function(){});
+  }).catch(function(e){console.warn("[silent]",e);});
 }
 
 // == INTEREST UPDATE ON ACTIONS ==
@@ -3018,7 +3018,7 @@ function trackInterest(postId, action) {
         p_user_id: window._currentUserId,
         p_category: r.data.category,
         p_action: action
-      }).catch(function(){});
+      }).catch(function(e){console.warn("[silent]",e);});
     }
   });
 }
@@ -3222,7 +3222,7 @@ function buildCarousel(urls,container){
 
 <script>var _authMode="login";function openAuth(mode){_authMode=mode||"login";document.getElementById("authOverlay").style.display="flex";document.getElementById("authError").style.display="none";document.getElementById("authEmail").value="";document.getElementById("authPassword").value="";if(document.getElementById("authUsername"))document.getElementById("authUsername").value="";if(_authMode==="signup"){document.getElementById("signupFields").style.display="block";document.getElementById("authTitle").textContent="Crea tu cuenta";document.getElementById("authSubmit").textContent="CREAR CUENTA";document.getElementById("authToggleText").textContent="Ya tienes cuenta?";document.getElementById("authToggleLink").textContent="Iniciar sesión";}else{document.getElementById("signupFields").style.display="none";document.getElementById("authTitle").textContent="Inicia sesión";document.getElementById("authSubmit").textContent="ENTRAR";document.getElementById("authToggleText").textContent="No tienes cuenta?";document.getElementById("authToggleLink").textContent="Registrarse";}}function closeAuth(){document.getElementById("authOverlay").style.display="none";}function toggleAuthMode(){openAuth(_authMode==="login"?"signup":"login");}function showAuthError(msg){var e=document.getElementById("authError");e.textContent=msg;e.style.display="block";}async function submitAuth(){var email=document.getElementById("authEmail").value.trim();var pass=document.getElementById("authPassword").value;var btn=document.getElementById("authSubmit");if(!email||!pass){showAuthError("Completa todos los campos");return;}if(pass.length<6){showAuthError("La contraseña debe tener al menos 6 caracteres");return;}btn.disabled=true;btn.textContent="Cargando...";document.getElementById("authError").style.display="none";try{if(_authMode==="signup"){var username=document.getElementById("authUsername").value.trim();if(!username){showAuthError("Elige un nombre de usuario");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}var taken=await sb.from("profiles").select("id").eq("username",username).maybeSingle();if(taken&&taken.data){showAuthError("Ese nombre ya existe");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}var r=await sb.auth.signUp({email:email,password:pass,options:{data:{username:username}}});if(r.error){showAuthError(r.error.message);btn.disabled=false;btn.textContent="CREAR CUENTA";return;}if(r.data&&r.data.user&&!r.data.session){showAuthError("Revisa tu email para confirmar tu cuenta");btn.disabled=false;btn.textContent="CREAR CUENTA";return;}location.reload();}else{var r=await sb.auth.signInWithPassword({email:email,password:pass});if(r.error){showAuthError(r.error.message==="Invalid login credentials"?"Email o contraseña incorrectos":r.error.message);btn.disabled=false;btn.textContent="ENTRAR";return;}location.reload();}}catch(e){showAuthError(e.message||"Error");btn.disabled=false;btn.textContent=_authMode==="signup"?"CREAR CUENTA":"ENTRAR";}}function loginWithGoogle(){sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+"/feed.html"}});}
 </script>
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}function renderNSFWLock(post){return'<div class="sn-nsfw-lock"><div class="sn-nsfw-overlay"><div class="sn-nsfw-icon">\uD83D\uDD12</div><div class="sn-nsfw-text">CONTENIDO +18</div><div class="sn-nsfw-sub">Este contenido es exclusivo para suscriptores.</div><button class="sn-nsfw-btn" onclick="requestSubscription(\''+post.user_id+'\')">SUSCRIBIRSE PARA VER</button></div></div>';}
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn("[silent]",e);});}function renderNSFWLock(post){return'<div class="sn-nsfw-lock"><div class="sn-nsfw-overlay"><div class="sn-nsfw-icon">\uD83D\uDD12</div><div class="sn-nsfw-text">CONTENIDO +18</div><div class="sn-nsfw-sub">Este contenido es exclusivo para suscriptores.</div><button class="sn-nsfw-btn" onclick="requestSubscription(\''+post.user_id+'\')">SUSCRIBIRSE PARA VER</button></div></div>';}
 async function requestSubscription(cid){if(!currentUser){openAuth("login");return;}try{var ex=await sb.from("subscription_requests").select("id,status").eq("requester_id",currentUser.id).eq("creator_id",cid).maybeSingle();if(ex&&ex.data){alert(ex.data.status==="pending"?"Solicitud pendiente. Espera aprobaci\u00F3n.":ex.data.status==="denied"?"Solicitud rechazada.":"Ya aprobado! Recarga.");return;}var r=await sb.from("subscription_requests").insert({requester_id:currentUser.id,creator_id:cid,status:"pending"});if(r.error)alert("Error: "+r.error.message);else alert("\u2705 Solicitud enviada!");}catch(e){alert("Error: "+e.message);}}
 </script>
 <div id="authOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px"><div style="background:#070f1e;border:1px solid #1a3050;border-radius:16px;padding:28px;width:100%;max-width:380px;position:relative"><button onclick="closeAuth()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#5a8aaa;font-size:20px;cursor:pointer">&times;</button><div style="text-align:center;margin-bottom:20px"><div style="font-family:Orbitron,monospace;font-size:18px;font-weight:900;color:#ff2255">SHADOWNET</div><div id="authTitle" style="font-size:13px;color:#8a9bb0;margin-top:4px">Inicia sesión</div></div><div id="authError" style="display:none;background:rgba(255,34,85,.1);border:1px solid rgba(255,34,85,.3);border-radius:8px;padding:8px 12px;font-size:11px;color:#ff6680;margin-bottom:12px;text-align:center"></div><div id="signupFields" style="display:none;margin-bottom:10px"><input id="authUsername" type="text" placeholder="Nombre de usuario" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:10px"><input id="authEmail" type="email" placeholder="Email" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:14px"><input id="authPassword" type="password" placeholder="Contraseña (min 6 caracteres)" style="width:100%;padding:10px 12px;background:#01020c;border:1px solid #0d2744;color:#e8f4ff;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div><button id="authSubmit" onclick="submitAuth()" style="width:100%;padding:11px;background:linear-gradient(135deg,#ff2255,#ff0044);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Orbitron,monospace">ENTRAR</button><div id="forgotDiv" style="text-align:right;margin-top:6px"><a href="#" onclick="forgotPassword();return false" style="color:#5a8aaa;font-size:11px;text-decoration:none">Olvidé mi contraseña</a></div><div style="text-align:center;margin:14px 0;font-size:11px;color:#5a8aaa">— o —</div><button onclick="loginWithGoogle()" style="width:100%;padding:10px;background:#fff;color:#333;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">G Continuar con Google</button><div style="text-align:center;margin-top:14px;font-size:12px;color:#5a8aaa"><span id="authToggleText">No tienes cuenta?</span> <a href="#" onclick="toggleAuthMode();return false" style="color:#ff2255;text-decoration:none;font-weight:700" id="authToggleLink">Registrarse</a></div></div></div>

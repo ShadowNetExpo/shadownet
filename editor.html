@@ -350,7 +350,7 @@ function renderSoundList(sounds){
 function searchSounds(q){if(!q){renderSoundList(_allSounds);return;}var f=_allSounds.filter(function(s){return (s.name||'').toLowerCase().includes(q.toLowerCase())||(s.artist||'').toLowerCase().includes(q.toLowerCase());});renderSoundList(f);}
 function selectSound(s,el){_selectedSound=s;document.querySelectorAll('.audio-item').forEach(function(x){x.classList.remove('selected');});el.classList.add('selected');document.getElementById('clearAudioBtn').classList.add('show');}
 function clearSelectedSound(){_selectedSound=null;document.querySelectorAll('.audio-item').forEach(function(x){x.classList.remove('selected');});document.getElementById('clearAudioBtn').classList.remove('show');}
-function previewSound(id){var s=_allSounds.find(function(x){return x.id===id;});if(!s||!s.audio_url)return;if(_previewAudio){_previewAudio.pause();_previewAudio=null;}_previewAudio=new Audio(s.audio_url);_previewAudio.play().catch(function(){});}
+function previewSound(id){var s=_allSounds.find(function(x){return x.id===id;});if(!s||!s.audio_url)return;if(_previewAudio){_previewAudio.pause();_previewAudio=null;}_previewAudio=new Audio(s.audio_url);_previewAudio.play().catch(function(e){console.warn("[silent]",e);});}
 
 async function loadCollabMode(pid,type){
   _collabType=type;_originalPostId=pid;
@@ -419,7 +419,7 @@ async function publishPost(){
     if(ins.error)throw ins.error;
     var validPoll=_pollOptions.filter(function(o){return o.trim();});
     if(validPoll.length>=2 && ins.data){
-      await sb.from('polls').insert({post_id:ins.data.id,question:'',options:validPoll.map(function(o){return{text:o,votes:0};}),total_votes:0}).catch(function(){});
+      await sb.from('polls').insert({post_id:ins.data.id,question:'',options:validPoll.map(function(o){return{text:o,votes:0};}),total_votes:0}).catch(function(e){console.warn("[silent]",e);});
     }
     fill.style.width='100%';
     showToast(sched?'✅ Programado':'✅ Publicado');
@@ -437,7 +437,7 @@ function showToast(msg,err){
 }
 function fmtTime(s){var m=Math.floor(s/60);var sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
 </script>
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn("[silent]",e);});}</script>
 <script src="/push.js"></script>
 <div id="snCookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,15,30,.97);border-top:1px solid #0d2744;padding:14px 20px;z-index:99998"><div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px;font-size:12px;color:#8a9bb0;line-height:1.5">Usamos cookies. <a href="/privacy.html" style="color:#ff2255">Politica</a></div><div style="display:flex;gap:8px"><button onclick="localStorage.setItem('sn_cookies','all');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 20px;background:linear-gradient(135deg,#ff2255,#aa0030);color:#fff;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer">ACEPTAR</button><button onclick="localStorage.setItem('sn_cookies','essential');this.closest('#snCookieBanner').style.display='none'" style="padding:8px 16px;background:rgba(255,255,255,.05);color:#5a8aaa;border:1px solid #0d2744;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer">SOLO NECESARIAS</button></div></div></div><script>if(!localStorage.getItem("sn_cookies"))document.getElementById("snCookieBanner").style.display="block";</script>
 </body>

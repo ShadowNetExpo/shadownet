@@ -476,7 +476,7 @@
               }
               if (t && t.getMediaStreamTrack) {
                 lv2.srcObject = new MediaStream([t.getMediaStreamTrack()]);
-                lv2.muted = true; lv2.play().catch(function(){});
+                lv2.muted = true; lv2.play().catch(function(e){console.warn("[silent]",e);});
               }
             } else {
               var clientRef = (myGuestRole === 'active' && guestClient) ? guestClient : window.agoraClient;
@@ -484,7 +484,7 @@
               var hr = rs.find && rs.find(function(u){ return u.videoTrack; });
               if (hr && hr.videoTrack && hr.videoTrack.getMediaStreamTrack) {
                 lv2.srcObject = new MediaStream([hr.videoTrack.getMediaStreamTrack()]);
-                lv2.play().catch(function(){});
+                lv2.play().catch(function(e){console.warn("[silent]",e);});
               }
             }
           } catch(e){ console.warn('[podium] restore replay err:', e); }

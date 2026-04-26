@@ -448,7 +448,7 @@ function searchPosts(){
 }
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn("[silent]",e);});}
 // === ADMIN REVENUE & PLATFORM ===
 async function loadRevenue(){
   if(!window.sb)return;

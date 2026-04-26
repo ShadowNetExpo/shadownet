@@ -347,7 +347,7 @@ async function forgotPassword(){var email=document.getElementById("authEmail").v
 (function(){var observed=false;function animateCounters(){if(observed)return;observed=true;var els=document.querySelectorAll('.hero-stat-val');els.forEach(function(el){var target=parseInt(el.textContent);if(isNaN(target))return;var start=0;var dur=1500;var startTime=null;function step(ts){if(!startTime)startTime=ts;var p=Math.min((ts-startTime)/dur,1);el.textContent=Math.floor(p*target);if(p<1)requestAnimationFrame(step);else el.textContent=target;}requestAnimationFrame(step);});}
 var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)animateCounters();});});var stats=document.getElementById('heroStats');if(stats)obs.observe(stats);})();
 
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn("[silent]",e);});}</script>
 
 <!-- AUTH MODAL -->
 <div id="authOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">

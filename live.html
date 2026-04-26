@@ -456,7 +456,7 @@ async function initAgoraHost(){
     await agoraClient.setClientRole("host");
     localVideoTrack=await AgoraRTC.createCameraVideoTrack({facingMode:currentFacingMode,encoderConfig:{width:720,height:1280,frameRate:30,bitrateMin:600,bitrateMax:2000}});
     localAudioTrack=await AgoraRTC.createMicrophoneAudioTrack({encoderConfig:"speech_standard",AEC:true,AGC:true,ANS:true});
-    await (async function(){var s=await sb.auth.getSession();var t=s.data&&s.data.session&&s.data.session.access_token;var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({channel:AGORA_CHANNEL,uid:currentUser.id,role:'host'})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,0);})();
+    await (async function(){var s=await sb.auth.getSession();var t=s.data&&s.data.session&&s.data.session.access_token;var r=await fetch('https://cdokplvoqivducsqrejt.supabase.co/functions/v1/agora-token',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({channel:AGORA_CHANNEL,uid:currentUser.id,role:'host',title:(window._liveTitle||''),category:(window._liveCategory||'')})});var d=await r.json();return agoraClient.join(AGORA_APP_ID,AGORA_CHANNEL,d.token||null,0);})();
     await agoraClient.publish([localVideoTrack,localAudioTrack]);
     localVideoTrack.play("liveVideo");
     (document.getElementById("liveSubtitle")||{}).textContent ="EN VIVO \u2022 "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"});
@@ -1069,14 +1069,22 @@ sb.auth.getSession().then(async function(r){
   else{
     if(currentProfile.role!=='creator'&&!currentProfile.is_creator){showToastMsg('Solo creadores pueden iniciar lives',true);setTimeout(function(){window.location.href='/';},2000);return;}
     buildActionBar();
-    initAgoraHost();
-    startLiveTimer();
-    subscribeLiveChannel();
-    // NOTE: live_streams row creation is now handled by the agora-token edge function (v28+)
-    // which sets all required fields including agora_channel and last_heartbeat_at.
-    // Doing it again here was causing silent conflicts and stale heartbeat values.
-    // Start heartbeat to keep is_active=true (cleanup_stale_lives kills lives w/o heartbeat in 90s)
-    if(window._snStartHeartbeat) window._snStartHeartbeat();
+    // RACE CONDITION FIX (26 Apr 2026):
+    // Previously initAgoraHost()+startLiveTimer()+subscribeLiveChannel()+_snStartHeartbeat()
+    // ran HERE on page load. That meant the camera/mic was published to Agora and the
+    // live_streams row was created BEFORE the user even saw the pre-live overlay.
+    // Now: only buildActionBar runs eagerly. The actual live-start is deferred to
+    // window._snStartActualLive() which is invoked by startCountdown() AFTER user taps
+    // GO LIVE and the 3-2-1 countdown completes.
+    window._snStartActualLive = function(){
+      if(window._snLiveStarted) return;
+      window._snLiveStarted = true;
+      console.info('[live] starting actual live now (post-countdown)');
+      try { initAgoraHost(); } catch(e){ console.error('[live] initAgoraHost failed:', e); }
+      try { startLiveTimer(); } catch(e){ console.error('[live] startLiveTimer failed:', e); }
+      try { subscribeLiveChannel(); } catch(e){ console.error('[live] subscribeLiveChannel failed:', e); }
+      try { if(window._snStartHeartbeat) window._snStartHeartbeat(); } catch(e){ console.error('[live] heartbeat failed:', e); }
+    };
   }
 });
 </script>
@@ -1623,8 +1631,10 @@ function startCountdown(){
       // Store title
       window._liveTitle = document.getElementById('preLiveTitle').value || 'Live de ' + (window.currentUser ? window.currentUser.email.split('@')[0] : 'Creador');
       window._liveCategory = document.querySelector('.pre-live-cat.active') ? document.querySelector('.pre-live-cat.active').textContent : 'General';
-      // Start the actual live
-      if(typeof go === 'function') go();
+      // Start the actual live - was previously a no-op (`go()` was undefined globally,
+      // a leftover stub). Real init now lives in _snStartActualLive defined in the auth handler.
+      if(typeof window._snStartActualLive === 'function') window._snStartActualLive();
+      else { console.error('[live] _snStartActualLive not defined - live will not start'); }
     }
   }, 1000);
 }

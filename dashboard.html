@@ -239,10 +239,10 @@ body{background:#080e1a;color:#e0e8f0;font-family:Inter,sans-serif;min-height:10
 var _SB="https://cdokplvoqivducsqrejt.supabase.co",_AK="sb_publishable_9M1y678W_KFlnk1uUcrgIg_93A-62su",_uid=null,_tok=null,_NCh=null;
 function snNTA(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);return s<60?"ahora":s<3600?Math.floor(s/60)+"m":s<86400?Math.floor(s/3600)+"h":Math.floor(s/86400)+"d";}
 function snNSB(n){var b=document.getElementById("sn-nbc");if(!b)return;if(n>0){b.textContent=n>9?"9+":n;b.classList.add("on");}else{b.classList.remove("on");b.textContent="";}}
-function snNL(){if(!_uid||!_tok)return;fetch(_SB+"/rest/v1/notifications?user_id=eq."+_uid+"&order=created_at.desc&limit=20",{headers:{"apikey":_AK,"Authorization":"Bearer "+_tok}}).then(function(r){return r.json();}).then(function(ns){ns=ns||[];var el=document.getElementById("sn-nl");if(!el)return;el.innerHTML="";if(!ns.length){var e=document.createElement("div");e.className="sn-nem";e.textContent="No hay notificaciones";el.appendChild(e);return;}ns.forEach(function(n){var it=document.createElement("div");it.className="sn-ni"+(n.is_read?"":" u");var ic=document.createElement("div");ic.className="sn-nic";ic.textContent="\uD83D\uDD14";var ct=document.createElement("div");ct.className="sn-nid";var tx=document.createElement("div");tx.className="sn-nit";tx.textContent=n.title||n.message||"";var ti=document.createElement("div");ti.className="sn-niz";ti.textContent=snNTA(n.created_at);ct.appendChild(tx);ct.appendChild(ti);it.appendChild(ic);it.appendChild(ct);el.appendChild(it);});var u=ns.filter(function(n){return !n.is_read;}).length;snNSB(u);}).catch(function(){});}
+function snNL(){if(!_uid||!_tok)return;fetch(_SB+"/rest/v1/notifications?user_id=eq."+_uid+"&order=created_at.desc&limit=20",{headers:{"apikey":_AK,"Authorization":"Bearer "+_tok}}).then(function(r){return r.json();}).then(function(ns){ns=ns||[];var el=document.getElementById("sn-nl");if(!el)return;el.innerHTML="";if(!ns.length){var e=document.createElement("div");e.className="sn-nem";e.textContent="No hay notificaciones";el.appendChild(e);return;}ns.forEach(function(n){var it=document.createElement("div");it.className="sn-ni"+(n.is_read?"":" u");var ic=document.createElement("div");ic.className="sn-nic";ic.textContent="\uD83D\uDD14";var ct=document.createElement("div");ct.className="sn-nid";var tx=document.createElement("div");tx.className="sn-nit";tx.textContent=n.title||n.message||"";var ti=document.createElement("div");ti.className="sn-niz";ti.textContent=snNTA(n.created_at);ct.appendChild(tx);ct.appendChild(ti);it.appendChild(ic);it.appendChild(ct);el.appendChild(it);});var u=ns.filter(function(n){return !n.is_read;}).length;snNSB(u);}).catch(function(e){console.warn("[silent]",e);});}
 window.snNO=function(){document.getElementById("sn-np").classList.add("open");document.getElementById("sn-nov").classList.add("on");snNL();};
 window.snNC=function(){document.getElementById("sn-np").classList.remove("open");document.getElementById("sn-nov").classList.remove("on");};
-window.snNMR=function(){if(!_uid||!_tok)return;fetch(_SB+"/rest/v1/rpc/mark_notifications_read",{method:"POST",headers:{"Content-Type":"application/json","apikey":_AK,"Authorization":"Bearer "+_tok},body:JSON.stringify({p_user_id:_uid})}).then(function(){snNL();}).catch(function(){});};
+window.snNMR=function(){if(!_uid||!_tok)return;fetch(_SB+"/rest/v1/rpc/mark_notifications_read",{method:"POST",headers:{"Content-Type":"application/json","apikey":_AK,"Authorization":"Bearer "+_tok},body:JSON.stringify({p_user_id:_uid})}).then(function(){snNL();}).catch(function(e){console.warn("[silent]",e);});};
 function dKPIs(){
   Promise.all([
     fetch(_SB+"/rest/v1/profiles?id=eq."+_uid+"&select=subscriber_count,follower_count,coins_balance",{headers:{"apikey":_AK,"Authorization":"Bearer "+_tok}}).then(function(r){return r.json();}),
@@ -254,7 +254,7 @@ function dKPIs(){
     document.getElementById("k-followers").textContent=p.follower_count||0;
     document.getElementById("k-almas").textContent=p.coins_balance||0;
     document.getElementById("k-posts").textContent=cnt;
-  }).catch(function(){});
+  }).catch(function(e){console.warn("[silent]",e);});
 }
 function dEarnings(){
   // Single consolidated RPC for: earnings this month, daily chart, lives stats
@@ -335,7 +335,7 @@ function dPosts(){
       info.appendChild(txt);info.appendChild(stats);row.appendChild(info);
       el.appendChild(row);
     });
-  }).catch(function(){});
+  }).catch(function(e){console.warn("[silent]",e);});
 }
 function snTopFans(){
   fetch(_SB+"/rest/v1/rpc/get_creator_top_fans",{
@@ -358,7 +358,7 @@ function snTopFans(){
       row.appendChild(rn);row.appendChild(av);row.appendChild(nm);row.appendChild(bd);row.appendChild(pt);
       el.appendChild(row);
     });
-  }).catch(function(){});
+  }).catch(function(e){console.warn("[silent]",e);});
 }
 function dRender(){
   dKPIs();
@@ -386,7 +386,7 @@ function dRender(){
           return;
         }
         // Load unread notifications badge
-        fetch(_SB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_AK,"Authorization":"Bearer "+_tok},body:JSON.stringify({p_user_id:_uid})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(){});
+        fetch(_SB+"/rest/v1/rpc/get_unread_count",{method:"POST",headers:{"Content-Type":"application/json","apikey":_AK,"Authorization":"Bearer "+_tok},body:JSON.stringify({p_user_id:_uid})}).then(function(r){return r.json();}).then(function(c){snNSB(c||0);}).catch(function(e){console.warn("[silent]",e);});
         if(!_NCh){_NCh=window.sb.channel("notif:"+_uid).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+_uid},function(p){var n=p.new;if(!n)return;var b=document.getElementById("sn-nbc");var cur=parseInt((b&&b.textContent)||"0")||0;snNSB(cur+1);}).subscribe();}
         dRender();
       }).catch(function(e){
@@ -407,7 +407,7 @@ function dRender(){
 })();
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn("[silent]",e);});}
     // ==== ONBOARDING CHECKLIST ====
     (async function initOnboarding(){
       if (sessionStorage.getItem('onboarding_dismissed') === '1') return;

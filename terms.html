@@ -158,6 +158,6 @@ a:hover{text-decoration:underline}
   </div>
 </div>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn("[silent]",e);});}</script>
 </body>
 </html>
